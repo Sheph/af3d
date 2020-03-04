@@ -35,6 +35,16 @@ namespace af3d
     using ScopedLock = std::lock_guard<std::mutex>;
     using ScopedLockA = std::unique_lock<std::mutex>;
 
+    template<class T>
+    struct EnumHash
+    {
+        inline size_t operator()(const T& elem) const
+        {
+            return std::hash<typename std::underlying_type<T>::type>()(
+                static_cast<typename std::underlying_type<T>::type>(elem));
+        }
+    };
+
     void initTimeUs();
 
     std::uint64_t getTimeUs();
@@ -47,6 +57,41 @@ namespace af3d
     int getRandomInt(int minVal, int maxVal);
 
     bool readStream(std::istream& is, std::string& str);
+
+    inline float lerp(float v1, float v2, float t)
+    {
+        return v1 + (v2 - v1) * t;
+    }
+
+    inline bool btIsValid(const btVector3& v)
+    {
+        return btIsValid(v.x()) && btIsValid(v.y()) && btIsValid(v.z());
+    }
+
+    inline bool btIsValid(const btQuaternion& q)
+    {
+        return btIsValid(q.x()) && btIsValid(q.y()) && btIsValid(q.z()) && btIsValid(q.w());
+    }
+
+    inline float btZeroNormalize(btVector3& v)
+    {
+        float l2 = v.length2();
+        if (l2 >= SIMD_EPSILON * SIMD_EPSILON) {
+            float d = btSqrt(l2);
+            v /= d;
+            return d;
+        } else {
+            v.setZero();
+            return 0.0f;
+        }
+    }
+
+    inline btVector3 btZeroNormalized(const btVector3& v)
+    {
+        btVector3 n = v;
+        btZeroNormalize(n);
+        return n;
+    }
 }
 
 #endif

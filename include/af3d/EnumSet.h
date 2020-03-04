@@ -50,12 +50,12 @@ namespace af3d
 
         inline bool operator[](T v) const
         {
-            return bs_[v];
+            return bs_[static_cast<size_t>(v)];
         }
 
         inline typename std::bitset<N>::reference operator[](T v)
         {
-            return bs_[v];
+            return bs_[static_cast<size_t>(v)];
         }
 
         inline bool all() const

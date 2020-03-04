@@ -1,0 +1,405 @@
+/*
+ * Copyright (c) 2020, Stanislav Vorobiov
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ *    list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+#include "Game.h"
+#include "Settings.h"
+#include "Logger.h"
+#include "SceneObjectFactory.h"
+#include "Platform.h"
+#include "GameShell.h"
+#include "af3d/Utils.h"
+#include "af3d/StreamAppConfig.h"
+
+namespace af3d
+{
+    template <>
+    Single<Game>* Single<Game>::single = NULL;
+
+    Game::Game()
+    {
+    }
+
+    Game::~Game()
+    {
+    }
+
+    bool Game::init(const std::string& startScript)
+    {
+        if (!inputManager.init()) {
+            return false;
+        }
+
+        LOG4CPLUS_DEBUG(logger(), "Supported desktop video modes:");
+
+        int i = 0;
+
+        for (const auto& mode : platform->desktopVideoModes()) {
+            LOG4CPLUS_DEBUG(logger(), i << " = " << mode.width << "x" << mode.height);
+            ++i;
+        }
+
+        LOG4CPLUS_DEBUG(logger(), "Supported windowed video modes:");
+
+        i = 0;
+
+        for (const auto& mode : platform->winVideoModes()) {
+            LOG4CPLUS_DEBUG(logger(), i << " = " << mode.width << "x" << mode.height);
+            ++i;
+        }
+
+        LOG4CPLUS_DEBUG(logger(), "Supported MSAA modes:");
+
+        i = 0;
+
+        for (auto mode : platform->msaaModes()) {
+            LOG4CPLUS_DEBUG(logger(), i << " = x" << mode);
+            ++i;
+        }
+
+        LOG4CPLUS_DEBUG(logger(), "Default windowed video mode: " << platform->winVideoModes()[platform->defaultVideoMode()].width << "x" << platform->winVideoModes()[platform->defaultVideoMode()].height);
+
+        if (platform->desktopVideoMode() < 0) {
+            LOG4CPLUS_WARN(logger(), "Fullscreen mode not supported!");
+        } else {
+            LOG4CPLUS_DEBUG(logger(), "Desktop video mode: " << platform->desktopVideoModes()[platform->desktopVideoMode()].width << "x" << platform->desktopVideoModes()[platform->desktopVideoMode()].height);
+        }
+
+        if (!platform->vsyncSupported()) {
+            LOG4CPLUS_WARN(logger(), "vsync not supported!");
+        }
+
+        std::shared_ptr<StreamAppConfig> userConfig;
+
+        std::string userConfigData = platform->readUserConfig();
+
+        if (!userConfigData.empty()) {
+            userConfig = std::make_shared<StreamAppConfig>();
+
+            std::istringstream is(userConfigData);
+
+            if (!userConfig->load(is)) {
+                LOG4CPLUS_WARN(logger(), "Error parsing user config file!");
+                userConfig.reset();
+            }
+        }
+
+        if (userConfig) {
+            if (!setupVideo(*userConfig)) {
+                writeUserConfig(true);
+                return false;
+            }
+        } else {
+            if (!platform->changeVideoMode(false, platform->defaultVideoMode(), 0, false, true)) {
+                return false;
+            }
+        }
+
+        if (userConfig) {
+            setupAudio(*userConfig);
+        }
+
+        if (!sceneObjectFactory.init()) {
+            return false;
+        }
+
+        return loadLevel(startScript);
+    }
+
+    void Game::suspend()
+    {
+        LOG4CPLUS_DEBUG(logger(), "suspending...");
+    }
+
+    void Game::reload()
+    {
+        gameShell->reload();
+    }
+
+    void Game::renderReload()
+    {
+        LOG4CPLUS_DEBUG(logger(), "reloading renderer...");
+    }
+
+    bool Game::update()
+    {
+        static std::string scriptPath;
+
+        std::uint64_t timeUs = getTimeUs();
+        std::uint32_t deltaUs;
+
+        if (lastTimeUs_ == 0) {
+            lastProfileReportTimeUs_ = timeUs;
+            deltaUs = 16000; // pretend that very first frame lasted 16ms
+        } else {
+            deltaUs = static_cast<std::uint32_t>(timeUs - lastTimeUs_);
+        }
+
+        lastTimeUs_ = timeUs;
+
+        float dt = static_cast<float>(deltaUs) / 1000000.0f;
+
+        level_->scene()->update(dt);
+
+        std::uint64_t timeUs2 = getTimeUs();
+
+        accumRenderTimeUs_ += static_cast<std::uint32_t>(timeUs2 - timeUs);
+        accumTimeUs_ += deltaUs;
+        ++numFrames_;
+
+        if ((timeUs2 - lastProfileReportTimeUs_) > settings.profileReportTimeoutMs * 1000) {
+            lastProfileReportTimeUs_ = timeUs2;
+
+            LOG4CPLUS_TRACE(logger(),
+                "FPS: " << (numFrames_ * 1000000) / accumTimeUs_
+                << " Time: " << accumRenderTimeUs_ / (numFrames_ * 1000));
+
+            accumRenderTimeUs_ = 0;
+            accumTimeUs_ = 0;
+            numFrames_ = 0;
+        }
+
+        if (level_->scene()->quit()) {
+            level_->scene()->setQuit(false);
+            return false;
+        }
+
+        if (level_->scene()->getNextLevel(scriptPath)) {
+            if (!loadLevel(scriptPath)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    bool Game::render()
+    {
+        return true;
+    }
+
+    void Game::cancelUpdate()
+    {
+    }
+
+    void Game::cancelRender()
+    {
+    }
+
+    void Game::shutdown()
+    {
+        writeUserConfig(false);
+
+        level_.reset();
+
+        sceneObjectFactory.shutdown();
+
+        inputManager.shutdown();
+    }
+
+    void Game::keyPress(KeyIdentifier ki)
+    {
+        inputManager.keyboard().press(ki);
+    }
+
+    void Game::keyRelease(KeyIdentifier ki)
+    {
+        inputManager.keyboard().release(ki);
+    }
+
+    void Game::mouseDown(bool left)
+    {
+        inputManager.mouse().press(left);
+    }
+
+    void Game::mouseUp(bool left)
+    {
+        inputManager.mouse().release(left);
+    }
+
+    void Game::mouseWheel(int delta)
+    {
+    }
+
+    void Game::mouseMove(const Vector2f& point)
+    {
+        Vector2f pt = point - Vector2f(settings.viewX, settings.viewY);
+
+        Vector2f tmp(pt.x() / settings.viewWidth,
+            1.0f - (pt.y() / settings.viewHeight));
+
+        inputManager.mouse().move(tmp);
+    }
+
+    void Game::gamepadMoveStick(bool left, const Vector2f& value)
+    {
+    }
+
+    void Game::gamepadMoveTrigger(bool left, float value)
+    {
+    }
+
+    void Game::gamepadPress(GamepadButton button)
+    {
+    }
+
+    void Game::gamepadRelease(GamepadButton button)
+    {
+    }
+
+    bool Game::loadLevel(const std::string& scriptPath)
+    {
+        int cp = 0;
+
+        if (level_) {
+            cp = level_->scene()->checkpoint();
+        }
+
+        level_.reset();
+
+        LOG4CPLUS_INFO(logger(), "loading level (\"" << scriptPath << "\")...");
+
+        LevelPtr level = std::make_shared<Level>(scriptPath, cp);
+
+        if (!level->init()) {
+            return false;
+        }
+
+        level_ = level;
+
+        LOG4CPLUS_INFO(logger(), "level loaded");
+
+        return true;
+    }
+
+    bool Game::setupVideo(const AppConfig& userConfig)
+    {
+        bool fullscreen = false;
+        int videoMode = -1;
+        int msaaMode = -1;
+        bool vsync = false;
+        bool trilinearFilter = true;
+        bool failed = false;
+
+        if (userConfig.haveKey("video.fullscreen")) {
+            fullscreen = userConfig.getBool("video.fullscreen");
+        } else {
+            failed = true;
+        }
+
+        if (userConfig.haveKey("video.mode")) {
+            Vector2f res = userConfig.getVector2f("video.mode");
+
+            std::vector<VideoMode> modes;
+
+            if (fullscreen) {
+                modes = platform->desktopVideoModes();
+            } else {
+                modes = platform->winVideoModes();
+            }
+
+            VideoMode m(res.x(), res.y());
+
+            for (size_t i = 0; i < modes.size(); ++i) {
+                if (m == modes[i]) {
+                    videoMode = i;
+                    break;
+                }
+            }
+
+            if (videoMode == -1) {
+                failed = true;
+            }
+        } else {
+            failed = true;
+        }
+
+        if (userConfig.haveKey("video.msaa")) {
+            std::uint32_t msaa = userConfig.getInt("video.msaa");
+
+            for (size_t i = 0; i < platform->msaaModes().size(); ++i) {
+                if (msaa == platform->msaaModes()[i]) {
+                    msaaMode = i;
+                    break;
+                }
+            }
+
+            if (msaaMode == -1) {
+                failed = true;
+            }
+        } else {
+            failed = true;
+        }
+
+        if (userConfig.haveKey("video.vsync")) {
+            vsync = userConfig.getBool("video.vsync");
+            if (vsync && !platform->vsyncSupported()) {
+                failed = true;
+            }
+        } else {
+            failed = true;
+        }
+
+        if (userConfig.haveKey("video.trilinear")) {
+            trilinearFilter = userConfig.getBool("video.trilinear");
+        } else {
+            failed = true;
+        }
+
+        if (failed) {
+            return platform->changeVideoMode(false, platform->defaultVideoMode(), 0, false, true);
+        } else {
+            return platform->changeVideoMode(fullscreen, videoMode, msaaMode, vsync, trilinearFilter);
+        }
+    }
+
+    void Game::setupAudio(const AppConfig& userConfig)
+    {
+    }
+
+    void Game::writeUserConfig(bool controlsOnly)
+    {
+        std::ostringstream os;
+
+        if (!controlsOnly) {
+            os << "[video]" << std::endl;
+            os << "fullscreen=" << (settings.fullscreen ? "true" : "false") << std::endl;
+
+            VideoMode vm;
+
+            if (settings.fullscreen) {
+                vm = platform->desktopVideoModes()[settings.videoMode];
+            } else {
+                vm = platform->winVideoModes()[settings.videoMode];
+            }
+
+            os << "mode=" << vm.width << "," << vm.height << std::endl;
+            os << "msaa=" << platform->msaaModes()[settings.msaaMode] << std::endl;
+            os << "vsync=" << (settings.vsync ? "true" : "false") << std::endl;
+            os << "trilinear=" << (settings.trilinearFilter ? "true" : "false") << std::endl;
+        }
+
+        platform->writeUserConfig(os.str());
+    }
+}

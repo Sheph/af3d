@@ -27,6 +27,9 @@
 #define _AF3D_APPCONFIG_H_
 
 #include "af3d/Types.h"
+#include "af3d/Vector2.h"
+#include "af3d/Vector3.h"
+#include "af3d/Vector4.h"
 #include <vector>
 #include <memory>
 
@@ -85,6 +88,21 @@ namespace af3d
          * false values are - "no", "false", "0", "n".
          */
         virtual bool getBool(const std::string& key) const = 0;
+
+        /*
+         * value is in form "1.0, 0.5"
+         */
+        virtual Vector2f getVector2f(const std::string& key) const = 0;
+
+        /*
+         * value is in form "1.0, 0.5, 0.6"
+         */
+        virtual Vector3f getVector3f(const std::string& key) const = 0;
+
+        /*
+         * value is in form "1.0, 0.5, 0.8, 1.0"
+         */
+        virtual Vector4f getVector4f(const std::string& key) const = 0;
     };
 
     using AppConfigPtr = std::shared_ptr<AppConfig>;

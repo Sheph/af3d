@@ -57,6 +57,12 @@ namespace af3d
 
         virtual bool getBool(const std::string& key) const override;
 
+        virtual Vector2f getVector2f(const std::string& key) const override;
+
+        virtual Vector3f getVector3f(const std::string& key) const override;
+
+        virtual Vector4f getVector4f(const std::string& key) const override;
+
     private:
         boost::optional<const boost::property_tree::ptree&> findKey(const std::string& key) const;
 

@@ -4,6 +4,7 @@ set(SOURCES
     Utils.cpp
     StreamAppConfig.cpp
     SequentialAppConfig.cpp
+    OAL.cpp
 )
 
 add_library(af3dutil STATIC ${SOURCES})

@@ -122,4 +122,34 @@ namespace af3d
         }
         return configs_[0]->getBool(key);
     }
+
+    Vector2f SequentialAppConfig::getVector2f(const std::string& key) const
+    {
+        for (size_t i = configs_.size() - 1; i > 0; --i) {
+            if (configs_[i]->haveKey(key)) {
+                return configs_[i]->getVector2f(key);
+            }
+        }
+        return configs_[0]->getVector2f(key);
+    }
+
+    Vector3f SequentialAppConfig::getVector3f(const std::string& key) const
+    {
+        for (size_t i = configs_.size() - 1; i > 0; --i) {
+            if (configs_[i]->haveKey(key)) {
+                return configs_[i]->getVector3f(key);
+            }
+        }
+        return configs_[0]->getVector3f(key);
+    }
+
+    Vector4f SequentialAppConfig::getVector4f(const std::string& key) const
+    {
+        for (size_t i = configs_.size() - 1; i > 0; --i) {
+            if (configs_[i]->haveKey(key)) {
+                return configs_[i]->getVector4f(key);
+            }
+        }
+        return configs_[0]->getVector4f(key);
+    }
 }

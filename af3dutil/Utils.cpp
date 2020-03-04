@@ -25,10 +25,23 @@
 
 #include "Logger.h"
 #include "af3d/Utils.h"
+#include "af3d/Vector2.h"
+#include "af3d/Vector3.h"
+#include "af3d/Vector4.h"
 #include <chrono>
 
 namespace af3d
 {
+    const Vector2f Vector2f_zero(0.0f, 0.0f);
+    const Vector2i Vector2i_zero(0, 0);
+
+    const Vector3f Vector3f_zero(0.0f, 0.0f, 0.0f);
+    const Vector3i Vector3i_zero(0, 0, 0);
+    const btVector3 btVector3_zero(0.0f, 0.0f, 0.0f);
+
+    const Vector4f Vector4f_zero(0.0f, 0.0f, 0.0f, 0.0f);
+    const Vector4i Vector4i_zero(0, 0, 0, 0);
+
     static std::chrono::steady_clock::time_point startTime;
 
     void initTimeUs()

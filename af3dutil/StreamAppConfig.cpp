@@ -345,6 +345,153 @@ namespace af3d
         return *val;
     }
 
+    Vector2f StreamAppConfig::getVector2f(const std::string& key) const
+    {
+        boost::optional<const boost::property_tree::ptree&> tmp = findKey(key);
+
+        if (!tmp) {
+            LOG4CPLUS_ERROR(af3dutil::logger(),
+                "Config value for \"" << key << "\" not found");
+
+            return Vector2f_zero;
+        }
+
+        std::vector<float> arr;
+
+        boost::tokenizer<boost::char_separator<char> > tokens(tmp->data(),
+            boost::char_separator<char>(","));
+
+        for (boost::tokenizer<boost::char_separator<char> >::iterator it = tokens.begin();
+             it != tokens.end();
+             ++it) {
+            std::string item = *it;
+
+            boost::algorithm::trim(item);
+
+            std::istringstream is(item);
+
+            float v;
+
+            if (!(is >> v) || !is.eof()) {
+                LOG4CPLUS_ERROR(af3dutil::logger(),
+                    "Config value for \"" << key << "\" = \""
+                    << tmp->data() << "\" is not a correct 2D vector");
+
+                return Vector2f_zero;
+            }
+
+            arr.push_back(v);
+        }
+
+        if (arr.size() != 2) {
+            LOG4CPLUS_ERROR(af3dutil::logger(),
+                "Config value for \"" << key << "\" = \""
+                << tmp->data() << "\" is not a correct 2D vector");
+
+            return Vector2f_zero;
+        }
+
+        return Vector2f(arr[0], arr[1]);
+    }
+
+    Vector3f StreamAppConfig::getVector3f(const std::string& key) const
+    {
+        boost::optional<const boost::property_tree::ptree&> tmp = findKey(key);
+
+        if (!tmp) {
+            LOG4CPLUS_ERROR(af3dutil::logger(),
+                "Config value for \"" << key << "\" not found");
+
+            return Vector3f_zero;
+        }
+
+        std::vector<float> arr;
+
+        boost::tokenizer<boost::char_separator<char> > tokens(tmp->data(),
+            boost::char_separator<char>(","));
+
+        for (boost::tokenizer<boost::char_separator<char> >::iterator it = tokens.begin();
+             it != tokens.end();
+             ++it) {
+            std::string item = *it;
+
+            boost::algorithm::trim(item);
+
+            std::istringstream is(item);
+
+            float v;
+
+            if (!(is >> v) || !is.eof()) {
+                LOG4CPLUS_ERROR(af3dutil::logger(),
+                    "Config value for \"" << key << "\" = \""
+                    << tmp->data() << "\" is not a correct 3D vector");
+
+                return Vector3f_zero;
+            }
+
+            arr.push_back(v);
+        }
+
+        if (arr.size() != 3) {
+            LOG4CPLUS_ERROR(af3dutil::logger(),
+                "Config value for \"" << key << "\" = \""
+                << tmp->data() << "\" is not a correct 3D vector");
+
+            return Vector3f_zero;
+        }
+
+        return Vector3f(arr[0], arr[1], arr[2]);
+    }
+
+    Vector4f StreamAppConfig::getVector4f(const std::string& key) const
+    {
+        boost::optional<const boost::property_tree::ptree&> tmp = findKey(key);
+
+        if (!tmp) {
+            LOG4CPLUS_ERROR(af3dutil::logger(),
+                "Config value for \"" << key << "\" not found");
+
+            return Vector4f_zero;
+        }
+
+        std::vector<float> arr;
+
+        boost::tokenizer<boost::char_separator<char> > tokens(tmp->data(),
+            boost::char_separator<char>(","));
+
+        for (boost::tokenizer<boost::char_separator<char> >::iterator it = tokens.begin();
+             it != tokens.end();
+             ++it) {
+            std::string item = *it;
+
+            boost::algorithm::trim(item);
+
+            std::istringstream is(item);
+
+            float v;
+
+            if (!(is >> v) || !is.eof()) {
+                LOG4CPLUS_ERROR(af3dutil::logger(),
+                    "Config value for \"" << key << "\" = \""
+                    << tmp->data() << "\" is not a correct 4D vector");
+
+                return Vector4f_zero;
+            }
+
+            arr.push_back(v);
+        }
+
+        if (arr.size() != 4) {
+            LOG4CPLUS_ERROR(af3dutil::logger(),
+                "Config value for \"" << key << "\" = \""
+                << tmp->data() << "\" is not a correct 4D vector");
+
+            return Vector4f_zero;
+        }
+
+        return Vector4f(arr[0], arr[1], arr[2], arr[3]);
+    }
+
     boost::optional<const boost::property_tree::ptree&> StreamAppConfig::findKey(const std::string& key) const
     {
         if (key.empty()) {

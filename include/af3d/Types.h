@@ -29,12 +29,34 @@
 #include "bullet/LinearMath/btTransformUtil.h"
 #include <string>
 #include <vector>
+#include <array>
 #include <cstdio>
 #include <cinttypes>
 
 namespace af3d
 {
     using Byte = std::uint8_t;
+
+    // This function is used to ensure that a floating point number is not a NaN or infinity.
+    // Called it 'btIsValid' after 'b2IsValid', really strange that bullet physics doesn't have this.
+    inline bool btIsValid(float x)
+    {
+#if defined(__GNUC__) && ((__GNUC__*100 + __GNUC_MINOR__) >= 406)
+/*
+ * Fix that type-punned pointer crap on GCC...
+ */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstrict-aliasing"
+#endif
+        union {
+            float f;
+            std::int32_t i;
+        } v = { x };
+        return (v.i & 0x7f800000) != 0x7f800000;
+#if defined(__GNUC__) && ((__GNUC__*100 + __GNUC_MINOR__) >= 406)
+#pragma GCC diagnostic pop
+#endif
+    }
 }
 
 #endif
