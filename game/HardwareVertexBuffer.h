@@ -33,23 +33,17 @@ namespace af3d
     class HardwareVertexBuffer : public HardwareBuffer
     {
     public:
-        explicit HardwareVertexBuffer(Usage usage);
+        HardwareVertexBuffer(HardwareResourceManager* mgr, Usage usage, GLsizeiptr elementSize);
         ~HardwareVertexBuffer() = default;
 
-        inline GLsizeiptr vertexSize() const { return vertexSize_; }
-        inline GLsizeiptr numVertices() const { return numVertices_; }
-
-        void resize(GLsizeiptr vertexSize, GLsizeiptr numVertices, HardwareContext& ctx);
-
     private:
-        void doUpload(GLintptr offset, GLsizeiptr size, const GLvoid* data, HardwareContext& ctx) override;
+        void doResize(GLsizeiptr cnt, HardwareContext& ctx) override;
 
-        GLvoid* doLock(GLintptr offset, GLsizeiptr size, Access access, HardwareContext& ctx) override;
+        void doUpload(GLintptr offset, GLsizeiptr cnt, const GLvoid* data, HardwareContext& ctx) override;
+
+        GLvoid* doLock(GLintptr offset, GLsizeiptr cnt, Access access, HardwareContext& ctx) override;
 
         void doUnlock(HardwareContext& ctx) override;
-
-        GLsizeiptr vertexSize_;
-        GLsizeiptr numVertices_;
     };
 
     using HardwareVertexBufferPtr = std::shared_ptr<HardwareVertexBuffer>;

@@ -39,23 +39,19 @@ namespace af3d
             UInt32
         };
 
-        explicit HardwareIndexBuffer(Usage usage);
+        HardwareIndexBuffer(HardwareResourceManager* mgr, Usage usage, DataType dataType);
         ~HardwareIndexBuffer() = default;
 
-        inline DataType dataType() const { return dataType_; }
-        inline GLsizeiptr numIndices() const { return numIndices_; }
-
-        void resize(DataType type, GLsizeiptr numIndices, HardwareContext& ctx);
-
     private:
-        void doUpload(GLintptr offset, GLsizeiptr size, const GLvoid* data, HardwareContext& ctx) override;
+        void doResize(GLsizeiptr cnt, HardwareContext& ctx) override;
 
-        GLvoid* doLock(GLintptr offset, GLsizeiptr size, Access access, HardwareContext& ctx) override;
+        void doUpload(GLintptr offset, GLsizeiptr cnt, const GLvoid* data, HardwareContext& ctx) override;
+
+        GLvoid* doLock(GLintptr offset, GLsizeiptr cnt, Access access, HardwareContext& ctx) override;
 
         void doUnlock(HardwareContext& ctx) override;
 
         DataType dataType_;
-        GLsizeiptr numIndices_;
     };
 
     using HardwareIndexBufferPtr = std::shared_ptr<HardwareIndexBuffer>;

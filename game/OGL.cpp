@@ -30,7 +30,7 @@ namespace af3d
     OGL ogl;
 
     template <>
-    Single<OGL>* Single<OGL>::single = NULL;
+    Single<OGL>* Single<OGL>::single = nullptr;
 
     OGL::OGL()
     {

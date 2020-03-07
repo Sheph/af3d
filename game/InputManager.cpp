@@ -31,7 +31,7 @@ namespace af3d
     InputManager inputManager;
 
     template <>
-    Single<InputManager>* Single<InputManager>::single = NULL;
+    Single<InputManager>* Single<InputManager>::single = nullptr;
 
     bool InputManager::init()
     {

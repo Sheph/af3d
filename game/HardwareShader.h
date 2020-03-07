@@ -74,7 +74,7 @@ namespace af3d
             Fragment
         };
 
-        explicit HardwareShader(Type type);
+        HardwareShader(HardwareResourceManager* mgr, Type type);
         ~HardwareShader();
 
         void invalidate(HardwareContext& ctx) override;

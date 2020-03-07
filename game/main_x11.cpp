@@ -69,13 +69,13 @@
         *(void**)(&func) = (void*)getProcAddress((const GLubyte*)#sym); \
         if (!func) { \
             LOG4CPLUS_ERROR(af3d::logger(), "Unable to load GLX symbol: " << ::dlerror()); \
-            return NULL; \
+            return false; \
         } \
     } while (0)
 
 #define GLX_GET_PROC_OPT(extName, func, sym) \
     do { \
-        if ((strstr(extStr, #extName " ") != NULL)) { \
+        if ((strstr(extStr, #extName " ") != nullptr)) { \
             *(void**)(&func) = (void*)getProcAddress((const GLubyte*)#sym); \
             if (!func) { \
                 LOG4CPLUS_WARN(af3d::logger(), "Unable to load GLX symbol " #sym); \
@@ -92,7 +92,7 @@
             *(void**)(&af3d::ogl.func) = ::dlsym(handle, #sym); \
             if (!af3d::ogl.func) { \
                 LOG4CPLUS_ERROR(af3d::logger(), "Unable to load GL symbol: " << ::dlerror()); \
-                return NULL; \
+                return false; \
             } \
         } \
     } while (0)
@@ -102,7 +102,7 @@
         *(void**)(&af3d::oal.func) = ::dlsym(handle, #sym); \
         if (!af3d::oal.func) { \
             LOG4CPLUS_ERROR(af3d::logger(), "Unable to load OpenAL symbol: " << ::dlerror()); \
-            return NULL; \
+            return false; \
         } \
     } while (0)
 
@@ -241,15 +241,15 @@ static void InitKIMap()
     kiMap[XK_z & 0xFF] = Rocket::Core::Input::KI_Z;
 }
 
-static XF86VidModeModeInfo** vidmodes = NULL;
+static XF86VidModeModeInfo** vidmodes = nullptr;
 static int numVidmodes = 0;
 static XF86VidModeModeInfo desktopMode;
 
-static Display* dpy = NULL;
-static GLXFBConfig config = NULL;
+static Display* dpy = nullptr;
+static GLXFBConfig config = nullptr;
 static Window window = 0;
 static Atom deleteMessage = 0;
-static GLXContext context = NULL;
+static GLXContext context = nullptr;
 static af3d::Game game;
 
 typedef void (*PFNGLXSWAPBUFFERSPROC)(Display* dpy, GLXDrawable drawable);
@@ -257,20 +257,20 @@ typedef void (*PFNGLXDESTROYCONTEXTPROC)(Display* dpy, GLXContext ctx);
 typedef Bool (*PFNGLXMAKECURRENTPROC)(Display* dpy, GLXDrawable drawable, GLXContext ctx);
 typedef const char* (*PFNGLXQUERYEXTENSIONSSTRINGPROC)(Display* dpy, int screen);
 
-static PFNGLXGETPROCADDRESSPROC getProcAddress = NULL;
-static PFNGLXCHOOSEFBCONFIGPROC chooseFBConfig = NULL;
-static PFNGLXGETFBCONFIGATTRIBPROC getFBConfigAttrib = NULL;
-static PFNGLXGETVISUALFROMFBCONFIGPROC getVisualFromFBConfig = NULL;
-static PFNGLXQUERYEXTENSIONSSTRINGPROC queryExtensionsString = NULL;
-static PFNGLXMAKECURRENTPROC makeCurrent = NULL;
-static PFNGLXSWAPBUFFERSPROC swapBuffers = NULL;
-static PFNGLXCREATENEWCONTEXTPROC createNewContext = NULL;
-static PFNGLXDESTROYCONTEXTPROC destroyContext = NULL;
+static PFNGLXGETPROCADDRESSPROC getProcAddress = nullptr;
+static PFNGLXCHOOSEFBCONFIGPROC chooseFBConfig = nullptr;
+static PFNGLXGETFBCONFIGATTRIBPROC getFBConfigAttrib = nullptr;
+static PFNGLXGETVISUALFROMFBCONFIGPROC getVisualFromFBConfig = nullptr;
+static PFNGLXQUERYEXTENSIONSSTRINGPROC queryExtensionsString = nullptr;
+static PFNGLXMAKECURRENTPROC makeCurrent = nullptr;
+static PFNGLXSWAPBUFFERSPROC swapBuffers = nullptr;
+static PFNGLXCREATENEWCONTEXTPROC createNewContext = nullptr;
+static PFNGLXDESTROYCONTEXTPROC destroyContext = nullptr;
 
-static PFNGLXCREATECONTEXTATTRIBSARBPROC createContextAttribsARB = NULL;
-static PFNGLXSWAPINTERVALSGIPROC swapIntervalSGI = NULL;
-static PFNGLXSWAPINTERVALEXTPROC swapIntervalEXT = NULL;
-static PFNGLXSWAPINTERVALMESAPROC swapIntervalMESA = NULL;
+static PFNGLXCREATECONTEXTATTRIBSARBPROC createContextAttribsARB = nullptr;
+static PFNGLXSWAPINTERVALSGIPROC swapIntervalSGI = nullptr;
+static PFNGLXSWAPINTERVALEXTPROC swapIntervalEXT = nullptr;
+static PFNGLXSWAPINTERVALMESAPROC swapIntervalMESA = nullptr;
 
 static const int ctxAttribs[] =
 {
@@ -316,7 +316,7 @@ static int msaaConfigAttribs[] =
 
 static bool OGLPreInit()
 {
-    const char *extStr = NULL;
+    const char *extStr = nullptr;
 
     LOG4CPLUS_INFO(af3d::logger(), "Initializing OpenGL...");
 
@@ -429,7 +429,7 @@ static bool OGLPreInit()
 
     if (n <= 0) {
         LOG4CPLUS_ERROR(af3d::logger(), "Unable to choose config");
-        return NULL;
+        return false;
     }
 
     std::set<std::uint32_t> ss;
@@ -553,11 +553,11 @@ static bool OGLInit(bool vsync)
     if (createContextAttribsARB) {
         context = createContextAttribsARB(dpy,
             config,
-            NULL,
+            nullptr,
             True,
             ctxAttribs);
     } else {
-        context = createNewContext(dpy, config, GLX_RGBA_TYPE, NULL, True);
+        context = createNewContext(dpy, config, GLX_RGBA_TYPE, nullptr, True);
     }
 
     if (!context) {
@@ -587,7 +587,7 @@ static void OGLShutdown()
 {
     LOG4CPLUS_INFO(af3d::logger(), "Shutting down OpenGL..");
 
-    if (!makeCurrent(dpy, None, NULL)) {
+    if (!makeCurrent(dpy, None, nullptr)) {
         LOG4CPLUS_WARN(af3d::logger(), "Unable to release current context");
     }
 
@@ -645,7 +645,7 @@ static bool createWindow(std::uint32_t width, std::uint32_t height, XVisualInfo*
         None,
         0,
         0,
-        NULL);
+        nullptr);
 
     if (fullscreen) {
         XSizeHints sizeHints;
@@ -737,7 +737,7 @@ static void renderThread()
         swapBuffers(dpy, window);
     }
 
-    makeCurrent(dpy, 0, NULL);
+    makeCurrent(dpy, 0, nullptr);
 
     LOG4CPLUS_INFO(af3d::logger(), "Render thread finished");
 }
@@ -807,7 +807,7 @@ bool af3d::PlatformLinux::changeVideoMode(bool fullscreen, int videoMode, int ms
 
     int n = 0;
 
-    const int* attribs = NULL;
+    const int* attribs = nullptr;
 
     if (samples > 0) {
         msaaConfigAttribs[23] = samples;
@@ -872,9 +872,9 @@ bool af3d::PlatformLinux::changeVideoMode(bool fullscreen, int videoMode, int ms
 
     ::XSelectInput(dpy, window, KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask);
 
-    ::XkbSetDetectableAutoRepeat(dpy, True, NULL);
+    ::XkbSetDetectableAutoRepeat(dpy, True, nullptr);
 
-    makeCurrent(dpy, 0, NULL);
+    makeCurrent(dpy, 0, nullptr);
 
     settings.videoMode = videoMode;
     settings.msaaMode = msaaMode;
@@ -1260,7 +1260,7 @@ static af3d::AppConfigPtr getNormalAppConfig(const af3d::AppConfigPtr& appConfig
 
 int main(int argc, char *argv[])
 {
-    srand(static_cast<unsigned int>(time(NULL)));
+    srand(static_cast<unsigned int>(time(nullptr)));
 
     if (!platformLinux->init("./assets")) {
         std::cerr << "Cannot init linux platform" << std::endl;
@@ -1303,7 +1303,7 @@ int main(int argc, char *argv[])
 
     XInitThreads();
 
-    dpy = ::XOpenDisplay(NULL);
+    dpy = ::XOpenDisplay(nullptr);
 
     if (!dpy) {
         LOG4CPLUS_ERROR(af3d::logger(), "Cannot open display");
@@ -1345,12 +1345,12 @@ int main(int argc, char *argv[])
                 }
                 break;
             case KeyPress:
-                XLookupString(&event.xkey, NULL, 0, &keysym, NULL);
+                XLookupString(&event.xkey, nullptr, 0, &keysym, nullptr);
                 XConvertCase(keysym, &lowersym, &uppersym);
                 game.keyPress(kiMap[lowersym & 0xFF]);
                 break;
             case KeyRelease:
-                XLookupString(&event.xkey, NULL, 0, &keysym, NULL);
+                XLookupString(&event.xkey, nullptr, 0, &keysym, nullptr);
                 XConvertCase(keysym, &lowersym, &uppersym);
                 game.keyRelease(kiMap[lowersym & 0xFF]);
                 break;

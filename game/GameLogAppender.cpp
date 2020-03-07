@@ -38,14 +38,14 @@
 namespace log4cplus
 {
     GameLogAppender::GameLogAppender()
-    : buffer_(NULL)
+    : buffer_(nullptr)
     {
         init("log.txt");
     }
 
     GameLogAppender::GameLogAppender(const helpers::Properties& props)
     : Appender(props),
-      buffer_(NULL)
+      buffer_(nullptr)
     {
         init("log.txt");
     }
@@ -69,7 +69,7 @@ namespace log4cplus
         closed = true;
         os_.close();
         delete [] buffer_;
-        buffer_ = NULL;
+        buffer_ = nullptr;
     }
 
     void GameLogAppender::append(const spi::InternalLoggingEvent& event)
@@ -92,7 +92,7 @@ namespace log4cplus
 #ifdef _WIN32
         wchar_t buffer[MAX_PATH];
 
-        if (!SUCCEEDED(SHGetFolderPathW(NULL, CSIDL_APPDATA, NULL, SHGFP_TYPE_CURRENT, buffer))) {
+        if (!SUCCEEDED(SHGetFolderPathW(nullptr, CSIDL_APPDATA, nullptr, SHGFP_TYPE_CURRENT, buffer))) {
             getErrorHandler()->error(LOG4CPLUS_TEXT("$AppData not defined, not writing ") + fileName);
             return;
         }

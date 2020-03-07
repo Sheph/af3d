@@ -76,7 +76,7 @@ namespace af3d
                 onRegister();
             } else if (manager && !value) {
                 onUnregister();
-                manager = NULL;
+                manager = nullptr;
             } else {
                 runtime_assert(false);
             }

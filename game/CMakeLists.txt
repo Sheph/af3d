@@ -21,6 +21,7 @@ set(SOURCES
     Platform.cpp
     PlatformLinux.cpp
     Utils.cpp
+    HardwareResource.cpp
     HardwareBuffer.cpp
     HardwareVertexBuffer.cpp
     HardwareIndexBuffer.cpp

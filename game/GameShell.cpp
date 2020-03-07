@@ -29,7 +29,7 @@
 namespace af3d
 {
     template <>
-    Single<GameShell>* Single<GameShell>::single = NULL;
+    Single<GameShell>* Single<GameShell>::single = nullptr;
 
     GameShellPtr gameShell;
 

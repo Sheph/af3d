@@ -33,16 +33,23 @@
 
 namespace af3d
 {
+    class HardwareResourceManager;
+
     class HardwareResource : boost::noncopyable
     {
     public:
-        HardwareResource() = default;
+        using CleanupFn = std::function<void(HardwareContext&)>;
+
+        explicit HardwareResource(HardwareResourceManager* mgr);
         virtual ~HardwareResource();
 
         virtual void invalidate(HardwareContext& ctx) = 0;
 
+    protected:
+        void cleanup(const CleanupFn& fn = CleanupFn());
+
     private:
-        void cleanup(const std::function<void(HardwareContext&)>& fn);
+        HardwareResourceManager* mgr_;
     };
 
     using HardwareResourcePtr = std::shared_ptr<HardwareResource>;

@@ -51,7 +51,7 @@ namespace af3d
 
         if (!buf->open((assetsPath_ + "/" + fileName).c_str(), std::ios::in | std::ios::binary)) {
             delete buf;
-            buf = NULL;
+            buf = nullptr;
         }
 
         return buf;

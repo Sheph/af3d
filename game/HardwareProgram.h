@@ -33,7 +33,7 @@ namespace af3d
     class HardwareProgram : public HardwareResource
     {
     public:
-        HardwareProgram();
+        explicit HardwareProgram(HardwareResourceManager* mgr);
         ~HardwareProgram();
 
         void invalidate(HardwareContext& ctx) override;

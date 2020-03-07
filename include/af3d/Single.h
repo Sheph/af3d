@@ -26,6 +26,7 @@
 #ifndef _AF3D_SINGLE_H_
 #define _AF3D_SINGLE_H_
 
+#include "af3d/Types.h"
 #include <boost/noncopyable.hpp>
 #include <stdexcept>
 
@@ -46,7 +47,7 @@ namespace af3d
 
         virtual ~Single()
         {
-            single = NULL;
+            single = nullptr;
         }
 
     private:

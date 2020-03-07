@@ -23,20 +23,24 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "af3d/OAL.h"
+#include "HardwareResource.h"
+#include "HardwareResourceManager.h"
 
 namespace af3d
 {
-    OAL oal;
-
-    template <>
-    Single<OAL>* Single<OAL>::single = nullptr;
-
-    OAL::OAL()
+    HardwareResource::HardwareResource(HardwareResourceManager* mgr)
+    : mgr_(mgr)
     {
     }
 
-    OAL::~OAL()
+    HardwareResource::~HardwareResource()
     {
+        btAssert(!mgr_);
+    }
+
+    void HardwareResource::cleanup(const CleanupFn& fn)
+    {
+        mgr_->onResourceDestroy(this, fn);
+        mgr_ = nullptr;
     }
 }

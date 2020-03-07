@@ -28,7 +28,7 @@
 namespace af3d
 {
     template <>
-    Single<Platform>* Single<Platform>::single = NULL;
+    Single<Platform>* Single<Platform>::single = nullptr;
 
     PlatformIFStream::PlatformIFStream(const std::string& fileName)
     : std::istream(platform->openFile(fileName)),
@@ -45,13 +45,13 @@ namespace af3d
     {
         try
         {
-            rdbuf(NULL);
+            rdbuf(nullptr);
         }
         catch (...)
         {
         }
 
         delete streamBuf_;
-        streamBuf_ = NULL;
+        streamBuf_ = nullptr;
     }
 }

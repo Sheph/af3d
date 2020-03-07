@@ -44,35 +44,41 @@ namespace af3d
             WriteOnly = 0
         };
 
-        explicit HardwareBuffer(Usage usage);
+        HardwareBuffer(HardwareResourceManager* mgr, Usage usage, GLsizeiptr elementSize);
         ~HardwareBuffer();
 
         inline Usage usage() const { return usage_; }
 
-        inline GLsizeiptr size() const { return size_; }
+        inline GLsizeiptr elementSize() const { return elementSize_; }
+
+        inline GLsizeiptr count() const { return count_; }
+
+        inline GLsizeiptr sizeInBytes() const { return count_ * elementSize_; }
 
         void invalidate(HardwareContext& ctx) override;
 
-        void upload(GLintptr offset, GLsizeiptr size, const GLvoid* data, HardwareContext& ctx);
+        void resize(GLsizeiptr count, HardwareContext& ctx);
 
-        GLvoid* lock(GLintptr offset, GLsizeiptr size, Access access, HardwareContext& ctx);
+        void upload(GLintptr offset, GLsizeiptr cnt, const GLvoid* data, HardwareContext& ctx);
+
+        GLvoid* lock(GLintptr offset, GLsizeiptr cnt, Access access, HardwareContext& ctx);
 
         GLvoid* lock(Access access, HardwareContext& ctx);
 
         void unlock();
 
-    protected:
-        void setSize(GLsizeiptr size);
-
     private:
-        virtual void doUpload(GLintptr offset, GLsizeiptr size, const GLvoid* data, HardwareContext& ctx) = 0;
+        virtual void doResize(GLsizeiptr cnt, HardwareContext& ctx) = 0;
 
-        virtual GLvoid* doLock(GLintptr offset, GLsizeiptr size, Access access, HardwareContext& ctx) = 0;
+        virtual void doUpload(GLintptr offset, GLsizeiptr cnt, const GLvoid* data, HardwareContext& ctx) = 0;
+
+        virtual GLvoid* doLock(GLintptr offset, GLsizeiptr cnt, Access access, HardwareContext& ctx) = 0;
 
         virtual void doUnlock(HardwareContext& ctx) = 0;
 
-        Usage usage_;
-        GLsizeiptr size_;
+        Usage usage_ = Usage::StaticDraw;
+        GLsizeiptr elementSize_ = 0;
+        GLsizeiptr count_ = 0;
         GLuint id_ = 0;
     };
 

@@ -33,7 +33,7 @@ namespace af3d
     Settings settings;
 
     template <>
-    Single<Settings>* Single<Settings>::single = NULL;
+    Single<Settings>* Single<Settings>::single = nullptr;
 
     void Settings::init(const AppConfigPtr& appConfig)
     {

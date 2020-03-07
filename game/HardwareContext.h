@@ -27,6 +27,7 @@
 #define _HARDWARE_CONTEXT_H_
 
 #include "af3d/Types.h"
+#include "OGL.h"
 #include <boost/noncopyable.hpp>
 
 namespace af3d

@@ -110,7 +110,7 @@ namespace af3d
                 scene()->unregisterComponent(tmp);
             }
 
-            tmp->setParent(NULL);
+            tmp->setParent(nullptr);
         }
     }
 

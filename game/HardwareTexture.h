@@ -33,7 +33,7 @@ namespace af3d
     class HardwareTexture : public HardwareResource
     {
     public:
-        HardwareTexture(std::uint32_t width, std::uint32_t height);
+        HardwareTexture(HardwareResourceManager* mgr, std::uint32_t width, std::uint32_t height);
         ~HardwareTexture();
 
         inline std::uint32_t width() const { return width_; }

@@ -35,7 +35,7 @@
 namespace af3d
 {
     template <>
-    Single<Game>* Single<Game>::single = NULL;
+    Single<Game>* Single<Game>::single = nullptr;
 
     Game::Game()
     {

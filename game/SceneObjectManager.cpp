@@ -54,7 +54,7 @@ namespace af3d
                 unregisterObject(tmp);
             }
 
-            tmp->setParent(NULL);
+            tmp->setParent(nullptr);
         }
     }
 
@@ -120,6 +120,6 @@ namespace af3d
             unregisterObject(tmpObj);
         }
 
-        obj->setScene(NULL);
+        obj->setScene(nullptr);
     }
 }

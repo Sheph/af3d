@@ -49,7 +49,7 @@ namespace af3d
 
     Scene* Component::scene()
     {
-        return parent_ ? parent_->scene() : NULL;
+        return parent_ ? parent_->scene() : nullptr;
     }
 
     std::shared_ptr<SceneObject> Component::script_parent() const

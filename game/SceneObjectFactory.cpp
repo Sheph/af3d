@@ -33,7 +33,7 @@ namespace af3d
     SceneObjectFactory sceneObjectFactory;
 
     template <>
-    Single<SceneObjectFactory>* Single<SceneObjectFactory>::single = NULL;
+    Single<SceneObjectFactory>* Single<SceneObjectFactory>::single = nullptr;
 
     bool SceneObjectFactory::init()
     {
