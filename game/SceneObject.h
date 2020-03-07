@@ -234,7 +234,7 @@ namespace af3d
             Max = FreezePhysics
         };
 
-        using Flags = EnumSet<Flag, static_cast<int>(Flag::Max) + 1>;
+        using Flags = EnumSet<Flag>;
 
         std::int32_t cookie_;
 

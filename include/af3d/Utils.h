@@ -29,6 +29,8 @@
 #include "af3d/Types.h"
 #include <iostream>
 #include <mutex>
+#include <unordered_map>
+#include <unordered_set>
 
 namespace af3d
 {
@@ -44,6 +46,12 @@ namespace af3d
                 static_cast<typename std::underlying_type<T>::type>(elem));
         }
     };
+
+    template <class KeyT, class ValueT>
+    using EnumUnorderedMap = std::unordered_map<KeyT, ValueT, EnumHash<KeyT>>;
+
+    template <class KeyT, class ValueT>
+    using EnumUnorderedSet = std::unordered_set<KeyT, EnumHash<KeyT>>;
 
     void initTimeUs();
 

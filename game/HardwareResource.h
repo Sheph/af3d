@@ -23,47 +23,29 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _INPUTKEYBOARD_H_
-#define _INPUTKEYBOARD_H_
+#ifndef _HARDWARE_RESOURCE_H_
+#define _HARDWARE_RESOURCE_H_
 
-#include "af3d/Utils.h"
-#include <Rocket/Core/Input.h>
-#include <boost/noncopyable.hpp>
+#include "HardwareContext.h"
+#include "af3d/Assert.h"
+#include <memory>
+#include <functional>
 
 namespace af3d
 {
-    using namespace Rocket::Core::Input;
-
-    class InputKeyboard : boost::noncopyable
+    class HardwareResource : boost::noncopyable
     {
     public:
-        InputKeyboard() = default;
-        ~InputKeyboard() = default;
+        HardwareResource() = default;
+        virtual ~HardwareResource();
 
-        void press(KeyIdentifier ki);
-
-        void release(KeyIdentifier ki);
-
-        bool pressed(KeyIdentifier ki) const;
-
-        bool triggered(KeyIdentifier ki) const;
-
-        void processed();
-
-        void proceed();
+        virtual void invalidate(HardwareContext& ctx) = 0;
 
     private:
-        struct KeyState
-        {
-            bool pressed = false;
-            bool triggered = false;
-            bool savedTriggered = false;
-        };
-
-        using KeyMap = EnumUnorderedMap<KeyIdentifier, KeyState>;
-
-        mutable KeyMap keyMap_;
+        void cleanup(const std::function<void(HardwareContext&)>& fn);
     };
+
+    using HardwareResourcePtr = std::shared_ptr<HardwareResource>;
 }
 
 #endif

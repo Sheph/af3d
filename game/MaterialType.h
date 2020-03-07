@@ -23,47 +23,47 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _INPUTKEYBOARD_H_
-#define _INPUTKEYBOARD_H_
+#ifndef _MATERIAL_TYPE_H_
+#define _MATERIAL_TYPE_H_
 
-#include "af3d/Utils.h"
-#include <Rocket/Core/Input.h>
-#include <boost/noncopyable.hpp>
+#include "HardwareProgram.h"
 
 namespace af3d
 {
-    using namespace Rocket::Core::Input;
+    struct SamplerParam
+    {
+        texFilter;
+        texWrapU;
+        texWrapV;
+    };
 
-    class InputKeyboard : boost::noncopyable
+    class MaterialType : boost::noncopyable
     {
     public:
-        InputKeyboard() = default;
-        ~InputKeyboard() = default;
+        MaterialType(const std::string& name, const HardwareProgramPtr& prog);
+        ~MaterialType() = default;
 
-        void press(KeyIdentifier ki);
+        //void attachShader(const HardwareShaderPtr& shader);
 
-        void release(KeyIdentifier ki);
+        //void addVarying(VertexAttribName name);
 
-        bool pressed(KeyIdentifier ki) const;
+        //void addUniform(const String& name, GpuConstantType constType, size_t arraySize = 1);
 
-        bool triggered(KeyIdentifier ki) const;
+        //void addAutoUniform(AutoUniformName name);
 
-        void processed();
+        static HardwareShader::VariableInfo getUniformVariableInfo(UniformName name);
 
-        void proceed();
+        static HardwareShader::VariableInfo getVaryingVariableInfo(UniformName name);
 
     private:
-        struct KeyState
-        {
-            bool pressed = false;
-            bool triggered = false;
-            bool savedTriggered = false;
-        };
-
-        using KeyMap = EnumUnorderedMap<KeyIdentifier, KeyState>;
-
-        mutable KeyMap keyMap_;
+        std::string name_;
+        HardwareProgramPtr prog_;
+        EnumSet<VertexAttribName> attribs_;
+        EnumSet<UniformName> uniforms_;
+        std::vector<SamplerParam> samplers_;
     };
+
+    using MaterialTypePtr = std::shared_ptr<MaterialType>;
 }
 
 #endif

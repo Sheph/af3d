@@ -23,47 +23,33 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _INPUTKEYBOARD_H_
-#define _INPUTKEYBOARD_H_
+#ifndef _MATERIAL_H_
+#define _MATERIAL_H_
 
-#include "af3d/Utils.h"
-#include <Rocket/Core/Input.h>
-#include <boost/noncopyable.hpp>
+#include "Resource.h"
+#include "MaterialType.h"
+#include "Texture.h"
 
 namespace af3d
 {
-    using namespace Rocket::Core::Input;
-
-    class InputKeyboard : boost::noncopyable
+    class Material : public Resource
     {
     public:
-        InputKeyboard() = default;
-        ~InputKeyboard() = default;
+        Material(const MaterialTypePtr& type, const std::string& name);
+        ~Material() = default;
 
-        void press(KeyIdentifier ki);
-
-        void release(KeyIdentifier ki);
-
-        bool pressed(KeyIdentifier ki) const;
-
-        bool triggered(KeyIdentifier ki) const;
-
-        void processed();
-
-        void proceed();
+        inline const MaterialTypePtr& type() const { return type_; }
 
     private:
-        struct KeyState
-        {
-            bool pressed = false;
-            bool triggered = false;
-            bool savedTriggered = false;
-        };
+        void doInvalidate(HardwareContext& ctx) override;
 
-        using KeyMap = EnumUnorderedMap<KeyIdentifier, KeyState>;
-
-        mutable KeyMap keyMap_;
+        MaterialTypePtr type_;
+        std::vector<TexturePtr> textures_;
+        std::vector<SamplerParam> samplerParams_;
+        EnumUnorderedMap<UniformVariableName, std::string> constants_;
     };
+
+    using MaterialPtr = std::shared_ptr<Material>;
 }
 
 #endif

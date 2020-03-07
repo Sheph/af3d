@@ -23,47 +23,42 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _INPUTKEYBOARD_H_
-#define _INPUTKEYBOARD_H_
+#ifndef _HARDWARE_INDEX_BUFFER_H_
+#define _HARDWARE_INDEX_BUFFER_H_
 
-#include "af3d/Utils.h"
-#include <Rocket/Core/Input.h>
-#include <boost/noncopyable.hpp>
+#include "HardwareBuffer.h"
 
 namespace af3d
 {
-    using namespace Rocket::Core::Input;
-
-    class InputKeyboard : boost::noncopyable
+    class HardwareIndexBuffer : public HardwareBuffer
     {
     public:
-        InputKeyboard() = default;
-        ~InputKeyboard() = default;
-
-        void press(KeyIdentifier ki);
-
-        void release(KeyIdentifier ki);
-
-        bool pressed(KeyIdentifier ki) const;
-
-        bool triggered(KeyIdentifier ki) const;
-
-        void processed();
-
-        void proceed();
-
-    private:
-        struct KeyState
+        enum DataType
         {
-            bool pressed = false;
-            bool triggered = false;
-            bool savedTriggered = false;
+            UInt16 = 0,
+            UInt32
         };
 
-        using KeyMap = EnumUnorderedMap<KeyIdentifier, KeyState>;
+        explicit HardwareIndexBuffer(Usage usage);
+        ~HardwareIndexBuffer() = default;
 
-        mutable KeyMap keyMap_;
+        inline DataType dataType() const { return dataType_; }
+        inline GLsizeiptr numIndices() const { return numIndices_; }
+
+        void resize(DataType type, GLsizeiptr numIndices, HardwareContext& ctx);
+
+    private:
+        void doUpload(GLintptr offset, GLsizeiptr size, const GLvoid* data, HardwareContext& ctx) override;
+
+        GLvoid* doLock(GLintptr offset, GLsizeiptr size, Access access, HardwareContext& ctx) override;
+
+        void doUnlock(HardwareContext& ctx) override;
+
+        DataType dataType_;
+        GLsizeiptr numIndices_;
     };
+
+    using HardwareIndexBufferPtr = std::shared_ptr<HardwareIndexBuffer>;
 }
 
 #endif

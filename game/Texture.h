@@ -23,47 +23,37 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _INPUTKEYBOARD_H_
-#define _INPUTKEYBOARD_H_
+#ifndef _TEXTURE_H_
+#define _TEXTURE_H_
 
-#include "af3d/Utils.h"
-#include <Rocket/Core/Input.h>
-#include <boost/noncopyable.hpp>
+#include "Resource.h"
+#include "HardwareTexture.h"
 
 namespace af3d
 {
-    using namespace Rocket::Core::Input;
-
-    class InputKeyboard : boost::noncopyable
+    class Texture : public Resource
     {
     public:
-        InputKeyboard() = default;
-        ~InputKeyboard() = default;
+        Texture(const std::string& name,
+            const HardwareTexturePtr& hwTex,
+            const ResourceLoaderPtr& loader = ResourceLoaderPtr());
+        ~Texture() = default;
 
-        void press(KeyIdentifier ki);
+        inline const HardwareTexturePtr& hwTex() const { return hwTex_; }
 
-        void release(KeyIdentifier ki);
+        inline std::uint32_t width() const { return hwTex_->width(); }
 
-        bool pressed(KeyIdentifier ki) const;
+        inline std::uint32_t height() const { return hwTex_->height(); }
 
-        bool triggered(KeyIdentifier ki) const;
-
-        void processed();
-
-        void proceed();
+        void upload(GLint internalFormat, GLenum format, GLenum type, std::vector<Byte>&& pixels);
 
     private:
-        struct KeyState
-        {
-            bool pressed = false;
-            bool triggered = false;
-            bool savedTriggered = false;
-        };
+        void doInvalidate(HardwareContext& ctx) override;
 
-        using KeyMap = EnumUnorderedMap<KeyIdentifier, KeyState>;
-
-        mutable KeyMap keyMap_;
+        HardwareTexturePtr hwTex_;
     };
+
+    using TexturePtr = std::shared_ptr<Texture>;
 }
 
 #endif

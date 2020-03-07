@@ -23,47 +23,36 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _INPUTKEYBOARD_H_
-#define _INPUTKEYBOARD_H_
+#ifndef _VERTEX_ARRAY_H_
+#define _VERTEX_ARRAY_H_
 
-#include "af3d/Utils.h"
-#include <Rocket/Core/Input.h>
-#include <boost/noncopyable.hpp>
+#include "VertexArrayLayout.h"
+#include "HardwareVertexBuffer.h"
+#include "HardwareIndexBuffer.h"
 
 namespace af3d
 {
-    using namespace Rocket::Core::Input;
-
-    class InputKeyboard : boost::noncopyable
+    class VertexArray : boost::noncopyable
     {
     public:
-        InputKeyboard() = default;
-        ~InputKeyboard() = default;
+        VertexArray(const VertexArrayLayout& layout,
+            const std::vector<HarwareVertexBufferPtr>& vbos,
+            const HarwareIndexBufferPtr& ebo);
+        ~VertexArray() = default;
 
-        void press(KeyIdentifier ki);
+        inline const VertexArrayLayout& layout() const { return layout_; }
 
-        void release(KeyIdentifier ki);
+        inline const std::vector<HarwareVertexBufferPtr>& vbos() const { return vbos_; }
 
-        bool pressed(KeyIdentifier ki) const;
-
-        bool triggered(KeyIdentifier ki) const;
-
-        void processed();
-
-        void proceed();
+        inline const HarwareIndexBufferPtr& ebo() const { return ebo_; }
 
     private:
-        struct KeyState
-        {
-            bool pressed = false;
-            bool triggered = false;
-            bool savedTriggered = false;
-        };
-
-        using KeyMap = EnumUnorderedMap<KeyIdentifier, KeyState>;
-
-        mutable KeyMap keyMap_;
+        VertexArrayLayout layout_;
+        std::vector<HarwareVertexBufferPtr> vbos_;
+        HarwareIndexBufferPtr ebo_;
     };
+
+    using VertexArrayPtr = std::shared_ptr<VertexArray>;
 }
 
 #endif

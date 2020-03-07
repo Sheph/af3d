@@ -31,7 +31,7 @@
 
 namespace af3d
 {
-    template <class T, int N>
+    template <class T, int N = static_cast<int>(T::Max) + 1>
     class EnumSet
     {
     public:

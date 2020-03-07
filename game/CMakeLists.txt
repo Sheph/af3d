@@ -21,6 +21,28 @@ set(SOURCES
     Platform.cpp
     PlatformLinux.cpp
     Utils.cpp
+    HardwareBuffer.cpp
+    HardwareVertexBuffer.cpp
+    HardwareIndexBuffer.cpp
+    HardwareContext.cpp
+    HardwareProgram.cpp
+    HardwareResourceManager.cpp
+    HardwareShader.cpp
+    HardwareTexture.cpp
+    HardwareVertexArray.cpp
+    Material.cpp
+    MaterialManager.cpp
+    MaterialType.cpp
+    Mesh.cpp
+    MeshManager.cpp
+    Renderer.cpp
+    Root.cpp
+    SubMesh.cpp
+    Texture.cpp
+    TextureManager.cpp
+    VertexArray.cpp
+    VertexArrayLayout.cpp
+    VertexArraySlice.cpp
 )
 
 file(READ "config.ini" _INI)

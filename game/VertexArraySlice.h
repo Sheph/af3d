@@ -23,46 +23,28 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _INPUTKEYBOARD_H_
-#define _INPUTKEYBOARD_H_
+#ifndef _VERTEX_ARRAY_SLICE_H_
+#define _VERTEX_ARRAY_SLICE_H_
 
-#include "af3d/Utils.h"
-#include <Rocket/Core/Input.h>
-#include <boost/noncopyable.hpp>
+#include "VertexArray.h"
 
 namespace af3d
 {
-    using namespace Rocket::Core::Input;
-
-    class InputKeyboard : boost::noncopyable
+    class VertexArraySlice
     {
     public:
-        InputKeyboard() = default;
-        ~InputKeyboard() = default;
-
-        void press(KeyIdentifier ki);
-
-        void release(KeyIdentifier ki);
-
-        bool pressed(KeyIdentifier ki) const;
-
-        bool triggered(KeyIdentifier ki) const;
-
-        void processed();
-
-        void proceed();
+        VertexArraySlice() = default;
+        VertexArraySlice(const VertexArrayPtr& va,
+            std::uint32_t firstIndex,
+            std::uint32_t numIndices,
+            std::uint32_t baseVertex) = default;
+        ~VertexArraySlice() = default;
 
     private:
-        struct KeyState
-        {
-            bool pressed = false;
-            bool triggered = false;
-            bool savedTriggered = false;
-        };
-
-        using KeyMap = EnumUnorderedMap<KeyIdentifier, KeyState>;
-
-        mutable KeyMap keyMap_;
+        VertexArrayPtr va_;
+        std::uint32_t firstIndex_ = 0;
+        std::uint32_t numIndices_ = 0;
+        std::uint32_t baseVertex_ = 0;
     };
 }
 

@@ -29,7 +29,6 @@
 #include "af3d/Utils.h"
 #include "af3d/Vector2.h"
 #include <boost/noncopyable.hpp>
-#include <unordered_map>
 
 namespace af3d
 {
@@ -93,7 +92,7 @@ namespace af3d
             bool savedTriggered = false;
         };
 
-        using ButtonMap = std::unordered_map<GamepadButton, ButtonState, EnumHash<GamepadButton>>;
+        using ButtonMap = EnumUnorderedMap<GamepadButton, ButtonState>;
 
         float stickDeadzone_ = 0.2f;
         float triggerDeadzone_ = 0.1f;

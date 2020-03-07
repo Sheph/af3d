@@ -23,47 +23,70 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _INPUTKEYBOARD_H_
-#define _INPUTKEYBOARD_H_
+#ifndef _HARDWARE_SHADER_H_
+#define _HARDWARE_SHADER_H_
 
-#include "af3d/Utils.h"
-#include <Rocket/Core/Input.h>
-#include <boost/noncopyable.hpp>
+#include "HardwareResource.h"
+#include <type_traits>
 
 namespace af3d
 {
-    using namespace Rocket::Core::Input;
+    enum class VertexAttribName
+    {
+        Pos = 0,
+        UV,
+        Normal,
+        Diffuse,
+        Specular,
+        Max = Specular
+    };
 
-    class InputKeyboard : boost::noncopyable
+    enum class UniformName
+    {
+        ProjMatrix = 0,
+        Time,
+        MaxAuto = Time,
+        AmbientColor,
+        DiffuseColor,
+        SpecularColor,
+        Max = SpecularColor
+    };
+
+    struct VariableInfo
+    {
+        VariableInfo() = default;
+        VariableInfo(GLenum type, GLint size)
+        : type(type),
+          size(size) {}
+
+        GLenum type;
+        GLint size;
+    };
+
+    static_assert(std::is_pod<VariableInfo>::value, "VariableInfo must be POD type");
+
+    class HardwareShader : public HardwareResource
     {
     public:
-        InputKeyboard() = default;
-        ~InputKeyboard() = default;
-
-        void press(KeyIdentifier ki);
-
-        void release(KeyIdentifier ki);
-
-        bool pressed(KeyIdentifier ki) const;
-
-        bool triggered(KeyIdentifier ki) const;
-
-        void processed();
-
-        void proceed();
-
-    private:
-        struct KeyState
+        enum Type
         {
-            bool pressed = false;
-            bool triggered = false;
-            bool savedTriggered = false;
+            Vertex = 0,
+            Fragment
         };
 
-        using KeyMap = EnumUnorderedMap<KeyIdentifier, KeyState>;
+        explicit HardwareShader(Type type);
+        ~HardwareShader();
 
-        mutable KeyMap keyMap_;
+        void invalidate(HardwareContext& ctx) override;
+
+        bool compile(const std::string& source, HardwareContext& ctx);
+
+    private:
+        Type type_;
+        GLuint id_ = 0;
     };
+
+    using HardwareShaderPtr = std::shared_ptr<HardwareShader>;
 }
 
 #endif

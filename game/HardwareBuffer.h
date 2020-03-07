@@ -23,47 +23,60 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _INPUTKEYBOARD_H_
-#define _INPUTKEYBOARD_H_
+#ifndef _HARDWARE_BUFFER_H_
+#define _HARDWARE_BUFFER_H_
 
-#include "af3d/Utils.h"
-#include <Rocket/Core/Input.h>
-#include <boost/noncopyable.hpp>
+#include "HardwareResource.h"
 
 namespace af3d
 {
-    using namespace Rocket::Core::Input;
-
-    class InputKeyboard : boost::noncopyable
+    class HardwareBuffer : public HardwareResource
     {
     public:
-        InputKeyboard() = default;
-        ~InputKeyboard() = default;
-
-        void press(KeyIdentifier ki);
-
-        void release(KeyIdentifier ki);
-
-        bool pressed(KeyIdentifier ki) const;
-
-        bool triggered(KeyIdentifier ki) const;
-
-        void processed();
-
-        void proceed();
-
-    private:
-        struct KeyState
+        enum class Usage
         {
-            bool pressed = false;
-            bool triggered = false;
-            bool savedTriggered = false;
+            StaticDraw = 0,
+            DynamicDraw
         };
 
-        using KeyMap = EnumUnorderedMap<KeyIdentifier, KeyState>;
+        enum Access
+        {
+            WriteOnly = 0
+        };
 
-        mutable KeyMap keyMap_;
+        explicit HardwareBuffer(Usage usage);
+        ~HardwareBuffer();
+
+        inline Usage usage() const { return usage_; }
+
+        inline GLsizeiptr size() const { return size_; }
+
+        void invalidate(HardwareContext& ctx) override;
+
+        void upload(GLintptr offset, GLsizeiptr size, const GLvoid* data, HardwareContext& ctx);
+
+        GLvoid* lock(GLintptr offset, GLsizeiptr size, Access access, HardwareContext& ctx);
+
+        GLvoid* lock(Access access, HardwareContext& ctx);
+
+        void unlock();
+
+    protected:
+        void setSize(GLsizeiptr size);
+
+    private:
+        virtual void doUpload(GLintptr offset, GLsizeiptr size, const GLvoid* data, HardwareContext& ctx) = 0;
+
+        virtual GLvoid* doLock(GLintptr offset, GLsizeiptr size, Access access, HardwareContext& ctx) = 0;
+
+        virtual void doUnlock(HardwareContext& ctx) = 0;
+
+        Usage usage_;
+        GLsizeiptr size_;
+        GLuint id_ = 0;
     };
+
+    using HardwareBufferPtr = std::shared_ptr<HardwareBuffer>;
 }
 
 #endif

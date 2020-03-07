@@ -23,47 +23,57 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _INPUTKEYBOARD_H_
-#define _INPUTKEYBOARD_H_
+#ifndef _RESOURCE_H_
+#define _RESOURCE_H_
 
-#include "af3d/Utils.h"
-#include <Rocket/Core/Input.h>
-#include <boost/noncopyable.hpp>
+#include "HardwareContext.h"
+#include <memory>
 
 namespace af3d
 {
-    using namespace Rocket::Core::Input;
+    class Resource;
 
-    class InputKeyboard : boost::noncopyable
+    class ResourceLoader : boost::noncopyable
     {
     public:
-        InputKeyboard() = default;
-        ~InputKeyboard() = default;
+        ResourceLoader() = default;
+        virtual ~ResourceLoader() = default;
 
-        void press(KeyIdentifier ki);
+        virtual void load(Resource& res, HardwareContext& ctx) = 0;
+    };
 
-        void release(KeyIdentifier ki);
+    using ResourceLoaderPtr = std::shared_ptr<ResourceLoader>;
 
-        bool pressed(KeyIdentifier ki) const;
-
-        bool triggered(KeyIdentifier ki) const;
-
-        void processed();
-
-        void proceed();
-
-    private:
-        struct KeyState
+    class Resource : boost::noncopyable
+    {
+    public:
+        enum State
         {
-            bool pressed = false;
-            bool triggered = false;
-            bool savedTriggered = false;
+            Unloaded = 0,
+            Loading,
+            Loaded
         };
 
-        using KeyMap = EnumUnorderedMap<KeyIdentifier, KeyState>;
+        explicit Resource(const std::string& name, const ResourceLoaderPtr& loader = ResourceLoaderPtr());
+        virtual ~Resource() = default;
 
-        mutable KeyMap keyMap_;
+        void invalidate();
+
+        void invalidateSync(HardwareContext& ctx);
+
+        void load(const ResourceLoaderPtr& loader = ResourceLoaderPtr());
+
+        inline bool valid() const { return state_ != Unloaded; }
+
+    private:
+        virtual void doInvalidate(HardwareContext& ctx) = 0;
+
+        std::string name_;
+        ResourceLoaderPtr loader_;
+        std::atomic<State> state_;
     };
+
+    using ResourcePtr = std::shared_ptr<Resource>;
 }
 
 #endif

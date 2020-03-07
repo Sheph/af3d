@@ -23,47 +23,27 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _INPUTKEYBOARD_H_
-#define _INPUTKEYBOARD_H_
+#ifndef _SUBMESH_H_
+#define _SUBMESH_H_
 
-#include "af3d/Utils.h"
-#include <Rocket/Core/Input.h>
-#include <boost/noncopyable.hpp>
+#include "Material.h"
+#include "VertexArraySlice.h"
 
 namespace af3d
 {
-    using namespace Rocket::Core::Input;
-
-    class InputKeyboard : boost::noncopyable
+    class SubMesh : boost::noncopyable
     {
     public:
-        InputKeyboard() = default;
-        ~InputKeyboard() = default;
-
-        void press(KeyIdentifier ki);
-
-        void release(KeyIdentifier ki);
-
-        bool pressed(KeyIdentifier ki) const;
-
-        bool triggered(KeyIdentifier ki) const;
-
-        void processed();
-
-        void proceed();
+        SubMesh(const MaterialPtr& material,
+            const VertexArraySlice& vaSlice);
+        ~SubMesh() = default;
 
     private:
-        struct KeyState
-        {
-            bool pressed = false;
-            bool triggered = false;
-            bool savedTriggered = false;
-        };
-
-        using KeyMap = EnumUnorderedMap<KeyIdentifier, KeyState>;
-
-        mutable KeyMap keyMap_;
+        MaterialPtr material_;
+        VertexArraySlice vaSlice_;
     };
+
+    using MSubMeshPtr = std::shared_ptr<SubMesh>;
 }
 
 #endif

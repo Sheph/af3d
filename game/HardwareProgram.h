@@ -23,47 +23,31 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _INPUTKEYBOARD_H_
-#define _INPUTKEYBOARD_H_
+#ifndef _HARDWARE_PROGRAM_H_
+#define _HARDWARE_PROGRAM_H_
 
-#include "af3d/Utils.h"
-#include <Rocket/Core/Input.h>
-#include <boost/noncopyable.hpp>
+#include "HardwareShader.h"
 
 namespace af3d
 {
-    using namespace Rocket::Core::Input;
-
-    class InputKeyboard : boost::noncopyable
+    class HardwareProgram : public HardwareResource
     {
     public:
-        InputKeyboard() = default;
-        ~InputKeyboard() = default;
+        HardwareProgram();
+        ~HardwareProgram();
 
-        void press(KeyIdentifier ki);
+        void invalidate(HardwareContext& ctx) override;
 
-        void release(KeyIdentifier ki);
+        void attachShader(const HardwareShaderPtr& shader);
 
-        bool pressed(KeyIdentifier ki) const;
-
-        bool triggered(KeyIdentifier ki) const;
-
-        void processed();
-
-        void proceed();
+        bool link(HardwareContext& ctx);
 
     private:
-        struct KeyState
-        {
-            bool pressed = false;
-            bool triggered = false;
-            bool savedTriggered = false;
-        };
-
-        using KeyMap = EnumUnorderedMap<KeyIdentifier, KeyState>;
-
-        mutable KeyMap keyMap_;
+        std::vector<HardwareShaderPtr> shaders_;
+        GLuint id_ = 0;
     };
+
+    using HardwareProgramPtr = std::shared_ptr<HardwareProgram>;
 }
 
 #endif

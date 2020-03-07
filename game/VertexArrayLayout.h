@@ -23,46 +23,45 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _INPUTKEYBOARD_H_
-#define _INPUTKEYBOARD_H_
+#ifndef _VERTEX_ARRAY_LAYOUT_H_
+#define _VERTEX_ARRAY_LAYOUT_H_
 
-#include "af3d/Utils.h"
-#include <Rocket/Core/Input.h>
-#include <boost/noncopyable.hpp>
+#include "HardwareProgram.h"
+#include <type_traits>
 
 namespace af3d
 {
-    using namespace Rocket::Core::Input;
+    struct VertexArrayEntry
+    {
+        VertexArrayEntry() = default;
+        VertexArrayEntry(VertexAttribName name,
+            const VariableInfo& info,
+            int bufferIdx)
+        : name(name),
+          info(info),
+          bufferIdx(bufferIdx) {}
 
-    class InputKeyboard : boost::noncopyable
+        VertexAttribName name;
+        VariableInfo info;
+        int bufferIdx;
+    };
+
+    static_assert(std::is_pod<VertexArrayEntry>::value, "VertexArrayEntry must be POD type");
+
+    class VertexArrayLayout
     {
     public:
-        InputKeyboard() = default;
-        ~InputKeyboard() = default;
+        using Entries = std::vector<VertexArrayEntry>;
 
-        void press(KeyIdentifier ki);
+        VertexArrayLayout() = default;
+        ~VertexArrayLayout() = default;
 
-        void release(KeyIdentifier ki);
+        void addEntry(const VertexArrayEntry& entry);
 
-        bool pressed(KeyIdentifier ki) const;
-
-        bool triggered(KeyIdentifier ki) const;
-
-        void processed();
-
-        void proceed();
+        inline const Entries& entries() const { return entries_; }
 
     private:
-        struct KeyState
-        {
-            bool pressed = false;
-            bool triggered = false;
-            bool savedTriggered = false;
-        };
-
-        using KeyMap = EnumUnorderedMap<KeyIdentifier, KeyState>;
-
-        mutable KeyMap keyMap_;
+        Entries entries_;
     };
 }
 

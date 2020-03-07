@@ -23,47 +23,36 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _INPUTKEYBOARD_H_
-#define _INPUTKEYBOARD_H_
+#ifndef _HARDWARE_VERTEX_BUFFER_H_
+#define _HARDWARE_VERTEX_BUFFER_H_
 
-#include "af3d/Utils.h"
-#include <Rocket/Core/Input.h>
-#include <boost/noncopyable.hpp>
+#include "HardwareBuffer.h"
 
 namespace af3d
 {
-    using namespace Rocket::Core::Input;
-
-    class InputKeyboard : boost::noncopyable
+    class HardwareVertexBuffer : public HardwareBuffer
     {
     public:
-        InputKeyboard() = default;
-        ~InputKeyboard() = default;
+        explicit HardwareVertexBuffer(Usage usage);
+        ~HardwareVertexBuffer() = default;
 
-        void press(KeyIdentifier ki);
+        inline GLsizeiptr vertexSize() const { return vertexSize_; }
+        inline GLsizeiptr numVertices() const { return numVertices_; }
 
-        void release(KeyIdentifier ki);
-
-        bool pressed(KeyIdentifier ki) const;
-
-        bool triggered(KeyIdentifier ki) const;
-
-        void processed();
-
-        void proceed();
+        void resize(GLsizeiptr vertexSize, GLsizeiptr numVertices, HardwareContext& ctx);
 
     private:
-        struct KeyState
-        {
-            bool pressed = false;
-            bool triggered = false;
-            bool savedTriggered = false;
-        };
+        void doUpload(GLintptr offset, GLsizeiptr size, const GLvoid* data, HardwareContext& ctx) override;
 
-        using KeyMap = EnumUnorderedMap<KeyIdentifier, KeyState>;
+        GLvoid* doLock(GLintptr offset, GLsizeiptr size, Access access, HardwareContext& ctx) override;
 
-        mutable KeyMap keyMap_;
+        void doUnlock(HardwareContext& ctx) override;
+
+        GLsizeiptr vertexSize_;
+        GLsizeiptr numVertices_;
     };
+
+    using HardwareVertexBufferPtr = std::shared_ptr<HardwareVertexBuffer>;
 }
 
 #endif

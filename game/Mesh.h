@@ -23,47 +23,34 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _INPUTKEYBOARD_H_
-#define _INPUTKEYBOARD_H_
+#ifndef _MESH_H_
+#define _MESH_H_
 
-#include "af3d/Utils.h"
-#include <Rocket/Core/Input.h>
-#include <boost/noncopyable.hpp>
+#include "Resource.h"
+#include "SubMesh.h"
+#include "af3d/AABB.h"
 
 namespace af3d
 {
-    using namespace Rocket::Core::Input;
-
-    class InputKeyboard : boost::noncopyable
+    class Mesh : public Resource
     {
     public:
-        InputKeyboard() = default;
-        ~InputKeyboard() = default;
-
-        void press(KeyIdentifier ki);
-
-        void release(KeyIdentifier ki);
-
-        bool pressed(KeyIdentifier ki) const;
-
-        bool triggered(KeyIdentifier ki) const;
-
-        void processed();
-
-        void proceed();
+        Mesh(const std::string& name,
+            const AABB& aabb,
+            const std::vector<SubMeshPtr>& subMeshes,
+            const VertexArrayPtr& va,
+            const ResourceLoaderPtr& loader = ResourceLoaderPtr());
+        ~Mesh() = default;
 
     private:
-        struct KeyState
-        {
-            bool pressed = false;
-            bool triggered = false;
-            bool savedTriggered = false;
-        };
+        void doInvalidate(HardwareContext& ctx) override;
 
-        using KeyMap = EnumUnorderedMap<KeyIdentifier, KeyState>;
-
-        mutable KeyMap keyMap_;
+        AABB aabb_;
+        std::vector<SubMeshPtr> subMeshes_;
+        VertexArrayPtr va_;
     };
+
+    using MeshPtr = std::shared_ptr<Mesh>;
 }
 
 #endif

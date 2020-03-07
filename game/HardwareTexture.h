@@ -23,47 +23,34 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _INPUTKEYBOARD_H_
-#define _INPUTKEYBOARD_H_
+#ifndef _HARDWARE_TEXTURE_H_
+#define _HARDWARE_TEXTURE_H_
 
-#include "af3d/Utils.h"
-#include <Rocket/Core/Input.h>
-#include <boost/noncopyable.hpp>
+#include "HardwareResource.h"
 
 namespace af3d
 {
-    using namespace Rocket::Core::Input;
-
-    class InputKeyboard : boost::noncopyable
+    class HardwareTexture : public HardwareResource
     {
     public:
-        InputKeyboard() = default;
-        ~InputKeyboard() = default;
+        HardwareTexture(std::uint32_t width, std::uint32_t height);
+        ~HardwareTexture();
 
-        void press(KeyIdentifier ki);
+        inline std::uint32_t width() const { return width_; }
 
-        void release(KeyIdentifier ki);
+        inline std::uint32_t height() const { return height_; }
 
-        bool pressed(KeyIdentifier ki) const;
+        void invalidate(HardwareContext& ctx) override;
 
-        bool triggered(KeyIdentifier ki) const;
-
-        void processed();
-
-        void proceed();
+        void upload(GLint internalFormat, GLenum format, GLenum type, const GLvoid* pixels, HardwareContext& ctx);
 
     private:
-        struct KeyState
-        {
-            bool pressed = false;
-            bool triggered = false;
-            bool savedTriggered = false;
-        };
-
-        using KeyMap = EnumUnorderedMap<KeyIdentifier, KeyState>;
-
-        mutable KeyMap keyMap_;
+        std::uint32_t width_;
+        std::uint32_t height_;
+        GLuint id_ = 0;
     };
+
+    using HardwareTexturePtr = std::shared_ptr<HardwareTexture>;
 }
 
 #endif

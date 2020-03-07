@@ -61,7 +61,7 @@ namespace af3d
         Max = Liquid
     };
 
-    using SceneObjectTypes = EnumSet<SceneObjectType, static_cast<int>(SceneObjectType::Max) + 1>;
+    using SceneObjectTypes = EnumSet<SceneObjectType>;
 
     class SceneObjectManager : boost::noncopyable
     {
