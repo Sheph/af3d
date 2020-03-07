@@ -29,9 +29,44 @@
 #include "Resource.h"
 #include "MaterialType.h"
 #include "Texture.h"
+#include "af3d/Vector2.h"
+#include "af3d/Vector3.h"
+#include "af3d/Vector4.h"
 
 namespace af3d
 {
+    class MaterialParams
+    {
+    public:
+        MaterialParams() = default;
+        explicit MaterialParams(const MaterialTypePtr& materialType);
+        ~MaterialParams() = default;
+
+        void setUniform(UniformName name, float value);
+        void setUniform(UniformName name, std::int32_t value);
+        void setUniform(UniformName name, std::uint32_t value);
+        void setUniform(UniformName name, const Vector2f& value);
+        void setUniform(UniformName name, const Vector3f& value);
+        void setUniform(UniformName name, const btVector3& value);
+        void setUniform(UniformName name, const Vector4f& value);
+        void setUniform(UniformName name, const float* value, GLsizei count);
+        void setUniform(UniformName name, const std::int32_t* value, GLsizei count);
+        void setUniform(UniformName name, const std::uint32_t* value, GLsizei count);
+
+    private:
+        using FloatParamList = std::vector<float>;
+        using IntParamList = std::vector<std::int32_t>;
+        using UIntParamList = std::vector<std::uint32_t>;
+
+        MaterialTypePtr materialType_;
+        FloatParamList floatParams_;
+        IntParamList intParams_;
+        UIntParamList uintParams_;
+    };
+
+    class Material;
+    using MaterialPtr = std::shared_ptr<Material>;
+
     class Material : public Resource
     {
     public:
@@ -40,16 +75,15 @@ namespace af3d
 
         inline const MaterialTypePtr& type() const { return type_; }
 
+        MaterialPtr clone() const;
+
     private:
         void doInvalidate(HardwareContext& ctx) override;
 
         MaterialTypePtr type_;
         std::vector<TexturePtr> textures_;
-        std::vector<SamplerParam> samplerParams_;
-        EnumUnorderedMap<UniformVariableName, std::string> constants_;
+        MaterialParams params_;
     };
-
-    using MaterialPtr = std::shared_ptr<Material>;
 }
 
 #endif

@@ -30,11 +30,19 @@
 
 namespace af3d
 {
-    struct SamplerParam
+    struct SamplerParams
     {
-        texFilter;
-        texWrapU;
-        texWrapV;
+        SamplerParams() = default;
+        SamplerParams(GLenum texFilter,
+            GLenum texWrapU,
+            GLenum texWrapV)
+        : texFilter(texFilter),
+          texWrapU(texWrapU),
+          texWrapV(texWrapV) {}
+
+        GLenum texFilter;
+        GLenum texWrapU;
+        GLenum texWrapV;
     };
 
     class MaterialType : boost::noncopyable
@@ -43,24 +51,15 @@ namespace af3d
         MaterialType(const std::string& name, const HardwareProgramPtr& prog);
         ~MaterialType() = default;
 
-        //void attachShader(const HardwareShaderPtr& shader);
+        //static HardwareShader::VariableInfo getUniformVariableInfo(UniformName name);
 
-        //void addVarying(VertexAttribName name);
-
-        //void addUniform(const String& name, GpuConstantType constType, size_t arraySize = 1);
-
-        //void addAutoUniform(AutoUniformName name);
-
-        static HardwareShader::VariableInfo getUniformVariableInfo(UniformName name);
-
-        static HardwareShader::VariableInfo getVaryingVariableInfo(UniformName name);
+        //static HardwareShader::VariableInfo getVaryingVariableInfo(UniformName name);
 
     private:
-        std::string name_;
         HardwareProgramPtr prog_;
         EnumSet<VertexAttribName> attribs_;
-        EnumSet<UniformName> uniforms_;
-        std::vector<SamplerParam> samplers_;
+        std::map<UniformName, size_t> uniforms_; // uniform -> array offset
+        std::vector<SamplerParams> samplers_;
     };
 
     using MaterialTypePtr = std::shared_ptr<MaterialType>;
