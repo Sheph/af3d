@@ -37,8 +37,8 @@ set(SOURCES
     Mesh.cpp
     MeshManager.cpp
     Renderer.cpp
-    Root.cpp
     SubMesh.cpp
+    Resource.cpp
     Texture.cpp
     TextureManager.cpp
     VertexArray.cpp

@@ -65,6 +65,8 @@ namespace af3d
         std::mutex mtx_;
         Resources resources_;
     };
+
+    extern HardwareResourceManager hwManager;
 }
 
 #endif

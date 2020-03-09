@@ -29,6 +29,8 @@
 
 namespace af3d
 {
+    HardwareResourceManager hwManager;
+
     template <>
     Single<HardwareResourceManager>* Single<HardwareResourceManager>::single = nullptr;
 

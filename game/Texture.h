@@ -31,13 +31,15 @@
 
 namespace af3d
 {
+    class TextureManager;
+
     class Texture : public Resource
     {
     public:
-        Texture(const std::string& name,
+        Texture(TextureManager* mgr, const std::string& name,
             const HardwareTexturePtr& hwTex,
             const ResourceLoaderPtr& loader = ResourceLoaderPtr());
-        ~Texture() = default;
+        ~Texture();
 
         inline const HardwareTexturePtr& hwTex() const { return hwTex_; }
 
@@ -48,8 +50,7 @@ namespace af3d
         void upload(GLint internalFormat, GLenum format, GLenum type, std::vector<Byte>&& pixels);
 
     private:
-        void doInvalidate(HardwareContext& ctx) override;
-
+        TextureManager* mgr_;
         HardwareTexturePtr hwTex_;
     };
 

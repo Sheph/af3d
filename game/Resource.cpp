@@ -23,57 +23,35 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _RESOURCE_H_
-#define _RESOURCE_H_
-
-#include "HardwareContext.h"
-#include <memory>
-#include <atomic>
+#include "Resource.h"
 
 namespace af3d
 {
-    class Resource;
-
-    class ResourceLoader : boost::noncopyable
+    Resource::Resource(const std::string& name,
+        const ResourceLoaderPtr& loader)
+    : name_(name),
+      loader_(loader),
+      state_(Unloaded)
     {
-    public:
-        ResourceLoader() = default;
-        virtual ~ResourceLoader() = default;
+    }
 
-        virtual void load(Resource& res, HardwareContext& ctx) = 0;
-    };
-
-    using ResourceLoaderPtr = std::shared_ptr<ResourceLoader>;
-
-    class Resource : boost::noncopyable
+    void Resource::invalidate()
     {
-    public:
-        enum State
-        {
-            Unloaded = 0,
-            Loading,
-            Loaded
-        };
+        state_ = Unloaded;
+        doInvalidate();
+    }
 
-        explicit Resource(const std::string& name,
-            const ResourceLoaderPtr& loader = ResourceLoaderPtr());
-        virtual ~Resource() = default;
+    void Resource::load(const ResourceLoaderPtr& loader)
+    {
+        btAssert(loader || loader_);
 
-        void invalidate();
+        State old = Unloaded;
+        if (state_.compare_exchange_strong(old, Loading) || loader) {
+            // TODO: schedule loader or loader_ on renderer thread.
+        }
+    }
 
-        void load(const ResourceLoaderPtr& loader = ResourceLoaderPtr());
-
-        inline bool valid() const { return state_ != Unloaded; }
-
-    private:
-        virtual void doInvalidate();
-
-        std::string name_;
-        ResourceLoaderPtr loader_;
-        std::atomic<State> state_;
-    };
-
-    using ResourcePtr = std::shared_ptr<Resource>;
+    void Resource::doInvalidate()
+    {
+    }
 }
-
-#endif
