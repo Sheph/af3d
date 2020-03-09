@@ -47,6 +47,8 @@ namespace af3d
         HardwareBuffer(HardwareResourceManager* mgr, Usage usage, GLsizeiptr elementSize);
         ~HardwareBuffer();
 
+        static GLbitfield glAccess(Access access);
+
         inline Usage usage() const { return usage_; }
 
         inline GLsizeiptr elementSize() const { return elementSize_; }
@@ -55,9 +57,13 @@ namespace af3d
 
         inline GLsizeiptr sizeInBytes() const { return count_ * elementSize_; }
 
+        GLenum glUsage() const;
+
         void invalidate(HardwareContext& ctx) override;
 
-        void resize(GLsizeiptr count, HardwareContext& ctx);
+        GLuint id(HardwareContext& ctx) const override;
+
+        void resize(GLsizeiptr cnt, HardwareContext& ctx);
 
         void upload(GLintptr offset, GLsizeiptr cnt, const GLvoid* data, HardwareContext& ctx);
 
@@ -65,10 +71,10 @@ namespace af3d
 
         GLvoid* lock(Access access, HardwareContext& ctx);
 
-        void unlock();
+        void unlock(HardwareContext& ctx);
 
     private:
-        virtual void doResize(GLsizeiptr cnt, HardwareContext& ctx) = 0;
+        virtual void doResize(HardwareContext& ctx) = 0;
 
         virtual void doUpload(GLintptr offset, GLsizeiptr cnt, const GLvoid* data, HardwareContext& ctx) = 0;
 
@@ -76,10 +82,13 @@ namespace af3d
 
         virtual void doUnlock(HardwareContext& ctx) = 0;
 
+        void createBuffer();
+
         Usage usage_ = Usage::StaticDraw;
         GLsizeiptr elementSize_ = 0;
         GLsizeiptr count_ = 0;
         GLuint id_ = 0;
+        bool locked_ = false;
     };
 
     using HardwareBufferPtr = std::shared_ptr<HardwareBuffer>;

@@ -42,6 +42,8 @@ namespace af3d
 
         void invalidate(HardwareContext& ctx) override;
 
+        GLuint id(HardwareContext& ctx) const override;
+
         void upload(GLint internalFormat, GLenum format, GLenum type, const GLvoid* pixels, HardwareContext& ctx);
 
     private:

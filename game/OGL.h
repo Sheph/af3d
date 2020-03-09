@@ -50,6 +50,13 @@ namespace af3d
         OGL();
         ~OGL();
 
+        void (GLAPIENTRY* GenBuffers)(GLsizei n, GLuint* buffers);
+        void (GLAPIENTRY* DeleteBuffers)(GLsizei n, const GLuint* buffers);
+        void (GLAPIENTRY* BindBuffer)(GLenum target, GLuint buffer);
+        void (GLAPIENTRY* BufferData)(GLenum target, GLsizeiptr size, const void* data, GLenum usage);
+        void (GLAPIENTRY* BufferSubData)(GLenum target, GLintptr offset, GLsizeiptr size, const void* data);
+        void* (GLAPIENTRY* MapBufferRange)(GLenum target, GLintptr offset, GLsizeiptr length, GLbitfield access);
+        GLboolean (GLAPIENTRY* UnmapBuffer)(GLenum target);
         void (GLAPIENTRY* GenTextures)(GLsizei n, GLuint* textures);
         void (GLAPIENTRY* DeleteTextures)(GLsizei n, const GLuint* textures);
         void (GLAPIENTRY* BindTexture)(GLenum target, GLuint texture);

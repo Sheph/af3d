@@ -364,6 +364,13 @@ static bool OGLPreInit()
         }
     }
 
+    GL_GET_PROC(GenBuffers, glGenBuffers);
+    GL_GET_PROC(DeleteBuffers, glDeleteBuffers);
+    GL_GET_PROC(BindBuffer, glBindBuffer);
+    GL_GET_PROC(BufferData, glBufferData);
+    GL_GET_PROC(BufferSubData, glBufferSubData);
+    GL_GET_PROC(MapBufferRange, glMapBufferRange);
+    GL_GET_PROC(UnmapBuffer, glUnmapBuffer);
     GL_GET_PROC(GenTextures, glGenTextures);
     GL_GET_PROC(DeleteTextures, glDeleteTextures);
     GL_GET_PROC(BindTexture, glBindTexture);

@@ -37,7 +37,7 @@ namespace af3d
         ~HardwareVertexBuffer() = default;
 
     private:
-        void doResize(GLsizeiptr cnt, HardwareContext& ctx) override;
+        void doResize(HardwareContext& ctx) override;
 
         void doUpload(GLintptr offset, GLsizeiptr cnt, const GLvoid* data, HardwareContext& ctx) override;
 

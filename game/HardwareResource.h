@@ -45,6 +45,8 @@ namespace af3d
 
         virtual void invalidate(HardwareContext& ctx) = 0;
 
+        virtual GLuint id(HardwareContext& ctx) const = 0;
+
     protected:
         void cleanup(const CleanupFn& fn = CleanupFn());
 

@@ -51,6 +51,11 @@ namespace af3d
         id_ = 0;
     }
 
+    GLuint HardwareTexture::id(HardwareContext& ctx) const
+    {
+        return id_;
+    }
+
     void HardwareTexture::upload(GLint internalFormat, GLenum format, GLenum type, const GLvoid* pixels, HardwareContext& ctx)
     {
         if (id_ == 0) {

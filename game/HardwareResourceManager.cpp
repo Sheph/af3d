@@ -64,18 +64,30 @@ namespace af3d
 
     HardwareVertexBufferPtr HardwareResourceManager::createVertexBuffer(HardwareBuffer::Usage usage, GLsizeiptr elementSize)
     {
+        auto res = std::make_shared<HardwareVertexBuffer>(this, usage, elementSize);
+        onResourceCreate(res);
+        return res;
     }
 
     HardwareIndexBufferPtr HardwareResourceManager::createIndexBuffer(HardwareBuffer::Usage usage, HardwareIndexBuffer::DataType dataType)
     {
+        auto res = std::make_shared<HardwareIndexBuffer>(this, usage, dataType);
+        onResourceCreate(res);
+        return res;
     }
 
     HardwareShaderPtr HardwareResourceManager::createShader(HardwareShader::Type type)
     {
+        auto res = std::make_shared<HardwareShader>(this, type);
+        onResourceCreate(res);
+        return res;
     }
 
     HardwareProgramPtr HardwareResourceManager::createProgram()
     {
+        auto res = std::make_shared<HardwareProgram>(this);
+        onResourceCreate(res);
+        return res;
     }
 
     void HardwareResourceManager::onResourceDestroy(HardwareResource* res, const HardwareResource::CleanupFn& cleanupFn)

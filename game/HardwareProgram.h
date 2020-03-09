@@ -27,23 +27,62 @@
 #define _HARDWARE_PROGRAM_H_
 
 #include "HardwareShader.h"
+#include <type_traits>
 
 namespace af3d
 {
+    enum class VertexAttribName
+    {
+        Pos = 0,
+        UV,
+        Normal,
+        Diffuse,
+        Specular,
+        Max = Specular
+    };
+
+    enum class UniformName
+    {
+        ProjMatrix = 0,
+        Time,
+        MaxAuto = Time,
+        AmbientColor,
+        DiffuseColor,
+        SpecularColor,
+        Max = SpecularColor
+    };
+
+    struct VariableInfo
+    {
+        VariableInfo() = default;
+        VariableInfo(GLenum type, GLint size)
+        : type(type),
+          size(size) {}
+
+        GLenum type;
+        GLint size;
+    };
+
+    static_assert(std::is_pod<VariableInfo>::value, "VariableInfo must be POD type");
+
     class HardwareProgram : public HardwareResource
     {
     public:
         explicit HardwareProgram(HardwareResourceManager* mgr);
         ~HardwareProgram();
 
+        static inline bool isAuto(UniformName name) { return name <= UniformName::MaxAuto; }
+
         void invalidate(HardwareContext& ctx) override;
 
-        void attachShader(const HardwareShaderPtr& shader);
+        GLuint id(HardwareContext& ctx) const override;
+
+        void attachShader(const HardwareShaderPtr& shader, HardwareContext& ctx);
 
         bool link(HardwareContext& ctx);
 
     private:
-        std::vector<HardwareShaderPtr> shaders_;
+        std::vector<std::pair<GLuint, HardwareShaderPtr>> shaders_;
         GLuint id_ = 0;
     };
 

@@ -42,8 +42,10 @@ namespace af3d
         HardwareIndexBuffer(HardwareResourceManager* mgr, Usage usage, DataType dataType);
         ~HardwareIndexBuffer() = default;
 
+        static GLsizeiptr dataTypeSize(DataType dataType);
+
     private:
-        void doResize(GLsizeiptr cnt, HardwareContext& ctx) override;
+        void doResize(HardwareContext& ctx) override;
 
         void doUpload(GLintptr offset, GLsizeiptr cnt, const GLvoid* data, HardwareContext& ctx) override;
 
