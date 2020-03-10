@@ -46,9 +46,9 @@ namespace af3d
             Depth,
             BlendingParams,
             MaterialType,
-            MaterialParams,
             Textures,
             VertexArray,
+            MaterialParams,
             Draw
         };
 
@@ -78,18 +78,21 @@ namespace af3d
         // Type::MaterialType
         MaterialTypePtr materialType_;
 
-        // Type::MaterialParams
-        MaterialParams materialParamsAuto_;
-        MaterialParams materialParams_;
-
         // Type::Textures
         std::vector<HardwareTextureBinding> textures_;
 
         // Type::VertexArray
-        VertexArraySlice vaSlice_;
+        VertexArrayPtr va_;
+
+        // Type::MaterialParams
+        MaterialParams materialParamsAuto_;
+        MaterialParams materialParams_;
 
         // Type::Draw
-        GLenum primitiveMode_;
+        GLenum drawPrimitiveMode_;
+        std::uint32_t drawStart_;
+        std::uint32_t drawCount_;
+        std::uint32_t drawBaseVertex_;
 
         std::set<RenderNode> children_;
     };
