@@ -32,13 +32,13 @@
 #include "af3d/Vector2.h"
 #include "af3d/Vector3.h"
 #include "af3d/Vector4.h"
+#include "af3d/Utils.h"
 
 namespace af3d
 {
     class MaterialParams
     {
     public:
-        MaterialParams() = default;
         explicit MaterialParams(const MaterialTypePtr& materialType);
         ~MaterialParams() = default;
 
@@ -54,6 +54,7 @@ namespace af3d
         void setUniform(UniformName name, const std::uint32_t* value, GLsizei count);
 
     private:
+        using UniformMap = EnumUnorderedMap<UniformName, GLsizei>; // uniform -> actual count
         using FloatParamList = std::vector<float>;
         using IntParamList = std::vector<std::int32_t>;
         using UIntParamList = std::vector<std::uint32_t>;
@@ -62,6 +63,22 @@ namespace af3d
         FloatParamList floatParams_;
         IntParamList intParams_;
         UIntParamList uintParams_;
+        UniformMap uniforms_;
+    };
+
+    struct SamplerParams
+    {
+        SamplerParams() = default;
+        SamplerParams(GLenum texFilter,
+            GLenum texWrapU,
+            GLenum texWrapV)
+        : texFilter(texFilter),
+          texWrapU(texWrapU),
+          texWrapV(texWrapV) {}
+
+        GLenum texFilter;
+        GLenum texWrapU;
+        GLenum texWrapV;
     };
 
     class Material;
@@ -70,7 +87,7 @@ namespace af3d
     class Material : public Resource
     {
     public:
-        Material(const MaterialTypePtr& type, const std::string& name);
+        Material(const std::string& name, const MaterialTypePtr& type);
         ~Material() = default;
 
         inline const MaterialTypePtr& type() const { return type_; }
@@ -78,10 +95,16 @@ namespace af3d
         MaterialPtr clone() const;
 
     private:
-        void doInvalidate(HardwareContext& ctx) override;
+        struct TextureBinding
+        {
+            TexturePtr tex;
+            SamplerParams params;
+        };
+
+        void doInvalidate() override;
 
         MaterialTypePtr type_;
-        std::vector<TexturePtr> textures_;
+        std::vector<TextureBinding> tbs_;
         MaterialParams params_;
     };
 }

@@ -27,39 +27,39 @@
 #define _MATERIAL_TYPE_H_
 
 #include "HardwareProgram.h"
+#include "af3d/EnumSet.h"
+#include "af3d/Utils.h"
 
 namespace af3d
 {
-    struct SamplerParams
+    enum MaterialTypeName
     {
-        SamplerParams() = default;
-        SamplerParams(GLenum texFilter,
-            GLenum texWrapU,
-            GLenum texWrapV)
-        : texFilter(texFilter),
-          texWrapU(texWrapU),
-          texWrapV(texWrapV) {}
-
-        GLenum texFilter;
-        GLenum texWrapU;
-        GLenum texWrapV;
+        MaterialType2DDefault = 0, // 2D with pos, color and one texture
+        MaterialType2DColor,       // 2D with pos and color
+        MaterialTypeUnlitDefault,  // Unlit shader, pos, color and one texture
+        MaterialTypeUnlitColor,    // Unlit shader, pos and color
+        MaterialTypeBasicDefault,  // Basic lighting, pos, normal and one texture
+        MaterialTypeBasicColor,    // Basic lighting, pos and normal
+        MaterialTypeFirst = MaterialType2DDefault,
+        MaterialTypeMax = MaterialTypeBasicColor
     };
 
     class MaterialType : boost::noncopyable
     {
     public:
-        MaterialType(const std::string& name, const HardwareProgramPtr& prog);
+        MaterialType(MaterialTypeName name, const HardwareProgramPtr& prog);
         ~MaterialType() = default;
 
-        //static HardwareShader::VariableInfo getUniformVariableInfo(UniformName name);
+        inline MaterialTypeName name() const { return name_; }
 
-        //static HardwareShader::VariableInfo getVaryingVariableInfo(UniformName name);
+        bool reload(const std::string& vertSource, const std::string& fragSource);
 
     private:
+        MaterialTypeName name_;
         HardwareProgramPtr prog_;
         EnumSet<VertexAttribName> attribs_;
-        std::map<UniformName, size_t> uniforms_; // uniform -> array offset
-        std::vector<SamplerParams> samplers_;
+        EnumUnorderedMap<UniformName, size_t> uniforms_; // uniform -> param array offset
+        int numTextures_;
     };
 
     using MaterialTypePtr = std::shared_ptr<MaterialType>;

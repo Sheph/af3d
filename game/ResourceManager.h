@@ -42,7 +42,7 @@ namespace af3d
 
         virtual void reload() = 0;
 
-        virtual void renderReload(HardwareContext& ctx) = 0;
+        virtual bool renderReload(HardwareContext& ctx) = 0;
     };
 }
 

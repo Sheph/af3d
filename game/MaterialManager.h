@@ -47,18 +47,20 @@ namespace af3d
 
         void reload() override;
 
-        void renderReload(HardwareContext& ctx) override;
+        bool renderReload(HardwareContext& ctx) override;
 
-        MaterialTypePtr getMaterialType(const std::string& name);
+        MaterialTypePtr getMaterialType(MaterialTypeName name);
 
         MaterialPtr getMaterial(const std::string& name);
 
-        MaterialPtr createMaterial(const std::string& name, const MaterialTypePtr& type);
+        MaterialPtr createMaterial(const std::string& name, MaterialTypeName typeName);
+
+        MaterialPtr createMaterial(MaterialTypeName typeName);
 
         void onMaterialDestroy(Material* material);
 
     private:
-        using MaterialTypes = std::unordered_map<std::string, MaterialTypePtr>;
+        using MaterialTypes = std::array<MaterialTypePtr, MaterialTypeMax + 1>;
         using CachedMaterials = std::unordered_map<std::string, MaterialPtr>;
         using ImmediateMaterials = std::unordered_set<Material*>;
 
@@ -66,6 +68,8 @@ namespace af3d
         CachedMaterials cachedMaterials_;
         ImmediateMaterials immediateMaterials_;
     };
+
+    extern MaterialManager materialManager;
 }
 
 #endif

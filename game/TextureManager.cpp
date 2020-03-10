@@ -62,8 +62,9 @@ namespace af3d
         }
     }
 
-    void TextureManager::renderReload(HardwareContext& ctx)
+    bool TextureManager::renderReload(HardwareContext& ctx)
     {
+        return true;
     }
 
     TexturePtr TextureManager::loadTexture(const std::string& path)

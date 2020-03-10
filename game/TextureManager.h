@@ -47,7 +47,7 @@ namespace af3d
 
         void reload() override;
 
-        void renderReload(HardwareContext& ctx) override;
+        bool renderReload(HardwareContext& ctx) override;
 
         TexturePtr loadTexture(const std::string& path);
 
@@ -62,6 +62,8 @@ namespace af3d
         CachedTextures cachedTextures_;
         ImmediateTextures immediateTextures_;
     };
+
+    extern TextureManager textureManager;
 }
 
 #endif
