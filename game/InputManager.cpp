@@ -25,6 +25,7 @@
 
 #include "InputManager.h"
 #include "Settings.h"
+#include "Logger.h"
 
 namespace af3d
 {
@@ -35,11 +36,13 @@ namespace af3d
 
     bool InputManager::init()
     {
+        LOG4CPLUS_DEBUG(logger(), "inputManager: init...");
         return true;
     }
 
     void InputManager::shutdown()
     {
+        LOG4CPLUS_DEBUG(logger(), "inputManager: shutdown...");
     }
 
     void InputManager::update()

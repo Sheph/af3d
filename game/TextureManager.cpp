@@ -25,6 +25,7 @@
 
 #include "TextureManager.h"
 #include "HardwareResourceManager.h"
+#include "Logger.h"
 #include "af3d/Assert.h"
 
 namespace af3d
@@ -42,17 +43,20 @@ namespace af3d
 
     bool TextureManager::init()
     {
+        LOG4CPLUS_DEBUG(logger(), "textureManager: init...");
         return true;
     }
 
     void TextureManager::shutdown()
     {
+        LOG4CPLUS_DEBUG(logger(), "textureManager: shutdown...");
         runtime_assert(cachedTextures_.empty());
         runtime_assert(immediateTextures_.empty());
     }
 
     void TextureManager::reload()
     {
+        LOG4CPLUS_DEBUG(logger(), "textureManager: reload...");
         for (const auto& kv : cachedTextures_) {
             kv.second->invalidate();
             kv.second->load();
@@ -64,6 +68,7 @@ namespace af3d
 
     bool TextureManager::renderReload(HardwareContext& ctx)
     {
+        LOG4CPLUS_DEBUG(logger(), "textureManager: render reload...");
         return true;
     }
 

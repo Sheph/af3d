@@ -57,6 +57,7 @@ namespace af3d
 
     bool MaterialManager::init()
     {
+        LOG4CPLUS_DEBUG(logger(), "materialManager: init...");
         for (int i = MaterialTypeFirst; i <= MaterialTypeMax; ++i) {
             MaterialTypeName name = static_cast<MaterialTypeName>(i);
             materialTypes_[name] = std::make_shared<MaterialType>(name, hwManager.createProgram());
@@ -67,6 +68,7 @@ namespace af3d
 
     void MaterialManager::shutdown()
     {
+        LOG4CPLUS_DEBUG(logger(), "materialManager: shutdown...");
         runtime_assert(materialTypes_.empty());
         runtime_assert(cachedMaterials_.empty());
         runtime_assert(immediateMaterials_.empty());
@@ -74,12 +76,12 @@ namespace af3d
 
     void MaterialManager::reload()
     {
+        LOG4CPLUS_DEBUG(logger(), "materialManager: reload...");
     }
 
     bool MaterialManager::renderReload(HardwareContext& ctx)
     {
-        //TODO: renderReload comes after reload, happens in rendering thread, game
-        //thread does not progress until renderReload is done!
+        LOG4CPLUS_DEBUG(logger(), "materialManager: render reload...");
 
         for (const auto& mat : materialTypes_) {
             PlatformIFStream isVert(shaderPaths[mat->name()].vert);
@@ -88,7 +90,7 @@ namespace af3d
 
             if (!readStream(isVert, vertSource)) {
                 LOG4CPLUS_ERROR(logger(), "Unable to read \"" << shaderPaths[mat->name()].vert << "\"");
-                return false;
+                //return false;
             }
 
             PlatformIFStream isFrag(shaderPaths[mat->name()].frag);
@@ -97,11 +99,11 @@ namespace af3d
 
             if (!readStream(isFrag, fragSource)) {
                 LOG4CPLUS_ERROR(logger(), "Unable to read \"" << shaderPaths[mat->name()].frag << "\"");
-                return false;
+                //return false;
             }
 
             if (!mat->reload(vertSource, fragSource)) {
-                return false;
+                //return false;
             }
         }
 

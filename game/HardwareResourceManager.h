@@ -49,6 +49,8 @@ namespace af3d
 
         void invalidate(HardwareContext& ctx);
 
+        bool renderReload(HardwareContext& ctx);
+
         HardwareTexturePtr createTexture(std::uint32_t width, std::uint32_t height);
         HardwareVertexBufferPtr createVertexBuffer(HardwareBuffer::Usage usage, GLsizeiptr elementSize);
         HardwareIndexBufferPtr createIndexBuffer(HardwareBuffer::Usage usage, HardwareIndexBuffer::DataType dataType);

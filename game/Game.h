@@ -31,6 +31,7 @@
 #include "af3d/AppConfig.h"
 #include "Level.h"
 #include "InputManager.h"
+#include "HardwareContext.h"
 
 namespace af3d
 {
@@ -42,15 +43,13 @@ namespace af3d
 
         bool init(const std::string& startScript = "start.lua");
 
-        void suspend();
+        bool renderReload(HardwareContext& ctx);
 
         void reload();
 
-        void renderReload();
-
         bool update();
 
-        bool render();
+        bool render(HardwareContext& ctx);
 
         void cancelUpdate();
 

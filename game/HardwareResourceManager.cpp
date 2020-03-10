@@ -24,6 +24,7 @@
  */
 
 #include "HardwareResourceManager.h"
+#include "Logger.h"
 #include "af3d/Assert.h"
 #include "af3d/Utils.h"
 
@@ -41,20 +42,29 @@ namespace af3d
 
     bool HardwareResourceManager::init()
     {
+        LOG4CPLUS_DEBUG(logger(), "hwManager: init...");
         return true;
     }
 
     void HardwareResourceManager::shutdown()
     {
+        LOG4CPLUS_DEBUG(logger(), "hwManager: shutdown...");
         runtime_assert(resources_.empty());
     }
 
     void HardwareResourceManager::invalidate(HardwareContext& ctx)
     {
+        LOG4CPLUS_DEBUG(logger(), "hwManager: invalidate...");
         ScopedLock lock(mtx_);
         for (auto res : resources_) {
             res->invalidate(ctx);
         }
+    }
+
+    bool HardwareResourceManager::renderReload(HardwareContext& ctx)
+    {
+        LOG4CPLUS_DEBUG(logger(), "hwManager: render reload...");
+        return true;
     }
 
     HardwareTexturePtr HardwareResourceManager::createTexture(std::uint32_t width, std::uint32_t height)

@@ -274,9 +274,10 @@ static PFNGLXSWAPINTERVALMESAPROC swapIntervalMESA = nullptr;
 
 static const int ctxAttribs[] =
 {
-    GLX_CONTEXT_MAJOR_VERSION_ARB, 2,
-    GLX_CONTEXT_MINOR_VERSION_ARB, 1,
+    GLX_CONTEXT_MAJOR_VERSION_ARB, 3,
+    GLX_CONTEXT_MINOR_VERSION_ARB, 2,
     GLX_RENDER_TYPE, GLX_RGBA_TYPE,
+    GLX_CONTEXT_PROFILE_MASK_ARB, GLX_CONTEXT_CORE_PROFILE_BIT_ARB,
     None
 };
 
@@ -732,15 +733,30 @@ static void destroyWindow()
     LOG4CPLUS_INFO(af3d::logger(), "Window destroyed");
 }
 
+static std::mutex cmMutex;
+static std::condition_variable cmCond;
+static bool cmDone = false;
+
 static void renderThread()
 {
     LOG4CPLUS_INFO(af3d::logger(), "Render thread started");
 
     makeCurrent(dpy, window, context);
 
-    game.renderReload();
+    af3d::HardwareContext ctx;
 
-    while (game.render()) {
+    if (!game.renderReload(ctx)) {
+        abort();
+    }
+
+    {
+        af3d::ScopedLock lock(cmMutex);
+        cmDone = true;
+    }
+
+    cmCond.notify_one();
+
+    while (game.render(ctx)) {
         swapBuffers(dpy, window);
     }
 
@@ -917,9 +933,21 @@ bool af3d::PlatformLinux::changeVideoMode(bool fullscreen, int videoMode, int ms
         }
     }
 
-    game.reload();
+    {
+        af3d::ScopedLockA lock(cmMutex);
+        cmDone = false;
+    }
 
     thr = boost::thread(&renderThread);
+
+    {
+        af3d::ScopedLockA lock(cmMutex);
+        while (!cmDone) {
+            cmCond.wait(lock);
+        }
+    }
+
+    game.reload();
 
     return true;
 }

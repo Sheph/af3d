@@ -29,6 +29,10 @@
 #include "SceneObjectFactory.h"
 #include "Platform.h"
 #include "GameShell.h"
+#include "HardwareResourceManager.h"
+#include "Renderer.h"
+#include "TextureManager.h"
+#include "MaterialManager.h"
 #include "af3d/Utils.h"
 #include "af3d/StreamAppConfig.h"
 
@@ -47,6 +51,22 @@ namespace af3d
 
     bool Game::init(const std::string& startScript)
     {
+        if (!hwManager.init()) {
+            return false;
+        }
+
+        if (!renderer.init()) {
+            return false;
+        }
+
+        if (!textureManager.init()) {
+            return false;
+        }
+
+        if (!materialManager.init()) {
+            return false;
+        }
+
         if (!inputManager.init()) {
             return false;
         }
@@ -127,19 +147,28 @@ namespace af3d
         return loadLevel(startScript);
     }
 
-    void Game::suspend()
+    bool Game::renderReload(HardwareContext& ctx)
     {
-        LOG4CPLUS_DEBUG(logger(), "suspending...");
+        if (!hwManager.renderReload(ctx)) {
+            return false;
+        }
+        if (!renderer.reload(ctx)) {
+            return false;
+        }
+        if (!textureManager.renderReload(ctx)) {
+            return false;
+        }
+        if (!materialManager.renderReload(ctx)) {
+            return false;
+        }
+        return true;
     }
 
     void Game::reload()
     {
+        textureManager.reload();
+        materialManager.reload();
         gameShell->reload();
-    }
-
-    void Game::renderReload()
-    {
-        LOG4CPLUS_DEBUG(logger(), "reloading renderer...");
     }
 
     bool Game::update()
@@ -194,17 +223,19 @@ namespace af3d
         return true;
     }
 
-    bool Game::render()
+    bool Game::render(HardwareContext& ctx)
     {
-        return true;
+        return renderer.render(ctx);
     }
 
     void Game::cancelUpdate()
     {
+        renderer.cancelSwap();
     }
 
     void Game::cancelRender()
     {
+        renderer.cancelRender();
     }
 
     void Game::shutdown()
@@ -216,6 +247,14 @@ namespace af3d
         sceneObjectFactory.shutdown();
 
         inputManager.shutdown();
+
+        materialManager.shutdown();
+
+        textureManager.shutdown();
+
+        renderer.shutdown();
+
+        hwManager.shutdown();
     }
 
     void Game::keyPress(KeyIdentifier ki)

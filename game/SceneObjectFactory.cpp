@@ -26,6 +26,7 @@
 #include "SceneObjectFactory.h"
 #include "Settings.h"
 #include "Utils.h"
+#include "Logger.h"
 #include "af3d/Utils.h"
 
 namespace af3d
@@ -37,11 +38,13 @@ namespace af3d
 
     bool SceneObjectFactory::init()
     {
+        LOG4CPLUS_DEBUG(logger(), "sceneObjectFactory: init...");
         return true;
     }
 
     void SceneObjectFactory::shutdown()
     {
+        LOG4CPLUS_DEBUG(logger(), "sceneObjectFactory: shutdown...");
     }
 
     SceneObjectPtr SceneObjectFactory::createDummy()
