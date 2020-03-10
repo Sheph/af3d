@@ -44,6 +44,8 @@ set(SOURCES
     VertexArray.cpp
     VertexArrayLayout.cpp
     VertexArraySlice.cpp
+    RenderList.cpp
+    RenderNode.cpp
 )
 
 file(READ "config.ini" _INI)

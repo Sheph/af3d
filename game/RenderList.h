@@ -23,28 +23,28 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _VERTEX_ARRAY_SLICE_H_
-#define _VERTEX_ARRAY_SLICE_H_
+#ifndef _RENDER_LIST_H_
+#define _RENDER_LIST_H_
 
-#include "VertexArray.h"
+#include "MaterialType.h"
+#include "VertexArraySlice.h"
 
 namespace af3d
 {
-    class VertexArraySlice
+    class RenderList : boost::noncopyable
     {
     public:
-        VertexArraySlice() = default;
-        VertexArraySlice(const VertexArrayPtr& va,
-            std::uint32_t start,
-            std::uint32_t count,
-            std::uint32_t baseVertex) = default;
-        ~VertexArraySlice() = default;
+        RenderList();
+        ~RenderList();
+
+        void addGeometry(/*ModelMatrix, */const MaterialPtr& material, const VertexArraySlice& vaSlice, GLenum primitiveMode);
+
+        //void addLight(...);
+
+        //RenderNodePtr compile();
 
     private:
-        VertexArrayPtr va_;
-        std::uint32_t start_ = 0;
-        std::uint32_t count_ = 0;
-        std::uint32_t baseVertex_ = 0;
+        //CameraViewProjMatrix mtx_;
     };
 }
 

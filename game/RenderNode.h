@@ -23,28 +23,75 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _VERTEX_ARRAY_SLICE_H_
-#define _VERTEX_ARRAY_SLICE_H_
+#ifndef _RENDER_NODE_H_
+#define _RENDER_NODE_H_
 
-#include "VertexArray.h"
+#include "MaterialType.h"
+#include "VertexArraySlice.h"
 
 namespace af3d
 {
-    class VertexArraySlice
+    class RenderNode
     {
     public:
-        VertexArraySlice() = default;
-        VertexArraySlice(const VertexArrayPtr& va,
-            std::uint32_t start,
-            std::uint32_t count,
-            std::uint32_t baseVertex) = default;
-        ~VertexArraySlice() = default;
+        RenderNode();
+        ~RenderNode();
+
+        bool operator<(const RenderNode& other);
 
     private:
-        VertexArrayPtr va_;
-        std::uint32_t start_ = 0;
-        std::uint32_t count_ = 0;
-        std::uint32_t baseVertex_ = 0;
+        enum class Type
+        {
+            DepthTest = 0,
+            Depth,
+            BlendingParams,
+            MaterialType,
+            MaterialParams,
+            Textures,
+            VertexArray,
+            Draw
+        };
+
+        struct HardwareTextureBinding
+        {
+            HardwareTextureBinding() = default;
+            HardwareTextureBinding(const HardwareTexturePtr& tex,
+                const SamplerParams& params)
+            : tex(tex),
+              params(params) {}
+
+            HardwareTexturePtr tex;
+            SamplerParams params;
+        };
+
+        Type type_;
+
+        // Type::DepthTest
+        bool depthTest_;
+
+        // Type::Depth
+        float depth_;
+
+        // Type::BlendingParams
+        BlendingParams blendingParams_;
+
+        // Type::MaterialType
+        MaterialTypePtr materialType_;
+
+        // Type::MaterialParams
+        MaterialParams materialParamsAuto_;
+        MaterialParams materialParams_;
+
+        // Type::Textures
+        std::vector<HardwareTextureBinding> textures_;
+
+        // Type::VertexArray
+        VertexArraySlice vaSlice_;
+
+        // Type::Draw
+        GLenum primitiveMode_;
+
+        std::set<RenderNode> children_;
     };
 }
 

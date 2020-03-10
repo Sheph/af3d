@@ -71,6 +71,7 @@ namespace af3d
     void HardwareBuffer::invalidate(HardwareContext& ctx)
     {
         id_ = 0;
+        count_ = 0;
     }
 
     GLuint HardwareBuffer::id(HardwareContext& ctx) const

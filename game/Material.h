@@ -66,6 +66,26 @@ namespace af3d
         UniformMap uniforms_;
     };
 
+    struct BlendingParams
+    {
+        BlendingParams()
+        : blendSfactor(GL_ONE),
+          blendDfactor(GL_ZERO),
+          blendSfactorAlpha(GL_ONE),
+          blendDfactorAlpha(GL_ZERO) {}
+
+        inline bool isEnabled() const
+        {
+            return !(blendSfactor == GL_ONE && blendSfactor == GL_ZERO &&
+                blendSfactorAlpha == GL_ONE && blendDfactorAlpha == GL_ZERO);
+        }
+
+        GLenum blendSfactor;
+        GLenum blendDfactor;
+        GLenum blendSfactorAlpha;
+        GLenum blendDfactorAlpha;
+    };
+
     struct SamplerParams
     {
         SamplerParams() = default;
@@ -79,6 +99,18 @@ namespace af3d
         GLenum texFilter;
         GLenum texWrapU;
         GLenum texWrapV;
+    };
+
+    struct TextureBinding
+    {
+        TextureBinding() = default;
+        TextureBinding(const TexturePtr& tex,
+            const SamplerParams& params)
+        : tex(tex),
+          params(params) {}
+
+        TexturePtr tex;
+        SamplerParams params;
     };
 
     class Material;
@@ -95,17 +127,14 @@ namespace af3d
         MaterialPtr clone() const;
 
     private:
-        struct TextureBinding
-        {
-            TexturePtr tex;
-            SamplerParams params;
-        };
-
         void doInvalidate() override;
 
         MaterialTypePtr type_;
         std::vector<TextureBinding> tbs_;
         MaterialParams params_;
+        BlendingParams blendingParams_;
+        bool depthTest_ = true;
+        float depthValue_ = 0.0f;
     };
 }
 
