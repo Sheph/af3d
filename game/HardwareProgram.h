@@ -27,6 +27,8 @@
 #define _HARDWARE_PROGRAM_H_
 
 #include "HardwareShader.h"
+#include "af3d/Utils.h"
+#include "af3d/EnumSet.h"
 #include <type_traits>
 
 namespace af3d
@@ -36,15 +38,15 @@ namespace af3d
         Pos = 0,
         UV,
         Normal,
-        Diffuse,
-        Specular,
-        Max = Specular
+        Color,
+        Max = Color
     };
 
     enum class UniformName
     {
         ProjMatrix = 0,
         Time,
+        FirstAuto = ProjMatrix,
         MaxAuto = Time,
         AmbientColor,
         DiffuseColor,
@@ -52,15 +54,42 @@ namespace af3d
         Max = SpecularColor
     };
 
+    // Must always be declared in that order inside shader.
+    enum class SamplerName
+    {
+        Main = 0,
+        Normal,
+        Max = Normal
+    };
+
+    struct VariableTypeInfo
+    {
+        VariableTypeInfo() = default;
+        VariableTypeInfo(GLenum baseType, GLint numComponents, GLint sizeInBytes)
+        : baseType(baseType),
+          numComponents(numComponents),
+          sizeInBytes(sizeInBytes) {}
+
+        GLenum baseType;
+        GLint numComponents;
+        GLint sizeInBytes;
+    };
+
+    static_assert(std::is_pod<VariableTypeInfo>::value, "VariableTypeInfo must be POD type");
+
     struct VariableInfo
     {
         VariableInfo() = default;
-        VariableInfo(GLenum type, GLint size)
+        VariableInfo(GLenum type, GLint count, GLint location)
         : type(type),
-          size(size) {}
+          count(count),
+          location(location) {}
+
+        GLint sizeInBytes() const;
 
         GLenum type;
-        GLint size;
+        GLint count;
+        GLint location;
     };
 
     static_assert(std::is_pod<VariableInfo>::value, "VariableInfo must be POD type");
@@ -68,10 +97,18 @@ namespace af3d
     class HardwareProgram : public HardwareResource
     {
     public:
+        using ActiveAttribs = EnumUnorderedMap<VertexAttribName, VariableInfo>;
+        using ActiveUniforms = EnumUnorderedMap<UniformName, VariableInfo>;
+        using Samplers = EnumSet<SamplerName>;
+
         explicit HardwareProgram(HardwareResourceManager* mgr);
         ~HardwareProgram();
 
         static inline bool isAuto(UniformName name) { return name <= UniformName::MaxAuto; }
+
+        static GLint getVertexAttribLocation(VertexAttribName name);
+
+        static const VariableTypeInfo& getTypeInfo(GLenum type);
 
         void invalidate(HardwareContext& ctx) override;
 
@@ -81,12 +118,33 @@ namespace af3d
 
         bool link(HardwareContext& ctx);
 
+        inline const ActiveAttribs& activeAttribs() const { return activeAttribs_; }
+        inline const ActiveUniforms& activeUniforms() const { return activeUniforms_; }
+        inline const Samplers& samplers() const { return samplers_; }
+
     private:
+        bool fillAttribs(HardwareContext& ctx);
+
+        bool fillUniforms(HardwareContext& ctx);
+
         std::vector<std::pair<GLuint, HardwareShaderPtr>> shaders_;
         GLuint id_ = 0;
+        ActiveAttribs activeAttribs_;
+        ActiveUniforms activeUniforms_;
+        Samplers samplers_;
     };
 
     using HardwareProgramPtr = std::shared_ptr<HardwareProgram>;
+}
+
+inline std::ostream& operator <<(std::ostream& os, af3d::UniformName name)
+{
+    return (os << name);
+}
+
+inline std::ostream& operator <<(std::ostream& os, af3d::SamplerName name)
+{
+    return (os << name);
 }
 
 #endif

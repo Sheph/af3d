@@ -39,7 +39,7 @@ namespace af3d
     class MaterialParams
     {
     public:
-        explicit MaterialParams(const MaterialTypePtr& materialType);
+        MaterialParams(const MaterialTypePtr& materialType, bool isAuto);
         ~MaterialParams() = default;
 
         void setUniform(UniformName name, float value);
@@ -49,20 +49,18 @@ namespace af3d
         void setUniform(UniformName name, const Vector3f& value);
         void setUniform(UniformName name, const btVector3& value);
         void setUniform(UniformName name, const Vector4f& value);
-        void setUniform(UniformName name, const float* value, GLsizei count);
-        void setUniform(UniformName name, const std::int32_t* value, GLsizei count);
-        void setUniform(UniformName name, const std::uint32_t* value, GLsizei count);
 
     private:
         using UniformMap = EnumUnorderedMap<UniformName, GLsizei>; // uniform -> actual count
-        using FloatParamList = std::vector<float>;
-        using IntParamList = std::vector<std::int32_t>;
-        using UIntParamList = std::vector<std::uint32_t>;
+        using ParamList = std::vector<Byte>;
+
+        bool checkName(UniformName name, size_t& offset, VariableInfo& info);
+
+        void setUniformImpl(UniformName name, const Byte* data, GLenum baseType, GLint numComponents, GLsizei count);
 
         MaterialTypePtr materialType_;
-        FloatParamList floatParams_;
-        IntParamList intParams_;
-        UIntParamList uintParams_;
+        bool isAuto_;
+        ParamList paramList_;
         UniformMap uniforms_;
     };
 
@@ -96,9 +94,9 @@ namespace af3d
           texWrapU(texWrapU),
           texWrapV(texWrapV) {}
 
-        GLenum texFilter;
-        GLenum texWrapU;
-        GLenum texWrapV;
+        GLenum texFilter = GL_LINEAR;
+        GLenum texWrapU = GL_CLAMP_TO_EDGE;
+        GLenum texWrapV = GL_CLAMP_TO_EDGE;
     };
 
     struct TextureBinding
@@ -116,21 +114,36 @@ namespace af3d
     class Material;
     using MaterialPtr = std::shared_ptr<Material>;
 
+    class MaterialManager;
+
     class Material : public Resource
     {
     public:
-        Material(const std::string& name, const MaterialTypePtr& type);
-        ~Material() = default;
+        Material(MaterialManager* mgr, const std::string& name, const MaterialTypePtr& type);
+        ~Material();
 
         inline const MaterialTypePtr& type() const { return type_; }
 
-        MaterialPtr clone() const;
+        MaterialPtr clone(const std::string& newName = "") const;
+
+        const TextureBinding& textureBinding(SamplerName samplerName) const;
+        void setTextureBinding(SamplerName samplerName, const TextureBinding& value);
+
+        inline MaterialParams& params() { return params_; }
+
+        const BlendingParams& blendingParams() const;
+        void setBlendingParams(const BlendingParams& value);
+
+        bool depthTest() const;
+        void setDepthTest(bool value);
+
+        float depthValue() const;
+        void setDepthValue(float value);
 
     private:
-        void doInvalidate() override;
-
+        MaterialManager* mgr_;
         MaterialTypePtr type_;
-        std::vector<TextureBinding> tbs_;
+        std::array<TextureBinding, static_cast<int>(SamplerName::Max) + 1> tbs_;
         MaterialParams params_;
         BlendingParams blendingParams_;
         bool depthTest_ = true;

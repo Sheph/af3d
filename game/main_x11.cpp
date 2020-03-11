@@ -396,6 +396,8 @@ static bool OGLPreInit()
     GL_GET_PROC(UseProgram, glUseProgram);
     GL_GET_PROC(GetProgramiv, glGetProgramiv);
     GL_GET_PROC(GetProgramInfoLog, glGetProgramInfoLog);
+    GL_GET_PROC(GetActiveAttrib, glGetActiveAttrib);
+    GL_GET_PROC(GetActiveUniform, glGetActiveUniform);
     GL_GET_PROC(GetShaderiv, glGetShaderiv);
     GL_GET_PROC(GetShaderInfoLog, glGetShaderInfoLog);
     GL_GET_PROC(GetAttribLocation, glGetAttribLocation);

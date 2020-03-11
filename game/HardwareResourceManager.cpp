@@ -55,8 +55,15 @@ namespace af3d
     void HardwareResourceManager::invalidate(HardwareContext& ctx)
     {
         LOG4CPLUS_DEBUG(logger(), "hwManager: invalidate...");
-        ScopedLock lock(mtx_);
-        for (auto res : resources_) {
+
+        Resources resources;
+
+        {
+            ScopedLock lock(mtx_);
+            resources = resources_;
+        }
+
+        for (auto res : resources) {
             res->invalidate(ctx);
         }
     }

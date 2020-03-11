@@ -50,7 +50,7 @@ namespace af3d
     template <class KeyT, class ValueT>
     using EnumUnorderedMap = std::unordered_map<KeyT, ValueT, EnumHash<KeyT>>;
 
-    template <class KeyT, class ValueT>
+    template <class KeyT>
     using EnumUnorderedSet = std::unordered_set<KeyT, EnumHash<KeyT>>;
 
     void initTimeUs();

@@ -29,6 +29,44 @@
 
 namespace af3d
 {
+    static const VariableTypeInfo tiFloat(GL_FLOAT, 1, 4);
+    static const VariableTypeInfo tiFloatVec2(GL_FLOAT, 2, 8);
+    static const VariableTypeInfo tiFloatVec3(GL_FLOAT, 3, 12);
+    static const VariableTypeInfo tiFloatVec4(GL_FLOAT, 4, 16);
+    static const VariableTypeInfo tiFloatMat4(GL_FLOAT, 16, 4 * 16);
+
+    static const std::unordered_map<std::string, VertexAttribName> staticVertexAttribMap = {
+        {"pos", VertexAttribName::Pos},
+        {"texCoord", VertexAttribName::UV},
+        {"normal", VertexAttribName::Normal},
+        {"color", VertexAttribName::Color},
+    };
+
+    static const GLint staticVertexAttribLocations[static_cast<int>(VertexAttribName::Max) + 1] = {
+        0,
+        1,
+        2,
+        3
+    };
+
+    static const std::unordered_map<std::string, UniformName> staticUniformMap = {
+        {"proj", UniformName::ProjMatrix},
+        {"time", UniformName::Time},
+        {"ambientColor", UniformName::AmbientColor},
+        {"diffuseColor", UniformName::DiffuseColor},
+        {"specularColor", UniformName::SpecularColor}
+    };
+
+    static const std::unordered_map<std::string, SamplerName> staticSamplerMap = {
+        {"texMain", SamplerName::Main},
+        {"texNormal", SamplerName::Normal}
+    };
+
+    GLint VariableInfo::sizeInBytes() const
+    {
+        return HardwareProgram::getTypeInfo(type).sizeInBytes * count;
+    }
+
     HardwareProgram::HardwareProgram(HardwareResourceManager* mgr)
     : HardwareResource(mgr)
     {
@@ -53,10 +91,35 @@ namespace af3d
         }
     }
 
+    GLint HardwareProgram::getVertexAttribLocation(VertexAttribName name)
+    {
+        return staticVertexAttribLocations[static_cast<int>(name)];
+    }
+
+    const VariableTypeInfo& HardwareProgram::getTypeInfo(GLenum type)
+    {
+        switch (type) {
+        case GL_FLOAT: return tiFloat;
+        case GL_FLOAT_VEC2: return tiFloatVec2;
+        case GL_FLOAT_VEC3: return tiFloatVec3;
+        case GL_FLOAT_VEC4: return tiFloatVec4;
+        case GL_FLOAT_MAT4: return tiFloatMat4;
+        default:
+            runtime_assert(false);
+            return tiFloat;
+        }
+    }
+
     void HardwareProgram::invalidate(HardwareContext& ctx)
     {
+        for (const auto& p : shaders_) {
+            p.second->invalidate(ctx);
+        }
         shaders_.clear();
         id_ = 0;
+        activeAttribs_.clear();
+        activeUniforms_.clear();
+        samplers_.resetAll();
     }
 
     GLuint HardwareProgram::id(HardwareContext& ctx) const
@@ -99,6 +162,93 @@ namespace af3d
             LOG4CPLUS_ERROR(logger(), "Unable to link program - " << buff);
 
             return false;
+        }
+
+        if (!fillAttribs(ctx)) {
+            return false;
+        }
+
+        if (!fillUniforms(ctx)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    bool HardwareProgram::fillAttribs(HardwareContext& ctx)
+    {
+        GLint cnt = 0;
+        ogl.GetProgramiv(id_, GL_ACTIVE_ATTRIBUTES, &cnt);
+
+        for (GLuint i = 0; i < static_cast<GLuint>(cnt); ++i) {
+            GLint size = 0;
+            GLenum type = 0;
+
+            const GLsizei bufSize = 64;
+            GLchar name[bufSize];
+            GLsizei length = 0;
+
+            ogl.GetActiveAttrib(id_, i, bufSize, &length, &size, &type, name);
+
+            auto it = staticVertexAttribMap.find(name);
+            if (it == staticVertexAttribMap.end()) {
+                LOG4CPLUS_ERROR(logger(), "Bad vertex attribute name: " << name);
+                return false;
+            }
+
+            if (size != 1) {
+                LOG4CPLUS_ERROR(logger(), "Vertex attribute with size > 1: " << name);
+                return false;
+            }
+
+            GLint location = ogl.GetAttribLocation(id_, name);
+            if (location != getVertexAttribLocation(it->second)) {
+                LOG4CPLUS_ERROR(logger(), "Bad vertex attribute location (" << location << ") for: " << name);
+                return false;
+            }
+
+            activeAttribs_[it->second] = VariableInfo(type, size, location);
+        }
+
+        return true;
+    }
+
+    bool HardwareProgram::fillUniforms(HardwareContext& ctx)
+    {
+        GLint cnt = 0;
+        ogl.GetProgramiv(id_, GL_ACTIVE_UNIFORMS, &cnt);
+
+        for (GLuint i = 0; i < static_cast<GLuint>(cnt); ++i) {
+            GLint size = 0;
+            GLenum type = 0;
+
+            const GLsizei bufSize = 64;
+            GLchar name[bufSize];
+            GLsizei length = 0;
+
+            ogl.GetActiveUniform(id_, i, bufSize, &length, &size, &type, name);
+
+            if (type == GL_SAMPLER_2D) {
+                auto it = staticSamplerMap.find(name);
+                if (it == staticSamplerMap.end()) {
+                    LOG4CPLUS_ERROR(logger(), "Bad sampler name: " << name);
+                    return false;
+                }
+
+                samplers_.set(it->second);
+
+                continue;
+            }
+
+            auto it = staticUniformMap.find(name);
+            if (it == staticUniformMap.end()) {
+                LOG4CPLUS_ERROR(logger(), "Bad uniform name: " << name);
+                return false;
+            }
+
+            GLint location = ogl.GetUniformLocation(id_, name);
+
+            activeUniforms_[it->second] = VariableInfo(type, size, location);
         }
 
         return true;

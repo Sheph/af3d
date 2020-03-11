@@ -24,6 +24,7 @@
  */
 
 #include "MaterialType.h"
+#include "HardwareResourceManager.h"
 
 namespace af3d
 {
@@ -33,8 +34,48 @@ namespace af3d
     {
     }
 
-    bool MaterialType::reload(const std::string& vertSource, const std::string& fragSource)
+    bool MaterialType::reload(const std::string& vertSource, const std::string& fragSource, HardwareContext& ctx)
     {
+        auto vertexShader = hwManager.createShader(HardwareShader::Type::Vertex);
+
+        if (!vertexShader->compile(vertSource, ctx)) {
+            return false;
+        }
+
+        auto fragmentShader = hwManager.createShader(HardwareShader::Type::Fragment);
+
+        if (!fragmentShader->compile(fragSource, ctx)) {
+            return false;
+        }
+
+        prog_->attachShader(vertexShader, ctx);
+        prog_->attachShader(fragmentShader, ctx);
+
+        if (!prog_->link(ctx)) {
+            return false;
+        }
+
+        autoParamListInfo_ = ParamListInfo();
+        paramListInfo_ = ParamListInfo();
+
+        for (int i = static_cast<int>(UniformName::FirstAuto); i <= static_cast<int>(UniformName::MaxAuto); ++i) {
+            UniformName name = static_cast<UniformName>(i);
+            auto it = prog_->activeUniforms().find(name);
+            if (it != prog_->activeUniforms().end()) {
+                autoParamListInfo_.offsets[name] = autoParamListInfo_.totalSize;
+                autoParamListInfo_.totalSize += it->second.sizeInBytes();
+            }
+        }
+
+        for (int i = static_cast<int>(UniformName::MaxAuto) + 1; i <= static_cast<int>(UniformName::Max); ++i) {
+            UniformName name = static_cast<UniformName>(i);
+            auto it = prog_->activeUniforms().find(name);
+            if (it != prog_->activeUniforms().end()) {
+                paramListInfo_.offsets[name] = paramListInfo_.totalSize;
+                paramListInfo_.totalSize += it->second.sizeInBytes();
+            }
+        }
+
         return true;
     }
 }

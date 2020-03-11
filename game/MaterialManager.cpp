@@ -102,7 +102,7 @@ namespace af3d
                 //return false;
             }
 
-            if (!mat->reload(vertSource, fragSource)) {
+            if (!mat->reload(vertSource, fragSource, ctx)) {
                 //return false;
             }
         }
@@ -117,20 +117,46 @@ namespace af3d
 
     MaterialPtr MaterialManager::getMaterial(const std::string& name)
     {
-        return MaterialPtr();
+        auto it = cachedMaterials_.find(name);
+        if (it == cachedMaterials_.end()) {
+            return MaterialPtr();
+        }
+        return it->second;
     }
 
-    MaterialPtr MaterialManager::createMaterial(const std::string& name, MaterialTypeName typeName)
+    MaterialPtr MaterialManager::createMaterial(MaterialTypeName typeName, const std::string& name)
     {
-        return MaterialPtr();
+        auto material = std::make_shared<Material>(this, name, getMaterialType(typeName));
+
+        if (name.empty()) {
+            immediateMaterials_.insert(material.get());
+        } else {
+            if (!cachedMaterials_.emplace(name, material).second) {
+                LOG4CPLUS_ERROR(logger(), "Material " << name << " already exists");
+                return MaterialPtr();
+            }
+        }
+
+        return material;
     }
 
-    MaterialPtr MaterialManager::createMaterial(MaterialTypeName name)
+    bool MaterialManager::onMaterialClone(const MaterialPtr& material)
     {
-        return MaterialPtr();
+        if (material->name().empty()) {
+            immediateMaterials_.insert(material.get());
+            return true;
+        }
+
+        if (!cachedMaterials_.emplace(material->name(), material).second) {
+            LOG4CPLUS_ERROR(logger(), "Material " << material->name() << " already exists");
+            return false;
+        }
+
+        return true;
     }
 
     void MaterialManager::onMaterialDestroy(Material* material)
     {
+        immediateMaterials_.erase(material);
     }
 }

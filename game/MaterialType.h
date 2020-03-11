@@ -47,19 +47,28 @@ namespace af3d
     class MaterialType : boost::noncopyable
     {
     public:
+        struct ParamListInfo
+        {
+            EnumUnorderedMap<UniformName, size_t> offsets;
+            size_t totalSize = 0;
+        };
+
         MaterialType(MaterialTypeName name, const HardwareProgramPtr& prog);
         ~MaterialType() = default;
 
         inline MaterialTypeName name() const { return name_; }
 
-        bool reload(const std::string& vertSource, const std::string& fragSource);
+        inline const HardwareProgramPtr& prog() const { return prog_; }
+
+        const ParamListInfo& paramListInfo(bool isAuto) const { return isAuto ? autoParamListInfo_ : paramListInfo_; }
+
+        bool reload(const std::string& vertSource, const std::string& fragSource, HardwareContext& ctx);
 
     private:
         MaterialTypeName name_;
         HardwareProgramPtr prog_;
-        EnumSet<VertexAttribName> attribs_;
-        EnumUnorderedMap<UniformName, size_t> uniforms_; // uniform -> param array offset
-        int numTextures_;
+        ParamListInfo autoParamListInfo_;
+        ParamListInfo paramListInfo_;
     };
 
     using MaterialTypePtr = std::shared_ptr<MaterialType>;

@@ -86,6 +86,8 @@ namespace af3d
         void (GLAPIENTRY* UseProgram)(GLuint program);
         void (GLAPIENTRY* GetProgramiv)(GLuint program, GLenum pname, GLint* params);
         void (GLAPIENTRY* GetProgramInfoLog)(GLuint program, GLsizei bufSize, GLsizei* length, GLchar* infoLog);
+        void (GLAPIENTRY* GetActiveAttrib)(GLuint program, GLuint index, GLsizei bufSize, GLsizei* length, GLint* size, GLenum* type, GLchar* name);
+        void (GLAPIENTRY* GetActiveUniform)(GLuint program, GLuint index, GLsizei bufSize, GLsizei* length, GLint* size, GLenum* type, GLchar* name);
         void (GLAPIENTRY* GetShaderiv)(GLuint shader, GLenum pname, GLint* params);
         void (GLAPIENTRY* GetShaderInfoLog)(GLuint shader, GLsizei bufSize, GLsizei* length, GLchar* infoLog);
         GLint (GLAPIENTRY* GetAttribLocation)(GLuint program, const GLchar* name);

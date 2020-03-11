@@ -406,12 +406,12 @@ namespace af3d
         return btIsValid(v.x()) && btIsValid(v.y()) && btIsValid(v.z());
     }
 
-    inline btVector3 fromVector3(const Vector3f& v)
+    inline btVector3 fromVector3f(const Vector3f& v)
     {
         return btVector3(v.x(), v.y(), v.z());
     }
 
-    inline Vector3f toVector3(const btVector3& v)
+    inline Vector3f toVector3f(const btVector3& v)
     {
         return Vector3f(v.x(), v.y(), v.z());
     }

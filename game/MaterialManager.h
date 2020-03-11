@@ -53,9 +53,9 @@ namespace af3d
 
         MaterialPtr getMaterial(const std::string& name);
 
-        MaterialPtr createMaterial(const std::string& name, MaterialTypeName typeName);
+        MaterialPtr createMaterial(MaterialTypeName typeName, const std::string& name = "");
 
-        MaterialPtr createMaterial(MaterialTypeName typeName);
+        bool onMaterialClone(const MaterialPtr& material);
 
         void onMaterialDestroy(Material* material);
 

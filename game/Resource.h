@@ -59,6 +59,8 @@ namespace af3d
             const ResourceLoaderPtr& loader = ResourceLoaderPtr());
         virtual ~Resource() = default;
 
+        inline const std::string& name() const { return name_; }
+
         void invalidate();
 
         void load(const ResourceLoaderPtr& loader = ResourceLoaderPtr());

@@ -105,17 +105,17 @@ namespace af3d
 
         inline void set(T v)
         {
-            bs_[v] = true;
+            bs_[static_cast<size_t>(v)] = true;
         }
 
         inline void reset(T v)
         {
-            bs_[v] = false;
+            bs_[static_cast<size_t>(v)] = false;
         }
 
         inline void flip(T v)
         {
-            bs_[v] = !bs_[v];
+            bs_[static_cast<size_t>(v)] = !bs_[static_cast<size_t>(v)];
         }
 
         inline void setAll()
