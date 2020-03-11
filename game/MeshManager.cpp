@@ -27,6 +27,7 @@
 #include "HardwareResourceManager.h"
 #include "Logger.h"
 #include "af3d/Assert.h"
+#include <cstring>
 
 namespace af3d
 {
@@ -36,7 +37,7 @@ namespace af3d
         {
         public:
             BoxMeshGenerator(const btVector3& size, const std::array<Color, 6>& colors)
-            : size_(size),
+            : size_(toVector3f(size / 2)),
               colors_(colors)
             {
             }
@@ -51,18 +52,88 @@ namespace af3d
                 vbo->resize(4 * 6, ctx); // 4 verts per face
                 ebo->resize(6 * 6, ctx); // 6 indices per face
 
-                float* verts = (float*)vbo->lock(HardwareBuffer::WriteOnly, ctx);
-                std::uint16_t* indices = (std::uint16_t*)ebo->lock(HardwareBuffer::WriteOnly, ctx);
+                float *verts, *vertsStart = (float*)vbo->lock(HardwareBuffer::WriteOnly, ctx);
+                std::uint16_t *indices, *indicesStart = (std::uint16_t*)ebo->lock(HardwareBuffer::WriteOnly, ctx);
 
-                for (int face = 0; face < 6; ++face) {
+                std::uint16_t lastIdx = 0;
+                int face = 0;
+
+                for (int x = -1; x <= 1; x++) {
+                    for (int y = -1; y <= 1; y++) {
+                        for (int z = -1; z <= 1; z++) {
+                            if (x == 0 && y == 0 && z == 0) {
+                                continue;
+                            }
+                            if (std::abs(x) + std::abs(y) + std::abs(z) > 1) {
+                                continue;
+                            }
+
+                            Vector3f vDir;
+                            Vector3f vAdd[4];
+
+                            if (std::abs(x)){
+                                vDir.setX(x);
+                                vAdd[0].setY(1); vAdd[0].setZ(1);
+                                vAdd[1].setY(-1); vAdd[1].setZ(1);
+                                vAdd[2].setY(-1); vAdd[2].setZ(-1);
+                                vAdd[3].setY(1); vAdd[3].setZ(-1);
+                            } else if(std::abs(y)) {
+                                vDir.setY(y);
+                                vAdd[0].setZ(1); vAdd[0].setX(1);
+                                vAdd[1].setZ(-1); vAdd[1].setX(1);
+                                vAdd[2].setZ(-1); vAdd[2].setX(-1);
+                                vAdd[3].setZ(1); vAdd[3].setX(-1);
+                            } else if(std::abs(z)) {
+                                vAdd[0].setY(1); vAdd[0].setX(1);
+                                vAdd[1].setY(1); vAdd[1].setX(-1);
+                                vAdd[2].setY(-1); vAdd[2].setX(-1);
+                                vAdd[3].setY(-1); vAdd[3].setX(1);
+                                vDir.setZ(z);
+                            }
+
+                            const Color& c = colors_[face];
+
+                            for (int i = 0; i < 4; ++i) {
+                                int idx = i;
+                                if (x + y + z > 0) {
+                                    idx = 3 - i;
+                                }
+
+                                Vector3f pos = (vDir + vAdd[idx]) * size_;
+
+                                std::memcpy(verts, &pos.v[0], 12);
+                                verts += 12;
+                                std::memcpy(verts, &c.v[0], 16);
+                                verts += 16;
+                            }
+
+                            for (std::uint16_t i = 0; i < 3; ++i) {
+                                *indices = lastIdx + i;
+                                ++indices;
+                            }
+
+                            *indices = lastIdx + 2;
+                            ++indices;
+                            *indices = lastIdx + 3;
+                            ++indices;
+                            *indices = lastIdx + 0;
+                            ++indices;
+
+                            lastIdx += 4;
+                            ++face;
+                        }
+                    }
                 }
+
+                btAssert((verts - vertsStart) == vbo->sizeInBytes(ctx));
+                btAssert((indices - indicesStart) == ebo->sizeInBytes(ctx));
 
                 ebo->unlock(ctx);
                 vbo->unlock(ctx);
             }
 
         private:
-            btVector3 size_;
+            Vector3f size_;
             std::array<Color, 6> colors_;
         };
     }
@@ -140,7 +211,7 @@ namespace af3d
         VertexArrayLayout vaLayout;
 
         vaLayout.addEntry(VertexArrayEntry(VertexAttribName::Pos, GL_FLOAT_VEC3, 0, 0));
-        vaLayout.addEntry(VertexArrayEntry(VertexAttribName::Color, GL_FLOAT_VEC4, 0, 12));
+        vaLayout.addEntry(VertexArrayEntry(VertexAttribName::Color, GL_FLOAT_VEC4, 12, 0));
 
         auto vbo = hwManager.createVertexBuffer(HardwareBuffer::Usage::StaticDraw, 28);
         auto ebo = hwManager.createIndexBuffer(HardwareBuffer::Usage::StaticDraw, HardwareIndexBuffer::UInt16);

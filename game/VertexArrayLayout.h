@@ -36,17 +36,17 @@ namespace af3d
         VertexArrayEntry() = default;
         VertexArrayEntry(VertexAttribName name,
             GLenum type,
-            int bufferIdx,
-            GLsizeiptr bufferOffset)
+            GLsizeiptr offset,
+            int bufferIdx)
         : name(name),
           type(type),
-          bufferIdx(bufferIdx),
-          bufferOffset(bufferOffset) {}
+          offset(offset),
+          bufferIdx(bufferIdx) {}
 
         VertexAttribName name;
         GLenum type;
+        GLsizeiptr offset;
         int bufferIdx;
-        GLsizeiptr bufferOffset;
     };
 
     static_assert(std::is_pod<VertexArrayEntry>::value, "VertexArrayEntry must be POD type");
