@@ -1,6 +1,9 @@
 set(SOURCES
     ${CMAKE_CURRENT_BINARY_DIR}/config.ini.cpp
     Component.cpp
+    RenderMeshComponent.cpp
+    RenderComponentManager.cpp
+    PhasedComponentManager.cpp
     DummyShell.cpp
     Game.cpp
     GameLogAppender.cpp
