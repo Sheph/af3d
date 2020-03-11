@@ -43,7 +43,9 @@ namespace af3d
 
     void Resource::load(const ResourceLoaderPtr& loader)
     {
-        btAssert(loader || loader_);
+        if (!loader && !loader_) {
+            return;
+        }
 
         State old = Unloaded;
         if (state_.compare_exchange_strong(old, Loading) || loader) {

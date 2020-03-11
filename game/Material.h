@@ -39,6 +39,7 @@ namespace af3d
     class MaterialParams
     {
     public:
+        MaterialParams() = default;
         MaterialParams(const MaterialTypePtr& materialType, bool isAuto);
         ~MaterialParams() = default;
 
@@ -59,7 +60,7 @@ namespace af3d
         void setUniformImpl(UniformName name, const Byte* data, GLenum baseType, GLint numComponents, GLsizei count);
 
         MaterialTypePtr materialType_;
-        bool isAuto_;
+        bool isAuto_ = false;
         ParamList paramList_;
         UniformMap uniforms_;
     };

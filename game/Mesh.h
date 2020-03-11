@@ -32,19 +32,27 @@
 
 namespace af3d
 {
+    class MeshManager;
+
     class Mesh : public Resource
     {
     public:
-        Mesh(const std::string& name,
+        Mesh(MeshManager* mgr,
+            const std::string& name,
             const AABB& aabb,
             const std::vector<SubMeshPtr>& subMeshes,
             const VertexArrayPtr& va,
             const ResourceLoaderPtr& loader = ResourceLoaderPtr());
-        ~Mesh() = default;
+        ~Mesh();
+
+        inline const AABB& aabb() const { return aabb_; }
+
+        const std::vector<SubMeshPtr>& subMeshes() const { return subMeshes_; }
+
+        inline const VertexArrayPtr& va() const { return va_; }
 
     private:
-        void doInvalidate(HardwareContext& ctx) override;
-
+        MeshManager* mgr_;
         AABB aabb_;
         std::vector<SubMeshPtr> subMeshes_;
         VertexArrayPtr va_;

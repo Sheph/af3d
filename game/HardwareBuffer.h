@@ -53,9 +53,9 @@ namespace af3d
 
         inline GLsizeiptr elementSize() const { return elementSize_; }
 
-        inline GLsizeiptr count() const { return count_; }
+        inline GLsizeiptr count(HardwareContext& ctx) const { return count_; }
 
-        inline GLsizeiptr sizeInBytes() const { return count_ * elementSize_; }
+        inline GLsizeiptr sizeInBytes(HardwareContext& ctx) const { return count_ * elementSize_; }
 
         GLenum glUsage() const;
 

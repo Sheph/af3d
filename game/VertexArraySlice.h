@@ -34,11 +34,17 @@ namespace af3d
     {
     public:
         VertexArraySlice() = default;
-        VertexArraySlice(const VertexArrayPtr& va,
-            std::uint32_t start,
-            std::uint32_t count,
-            std::uint32_t baseVertex) = default;
+        explicit VertexArraySlice(const VertexArrayPtr& va,
+            std::uint32_t start = 0,
+            std::uint32_t count = 0,
+            std::uint32_t baseVertex = 0);
         ~VertexArraySlice() = default;
+
+        inline const VertexArrayPtr& va() const { return va_; }
+
+        inline std::uint32_t start() const { return start_; }
+        inline std::uint32_t count() const { return count_; }
+        inline std::uint32_t baseVertex() const { return baseVertex_; }
 
     private:
         VertexArrayPtr va_;

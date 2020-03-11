@@ -81,7 +81,7 @@ namespace af3d
         // Type::Textures
         std::vector<HardwareTextureBinding> textures_;
 
-        // Type::VertexArray
+        // Type::VertexArray and Type::Draw
         VertexArrayPtr va_;
 
         // Type::MaterialParams

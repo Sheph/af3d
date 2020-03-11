@@ -35,21 +35,23 @@ namespace af3d
     class VertexArray : boost::noncopyable
     {
     public:
+        using VBOList = std::vector<HardwareVertexBufferPtr>;
+
         VertexArray(const VertexArrayLayout& layout,
-            const std::vector<HarwareVertexBufferPtr>& vbos,
-            const HarwareIndexBufferPtr& ebo);
+            const VBOList& vbos,
+            const HardwareIndexBufferPtr& ebo = HardwareIndexBufferPtr());
         ~VertexArray() = default;
 
         inline const VertexArrayLayout& layout() const { return layout_; }
 
-        inline const std::vector<HarwareVertexBufferPtr>& vbos() const { return vbos_; }
+        inline const VBOList& vbos() const { return vbos_; }
 
-        inline const HarwareIndexBufferPtr& ebo() const { return ebo_; }
+        inline const HardwareIndexBufferPtr& ebo() const { return ebo_; }
 
     private:
         VertexArrayLayout layout_;
-        std::vector<HarwareVertexBufferPtr> vbos_;
-        HarwareIndexBufferPtr ebo_;
+        VBOList vbos_;
+        HardwareIndexBufferPtr ebo_;
     };
 
     using VertexArrayPtr = std::shared_ptr<VertexArray>;

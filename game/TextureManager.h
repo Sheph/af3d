@@ -51,7 +51,8 @@ namespace af3d
 
         TexturePtr loadTexture(const std::string& path);
 
-        TexturePtr createTexture(std::uint32_t width, std::uint32_t height);
+        TexturePtr createTexture(std::uint32_t width, std::uint32_t height,
+            const ResourceLoaderPtr& loader = ResourceLoaderPtr());
 
         void onTextureDestroy(Texture* tex);
 

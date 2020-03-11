@@ -35,7 +35,7 @@ namespace af3d
     void HardwareVertexBuffer::doResize(HardwareContext& ctx)
     {
         ogl.BindBuffer(GL_ARRAY_BUFFER, id(ctx));
-        ogl.BufferData(GL_ARRAY_BUFFER, sizeInBytes(), NULL, glUsage());
+        ogl.BufferData(GL_ARRAY_BUFFER, sizeInBytes(ctx), NULL, glUsage());
     }
 
     void HardwareVertexBuffer::doUpload(GLintptr offset, GLsizeiptr cnt, const GLvoid* data, HardwareContext& ctx)

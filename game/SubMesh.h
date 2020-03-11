@@ -38,12 +38,16 @@ namespace af3d
             const VertexArraySlice& vaSlice);
         ~SubMesh() = default;
 
+        inline const MaterialPtr& material() const { return material_; }
+
+        inline const VertexArraySlice& vaSlice() const { return vaSlice_; }
+
     private:
         MaterialPtr material_;
         VertexArraySlice vaSlice_;
     };
 
-    using MSubMeshPtr = std::shared_ptr<SubMesh>;
+    using SubMeshPtr = std::shared_ptr<SubMesh>;
 }
 
 #endif

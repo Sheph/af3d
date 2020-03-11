@@ -33,6 +33,7 @@
 #include "Renderer.h"
 #include "TextureManager.h"
 #include "MaterialManager.h"
+#include "MeshManager.h"
 #include "af3d/Utils.h"
 #include "af3d/StreamAppConfig.h"
 
@@ -64,6 +65,10 @@ namespace af3d
         }
 
         if (!materialManager.init()) {
+            return false;
+        }
+
+        if (!meshManager.init()) {
             return false;
         }
 
@@ -161,6 +166,9 @@ namespace af3d
         if (!materialManager.renderReload(ctx)) {
             return false;
         }
+        if (!meshManager.renderReload(ctx)) {
+            return false;
+        }
         return true;
     }
 
@@ -168,6 +176,7 @@ namespace af3d
     {
         textureManager.reload();
         materialManager.reload();
+        meshManager.reload();
         gameShell->reload();
     }
 
@@ -247,6 +256,8 @@ namespace af3d
         sceneObjectFactory.shutdown();
 
         inputManager.shutdown();
+
+        meshManager.shutdown();
 
         materialManager.shutdown();
 

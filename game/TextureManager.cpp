@@ -63,6 +63,7 @@ namespace af3d
         }
         for (auto tex : immediateTextures_) {
             tex->invalidate();
+            tex->load();
         }
     }
 
@@ -91,10 +92,12 @@ namespace af3d
         return tex;
     }
 
-    TexturePtr TextureManager::createTexture(std::uint32_t width, std::uint32_t height)
+    TexturePtr TextureManager::createTexture(std::uint32_t width, std::uint32_t height,
+        const ResourceLoaderPtr& loader)
     {
         auto tex = std::make_shared<Texture>(this, "",
-            hwManager.createTexture(width, height));
+            hwManager.createTexture(width, height), loader);
+        tex->load();
         immediateTextures_.insert(tex.get());
         return tex;
     }
