@@ -100,6 +100,12 @@ namespace af3d
         btZeroNormalize(n);
         return n;
     }
+
+    void makeLookAt(const btVector3& dir, const btVector3& up, btMatrix3x3& basis);
+
+    void makeLookAt(const btVector3& dir, const btVector3& up, btQuaternion& rotation);
+
+    void makeLookAt(const btVector3& pos, const btVector3& dir, const btVector3& up, btTransform& xf);
 }
 
 #endif

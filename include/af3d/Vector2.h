@@ -27,6 +27,7 @@
 #define _AF3D_VECTOR2_H_
 
 #include "af3d/Types.h"
+#include <type_traits>
 
 namespace af3d
 {
@@ -42,8 +43,6 @@ namespace af3d
             v[0] = _x;
             v[1] = _y;
         }
-
-        ~Vector2() {}
 
         Vector2<T>& operator+=(const Vector2<T>& other)
         {
@@ -186,6 +185,9 @@ namespace af3d
 
         T x() const { return v[0]; }
         T y() const { return v[1]; }
+
+        T& operator[](int i) { return v[i]; }
+        T operator[](int i) const { return v[i]; }
 
         bool operator==(const Vector2<T>& other) const
         {
@@ -347,6 +349,9 @@ namespace af3d
 
     using Vector2f = Vector2<float>;
     using Vector2i = Vector2<int>;
+
+    static_assert(sizeof(Vector2f) == 8, "Bad Vector2f size");
+    static_assert(sizeof(Vector2i) == 8, "Bad Vector2i size");
 
     extern const Vector2f Vector2f_zero;
     extern const Vector2i Vector2i_zero;

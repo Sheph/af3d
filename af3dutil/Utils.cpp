@@ -38,6 +38,13 @@ namespace af3d
     const Vector3f Vector3f_zero(0.0f, 0.0f, 0.0f);
     const Vector3i Vector3i_zero(0, 0, 0);
     const btVector3 btVector3_zero(0.0f, 0.0f, 0.0f);
+    const btVector3 btVector3_up(0.0f, 1.0f, 0.0f);
+    const btVector3 btVector3_down(0.0f, -1.0f, 0.0f);
+    const btVector3 btVector3_forward(0.0f, 0.0f, -1.0f);
+    const btVector3 btVector3_back(0.0f, 0.0f, 1.0f);
+    const btVector3 btVector3_right(1.0f, 0.0f, 0.0f);
+    const btVector3 btVector3_left(-1.0f, 0.0f, 0.0f);
+    const btVector3 btVector3_one(1.0f, 1.0f, 1.0f);
 
     const Vector4f Vector4f_zero(0.0f, 0.0f, 0.0f, 0.0f);
     const Vector4i Vector4i_zero(0, 0, 0, 0);
@@ -72,5 +79,30 @@ namespace af3d
     {
         str.assign(std::istreambuf_iterator<char>(is), std::istreambuf_iterator<char>());
         return !is.fail();
+    }
+
+    void makeLookAt(const btVector3& dir, const btVector3& up, btMatrix3x3& basis)
+    {
+        auto vForward = btZeroNormalized(-dir);
+        auto vRight = up.cross(vForward);
+        btZeroNormalize(vRight);
+        auto vUp = vForward.cross(vRight);
+
+        basis[0] = vRight;
+        basis[1] = vUp;
+        basis[2] = vForward;
+    }
+
+    void makeLookAt(const btVector3& dir, const btVector3& up, btQuaternion& rotation)
+    {
+        btMatrix3x3 m;
+        makeLookAt(dir, up, m);
+        m.getRotation(rotation);
+    }
+
+    void makeLookAt(const btVector3& pos, const btVector3& dir, const btVector3& up, btTransform& xf)
+    {
+        makeLookAt(dir, up, xf.getBasis());
+        xf.setOrigin(pos);
     }
 }

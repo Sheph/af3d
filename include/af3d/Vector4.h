@@ -27,6 +27,7 @@
 #define _AF3D_VECTOR4_H_
 
 #include "af3d/Types.h"
+#include <type_traits>
 
 namespace af3d
 {
@@ -44,8 +45,6 @@ namespace af3d
             v[2] = _z;
             v[3] = _w;
         }
-
-        ~Vector4() {}
 
         Vector4<T>& operator+=(const Vector4<T>& other)
         {
@@ -192,6 +191,9 @@ namespace af3d
         T y() const { return v[1]; }
         T z() const { return v[2]; }
         T w() const { return v[3]; }
+
+        T& operator[](int i) { return v[i]; }
+        T operator[](int i) const { return v[i]; }
 
         bool operator==(const Vector4<T>& other) const
         {
@@ -358,6 +360,9 @@ namespace af3d
     using Vector4f = Vector4<float>;
     using Vector4i = Vector4<int>;
     using Color = Vector4f;
+
+    static_assert(sizeof(Vector4f) == 16, "Bad Vector3f size");
+    static_assert(sizeof(Vector4i) == 16, "Bad Vector3i size");
 
     extern const Vector4f Vector4f_zero;
     extern const Vector4i Vector4i_zero;

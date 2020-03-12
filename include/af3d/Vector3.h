@@ -27,6 +27,7 @@
 #define _AF3D_VECTOR3_H_
 
 #include "af3d/Types.h"
+#include <type_traits>
 
 namespace af3d
 {
@@ -43,8 +44,6 @@ namespace af3d
             v[1] = _y;
             v[2] = _z;
         }
-
-        ~Vector3() {}
 
         Vector3<T>& operator+=(const Vector3<T>& other)
         {
@@ -222,6 +221,9 @@ namespace af3d
         T y() const { return v[1]; }
         T z() const { return v[2]; }
 
+        T& operator[](int i) { return v[i]; }
+        T operator[](int i) const { return v[i]; }
+
         bool operator==(const Vector3<T>& other) const
         {
             return (v[2] == other.v[2]) &&
@@ -397,9 +399,19 @@ namespace af3d
     using Vector3f = Vector3<float>;
     using Vector3i = Vector3<int>;
 
+    static_assert(sizeof(Vector3f) == 12, "Bad Vector3f size");
+    static_assert(sizeof(Vector3i) == 12, "Bad Vector3i size");
+
     extern const Vector3f Vector3f_zero;
     extern const Vector3i Vector3i_zero;
     extern const btVector3 btVector3_zero;
+    extern const btVector3 btVector3_up;
+    extern const btVector3 btVector3_down;
+    extern const btVector3 btVector3_forward;
+    extern const btVector3 btVector3_back;
+    extern const btVector3 btVector3_right;
+    extern const btVector3 btVector3_left;
+    extern const btVector3 btVector3_one;
 
     inline bool btIsValid(const Vector3f& v)
     {
