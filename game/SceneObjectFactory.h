@@ -44,6 +44,8 @@ namespace af3d
         void shutdown();
 
         SceneObjectPtr createDummy();
+
+        SceneObjectPtr createColoredBox(const btVector3& size);
     };
 
     extern SceneObjectFactory sceneObjectFactory;

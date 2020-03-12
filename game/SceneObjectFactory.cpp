@@ -24,6 +24,9 @@
  */
 
 #include "SceneObjectFactory.h"
+#include "MaterialManager.h"
+#include "MeshManager.h"
+#include "RenderMeshComponent.h"
 #include "Settings.h"
 #include "Utils.h"
 #include "Logger.h"
@@ -58,11 +61,33 @@ namespace af3d
         ComponentPtr component =
             boost::make_shared<PhysicsBodyComponent>(body);*/
 
-        SceneObjectPtr obj = std::make_shared<SceneObject>();
+        auto obj = std::make_shared<SceneObject>();
 
         //obj->setBodyDef(body->bodyDef());
 
         //obj->addComponent(component);
+
+        return obj;
+    }
+
+    SceneObjectPtr SceneObjectFactory::createColoredBox(const btVector3& size)
+    {
+        auto mesh = meshManager.createBoxMesh(size,
+            materialManager.getMaterial(MaterialManager::materialUnlitColoredDefault),
+            {
+                Color(1.0f, 0.0f, 0.0f, 1.0f),
+                Color(0.0f, 1.0f, 0.0f, 1.0f),
+                Color(0.0f, 0.0f, 1.0f, 1.0f),
+                Color(1.0f, 1.0f, 0.0f, 1.0f),
+                Color(1.0f, 0.0f, 1.0f, 1.0f),
+                Color(0.0f, 1.0f, 1.0f, 1.0f)
+            });
+
+        auto obj = std::make_shared<SceneObject>();
+
+        auto rc = std::make_shared<RenderMeshComponent>(mesh);
+
+        obj->addComponent(rc);
 
         return obj;
     }

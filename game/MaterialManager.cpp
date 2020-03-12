@@ -31,6 +31,8 @@
 
 namespace af3d
 {
+    const std::string MaterialManager::materialUnlitColoredDefault = "_builtin_unlitColoredDefault";
+
     static const struct {
         const char* vert;
         const char* frag;
@@ -105,6 +107,11 @@ namespace af3d
             if (!mat->reload(vertSource, fragSource, ctx)) {
                 //return false;
             }
+        }
+
+        if (first_) {
+            first_ = false;
+            createMaterial(MaterialTypeUnlitColored, materialUnlitColoredDefault);
         }
 
         return true;

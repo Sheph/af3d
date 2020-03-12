@@ -59,11 +59,14 @@ namespace af3d
 
         void onMaterialDestroy(Material* material);
 
+        static const std::string materialUnlitColoredDefault;
+
     private:
         using MaterialTypes = std::array<MaterialTypePtr, MaterialTypeMax + 1>;
         using CachedMaterials = std::unordered_map<std::string, MaterialPtr>;
         using ImmediateMaterials = std::unordered_set<Material*>;
 
+        bool first_ = true;
         MaterialTypes materialTypes_;
         CachedMaterials cachedMaterials_;
         ImmediateMaterials immediateMaterials_;
