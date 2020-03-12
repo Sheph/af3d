@@ -23,33 +23,47 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _AF3D_PLANE_H_
-#define _AF3D_PLANE_H_
+#include "af3d/Plane.h"
 
-#include "bullet/LinearMath/btConvexHull.h"
-
-inline bool operator==(const btPlane& a, const btPlane& b)
+btVector3 btPlaneProject(const btPlane& plane, const btVector3& point)
 {
-    return (a.normal == b.normal && a.dist == b.dist);
+    return point - plane.normal * (point.dot(plane.normal) + plane.dist);
 }
 
-inline bool operator!=(const btPlane& a, const btPlane& b)
+btVector3 btPlaneLineIntersection(const btPlane& plane, const btVector3& p0, const btVector3& p1)
 {
-    return !(a == b);
+    btVector3 dif = p1 - p0;
+    float dn = plane.normal.dot(dif);
+    float t = -(plane.dist + plane.normal.dot(p0)) / dn;
+    return p0 + (dif * t);
 }
 
-inline btPlane btPlaneFlip(const btPlane& plane)
+btVector3 btPlaneThreeIntersection(const btPlane& p0, const btPlane& p1, const btPlane& p2)
 {
-    return btPlane(-plane.normal, -plane.dist);
+    btVector3 N1 = p0.normal;
+    btVector3 N2 = p1.normal;
+    btVector3 N3 = p2.normal;
+
+    btVector3 n2n3;
+    n2n3 = N2.cross(N3);
+    btVector3 n3n1;
+    n3n1 = N3.cross(N1);
+    btVector3 n1n2;
+    n1n2 = N1.cross(N2);
+
+    float quotient = (N1.dot(n2n3));
+
+    btAssert(btFabs(quotient) > 0.000001f);
+
+    quotient = -1.0f / quotient;
+    n2n3 *= p0.dist;
+    n3n1 *= p1.dist;
+    n1n2 *= p2.dist;
+    btVector3 potentialVertex = n2n3;
+    potentialVertex += n3n1;
+    potentialVertex += n1n2;
+    potentialVertex *= quotient;
+
+    btVector3 result(potentialVertex.getX(), potentialVertex.getY(), potentialVertex.getZ());
+    return result;
 }
-
-inline bool btPlaneIsCoplanar(const btPlane& a, const btPlane& b)
-{
-    return (a == b || a == btPlaneFlip(b));
-}
-
-btVector3 btPlaneProject(const btPlane& plane, const btVector3& point);
-btVector3 btPlaneLineIntersection(const btPlane& plane, const btVector3& p0, const btVector3& p1);
-btVector3 btPlaneThreeIntersection(const btPlane& p0, const btPlane& p1, const btPlane& p2);
-
-#endif
