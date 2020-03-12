@@ -361,8 +361,8 @@ namespace af3d
     using Vector4i = Vector4<int>;
     using Color = Vector4f;
 
-    static_assert(sizeof(Vector4f) == 16, "Bad Vector3f size");
-    static_assert(sizeof(Vector4i) == 16, "Bad Vector3i size");
+    static_assert(sizeof(Vector4f) == 16, "Bad Vector4f size");
+    static_assert(sizeof(Vector4i) == 16, "Bad Vector4i size");
 
     extern const Vector4f Vector4f_zero;
     extern const Vector4i Vector4i_zero;
