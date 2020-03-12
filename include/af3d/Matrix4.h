@@ -27,6 +27,7 @@
 #define _AF3D_MATRIX4_H_
 
 #include "af3d/Vector4.h"
+#include <cstring>
 
 namespace af3d
 {
@@ -170,6 +171,51 @@ namespace af3d
                      T(0), T(1), T(0), T(0),
                      T(0), T(0), T(1), T(0),
                      T(0), T(0), T(0), T(1));
+        }
+
+        void setPerspective(T left, T right, T bottom, T top, T zNear, T zFar)
+        {
+            T invW = T(1) / (right - left);
+            T invH = T(1) / (top - bottom);
+            T invD = T(1) / (zFar - zNear);
+
+            T A = T(2) * zNear * invW;
+            T B = T(2) * zNear * invH;
+            T C = (right + left) * invW;
+            T D = (top + bottom) * invH;
+            T q = -(zFar + zNear) * invD;
+            T qn = T(-2) * (zFar * zNear) * invD;
+
+            std::memset(&v[0], 0, sizeof(T[16]));
+
+            m[0][0] = A;
+            m[0][2] = C;
+            m[1][1] = B;
+            m[1][2] = D;
+            m[2][2] = q;
+            m[2][3] = qn;
+            m[3][2] = T(-1);
+        }
+
+        void setOrtho(T left, T right, T bottom, T top, T zNear, T zFar)
+        {
+            T a = T(2) / (right - left);
+            T b = T(2) / (top - bottom);
+            T c = T(-2) / (zFar - zNear);
+
+            T tx = -(right + left) / (right - left);
+            T ty = -(top + bottom) / (top - bottom);
+            T tz = -(zFar + zNear) / (zFar - zNear);
+
+            std::memset(&v[0], 0, sizeof(T[16]));
+
+            v[0] = a;
+            v[5] = b;
+            v[10] = c;
+            v[12] = tx;
+            v[13] = ty;
+            v[14] = tz;
+            v[15] = T(1);
         }
 
         static const Matrix4<T>& getIdentity()

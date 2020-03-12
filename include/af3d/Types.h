@@ -59,4 +59,9 @@ namespace af3d
     }
 }
 
+inline bool operator!=(const btTransform& t1, const btTransform& t2)
+{
+    return !(t1 == t2);
+}
+
 #endif
