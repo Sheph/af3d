@@ -81,14 +81,17 @@ namespace af3d
 
         const Matrix4f& viewProjMat() const;
         const Planes& planes() const;
-        const AABB& aabb() const;
 
         inline const btPlane& plane(Plane p) const { return planes()[static_cast<int>(p)]; }
+
+        bool isVisible(const AABB& aabb) const;
 
     private:
         void projUpdated();
 
         void updateViewProjMat() const;
+
+        inline btPlane& cachedPlane(Plane p) const { return cachedPlanes_[static_cast<int>(p)]; }
 
         Type type_ = Perspective;
         float fov_ = btRadians(110.0f);
@@ -102,12 +105,10 @@ namespace af3d
         mutable Matrix4f cachedProjMat_;
         mutable Matrix4f cachedViewProjMat_;
         mutable Planes cachedPlanes_;
-        mutable AABB cachedAABB_;
 
         mutable bool recalcProjMat_ = true;
         mutable bool recalcViewProjMat_ = true;
         mutable bool recalcPlanes_ = true;
-        mutable bool recalcAABB_ = true;
     };
 }
 

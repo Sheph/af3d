@@ -26,7 +26,19 @@
 #ifndef _AF3D_PLANE_H_
 #define _AF3D_PLANE_H_
 
+#include "af3d/AABB.h"
 #include "bullet/LinearMath/btConvexHull.h"
+
+namespace af3d
+{
+    enum class PlaneSide
+    {
+        None = 0,
+        Under,
+        Over,
+        Both
+    };
+}
 
 inline bool operator==(const btPlane& a, const btPlane& b)
 {
@@ -51,5 +63,8 @@ inline bool btPlaneIsCoplanar(const btPlane& a, const btPlane& b)
 btVector3 btPlaneProject(const btPlane& plane, const btVector3& point);
 btVector3 btPlaneLineIntersection(const btPlane& plane, const btVector3& p0, const btVector3& p1);
 btVector3 btPlaneThreeIntersection(const btPlane& p0, const btPlane& p1, const btPlane& p2);
+af3d::PlaneSide btPlanePointTest(const btPlane& plane, const btVector3& p);
+af3d::PlaneSide btPlaneAABBTest(const btPlane& plane, const btVector3& center, const btVector3& extents);
+af3d::PlaneSide btPlaneAABBTest(const btPlane& plane, const af3d::AABB& aabb);
 
 #endif

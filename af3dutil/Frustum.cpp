@@ -81,7 +81,6 @@ namespace af3d
             xf_ = value;
             recalcViewProjMat_ = true;
             recalcPlanes_ = true;
-            recalcAABB_ = true;
         }
     }
 
@@ -96,17 +95,45 @@ namespace af3d
         updateViewProjMat();
         if (recalcPlanes_) {
             recalcPlanes_ = false;
+
+            const Matrix4f& m = cachedViewProjMat_;
+
+            cachedPlane(Plane::Left).normal.setX(m[3][0] + m[0][0]);
+            cachedPlane(Plane::Left).normal.setY(m[3][1] + m[0][1]);
+            cachedPlane(Plane::Left).normal.setZ(m[3][2] + m[0][2]);
+            cachedPlane(Plane::Left).dist = m[3][3] + m[0][3];
+
+            cachedPlane(Plane::Right).normal.setX(m[3][0] - m[0][0]);
+            cachedPlane(Plane::Right).normal.setY(m[3][1] - m[0][1]);
+            cachedPlane(Plane::Right).normal.setZ(m[3][2] - m[0][2]);
+            cachedPlane(Plane::Right).dist = m[3][3] - m[0][3];
+
+            cachedPlane(Plane::Top).normal.setX(m[3][0] - m[1][0]);
+            cachedPlane(Plane::Top).normal.setY(m[3][1] - m[1][1]);
+            cachedPlane(Plane::Top).normal.setZ(m[3][2] - m[1][2]);
+            cachedPlane(Plane::Top).dist = m[3][3] - m[1][3];
+
+            cachedPlane(Plane::Bottom).normal.setX(m[3][0] + m[1][0]);
+            cachedPlane(Plane::Bottom).normal.setY(m[3][1] + m[1][1]);
+            cachedPlane(Plane::Bottom).normal.setZ(m[3][2] + m[1][2]);
+            cachedPlane(Plane::Bottom).dist = m[3][3] + m[1][3];
+
+            cachedPlane(Plane::Near).normal.setX(m[3][0] + m[2][0]);
+            cachedPlane(Plane::Near).normal.setY(m[3][1] + m[2][1]);
+            cachedPlane(Plane::Near).normal.setZ(m[3][2] + m[2][2]);
+            cachedPlane(Plane::Near).dist = m[3][3] + m[2][3];
+
+            cachedPlane(Plane::Far).normal.setX(m[3][0] - m[2][0]);
+            cachedPlane(Plane::Far).normal.setY(m[3][1] - m[2][1]);
+            cachedPlane(Plane::Far).normal.setZ(m[3][2] - m[2][2]);
+            cachedPlane(Plane::Far).dist = m[3][3] - m[2][3];
+
+            for (int i = 0; i < 6; ++i) {
+                float length = btZeroNormalize(cachedPlanes_[i].normal);
+                cachedPlanes_[i].dist /= length;
+            }
         }
         return cachedPlanes_;
-    }
-
-    const AABB& Frustum::aabb() const
-    {
-        updateViewProjMat();
-        if (recalcAABB_) {
-            recalcAABB_ = false;
-        }
-        return cachedAABB_;
     }
 
     void Frustum::projUpdated()
@@ -114,7 +141,6 @@ namespace af3d
         recalcProjMat_ = true;
         recalcViewProjMat_ = true;
         recalcPlanes_ = true;
-        recalcAABB_ = true;
     }
 
     void Frustum::updateViewProjMat() const
@@ -143,5 +169,22 @@ namespace af3d
         }
 
         cachedViewProjMat_ = cachedProjMat_ * Matrix4f(xf_);
+    }
+
+    bool Frustum::isVisible(const AABB& aabb) const
+    {
+        btVector3 center = aabb.getCenter();
+        btVector3 extents = aabb.getExtents();
+
+        const Planes& p = planes();
+
+        for (int i = 0; i < 6; ++i) {
+            PlaneSide side = btPlaneAABBTest(p[i], center, extents);
+            if (side == PlaneSide::Under) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
