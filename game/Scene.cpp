@@ -30,7 +30,10 @@
 #include "Logger.h"
 #include "InputManager.h"
 #include "GameShell.h"
-#include "ComponentManager.h"
+#include "PhasedComponentManager.h"
+#include "RenderComponentManager.h"
+#include "PhasedComponent.h"
+#include "RenderComponent.h"
 #include <Rocket/Core/ElementDocument.h>
 #include <cmath>
 
@@ -43,6 +46,9 @@ namespace af3d
     public:
         explicit Impl(Scene* scene)
         {
+            phasedComponentManager_.reset(new PhasedComponentManager());
+            renderComponentManager_.reset(new RenderComponentManager());
+
             timerIt_ = timers_.end();
         }
 
@@ -50,8 +56,10 @@ namespace af3d
         {
         }
 
+        std::unique_ptr<PhasedComponentManager> phasedComponentManager_;
+        std::unique_ptr<RenderComponentManager> renderComponentManager_;
         TimerMap timers_;
-        std::int32_t nextTimerCookie_ = 1;
+        std::uint32_t nextTimerCookie_ = 1;
         TimerMap::const_iterator timerIt_;
     };
 
@@ -70,6 +78,9 @@ namespace af3d
         respawnPoint_.setIdentity();
 
         setScene(this);
+
+        impl_->phasedComponentManager_->setScene(this);
+        impl_->renderComponentManager_->setScene(this);
 
         camera_ = std::make_shared<SceneObject>();
 
@@ -103,10 +114,20 @@ namespace af3d
         dummy_.reset();
 
         impl_->timers_.clear();
+
+        impl_->phasedComponentManager_->cleanup();
+        impl_->renderComponentManager_->cleanup();
     }
 
     void Scene::registerComponent(const ComponentPtr& component)
     {
+        if (std::dynamic_pointer_cast<PhasedComponent>(component)) {
+            impl_->phasedComponentManager_->addComponent(component);
+        } else if (std::dynamic_pointer_cast<RenderComponent>(component)) {
+            impl_->renderComponentManager_->addComponent(component);
+        } else {
+            runtime_assert(false);
+        }
     }
 
     void Scene::unregisterComponent(const ComponentPtr& component)
@@ -192,14 +213,14 @@ namespace af3d
         firstUpdate_ = false;
     }
 
-    std::int32_t Scene::addTimer(const TimerFn& fn)
+    std::uint32_t Scene::addTimer(const TimerFn& fn)
     {
         impl_->timers_[impl_->nextTimerCookie_] = fn;
 
         return impl_->nextTimerCookie_++;
     }
 
-    void Scene::removeTimer(std::int32_t cookie)
+    void Scene::removeTimer(std::uint32_t cookie)
     {
         TimerMap::iterator it = impl_->timers_.find(cookie);
 

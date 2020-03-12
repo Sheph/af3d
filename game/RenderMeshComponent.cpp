@@ -27,8 +27,9 @@
 
 namespace af3d
 {
-    RenderMeshComponent::RenderMeshComponent(const MeshPtr& mesh)
-    : mesh_(mesh)
+    RenderMeshComponent::RenderMeshComponent(const MeshPtr& mesh, const btTransform& xf)
+    : mesh_(mesh),
+      xf_(xf)
     {
     }
 

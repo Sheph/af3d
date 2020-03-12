@@ -30,7 +30,7 @@
 
 namespace af3d
 {
-    static std::int32_t nextCookie = 0;
+    static std::uint32_t nextCookie = 0;
 
     static void insertComponent(std::vector<ComponentPtr>& components,
         const ComponentPtr& component)

@@ -40,7 +40,7 @@ namespace af3d
         SceneObject();
         ~SceneObject();
 
-        inline std::int32_t cookie() const { return cookie_; }
+        inline std::uint32_t cookie() const { return cookie_; }
 
         inline const std::string& name() const { return name_; }
         inline void setName(const std::string& value) { name_ = value; }
@@ -236,7 +236,7 @@ namespace af3d
 
         using Flags = EnumSet<Flag>;
 
-        std::int32_t cookie_;
+        std::uint32_t cookie_;
 
         SceneObjectType type_;
 

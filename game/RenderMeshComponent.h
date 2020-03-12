@@ -35,10 +35,10 @@ namespace af3d
         public RenderComponent
     {
     public:
-        explicit RenderMeshComponent(const MeshPtr& mesh);
+        explicit RenderMeshComponent(const MeshPtr& mesh, const btTransform& xf = btTransform::getIdentity());
         ~RenderMeshComponent() = default;
 
-        virtual ComponentPtr sharedThis() { return shared_from_this(); }
+        ComponentPtr sharedThis() override { return shared_from_this(); }
 
         void update(float dt) override;
 
@@ -52,6 +52,11 @@ namespace af3d
         void onUnregister() override;
 
         MeshPtr mesh_;
+        btTransform xf_;
+
+        btTransform prevParentXf_;
+        AABB prevAABB_;
+        std::uint32_t cookie_ = 0;
     };
 
     using RenderMeshComponentPtr = std::shared_ptr<RenderMeshComponent>;

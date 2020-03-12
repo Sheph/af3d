@@ -62,9 +62,9 @@ namespace af3d
 
         void update(float dt);
 
-        std::int32_t addTimer(const TimerFn& fn);
+        std::uint32_t addTimer(const TimerFn& fn);
 
-        void removeTimer(std::int32_t cookie);
+        void removeTimer(std::uint32_t cookie);
 
         void setGravity(const btVector3& value);
         btVector3 gravity() const;
