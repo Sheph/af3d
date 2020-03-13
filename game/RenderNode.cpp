@@ -24,11 +24,230 @@
  */
 
 #include "RenderNode.h"
+#include "Logger.h"
 
 namespace af3d
 {
-    bool RenderNode::operator<(const RenderNode& other)
+    MaterialParams& RenderNode::add(RenderNode&& tmpNode, const MaterialPtr& material, const VertexArraySlice& vaSlice, GLenum primitiveMode)
     {
+        btAssert(type_ == Type::Root);
+
+        RenderNode* node = this;
+
+        node = node->insertDepthTest(std::move(tmpNode), material->depthTest());
+        node = node->insertDepth(std::move(tmpNode), material->depthValue());
+        node = node->insertBlendingParams(std::move(tmpNode), material->blendingParams());
+        node = node->insertMaterialType(std::move(tmpNode), material->type());
+
+        const auto& samplers = material->type()->prog()->samplers();
+        std::vector<HardwareTextureBinding> textures;
+        for (int i = 0; i <= static_cast<int>(SamplerName::Max); ++i) {
+            SamplerName sName = static_cast<SamplerName>(i);
+            if (samplers[sName]) {
+                const auto& tb = material->textureBinding(sName);
+                textures.emplace_back(tb.tex ? tb.tex->hwTex() : HardwareTexturePtr(), tb.params);
+            }
+        }
+
+        node = node->insertTextures(std::move(tmpNode), std::move(textures));
+        node = node->insertVertexArray(std::move(tmpNode), vaSlice.va());
+        node = node->insertDraw(std::move(tmpNode), numDraws_++);
+
+        node->va_ = vaSlice.va();
+        node->materialParams_ = material->params();
+        node->drawPrimitiveMode_ = primitiveMode;
+        node->drawStart_ = vaSlice.start();
+        node->drawCount_ = vaSlice.count();
+        node->drawBaseVertex_ = vaSlice.baseVertex();
+
+        return node->materialParamsAuto_;
+    }
+
+    bool RenderNode::operator<(const RenderNode& other) const
+    {
+        switch (type_) {
+        case Type::DepthTest: return compareDepthTest(other);
+        case Type::Depth: return compareDepth(other);
+        case Type::BlendingParams: return compareBlendingParams(other);
+        case Type::MaterialType: return compareMaterialType(other);
+        case Type::Textures: return compareTextures(other);
+        case Type::VertexArray: return compareVertexArray(other);
+        case Type::Draw: return compareDraw(other);
+        case Type::Root:
+        default:
+            runtime_assert(false);
+        }
         return false;
+    }
+
+    void RenderNode::apply() const
+    {
+        switch (type_) {
+        case Type::Root:
+            applyRoot();
+            break;
+        case Type::DepthTest:
+            applyDepthTest();
+            break;
+        case Type::Depth:
+            applyDepth();
+            break;
+        case Type::BlendingParams:
+            applyBlendingParams();
+            break;
+        case Type::MaterialType:
+            applyMaterialType();
+            break;
+        case Type::Textures:
+            applyTextures();
+            break;
+        case Type::VertexArray:
+            applyVertexArray();
+            break;
+        case Type::Draw:
+            applyDraw();
+            break;
+        default:
+            runtime_assert(false);
+        }
+        for (const auto& node : children_) {
+            node.apply();
+        }
+    }
+
+    bool RenderNode::compareDepthTest(const RenderNode& other) const
+    {
+        return (int)depthTest_ < (int)other.depthTest_;
+    }
+
+    bool RenderNode::compareDepth(const RenderNode& other) const
+    {
+        if (btFabs(depth_ - other.depth_) < 0.00001f) {
+            return false;
+        } else {
+            return depth_ < other.depth_;
+        }
+    }
+
+    bool RenderNode::compareBlendingParams(const RenderNode& other) const
+    {
+        return blendingParams_ < other.blendingParams_;
+    }
+
+    bool RenderNode::compareMaterialType(const RenderNode& other) const
+    {
+        return materialType_ < other.materialType_;
+    }
+
+    bool RenderNode::compareTextures(const RenderNode& other) const
+    {
+        return textures_ < other.textures_;
+    }
+
+    bool RenderNode::compareVertexArray(const RenderNode& other) const
+    {
+        return va_ < other.va_;
+    }
+
+    bool RenderNode::compareDraw(const RenderNode& other) const
+    {
+        return drawIdx_ < other.drawIdx_;
+    }
+
+    RenderNode* RenderNode::insertDepthTest(RenderNode&& tmpNode, bool depthTest)
+    {
+        tmpNode.type_ = Type::DepthTest;
+        tmpNode.depthTest_ = depthTest;
+        return insertImpl(std::move(tmpNode));
+    }
+
+    RenderNode* RenderNode::insertDepth(RenderNode&& tmpNode, float depth)
+    {
+        tmpNode.type_ = Type::Depth;
+        tmpNode.depth_ = depth;
+        return insertImpl(std::move(tmpNode));
+    }
+
+    RenderNode* RenderNode::insertBlendingParams(RenderNode&& tmpNode, const BlendingParams& blendingParams)
+    {
+        tmpNode.type_ = Type::BlendingParams;
+        tmpNode.blendingParams_ = blendingParams;
+        return insertImpl(std::move(tmpNode));
+    }
+
+    RenderNode* RenderNode::insertMaterialType(RenderNode&& tmpNode, const MaterialTypePtr& materialType)
+    {
+        tmpNode.type_ = Type::MaterialType;
+        tmpNode.materialType_ = materialType;
+        return insertImpl(std::move(tmpNode));
+    }
+
+    RenderNode* RenderNode::insertTextures(RenderNode&& tmpNode, std::vector<HardwareTextureBinding>&& textures)
+    {
+        tmpNode.type_ = Type::Textures;
+        tmpNode.textures_ = std::move(textures);
+        return insertImpl(std::move(tmpNode));
+    }
+
+    RenderNode* RenderNode::insertVertexArray(RenderNode&& tmpNode, const VertexArrayPtr& va)
+    {
+        tmpNode.type_ = Type::VertexArray;
+        tmpNode.va_ = va;
+        return insertImpl(std::move(tmpNode));
+    }
+
+    RenderNode* RenderNode::insertDraw(RenderNode&& tmpNode, int drawIdx)
+    {
+        tmpNode.type_ = Type::Draw;
+        tmpNode.drawIdx_ = drawIdx;
+        return insertImpl(std::move(tmpNode));
+    }
+
+    RenderNode* RenderNode::insertImpl(RenderNode&& tmpNode)
+    {
+        auto res = children_.insert(std::move(tmpNode));
+        return const_cast<RenderNode*>(&*res.first);
+    }
+
+    void RenderNode::applyRoot() const
+    {
+        LOG4CPLUS_DEBUG(logger(), "ClearColor(" << clearColor_[0] << ", " << clearColor_[1] << ", " << clearColor_[2] << ", " << clearColor_[3] << ")");
+        LOG4CPLUS_DEBUG(logger(), "Viewport(" << viewport_.lowerBound[0] << ", " << viewport_.lowerBound[1] << ", " << viewport_.upperBound[0] << ", " << viewport_.upperBound[1] << ")");
+        LOG4CPLUS_DEBUG(logger(), "NumDraws = " << numDraws_);
+    }
+
+    void RenderNode::applyDepthTest() const
+    {
+        LOG4CPLUS_DEBUG(logger(), "DepthTest(" << depthTest_ << ")");
+    }
+
+    void RenderNode::applyDepth() const
+    {
+        LOG4CPLUS_DEBUG(logger(), "Depth(" << depth_ << ")");
+    }
+
+    void RenderNode::applyBlendingParams() const
+    {
+        LOG4CPLUS_DEBUG(logger(), "BlendingParams(" << blendingParams_.isEnabled() << ")");
+    }
+
+    void RenderNode::applyMaterialType() const
+    {
+        LOG4CPLUS_DEBUG(logger(), "MaterialType(" << materialType_->name() << ")");
+    }
+
+    void RenderNode::applyTextures() const
+    {
+        LOG4CPLUS_DEBUG(logger(), "Textures(" << textures_.size() << ")");
+    }
+
+    void RenderNode::applyVertexArray() const
+    {
+        LOG4CPLUS_DEBUG(logger(), "VertexArray(" << va_.get() << ")");
+    }
+
+    void RenderNode::applyDraw() const
+    {
+        LOG4CPLUS_DEBUG(logger(), "Draw(" << va_.get() << ", " << drawPrimitiveMode_ << ")");
     }
 }

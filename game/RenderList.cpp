@@ -35,10 +35,23 @@ namespace af3d
 
     void RenderList::addGeometry(const btTransform& xf, const MaterialPtr& material, const VertexArraySlice& vaSlice, GLenum primitiveMode)
     {
+        geomList_.emplace_back(xf, material, vaSlice, primitiveMode);
     }
 
     RenderNodePtr RenderList::compile() const
     {
-        return RenderNodePtr();
+        auto rn = std::make_shared<RenderNode>(cc_->clearColor(), cc_->viewport());
+        RenderNode tmpNode;
+        for (const auto& geom : geomList_) {
+            auto& params = rn->add(std::move(tmpNode), geom.material, geom.vaSlice, geom.primitiveMode);
+            const auto& activeUniforms = geom.material->type()->prog()->activeUniforms();
+            if (activeUniforms.count(UniformName::ProjMatrix) > 0) {
+                params.setUniform(UniformName::ProjMatrix, 1.0f);
+            }
+            if (activeUniforms.count(UniformName::Time) > 0) {
+                params.setUniform(UniformName::Time, 0.0f);
+            }
+        }
+        return rn;
     }
 }

@@ -27,7 +27,8 @@
 #define _RENDER_NODE_H_
 
 #include "Material.h"
-#include "VertexArray.h"
+#include "VertexArraySlice.h"
+#include "af3d/AABB2.h"
 #include <set>
 
 namespace af3d
@@ -35,21 +36,34 @@ namespace af3d
     class RenderNode
     {
     public:
+        RenderNode(const Color& clearColor,
+            const AABB2i& viewport)
+        : type_(Type::Root),
+          clearColor_(clearColor),
+          viewport_(viewport)
+        {
+        }
+
         RenderNode() = default;
         ~RenderNode() = default;
 
-        bool operator<(const RenderNode& other);
+        // Returns empty material auto params, these should be filled in by the caller.
+        MaterialParams& add(RenderNode&& tmpNode, const MaterialPtr& material, const VertexArraySlice& vaSlice, GLenum primitiveMode);
+
+        bool operator<(const RenderNode& other) const;
+
+        void apply() const;
 
     private:
         enum class Type
         {
-            DepthTest = 0,
+            Root = 0,
+            DepthTest,
             Depth,
             BlendingParams,
             MaterialType,
             Textures,
             VertexArray,
-            MaterialParams,
             Draw
         };
 
@@ -61,11 +75,52 @@ namespace af3d
             : tex(tex),
               params(params) {}
 
+            inline bool operator<(const HardwareTextureBinding& other) const
+            {
+                if (tex != other.tex) {
+                    return tex < other.tex;
+                }
+                return params < other.params;
+            }
+
             HardwareTexturePtr tex;
             SamplerParams params;
         };
 
+        using Children = std::set<RenderNode>;
+
+        bool compareDepthTest(const RenderNode& other) const;
+        bool compareDepth(const RenderNode& other) const;
+        bool compareBlendingParams(const RenderNode& other) const;
+        bool compareMaterialType(const RenderNode& other) const;
+        bool compareTextures(const RenderNode& other) const;
+        bool compareVertexArray(const RenderNode& other) const;
+        bool compareDraw(const RenderNode& other) const;
+
+        RenderNode* insertDepthTest(RenderNode&& tmpNode, bool depthTest);
+        RenderNode* insertDepth(RenderNode&& tmpNode, float depth);
+        RenderNode* insertBlendingParams(RenderNode&& tmpNode, const BlendingParams& blendingParams);
+        RenderNode* insertMaterialType(RenderNode&& tmpNode, const MaterialTypePtr& materialType);
+        RenderNode* insertTextures(RenderNode&& tmpNode, std::vector<HardwareTextureBinding>&& textures);
+        RenderNode* insertVertexArray(RenderNode&& tmpNode, const VertexArrayPtr& va);
+        RenderNode* insertDraw(RenderNode&& tmpNode, int drawIdx);
+        RenderNode* insertImpl(RenderNode&& tmpNode);
+
+        void applyRoot() const;
+        void applyDepthTest() const;
+        void applyDepth() const;
+        void applyBlendingParams() const;
+        void applyMaterialType() const;
+        void applyTextures() const;
+        void applyVertexArray() const;
+        void applyDraw() const;
+
         Type type_;
+
+        // Type::Root
+        Color clearColor_;
+        AABB2i viewport_;
+        int numDraws_ = 0;
 
         // Type::DepthTest
         bool depthTest_;
@@ -85,17 +140,16 @@ namespace af3d
         // Type::VertexArray and Type::Draw
         VertexArrayPtr va_;
 
-        // Type::MaterialParams
-        MaterialParams materialParamsAuto_;
-        MaterialParams materialParams_;
-
         // Type::Draw
+        int drawIdx_;
+        MaterialParams materialParams_;
+        MaterialParams materialParamsAuto_;
         GLenum drawPrimitiveMode_;
         std::uint32_t drawStart_;
         std::uint32_t drawCount_;
         std::uint32_t drawBaseVertex_;
 
-        std::set<RenderNode> children_;
+        Children children_;
     };
 
     using RenderNodePtr = std::shared_ptr<RenderNode>;

@@ -75,8 +75,28 @@ namespace af3d
 
         inline bool isEnabled() const
         {
-            return !(blendSfactor == GL_ONE && blendSfactor == GL_ZERO &&
+            return !(blendSfactor == GL_ONE && blendDfactor == GL_ZERO &&
                 blendSfactorAlpha == GL_ONE && blendDfactorAlpha == GL_ZERO);
+        }
+
+        inline bool operator<(const BlendingParams& other) const
+        {
+            int enabled = isEnabled();
+            int otherEnabled = other.isEnabled();
+
+            if (enabled != otherEnabled) {
+                return enabled < otherEnabled;
+            }
+            if (blendSfactor != other.blendSfactor) {
+                return blendSfactor < other.blendSfactor;
+            }
+            if (blendDfactor != other.blendDfactor) {
+                return blendDfactor < other.blendDfactor;
+            }
+            if (blendSfactorAlpha != other.blendSfactorAlpha) {
+                return blendSfactorAlpha < other.blendSfactorAlpha;
+            }
+            return blendDfactorAlpha < other.blendDfactorAlpha;
         }
 
         GLenum blendSfactor;
@@ -94,6 +114,17 @@ namespace af3d
         : texFilter(texFilter),
           texWrapU(texWrapU),
           texWrapV(texWrapV) {}
+
+        inline bool operator<(const SamplerParams& other) const
+        {
+            if (texFilter != other.texFilter) {
+                return texFilter < other.texFilter;
+            }
+            if (texWrapU != other.texWrapU) {
+                return texWrapU < other.texWrapU;
+            }
+            return texWrapV < other.texWrapV;
+        }
 
         GLenum texFilter = GL_LINEAR;
         GLenum texWrapU = GL_CLAMP_TO_EDGE;
