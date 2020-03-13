@@ -237,9 +237,9 @@ namespace af3d
         return renderer.render(ctx);
     }
 
-    void Game::cancelUpdate()
+    void Game::cancelUpdate(HardwareContext& ctx)
     {
-        renderer.cancelSwap();
+        renderer.cancelSwap(ctx);
     }
 
     void Game::cancelRender()

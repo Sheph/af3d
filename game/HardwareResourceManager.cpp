@@ -24,6 +24,7 @@
  */
 
 #include "HardwareResourceManager.h"
+#include "Renderer.h"
 #include "Logger.h"
 #include "af3d/Assert.h"
 #include "af3d/Utils.h"
@@ -64,6 +65,13 @@ namespace af3d
         }
 
         for (auto res : resources) {
+            {
+                ScopedLock lock(mtx_);
+                if (resources_.count(res) == 0) {
+                    continue;
+                }
+            }
+
             res->invalidate(ctx);
         }
     }
@@ -117,7 +125,7 @@ namespace af3d
         }
 
         if (cleanupFn) {
-            //TODO: Schedule 'cleanupFn' on renderer.
+            renderer.scheduleHwOp(cleanupFn);
         }
     }
 

@@ -52,7 +52,6 @@ namespace af3d
 
     MaterialManager::~MaterialManager()
     {
-        runtime_assert(materialTypes_.empty());
         runtime_assert(cachedMaterials_.empty());
         runtime_assert(immediateMaterials_.empty());
     }
@@ -71,9 +70,12 @@ namespace af3d
     void MaterialManager::shutdown()
     {
         LOG4CPLUS_DEBUG(logger(), "materialManager: shutdown...");
-        runtime_assert(materialTypes_.empty());
-        runtime_assert(cachedMaterials_.empty());
         runtime_assert(immediateMaterials_.empty());
+        cachedMaterials_.clear();
+        for (int i = MaterialTypeFirst; i <= MaterialTypeMax; ++i) {
+            MaterialTypeName name = static_cast<MaterialTypeName>(i);
+            materialTypes_[name].reset();
+        }
     }
 
     void MaterialManager::reload()

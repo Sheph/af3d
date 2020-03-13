@@ -51,7 +51,7 @@ namespace af3d
 
         bool render(HardwareContext& ctx);
 
-        void cancelUpdate();
+        void cancelUpdate(HardwareContext& ctx);
 
         void cancelRender();
 

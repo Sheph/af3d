@@ -31,6 +31,7 @@
 #include "af3d/Single.h"
 #include <mutex>
 #include <condition_variable>
+#include <list>
 
 namespace af3d
 {
@@ -48,18 +49,26 @@ namespace af3d
 
         bool reload(HardwareContext& ctx);
 
-        void scheduleHwOp(const HwOpFn&& hwOp); // Will get executed in 'render'.
+        void scheduleHwOp(const HwOpFn& hwOp); // Will get executed in 'render'.
         void swap(const RenderNodePtr& rn);
-        void cancelSwap();
+        void cancelSwap(HardwareContext& ctx);
 
         bool render(HardwareContext& ctx);
         void cancelRender();
 
     private:
+        using RenderOpFn = std::function<bool(HardwareContext&)>;
+        using RenderOpList = std::list<RenderOpFn>;
+
+        void doRender(const RenderNodePtr& rn, HardwareContext& ctx);
+
         std::mutex mtx_;
         std::condition_variable cond_;
         bool cancelSwap_ = false;
-        bool cancelUpdate_ = false;
+        bool cancelRender_ = false;
+        bool rendering_ = false;
+        RenderOpList ops_;
+        std::uint64_t lastTimeUs_ = 0;
     };
 
     extern Renderer renderer;

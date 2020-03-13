@@ -112,9 +112,6 @@ namespace af3d
 
     void HardwareProgram::invalidate(HardwareContext& ctx)
     {
-        for (const auto& p : shaders_) {
-            p.second->invalidate(ctx);
-        }
         shaders_.clear();
         id_ = 0;
         activeAttribs_.clear();

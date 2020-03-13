@@ -24,6 +24,7 @@
  */
 
 #include "Renderer.h"
+#include "HardwareResourceManager.h"
 #include "Settings.h"
 #include "Logger.h"
 #include <thread>
@@ -38,6 +39,7 @@ namespace af3d
 
     Renderer::~Renderer()
     {
+        runtime_assert(ops_.empty());
     }
 
     bool Renderer::init()
@@ -49,6 +51,7 @@ namespace af3d
     void Renderer::shutdown()
     {
         LOG4CPLUS_DEBUG(logger(), "renderer: shutdown...");
+        ops_.clear();
     }
 
     bool Renderer::reload(HardwareContext& ctx)
@@ -71,34 +74,139 @@ namespace af3d
         return true;
     }
 
-    void Renderer::scheduleHwOp(const HwOpFn&& hwOp)
+    void Renderer::scheduleHwOp(const HwOpFn& hwOp)
     {
+        {
+            ScopedLockA lock(mtx_);
+
+            if (cancelSwap_) {
+                return;
+            }
+
+            ops_.push_back([hwOp](HardwareContext& ctx) {
+                hwOp(ctx);
+                return false;
+            });
+        }
+
+        cond_.notify_one();
     }
 
     void Renderer::swap(const RenderNodePtr& rn)
     {
+        {
+            ScopedLockA lock(mtx_);
+
+            while (!cancelSwap_ && rendering_) {
+                cond_.wait(lock);
+            }
+
+            if (cancelSwap_) {
+                cancelSwap_ = false;
+                RenderOpList ops;
+                ops_.swap(ops);
+                rendering_ = false;
+                lock.unlock();
+                ops.clear();
+                return;
+            }
+
+            rendering_ = true;
+            ops_.push_back([this, rn](HardwareContext& ctx) {
+                doRender(rn, ctx);
+                {
+                    ScopedLockA lock(mtx_);
+                    rendering_ = false;
+                }
+                cond_.notify_one();
+                return true;
+            });
+        }
+
+        cond_.notify_one();
     }
 
-    void Renderer::cancelSwap()
+    void Renderer::cancelSwap(HardwareContext& ctx)
     {
+        RenderOpList ops;
+
+        {
+            ScopedLock lock(mtx_);
+            cancelSwap_ = true;
+            ops_.swap(ops);
+        }
+
+        ops.clear();
+
+        cond_.notify_one();
     }
 
     bool Renderer::render(HardwareContext& ctx)
     {
-        /*
-        if (canceled) {
-            hwManager.invalidate(ctx);
-            return false;
-        }
-        */
+        while (true) {
+            RenderOpFn fn;
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(16));
+            {
+                ScopedLockA lock(mtx_);
+
+                while (!cancelRender_ && ops_.empty()) {
+                    cond_.wait(lock);
+                }
+
+                if (cancelRender_) {
+                    cancelRender_ = false;
+                    rendering_ = false;
+                    lock.unlock();
+
+                    hwManager.invalidate(ctx);
+
+                    lock.lock();
+                    RenderOpList ops;
+                    ops_.swap(ops);
+                    lock.unlock();
+                    ops.clear();
+
+                    return false;
+                }
+
+                fn = std::move(ops_.front());
+                ops_.pop_front();
+            }
+
+            if (fn(ctx)) {
+                std::uint64_t timeUs = getTimeUs();
+
+                std::uint32_t dt = settings.minRenderDt;
+
+                if (lastTimeUs_ != 0) {
+                    dt = static_cast<std::uint32_t>(timeUs - lastTimeUs_);
+                }
+
+                if (dt < settings.minRenderDt) {
+                    std::this_thread::sleep_for(std::chrono::microseconds(settings.minRenderDt - dt));
+                    timeUs = getTimeUs();
+                }
+
+                lastTimeUs_ = timeUs;
+
+                break;
+            }
+        }
 
         return true;
     }
 
     void Renderer::cancelRender()
     {
-        LOG4CPLUS_DEBUG(logger(), "renderer: cancelRender");
+        {
+            ScopedLock lock(mtx_);
+            cancelRender_ = true;
+        }
+
+        cond_.notify_one();
+    }
+
+    void Renderer::doRender(const RenderNodePtr& rn, HardwareContext& ctx)
+    {
     }
 }
