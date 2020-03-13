@@ -270,7 +270,9 @@ namespace af3d
         LOG4CPLUS_DEBUG(logger(), "Draw(" << va_.get() << ", " << drawPrimitiveMode_ << ", " << drawStart_ << ", " << drawCount_ << ", " << drawBaseVertex_ << ")");
         if (drawCount_ == 0) {
             if (va_->ebo()) {
-                ogl.DrawElements(drawPrimitiveMode_, va_->ebo()->count(ctx), va_->ebo()->glDataType(), nullptr);
+                ogl.DrawElements(drawPrimitiveMode_, va_->ebo()->count(ctx),
+                    va_->ebo()->glDataType(),
+                    (const void*)(va_->ebo()->elementSize() * drawStart_));
             }
         }
     }
