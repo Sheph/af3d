@@ -48,6 +48,7 @@ namespace af3d
 
     const Vector4f Vector4f_zero(0.0f, 0.0f, 0.0f, 0.0f);
     const Vector4i Vector4i_zero(0, 0, 0, 0);
+    const Color Color_zero(0.0f, 0.0f, 0.0f, 0.0f);
 
     static std::chrono::steady_clock::time_point startTime;
 

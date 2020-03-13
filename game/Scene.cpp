@@ -30,10 +30,12 @@
 #include "Logger.h"
 #include "InputManager.h"
 #include "GameShell.h"
+#include "Renderer.h"
 #include "PhasedComponentManager.h"
 #include "RenderComponentManager.h"
 #include "PhasedComponent.h"
 #include "RenderComponent.h"
+#include "CameraComponent.h"
 #include <Rocket/Core/ElementDocument.h>
 #include <cmath>
 
@@ -83,6 +85,10 @@ namespace af3d
         impl_->renderComponentManager_->setScene(this);
 
         camera_ = std::make_shared<SceneObject>();
+
+        auto cc = std::make_shared<CameraComponent>();
+        cc->setAspect(settings.viewAspect);
+        camera_->addComponent(cc);
 
         addObject(camera_);
 
@@ -168,10 +174,14 @@ namespace af3d
             dt *= timeScale_;
         }
 
+        bool forceUpdateRender = false;
+
         if (!paused_ && (inputMode_ != InputMode::Menu) && inputManager.keyboard().triggered(KI_ESCAPE)) {
             LOG4CPLUS_INFO(logger(), "game paused");
 
             setPaused(true);
+
+            forceUpdateRender = true;
         }
 
         bool inputProcessed = true;
@@ -192,6 +202,8 @@ namespace af3d
                     impl_->timerIt_ = impl_->timers_.end();
                 }
 
+                impl_->phasedComponentManager_->update(0);
+
                 if (i == 0) {
                     inputManager.processed();
                 }
@@ -204,12 +216,28 @@ namespace af3d
                 inputProcessed = false;
             }
 
+            impl_->phasedComponentManager_->preRender(dt);
+
             if (true) {
                 //freezeThawObjects(cc->getTrueAABB());
             }
-        } else {
 
+            impl_->renderComponentManager_->update(dt);
+            auto cc = camera_->findComponent<CameraComponent>();
+            cc->setViewport(AABB2i(Vector2i(settings.viewX, settings.viewY),
+                Vector2i(settings.viewX + settings.viewWidth, settings.viewY + settings.viewHeight)));
+            impl_->renderComponentManager_->cull(cc);
+        } else {
+            if (forceUpdateRender || !paused_) {
+                impl_->renderComponentManager_->update(dt);
+                auto cc = camera_->findComponent<CameraComponent>();
+                cc->setViewport(AABB2i(Vector2i(settings.viewX, settings.viewY),
+                    Vector2i(settings.viewX + settings.viewWidth, settings.viewY + settings.viewHeight)));
+                impl_->renderComponentManager_->cull(cc);
+            }
         }
+
+        auto rn = impl_->renderComponentManager_->render();
 
         inputManager.update();
 
@@ -218,6 +246,8 @@ namespace af3d
         } else {
             inputManager.proceed();
         }
+
+        renderer.swap(rn);
 
         firstUpdate_ = false;
     }

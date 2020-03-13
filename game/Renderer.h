@@ -27,6 +27,7 @@
 #define _RENDERER_H_
 
 #include "HardwareContext.h"
+#include "RenderNode.h"
 #include "af3d/Single.h"
 #include <mutex>
 #include <condition_variable>
@@ -48,7 +49,7 @@ namespace af3d
         bool reload(HardwareContext& ctx);
 
         void scheduleHwOp(const HwOpFn&& hwOp); // Will get executed in 'render'.
-        void swap();
+        void swap(const RenderNodePtr& rn);
         void cancelSwap();
 
         bool render(HardwareContext& ctx);

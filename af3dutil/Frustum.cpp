@@ -27,10 +27,10 @@
 
 namespace af3d
 {
-    void Frustum::setType(Type value)
+    void Frustum::setProjectionType(ProjectionType value)
     {
-        if (type_ != value) {
-            type_ = value;
+        if (projectionType_ != value) {
+            projectionType_ = value;
             projUpdated();
         }
     }
@@ -152,7 +152,7 @@ namespace af3d
 
         if (recalcProjMat_) {
             recalcProjMat_ = false;
-            if (type_ == Perspective) {
+            if (projectionType_ == ProjectionType::Perspective) {
                 float top = btTan(fov_ * 0.5f) * nearDist_;
                 float bottom = -top;
                 float right = aspect_ * top;

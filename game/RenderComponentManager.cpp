@@ -95,7 +95,12 @@ namespace af3d
         }
     }
 
-    void RenderComponentManager::render()
+    void RenderComponentManager::cull(const CameraComponentPtr& cc)
     {
+    }
+
+    RenderNodePtr RenderComponentManager::render()
+    {
+        return RenderNodePtr();
     }
 }

@@ -42,7 +42,7 @@ namespace af3d
 
         void update(float dt) override;
 
-        void render(void* const* parts, size_t numParts) override;
+        void render(RenderList& rl, void* const* parts, size_t numParts) override;
 
         void debugDraw() override;
 

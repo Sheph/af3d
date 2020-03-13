@@ -366,6 +366,7 @@ namespace af3d
 
     extern const Vector4f Vector4f_zero;
     extern const Vector4i Vector4i_zero;
+    extern const Color Color_zero;
 
     inline bool btIsValid(const Vector4f& v)
     {

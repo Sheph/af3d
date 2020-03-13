@@ -26,25 +26,52 @@
 #ifndef _RENDER_LIST_H_
 #define _RENDER_LIST_H_
 
-#include "MaterialType.h"
+#include "CameraComponent.h"
+#include "Material.h"
 #include "VertexArraySlice.h"
+#include "RenderNode.h"
 
 namespace af3d
 {
     class RenderList : boost::noncopyable
     {
     public:
-        RenderList();
-        ~RenderList();
+        explicit RenderList(const CameraComponentPtr& cc);
+        ~RenderList() = default;
 
-        void addGeometry(/*ModelMatrix, */const MaterialPtr& material, const VertexArraySlice& vaSlice, GLenum primitiveMode);
+        inline const CameraComponentPtr& cc() const { return cc_; }
+
+        void addGeometry(const btTransform& xf, const MaterialPtr& material, const VertexArraySlice& vaSlice, GLenum primitiveMode);
 
         //void addLight(...);
 
-        //RenderNodePtr compile();
+        RenderNodePtr compile() const;
 
     private:
-        //CameraViewProjMatrix mtx_;
+        struct Geometry
+        {
+            Geometry() = default;
+            Geometry(const btTransform& xf,
+                const MaterialPtr& material,
+                const VertexArraySlice& vaSlice,
+                GLenum primitiveMode)
+            : xf(xf),
+              material(material),
+              vaSlice(vaSlice),
+              primitiveMode(primitiveMode)
+            {
+            }
+
+            btTransform xf;
+            MaterialPtr material;
+            VertexArraySlice vaSlice;
+            GLenum primitiveMode;
+        };
+
+        using GeometryList = std::vector<Geometry>;
+
+        CameraComponentPtr cc_;
+        GeometryList geomList_;
     };
 }
 

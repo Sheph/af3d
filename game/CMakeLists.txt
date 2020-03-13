@@ -29,7 +29,6 @@ set(SOURCES
     HardwareBuffer.cpp
     HardwareVertexBuffer.cpp
     HardwareIndexBuffer.cpp
-    HardwareContext.cpp
     HardwareProgram.cpp
     HardwareResourceManager.cpp
     HardwareShader.cpp

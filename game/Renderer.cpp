@@ -75,7 +75,7 @@ namespace af3d
     {
     }
 
-    void Renderer::swap()
+    void Renderer::swap(const RenderNodePtr& rn)
     {
     }
 

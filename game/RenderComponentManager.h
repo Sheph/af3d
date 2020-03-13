@@ -27,6 +27,8 @@
 #define _RENDERCOMPONENTMANAGER_H_
 
 #include "ComponentManager.h"
+#include "CameraComponent.h"
+#include "RenderNode.h"
 #include <unordered_set>
 
 namespace af3d
@@ -54,7 +56,9 @@ namespace af3d
 
         virtual void debugDraw() override;
 
-        void render();
+        void cull(const CameraComponentPtr& cc);
+
+        RenderNodePtr render();
 
     private:
         std::unordered_set<RenderComponentPtr> components_;

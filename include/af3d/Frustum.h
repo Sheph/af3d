@@ -33,15 +33,15 @@
 
 namespace af3d
 {
+    enum class ProjectionType
+    {
+        Perspective = 0,
+        Orthographic
+    };
+
     class Frustum
     {
     public:
-        enum Type
-        {
-            Perspective = 0,
-            Orthographic
-        };
-
         enum class Plane
         {
             Near = 0,
@@ -58,8 +58,8 @@ namespace af3d
         Frustum() = default;
         ~Frustum() = default;
 
-        inline Type type() const { return type_; }
-        void setType(Type value);
+        inline ProjectionType projectionType() const { return projectionType_; }
+        void setProjectionType(ProjectionType value);
 
         inline float fov() const { return fov_; }
         void setFov(float value);
@@ -93,7 +93,7 @@ namespace af3d
 
         inline btPlane& cachedPlane(Plane p) const { return cachedPlanes_[static_cast<int>(p)]; }
 
-        Type type_ = Perspective;
+        ProjectionType projectionType_ = ProjectionType::Perspective;
         float fov_ = btRadians(110.0f);
         float orthoHeight_ = 40.0f;
         float aspect_ = 4.0f / 3.0f;

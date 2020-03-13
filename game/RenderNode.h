@@ -26,16 +26,17 @@
 #ifndef _RENDER_NODE_H_
 #define _RENDER_NODE_H_
 
-#include "MaterialType.h"
-#include "VertexArraySlice.h"
+#include "Material.h"
+#include "VertexArray.h"
+#include <set>
 
 namespace af3d
 {
     class RenderNode
     {
     public:
-        RenderNode();
-        ~RenderNode();
+        RenderNode() = default;
+        ~RenderNode() = default;
 
         bool operator<(const RenderNode& other);
 
@@ -96,6 +97,8 @@ namespace af3d
 
         std::set<RenderNode> children_;
     };
+
+    using RenderNodePtr = std::shared_ptr<RenderNode>;
 }
 
 #endif

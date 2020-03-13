@@ -27,6 +27,7 @@
 #define _RENDERCOMPONENT_H_
 
 #include "RenderComponentManager.h"
+#include "RenderList.h"
 
 namespace af3d
 {
@@ -54,7 +55,7 @@ namespace af3d
 
         virtual void update(float dt) = 0;
 
-        virtual void render(void* const* parts, size_t numParts) = 0;
+        virtual void render(RenderList& rl, void* const* parts, size_t numParts) = 0;
 
         inline const std::string& name() const { return name_; }
         inline void setName(const std::string& value) { name_ = value; }

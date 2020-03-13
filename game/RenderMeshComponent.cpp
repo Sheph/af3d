@@ -24,6 +24,7 @@
  */
 
 #include "RenderMeshComponent.h"
+#include "SceneObject.h"
 
 namespace af3d
 {
@@ -37,8 +38,12 @@ namespace af3d
     {
     }
 
-    void RenderMeshComponent::render(void* const* parts, size_t numParts)
+    void RenderMeshComponent::render(RenderList& rl, void* const* parts, size_t numParts)
     {
+        auto xf = parent()->transform() * xf_;
+        for (const auto& subMesh : mesh_->subMeshes()) {
+            rl.addGeometry(xf, subMesh->material(), subMesh->vaSlice(), GL_TRIANGLES);
+        }
     }
 
     void RenderMeshComponent::debugDraw()
