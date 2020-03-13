@@ -101,11 +101,15 @@ namespace af3d
         return n;
     }
 
-    void makeLookAt(const btVector3& dir, const btVector3& up, btMatrix3x3& basis);
+    void makeLookDir(const btVector3& dir, const btVector3& up, btMatrix3x3& basis);
 
-    void makeLookAt(const btVector3& dir, const btVector3& up, btQuaternion& rotation);
+    void makeLookDir(const btVector3& dir, const btVector3& up, btQuaternion& rotation);
 
-    void makeLookAt(const btVector3& pos, const btVector3& dir, const btVector3& up, btTransform& xf);
+    void makeLookDir(const btVector3& pos, const btVector3& dir, const btVector3& up, btTransform& xf);
+
+    btTransform makeLookDir(const btVector3& pos, const btVector3& dir, const btVector3& up);
+
+    btTransform makeLookAt(const btVector3& pos, const btVector3& target, const btVector3& up);
 }
 
 #endif

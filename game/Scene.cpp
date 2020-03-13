@@ -106,6 +106,8 @@ namespace af3d
 
     void Scene::prepare()
     {
+        camera_->setTransform(makeLookDir(btVector3(0.0f, 0.0f, 0.0f), btVector3_forward, btVector3_up));
+
         auto obj = sceneObjectFactory.createColoredBox(btVector3(1.0f, 2.0f, 3.0f));
         obj->setPos(btVector3(5.0f, 0.0f, 5.0f));
         obj->setRotation(btQuaternion(0.0f, btRadians(30.0f), 0.0f));

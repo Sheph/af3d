@@ -36,6 +36,18 @@ namespace af3d
 
     void RenderMeshComponent::update(float dt)
     {
+        if (parent()->transform() == prevParentXf_) {
+            return;
+        }
+
+        AABB aabb = calcAABB();
+
+        btVector3 displacement = parent()->transform().getOrigin() - prevParentXf_.getOrigin();
+
+        manager()->moveAABB(cookie_, prevAABB_, aabb, displacement);
+
+        prevParentXf_ = parent()->transform();
+        prevAABB_ = aabb;
     }
 
     void RenderMeshComponent::render(RenderList& rl, void* const* parts, size_t numParts)
@@ -52,9 +64,18 @@ namespace af3d
 
     void RenderMeshComponent::onRegister()
     {
+        prevParentXf_ = parent()->transform();
+        prevAABB_ = calcAABB();
+        cookie_ = manager()->addAABB(this, prevAABB_, nullptr);
     }
 
     void RenderMeshComponent::onUnregister()
     {
+        manager()->removeAABB(cookie_);
+    }
+
+    AABB RenderMeshComponent::calcAABB() const
+    {
+        return mesh_->aabb().getTransformed(parent()->transform() * xf_);
     }
 }

@@ -51,12 +51,14 @@ namespace af3d
 
         void onUnregister() override;
 
+        AABB calcAABB() const;
+
         MeshPtr mesh_;
         btTransform xf_;
 
         btTransform prevParentXf_;
         AABB prevAABB_;
-        std::uint32_t cookie_ = 0;
+        RenderCookie* cookie_ = nullptr;
     };
 
     using RenderMeshComponentPtr = std::shared_ptr<RenderMeshComponent>;

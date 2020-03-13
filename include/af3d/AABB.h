@@ -80,6 +80,13 @@ namespace af3d
         {
             return TestAabbAgainstAabb2(lowerBound, upperBound, aabb.lowerBound, aabb.upperBound);
         }
+
+        AABB getTransformed(const btTransform& xf) const
+        {
+            AABB res;
+            btTransformAabb(lowerBound, upperBound, 0.0f, xf, res.lowerBound, res.upperBound);
+            return res;
+        }
     };
 
     inline bool btIsValid(const AABB& aabb)

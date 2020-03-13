@@ -29,10 +29,14 @@
 #include "ComponentManager.h"
 #include "CameraComponent.h"
 #include "RenderNode.h"
+#include "bullet/BulletCollision/BroadphaseCollision/btDbvt.h"
 #include <unordered_set>
+#include <list>
 
 namespace af3d
 {
+    struct RenderCookie {};
+
     class RenderComponent;
     using RenderComponentPtr = std::shared_ptr<RenderComponent>;
 
@@ -56,13 +60,55 @@ namespace af3d
 
         virtual void debugDraw() override;
 
+        RenderCookie* addAABB(RenderComponent* component,
+            const AABB& aabb,
+            void* data);
+
+        void moveAABB(RenderCookie* cookie,
+            const AABB& prevAABB,
+            const AABB& aabb,
+            const btVector3& displacement);
+
+        void removeAABB(RenderCookie* cookie);
+
         void cull(const CameraComponentPtr& cc);
 
         RenderNodePtr render();
 
     private:
+        struct NodeData
+        {
+            std::list<NodeData>::iterator it;
+            RenderComponent* component;
+            void* data;
+        };
+
+        using NodeDataList = std::list<NodeData>;
+        using CullResultList = std::unordered_map<RenderComponent*, std::vector<void*>>;
+
+        class Collide : public btDbvt::ICollide
+        {
+        public:
+            Collide(const Frustum& frustum, CullResultList& cullResults);
+            ~Collide() = default;
+
+            void Process(const btDbvtNode* node) override;
+            bool Descent(const btDbvtNode* node) override;
+
+        private:
+            const Frustum& frustum_;
+            CullResultList& cullResults_;
+        };
+
         std::unordered_set<RenderComponentPtr> components_;
         std::unordered_set<RenderComponentPtr> frozenComponents_;
+
+        NodeDataList nodeDataList_;
+
+        btDbvt tree_;
+
+        CameraComponent* cc_ = nullptr;
+        CullResultList cullResults_;
     };
 }
 

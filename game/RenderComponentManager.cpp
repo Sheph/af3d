@@ -28,6 +28,23 @@
 
 namespace af3d
 {
+    RenderComponentManager::Collide::Collide(const Frustum& frustum, CullResultList& cullResults)
+    : frustum_(frustum),
+      cullResults_(cullResults)
+    {
+    }
+
+    void RenderComponentManager::Collide::Process(const btDbvtNode* node)
+    {
+        auto nd = (NodeData*)node->data;
+        cullResults_[nd->component].push_back(nd->data);
+    }
+
+    bool RenderComponentManager::Collide::Descent(const btDbvtNode* node)
+    {
+        return frustum_.isVisible(AABB(node->volume.Mins(), node->volume.Maxs()));
+    }
+
     RenderComponentManager::~RenderComponentManager()
     {
         assert(components_.empty());
@@ -80,12 +97,17 @@ namespace af3d
 
     void RenderComponentManager::update(float dt)
     {
+        cullResults_.clear();
+        cc_ = nullptr;
+
         for (const auto& c : components_) {
             c->update(dt);
             if (c->renderAlways()) {
-                // include in render list...
+                cullResults_[c.get()].push_back(nullptr);
             }
         }
+
+        tree_.optimizeIncremental(1);
     }
 
     void RenderComponentManager::debugDraw()
@@ -95,12 +117,71 @@ namespace af3d
         }
     }
 
+    RenderCookie* RenderComponentManager::addAABB(RenderComponent* component,
+        const AABB& aabb,
+        void* data)
+    {
+        auto it = nodeDataList_.insert(nodeDataList_.end(), NodeData());
+
+        auto& nd = nodeDataList_.back();
+
+        nd.it = it;
+        nd.component = component;
+        nd.data = data;
+
+        return (RenderCookie*)tree_.insert(btDbvtVolume::FromMM(aabb.lowerBound, aabb.upperBound), &nd);
+    }
+
+    void RenderComponentManager::moveAABB(RenderCookie* cookie,
+        const AABB& prevAABB,
+        const AABB& aabb,
+        const btVector3& displacement)
+    {
+        auto node = (btDbvtNode*)cookie;
+        auto bv = btDbvtVolume::FromMM(aabb.lowerBound, aabb.upperBound);
+
+        if (Intersect(node->volume, bv)) {
+            auto prevBv = btDbvtVolume::FromMM(prevAABB.lowerBound, prevAABB.upperBound);
+
+            btDbvtVolume combinedBv;
+            Merge(prevBv, bv, combinedBv);
+
+            auto d = displacement * 2.0f;
+
+            tree_.update(node, combinedBv, d, 1.0f);
+        } else {
+            tree_.update(node, bv);
+        }
+    }
+
+    void RenderComponentManager::removeAABB(RenderCookie* cookie)
+    {
+        auto node = (btDbvtNode*)cookie;
+        auto nd = (NodeData*)node->data;
+
+        nodeDataList_.erase(nd->it);
+
+        tree_.remove(node);
+    }
+
     void RenderComponentManager::cull(const CameraComponentPtr& cc)
     {
+        Collide collide(cc->getFrustum(), cullResults_);
+
+        btDbvt::collideTU(tree_.m_root, collide);
+        cc_ = cc.get();
     }
 
     RenderNodePtr RenderComponentManager::render()
     {
-        return RenderNodePtr();
+        RenderList rl(cc_->shared_from_this());
+
+        for (const auto& kv : cullResults_) {
+            if (kv.first->visible()) {
+                kv.first->render(rl, &kv.second[0], kv.second.size());
+            }
+        }
+
+        return rl.compile();
     }
 }
