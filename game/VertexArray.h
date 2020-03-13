@@ -27,20 +27,20 @@
 #define _VERTEX_ARRAY_H_
 
 #include "VertexArrayLayout.h"
-#include "HardwareVertexBuffer.h"
-#include "HardwareIndexBuffer.h"
+#include "HardwareVertexArray.h"
 
 namespace af3d
 {
     class VertexArray : boost::noncopyable
     {
     public:
-        using VBOList = std::vector<HardwareVertexBufferPtr>;
-
-        VertexArray(const VertexArrayLayout& layout,
+        VertexArray(const HardwareVertexArrayPtr& vao,
+            const VertexArrayLayout& layout,
             const VBOList& vbos,
             const HardwareIndexBufferPtr& ebo = HardwareIndexBufferPtr());
         ~VertexArray() = default;
+
+        const HardwareVertexArrayPtr& vao(HardwareContext& ctx) const;
 
         inline const VertexArrayLayout& layout() const { return layout_; }
 
@@ -49,6 +49,11 @@ namespace af3d
         inline const HardwareIndexBufferPtr& ebo() const { return ebo_; }
 
     private:
+        // This one is populated and owned by the rendering thread!
+        // VAOs cannot be shared between contexts, so only rendering thread
+        // can touch this!
+        HardwareVertexArrayPtr vao_;
+
         VertexArrayLayout layout_;
         VBOList vbos_;
         HardwareIndexBufferPtr ebo_;

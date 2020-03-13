@@ -27,8 +27,7 @@
 #define _HARDWARE_RESOURCE_MANAGER_H_
 
 #include "HardwareTexture.h"
-#include "HardwareVertexBuffer.h"
-#include "HardwareIndexBuffer.h"
+#include "HardwareVertexArray.h"
 #include "HardwareShader.h"
 #include "HardwareProgram.h"
 #include "af3d/Single.h"
@@ -54,6 +53,7 @@ namespace af3d
         HardwareTexturePtr createTexture(std::uint32_t width, std::uint32_t height);
         HardwareVertexBufferPtr createVertexBuffer(HardwareBuffer::Usage usage, GLsizeiptr elementSize);
         HardwareIndexBufferPtr createIndexBuffer(HardwareBuffer::Usage usage, HardwareIndexBuffer::DataType dataType);
+        HardwareVertexArrayPtr createVertexArray();
         HardwareShaderPtr createShader(HardwareShader::Type type);
         HardwareProgramPtr createProgram();
 

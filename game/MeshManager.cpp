@@ -216,7 +216,7 @@ namespace af3d
         auto vbo = hwManager.createVertexBuffer(HardwareBuffer::Usage::StaticDraw, 28);
         auto ebo = hwManager.createIndexBuffer(HardwareBuffer::Usage::StaticDraw, HardwareIndexBuffer::UInt16);
 
-        auto va = std::make_shared<VertexArray>(vaLayout, VertexArray::VBOList{vbo}, ebo);
+        auto va = std::make_shared<VertexArray>(hwManager.createVertexArray(), vaLayout, VBOList{vbo}, ebo);
 
         auto subMesh = std::make_shared<SubMesh>(material, VertexArraySlice(va));
 

@@ -44,6 +44,8 @@ namespace af3d
 
         static GLsizeiptr dataTypeSize(DataType dataType);
 
+        GLenum glDataType() const;
+
     private:
         void doResize(HardwareContext& ctx) override;
 

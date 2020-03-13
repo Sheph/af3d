@@ -80,38 +80,41 @@ namespace af3d
         return false;
     }
 
-    void RenderNode::apply() const
+    void RenderNode::apply(HardwareContext& ctx) const
     {
         switch (type_) {
         case Type::Root:
-            applyRoot();
+            applyRoot(ctx);
             break;
         case Type::DepthTest:
-            applyDepthTest();
+            applyDepthTest(ctx);
             break;
         case Type::Depth:
-            applyDepth();
+            applyDepth(ctx);
             break;
         case Type::BlendingParams:
-            applyBlendingParams();
+            applyBlendingParams(ctx);
             break;
         case Type::MaterialType:
-            applyMaterialType();
+            applyMaterialType(ctx);
             break;
         case Type::Textures:
-            applyTextures();
+            applyTextures(ctx);
             break;
         case Type::VertexArray:
-            applyVertexArray();
+            applyVertexArray(ctx);
             break;
         case Type::Draw:
-            applyDraw();
+            applyDraw(ctx);
             break;
         default:
             runtime_assert(false);
         }
         for (const auto& node : children_) {
-            node.apply();
+            node.apply(ctx);
+        }
+        if (type_ == Type::VertexArray) {
+            applyVertexArrayDone(ctx);
         }
     }
 
@@ -209,45 +212,66 @@ namespace af3d
         return const_cast<RenderNode*>(&*res.first);
     }
 
-    void RenderNode::applyRoot() const
+    void RenderNode::applyRoot(HardwareContext& ctx) const
     {
         LOG4CPLUS_DEBUG(logger(), "ClearColor(" << clearColor_[0] << ", " << clearColor_[1] << ", " << clearColor_[2] << ", " << clearColor_[3] << ")");
         LOG4CPLUS_DEBUG(logger(), "Viewport(" << viewport_.lowerBound[0] << ", " << viewport_.lowerBound[1] << ", " << viewport_.upperBound[0] << ", " << viewport_.upperBound[1] << ")");
-        LOG4CPLUS_DEBUG(logger(), "NumDraws = " << numDraws_);
+
+        ogl.Viewport(viewport_.lowerBound[0], viewport_.lowerBound[1], viewport_.upperBound[0], viewport_.upperBound[1]);
+        ogl.ClearColor(clearColor_[0], clearColor_[1], clearColor_[2], clearColor_[3]);
+        ogl.Clear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 
-    void RenderNode::applyDepthTest() const
+    void RenderNode::applyDepthTest(HardwareContext& ctx) const
     {
         LOG4CPLUS_DEBUG(logger(), "DepthTest(" << depthTest_ << ")");
+        if (depthTest_) {
+            ogl.Enable(GL_DEPTH_TEST);
+        } else {
+            ogl.Disable(GL_DEPTH_TEST);
+        }
     }
 
-    void RenderNode::applyDepth() const
+    void RenderNode::applyDepth(HardwareContext& ctx) const
     {
         LOG4CPLUS_DEBUG(logger(), "Depth(" << depth_ << ")");
     }
 
-    void RenderNode::applyBlendingParams() const
+    void RenderNode::applyBlendingParams(HardwareContext& ctx) const
     {
         LOG4CPLUS_DEBUG(logger(), "BlendingParams(" << blendingParams_.isEnabled() << ")");
     }
 
-    void RenderNode::applyMaterialType() const
+    void RenderNode::applyMaterialType(HardwareContext& ctx) const
     {
         LOG4CPLUS_DEBUG(logger(), "MaterialType(" << materialType_->name() << ")");
+        ogl.UseProgram(materialType_->prog()->id(ctx));
     }
 
-    void RenderNode::applyTextures() const
+    void RenderNode::applyTextures(HardwareContext& ctx) const
     {
         LOG4CPLUS_DEBUG(logger(), "Textures(" << textures_.size() << ")");
     }
 
-    void RenderNode::applyVertexArray() const
+    void RenderNode::applyVertexArray(HardwareContext& ctx) const
     {
         LOG4CPLUS_DEBUG(logger(), "VertexArray(" << va_.get() << ")");
+        ogl.BindVertexArray(va_->vao(ctx)->id(ctx));
     }
 
-    void RenderNode::applyDraw() const
+    void RenderNode::applyVertexArrayDone(HardwareContext& ctx) const
     {
-        LOG4CPLUS_DEBUG(logger(), "Draw(" << va_.get() << ", " << drawPrimitiveMode_ << ")");
+        LOG4CPLUS_DEBUG(logger(), "VertexArrayDone(" << va_.get() << ")");
+        ogl.BindVertexArray(0);
+    }
+
+    void RenderNode::applyDraw(HardwareContext& ctx) const
+    {
+        LOG4CPLUS_DEBUG(logger(), "Draw(" << va_.get() << ", " << drawPrimitiveMode_ << ", " << drawStart_ << ", " << drawCount_ << ", " << drawBaseVertex_ << ")");
+        if (drawCount_ == 0) {
+            if (va_->ebo()) {
+                ogl.DrawElements(drawPrimitiveMode_, va_->ebo()->count(ctx), va_->ebo()->glDataType(), nullptr);
+            }
+        }
     }
 }

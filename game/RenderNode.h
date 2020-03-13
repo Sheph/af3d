@@ -52,7 +52,7 @@ namespace af3d
 
         bool operator<(const RenderNode& other) const;
 
-        void apply() const;
+        void apply(HardwareContext& ctx) const;
 
     private:
         enum class Type
@@ -106,14 +106,15 @@ namespace af3d
         RenderNode* insertDraw(RenderNode&& tmpNode, int drawIdx);
         RenderNode* insertImpl(RenderNode&& tmpNode);
 
-        void applyRoot() const;
-        void applyDepthTest() const;
-        void applyDepth() const;
-        void applyBlendingParams() const;
-        void applyMaterialType() const;
-        void applyTextures() const;
-        void applyVertexArray() const;
-        void applyDraw() const;
+        void applyRoot(HardwareContext& ctx) const;
+        void applyDepthTest(HardwareContext& ctx) const;
+        void applyDepth(HardwareContext& ctx) const;
+        void applyBlendingParams(HardwareContext& ctx) const;
+        void applyMaterialType(HardwareContext& ctx) const;
+        void applyTextures(HardwareContext& ctx) const;
+        void applyVertexArray(HardwareContext& ctx) const;
+        void applyVertexArrayDone(HardwareContext& ctx) const;
+        void applyDraw(HardwareContext& ctx) const;
 
         Type type_;
 

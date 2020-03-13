@@ -365,6 +365,10 @@ static bool OGLPreInit()
         }
     }
 
+    GL_GET_PROC(DrawElements, glDrawElements);
+    GL_GET_PROC(GenVertexArrays, glGenVertexArrays);
+    GL_GET_PROC(DeleteVertexArrays, glDeleteVertexArrays);
+    GL_GET_PROC(BindVertexArray, glBindVertexArray);
     GL_GET_PROC(GenBuffers, glGenBuffers);
     GL_GET_PROC(DeleteBuffers, glDeleteBuffers);
     GL_GET_PROC(BindBuffer, glBindBuffer);

@@ -50,6 +50,10 @@ namespace af3d
         OGL();
         ~OGL();
 
+        void (GLAPIENTRY* DrawElements)(GLenum mode, GLsizei count, GLenum type, const void* indices);
+        void (GLAPIENTRY* GenVertexArrays)(GLsizei n, GLuint* array);
+        void (GLAPIENTRY* DeleteVertexArrays)(GLsizei n, const GLuint* arrays);
+        void (GLAPIENTRY* BindVertexArray)(GLuint array);
         void (GLAPIENTRY* GenBuffers)(GLsizei n, GLuint* buffers);
         void (GLAPIENTRY* DeleteBuffers)(GLsizei n, const GLuint* buffers);
         void (GLAPIENTRY* BindBuffer)(GLenum target, GLuint buffer);

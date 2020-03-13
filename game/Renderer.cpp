@@ -71,6 +71,9 @@ namespace af3d
         LOG4CPLUS_INFO(logger(), "sample_buffers = " << sampleBuffers << ", samples = " << samples);
         LOG4CPLUS_INFO(logger(), "texture filter: " << (settings.trilinearFilter ? "trilinear" : "bilinear"));
 
+        ogl.Disable(GL_BLEND);
+        ogl.Disable(GL_DEPTH_TEST);
+
         return true;
     }
 
@@ -208,5 +211,6 @@ namespace af3d
 
     void Renderer::doRender(const RenderNodePtr& rn, HardwareContext& ctx)
     {
+        rn->apply(ctx);
     }
 }

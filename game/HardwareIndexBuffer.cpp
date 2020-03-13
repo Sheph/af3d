@@ -44,6 +44,18 @@ namespace af3d
         }
     }
 
+    GLenum HardwareIndexBuffer::glDataType() const
+    {
+        switch (dataType_) {
+        case UInt32:
+            return GL_UNSIGNED_INT;
+        default:
+            btAssert(false);
+        case UInt16:
+            return GL_UNSIGNED_SHORT;
+        }
+    }
+
     void HardwareIndexBuffer::doResize(HardwareContext& ctx)
     {
         ogl.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, id(ctx));

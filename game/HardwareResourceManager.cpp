@@ -103,6 +103,13 @@ namespace af3d
         return res;
     }
 
+    HardwareVertexArrayPtr HardwareResourceManager::createVertexArray()
+    {
+        auto res = std::make_shared<HardwareVertexArray>(this);
+        onResourceCreate(res);
+        return res;
+    }
+
     HardwareShaderPtr HardwareResourceManager::createShader(HardwareShader::Type type)
     {
         auto res = std::make_shared<HardwareShader>(this, type);

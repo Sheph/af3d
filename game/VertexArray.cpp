@@ -27,12 +27,22 @@
 
 namespace af3d
 {
-    VertexArray::VertexArray(const VertexArrayLayout& layout,
+    VertexArray::VertexArray(const HardwareVertexArrayPtr& vao,
+        const VertexArrayLayout& layout,
         const std::vector<HardwareVertexBufferPtr>& vbos,
         const HardwareIndexBufferPtr& ebo)
-    : layout_(layout),
+    : vao_(vao),
+      layout_(layout),
       vbos_(vbos),
       ebo_(ebo)
     {
+    }
+
+    const HardwareVertexArrayPtr& VertexArray::vao(HardwareContext& ctx) const
+    {
+        if (vao_->id(ctx) == 0) {
+            vao_->setup(layout_, vbos_, ebo_, ctx);
+        }
+        return vao_;
     }
 }
