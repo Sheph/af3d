@@ -168,7 +168,7 @@ namespace af3d
             }
         }
 
-        cachedViewProjMat_ = Matrix4f(xf_.inverse()) * cachedProjMat_;
+        cachedViewProjMat_ = cachedProjMat_ * Matrix4f(xf_.inverse());
     }
 
     bool Frustum::isVisible(const AABB& aabb) const

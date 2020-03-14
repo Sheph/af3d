@@ -74,7 +74,8 @@ namespace af3d
 
         void setTransform(const btTransform& xf)
         {
-            xf.getOpenGLMatrix(&m[0][0]);
+            setTranslation(xf.getOrigin());
+            setBasis(xf.getBasis());
         }
 
         void setTransform(const btVector3& t, const btQuaternion& q)
@@ -84,9 +85,9 @@ namespace af3d
 
         void setTranslation(const btVector3& t)
         {
-            row[3][0] = t[0];
-            row[3][1] = t[1];
-            row[3][2] = t[2];
+            row[0][3] = t[0];
+            row[1][3] = t[1];
+            row[2][3] = t[2];
             row[3][3] = T(1);
         }
 
@@ -97,35 +98,19 @@ namespace af3d
 
         void setBasis(const btMatrix3x3& basis)
         {
-            basis.getOpenGLSubMatrix(&m[0][0]);
-        }
-
-        btMatrix3x3 getBasis() const
-        {
-            btMatrix3x3 res;
-            res.setFromOpenGLSubMatrix(&m[0][0]);
-            return res;
-        }
-
-        btQuaternion getRotation() const
-        {
-            btQuaternion res;
-            getBasis().getRotation(res);
-            return res;
-        }
-
-        btTransform getTransform() const
-        {
-            btTransform xf;
-            xf.setFromOpenGLMatrix(&m[0][0]);
-            return xf;
-        }
-
-        void getTransform(btVector3& t, btQuaternion& q) const
-        {
-            auto xf = getTransform();
-            t = xf.getOrigin();
-            q = xf.getRotation();
+            v[0] = basis[0].x();
+            v[1] = basis[0].y();
+            v[2] = basis[0].z();
+            v[4] = basis[1].x();
+            v[5] = basis[1].y();
+            v[6] = basis[1].z();
+            v[8] = basis[2].x();
+            v[9] = basis[2].y();
+            v[10] = basis[2].z();
+            v[12] = T(0);
+            v[13] = T(0);
+            v[14] = T(0);
+            v[15] = T(1);
         }
 
         Vector4<T> getColumn(int i) const
@@ -189,12 +174,12 @@ namespace af3d
             std::memset(&v[0], 0, sizeof(T[16]));
 
             m[0][0] = A;
+            m[0][2] = C;
             m[1][1] = B;
-            m[2][0] = C;
-            m[2][1] = D;
+            m[1][2] = D;
             m[2][2] = q;
-            m[2][3] = T(-1);
-            m[3][2] = qn;
+            m[2][3] = qn;
+            m[3][2] = T(-1);
         }
 
         void setOrtho(T left, T right, T bottom, T top, T zNear, T zFar)
