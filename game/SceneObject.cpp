@@ -535,7 +535,7 @@ namespace af3d
 
     btVector3 SceneObject::getDirection(float length) const
     {
-        return transform().getRotation().getAxis().normalized() * length;
+        return quatRotate(transform().getRotation(), btVector3_forward * length);
     }
 
 /*    b2Vec2 SceneObject::getSmoothDirection(float length) const

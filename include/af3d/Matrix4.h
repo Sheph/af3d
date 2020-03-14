@@ -189,12 +189,12 @@ namespace af3d
             std::memset(&v[0], 0, sizeof(T[16]));
 
             m[0][0] = A;
-            m[0][2] = C;
             m[1][1] = B;
-            m[1][2] = D;
+            m[2][0] = C;
+            m[2][1] = D;
             m[2][2] = q;
-            m[2][3] = qn;
-            m[3][2] = T(-1);
+            m[2][3] = T(-1);
+            m[3][2] = qn;
         }
 
         void setOrtho(T left, T right, T bottom, T top, T zNear, T zFar)

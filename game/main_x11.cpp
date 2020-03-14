@@ -365,6 +365,7 @@ static bool OGLPreInit()
         }
     }
 
+    GL_GET_PROC(CullFace, glCullFace);
     GL_GET_PROC(DrawElements, glDrawElements);
     GL_GET_PROC(GenVertexArrays, glGenVertexArrays);
     GL_GET_PROC(DeleteVertexArrays, glDeleteVertexArrays);

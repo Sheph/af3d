@@ -106,16 +106,17 @@ namespace af3d
 
     void Scene::prepare()
     {
-        camera_->setTransform(makeLookDir(btVector3(0.0f, 0.0f, 0.0f), btVector3_forward, btVector3_up));
+        camera_->setTransform(makeLookAt(btVector3(2.0f, 5.0f, 15.0f), btVector3(0.0f, 0.0f, -5.0f),
+            quatRotate(btQuaternion(btVector3_forward, btRadians(0.0f)), btVector3_up)));
 
         auto obj = sceneObjectFactory.createColoredBox(btVector3(1.0f, 2.0f, 3.0f));
         obj->setPos(btVector3(5.0f, 0.0f, 5.0f));
-        obj->setRotation(btQuaternion(0.0f, btRadians(30.0f), 0.0f));
+        obj->setRotation(btQuaternion(0.0f, btRadians(0.0f), 0.0f));
         addObject(obj);
 
-        obj = sceneObjectFactory.createColoredBox(btVector3(1.0f, 2.0f, 3.0f));
-        obj->setPos(btVector3(5.0f, 0.0f, -5.0f));
-        obj->setRotation(btQuaternion(0.0f, btRadians(-30.0f), 0.0f));
+        obj = sceneObjectFactory.createColoredBox(btVector3(1.0f, 1.0f, 1.0f));
+        obj->setPos(btVector3(0.0f, 0.0f, -1.0f));
+        obj->setRotation(btQuaternion(0.0f, btRadians(0.0f), 0.0f));
         addObject(obj);
     }
 

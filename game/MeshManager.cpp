@@ -71,26 +71,26 @@ namespace af3d
                                 continue;
                             }
 
-                            Vector3f vDir;
-                            Vector3f vAdd[4];
+                            Vector3f vDir = Vector3f_zero;
+                            Vector3f vAdd[4] = {Vector3f_zero, Vector3f_zero, Vector3f_zero, Vector3f_zero};
 
                             if (std::abs(x)){
                                 vDir.setX(x);
-                                vAdd[0].setY(1); vAdd[0].setZ(1);
-                                vAdd[1].setY(-1); vAdd[1].setZ(1);
-                                vAdd[2].setY(-1); vAdd[2].setZ(-1);
-                                vAdd[3].setY(1); vAdd[3].setZ(-1);
+                                vAdd[3].setY(1); vAdd[3].setZ(1);
+                                vAdd[2].setY(-1); vAdd[2].setZ(1);
+                                vAdd[1].setY(-1); vAdd[1].setZ(-1);
+                                vAdd[0].setY(1); vAdd[0].setZ(-1);
                             } else if(std::abs(y)) {
                                 vDir.setY(y);
-                                vAdd[0].setZ(1); vAdd[0].setX(1);
-                                vAdd[1].setZ(-1); vAdd[1].setX(1);
-                                vAdd[2].setZ(-1); vAdd[2].setX(-1);
-                                vAdd[3].setZ(1); vAdd[3].setX(-1);
+                                vAdd[3].setZ(1); vAdd[3].setX(1);
+                                vAdd[2].setZ(-1); vAdd[2].setX(1);
+                                vAdd[1].setZ(-1); vAdd[1].setX(-1);
+                                vAdd[0].setZ(1); vAdd[0].setX(-1);
                             } else if(std::abs(z)) {
-                                vAdd[0].setY(1); vAdd[0].setX(1);
-                                vAdd[1].setY(1); vAdd[1].setX(-1);
-                                vAdd[2].setY(-1); vAdd[2].setX(-1);
-                                vAdd[3].setY(-1); vAdd[3].setX(1);
+                                vAdd[3].setY(1); vAdd[3].setX(1);
+                                vAdd[2].setY(1); vAdd[2].setX(-1);
+                                vAdd[1].setY(-1); vAdd[1].setX(-1);
+                                vAdd[0].setY(-1); vAdd[0].setX(1);
                                 vDir.setZ(z);
                             }
 

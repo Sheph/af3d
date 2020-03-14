@@ -76,7 +76,7 @@ namespace af3d
 
         btTransform xf_;
 
-        Color clearColor_ = Color(0.0f, 0.0f, 0.0f, 1.0f);
+        Color clearColor_ = Color(0.0f, 0.0f, 0.4f, 1.0f);
         AABB2i viewport_{Vector2i(0, 0), Vector2i(0, 0)};
 
         mutable Frustum frustum_;

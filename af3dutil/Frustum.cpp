@@ -156,7 +156,7 @@ namespace af3d
                 float top = btTan(fov_ * 0.5f) * nearDist_;
                 float bottom = -top;
                 float right = aspect_ * top;
-                float left = aspect_ * bottom;
+                float left = -right;
                 cachedProjMat_.setPerspective(left, right, bottom, top, nearDist_, farDist_);
             } else {
                 float orthoWidth = orthoHeight_ * aspect_;
@@ -168,7 +168,7 @@ namespace af3d
             }
         }
 
-        cachedViewProjMat_ = cachedProjMat_ * Matrix4f(xf_);
+        cachedViewProjMat_ = Matrix4f(xf_.inverse()) * cachedProjMat_;
     }
 
     bool Frustum::isVisible(const AABB& aabb) const

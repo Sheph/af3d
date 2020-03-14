@@ -73,6 +73,8 @@ namespace af3d
 
         ogl.Disable(GL_BLEND);
         ogl.Disable(GL_DEPTH_TEST);
+        ogl.Enable(GL_CULL_FACE);
+        ogl.CullFace(GL_BACK);
 
         return true;
     }

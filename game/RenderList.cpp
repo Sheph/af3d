@@ -47,7 +47,7 @@ namespace af3d
             auto& params = rn->add(std::move(tmpNode), geom.material, geom.vaSlice, geom.primitiveMode);
             const auto& activeUniforms = geom.material->type()->prog()->activeUniforms();
             if (activeUniforms.count(UniformName::ProjMatrix) > 0) {
-                params.setUniform(UniformName::ProjMatrix, viewProjMat * Matrix4f(geom.xf));
+                params.setUniform(UniformName::ProjMatrix, Matrix4f(geom.xf) * viewProjMat);
             }
             if (activeUniforms.count(UniformName::Time) > 0) {
                 params.setUniform(UniformName::Time, 0.0f);

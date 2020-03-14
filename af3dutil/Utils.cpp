@@ -89,9 +89,17 @@ namespace af3d
         btZeroNormalize(vRight);
         auto vUp = vForward.cross(vRight);
 
-        basis[0] = vRight;
-        basis[1] = vUp;
-        basis[2] = vForward;
+        basis[0][0] = vRight[0];
+        basis[1][0] = vRight[1];
+        basis[2][0] = vRight[2];
+
+        basis[0][1] = vUp[0];
+        basis[1][1] = vUp[1];
+        basis[2][1] = vUp[2];
+
+        basis[0][2] = vForward[0];
+        basis[1][2] = vForward[1];
+        basis[2][2] = vForward[2];
     }
 
     void makeLookDir(const btVector3& dir, const btVector3& up, btQuaternion& rotation)
