@@ -82,12 +82,14 @@ namespace af3d
         return !is.fail();
     }
 
-    void makeLookDir(const btVector3& dir, const btVector3& up, btMatrix3x3& basis)
+    btMatrix3x3 makeLookBasis(const btVector3& dir, const btVector3& up)
     {
         auto vForward = btZeroNormalized(-dir);
         auto vRight = up.cross(vForward);
         btZeroNormalize(vRight);
         auto vUp = vForward.cross(vRight);
+
+        btMatrix3x3 basis;
 
         basis[0][0] = vRight[0];
         basis[1][0] = vRight[1];
@@ -100,25 +102,20 @@ namespace af3d
         basis[0][2] = vForward[0];
         basis[1][2] = vForward[1];
         basis[2][2] = vForward[2];
+
+        return basis;
     }
 
-    void makeLookDir(const btVector3& dir, const btVector3& up, btQuaternion& rotation)
+    btQuaternion makeLookRotation(const btVector3& dir, const btVector3& up)
     {
-        btMatrix3x3 m;
-        makeLookDir(dir, up, m);
-        m.getRotation(rotation);
-    }
-
-    void makeLookDir(const btVector3& pos, const btVector3& dir, const btVector3& up, btTransform& xf)
-    {
-        makeLookDir(dir, up, xf.getBasis());
-        xf.setOrigin(pos);
+        btQuaternion rotation;
+        makeLookBasis(dir, up).getRotation(rotation);
+        return rotation;
     }
 
     btTransform makeLookDir(const btVector3& pos, const btVector3& dir, const btVector3& up)
     {
-        btTransform xf;
-        makeLookDir(pos, dir, up, xf);
+        btTransform xf(makeLookBasis(dir, up), pos);
         return xf;
     }
 

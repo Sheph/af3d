@@ -116,7 +116,7 @@ namespace af3d
 
         obj = sceneObjectFactory.createColoredBox(btVector3(1.0f, 1.0f, 1.0f));
         obj->setPos(btVector3(0.0f, 0.0f, -1.0f));
-        obj->setRotation(btQuaternion(0.0f, btRadians(0.0f), 0.0f));
+        obj->setRotation(btQuaternion(0.0f, btRadians(10.0f), 0.0f));
         addObject(obj);
     }
 

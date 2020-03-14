@@ -36,6 +36,8 @@ namespace af3d
 
     void RenderMeshComponent::update(float dt)
     {
+        xf_ *= btTransform(btQuaternion(btVector3(1.0f, 1.0f, 1.0f), btRadians(dt * 90.0f)));
+
         if (parent()->transform() == prevParentXf_) {
             return;
         }
