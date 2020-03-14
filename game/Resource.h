@@ -45,6 +45,9 @@ namespace af3d
 
     using ResourceLoaderPtr = std::shared_ptr<ResourceLoader>;
 
+    class Resource;
+    using ResourcePtr = std::shared_ptr<Resource>;
+
     class Resource : boost::noncopyable
     {
     public:
@@ -58,6 +61,8 @@ namespace af3d
         explicit Resource(const std::string& name,
             const ResourceLoaderPtr& loader = ResourceLoaderPtr());
         virtual ~Resource() = default;
+
+        virtual ResourcePtr sharedThis() = 0;
 
         inline const std::string& name() const { return name_; }
 
@@ -74,8 +79,6 @@ namespace af3d
         ResourceLoaderPtr loader_;
         std::atomic<State> state_;
     };
-
-    using ResourcePtr = std::shared_ptr<Resource>;
 }
 
 #endif

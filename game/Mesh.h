@@ -34,7 +34,8 @@ namespace af3d
 {
     class MeshManager;
 
-    class Mesh : public Resource
+    class Mesh : public std::enable_shared_from_this<Mesh>,
+        public Resource
     {
     public:
         Mesh(MeshManager* mgr,
@@ -44,6 +45,8 @@ namespace af3d
             const VertexArrayPtr& va,
             const ResourceLoaderPtr& loader = ResourceLoaderPtr());
         ~Mesh();
+
+        virtual ResourcePtr sharedThis() override { return shared_from_this(); }
 
         inline const AABB& aabb() const { return aabb_; }
 

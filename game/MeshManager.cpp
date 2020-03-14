@@ -52,8 +52,11 @@ namespace af3d
                 vbo->resize(4 * 6, ctx); // 4 verts per face
                 ebo->resize(6 * 6, ctx); // 6 indices per face
 
-                float *verts, *vertsStart = (float*)vbo->lock(HardwareBuffer::WriteOnly, ctx);
-                std::uint16_t *indices, *indicesStart = (std::uint16_t*)ebo->lock(HardwareBuffer::WriteOnly, ctx);
+                float *verts, *vertsStart;
+                std::uint16_t *indices, *indicesStart;
+
+                verts = vertsStart = (float*)vbo->lock(HardwareBuffer::WriteOnly, ctx);
+                indices = indicesStart = (std::uint16_t*)ebo->lock(HardwareBuffer::WriteOnly, ctx);
 
                 std::uint16_t lastIdx = 0;
                 int face = 0;
@@ -102,9 +105,9 @@ namespace af3d
                                 Vector3f pos = (vDir + vAdd[idx]) * size_;
 
                                 std::memcpy(verts, &pos.v[0], 12);
-                                verts += 12;
+                                verts += 3;
                                 std::memcpy(verts, &c.v[0], 16);
-                                verts += 16;
+                                verts += 4;
                             }
 
                             for (std::uint16_t i = 0; i < 3; ++i) {
@@ -125,8 +128,8 @@ namespace af3d
                     }
                 }
 
-                btAssert((verts - vertsStart) == vbo->sizeInBytes(ctx));
-                btAssert((indices - indicesStart) == ebo->sizeInBytes(ctx));
+                btAssert((verts - vertsStart) * 4 == vbo->sizeInBytes(ctx));
+                btAssert((indices - indicesStart) == ebo->count(ctx));
 
                 ebo->unlock(ctx);
                 vbo->unlock(ctx);

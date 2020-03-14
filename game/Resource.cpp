@@ -24,6 +24,7 @@
  */
 
 #include "Resource.h"
+#include "Renderer.h"
 
 namespace af3d
 {
@@ -49,7 +50,15 @@ namespace af3d
 
         State old = Unloaded;
         if (state_.compare_exchange_strong(old, Loading) || loader) {
-            // TODO: schedule loader or loader_ on renderer thread.
+            ResourcePtr res = sharedThis();
+            ResourceLoaderPtr l = loader;
+            if (!l) {
+                l = loader_;
+            }
+            renderer.scheduleHwOp([res, l](HardwareContext& ctx) {
+                l->load(*res, ctx);
+                res->state_ = Loaded;
+            });
         }
     }
 

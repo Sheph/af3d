@@ -33,13 +33,16 @@ namespace af3d
 {
     class TextureManager;
 
-    class Texture : public Resource
+    class Texture : public std::enable_shared_from_this<Texture>,
+        public Resource
     {
     public:
         Texture(TextureManager* mgr, const std::string& name,
             const HardwareTexturePtr& hwTex,
             const ResourceLoaderPtr& loader = ResourceLoaderPtr());
         ~Texture();
+
+        virtual ResourcePtr sharedThis() override { return shared_from_this(); }
 
         inline const HardwareTexturePtr& hwTex() const { return hwTex_; }
 

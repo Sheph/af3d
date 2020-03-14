@@ -32,6 +32,7 @@
 #include "af3d/Vector2.h"
 #include "af3d/Vector3.h"
 #include "af3d/Vector4.h"
+#include "af3d/Matrix4.h"
 #include "af3d/Utils.h"
 
 namespace af3d
@@ -50,6 +51,9 @@ namespace af3d
         void setUniform(UniformName name, const Vector3f& value);
         void setUniform(UniformName name, const btVector3& value);
         void setUniform(UniformName name, const Vector4f& value);
+        void setUniform(UniformName name, const Matrix4f& value);
+
+        void apply(HardwareContext& ctx) const;
 
     private:
         using UniformMap = EnumUnorderedMap<UniformName, GLsizei>; // uniform -> actual count
@@ -148,11 +152,14 @@ namespace af3d
 
     class MaterialManager;
 
-    class Material : public Resource
+    class Material : public std::enable_shared_from_this<Material>,
+        public Resource
     {
     public:
         Material(MaterialManager* mgr, const std::string& name, const MaterialTypePtr& type);
         ~Material();
+
+        virtual ResourcePtr sharedThis() override { return shared_from_this(); }
 
         inline const MaterialTypePtr& type() const { return type_; }
 

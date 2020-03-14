@@ -37,12 +37,12 @@ namespace af3d
         const char* vert;
         const char* frag;
     } shaderPaths[MaterialTypeMax + 1] = {
-        {"shaders/2d-default.vert", "shaders/2d-default.frag"},
-        {"shaders/2d-color.vert", "shaders/2d-color.frag"},
-        {"shaders/unlit-default.vert", "shaders/unlit-default.frag"},
-        {"shaders/unlit-color.vert", "shaders/unlit-color.frag"},
-        {"shaders/basic-default.vert", "shaders/basic-default.frag"},
-        {"shaders/basic-color.vert", "shaders/basic-color.frag"}
+        //{"shaders/2d-textured.vert", "shaders/2d-textured.frag"},
+        //{"shaders/2d-colored.vert", "shaders/2d-colored.frag"},
+        //{"shaders/unlit-textured.vert", "shaders/unlit-textured.frag"},
+        {"shaders/unlit-colored.vert", "shaders/unlit-colored.frag"},
+        //{"shaders/basic-textured.vert", "shaders/basic-textured.frag"},
+        //{"shaders/basic-colored.vert", "shaders/basic-colored.frag"}
     };
 
     MaterialManager materialManager;
@@ -94,7 +94,7 @@ namespace af3d
 
             if (!readStream(isVert, vertSource)) {
                 LOG4CPLUS_ERROR(logger(), "Unable to read \"" << shaderPaths[mat->name()].vert << "\"");
-                //return false;
+                return false;
             }
 
             PlatformIFStream isFrag(shaderPaths[mat->name()].frag);
@@ -103,11 +103,11 @@ namespace af3d
 
             if (!readStream(isFrag, fragSource)) {
                 LOG4CPLUS_ERROR(logger(), "Unable to read \"" << shaderPaths[mat->name()].frag << "\"");
-                //return false;
+                return false;
             }
 
             if (!mat->reload(vertSource, fragSource, ctx)) {
-                //return false;
+                return false;
             }
         }
 

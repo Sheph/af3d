@@ -72,6 +72,37 @@ namespace af3d
         setUniformImpl(name, reinterpret_cast<const Byte*>(value.v), GL_FLOAT, 4, 1);
     }
 
+    void MaterialParams::setUniform(UniformName name, const Matrix4f& value)
+    {
+        setUniformImpl(name, reinterpret_cast<const Byte*>(value.v), GL_FLOAT, 16, 1);
+    }
+
+    void MaterialParams::apply(HardwareContext& ctx) const
+    {
+        const auto& activeUniforms = materialType_->prog()->activeUniforms();
+        const auto& offsets = materialType_->paramListInfo(isAuto_).offsets;
+        for (const auto& kv : uniforms_) {
+            auto it = activeUniforms.find(kv.first);
+            runtime_assert(it != activeUniforms.end());
+            auto offIt = offsets.find(kv.first);
+            runtime_assert(offIt != offsets.end());
+            switch (it->second.type) {
+            case GL_FLOAT:
+                ogl.Uniform1fv(it->second.location, kv.second, (const GLfloat*)&paramList_[offIt->second]);
+                break;
+            case GL_FLOAT_VEC4:
+                ogl.Uniform4fv(it->second.location, kv.second, (const GLfloat*)&paramList_[offIt->second]);
+                break;
+            case GL_FLOAT_MAT4:
+                ogl.UniformMatrix4fv(it->second.location, kv.second, GL_FALSE, (const GLfloat*)&paramList_[offIt->second]);
+                break;
+            default:
+                runtime_assert(false);
+                break;
+            }
+        }
+    }
+
     bool MaterialParams::checkName(UniformName name, size_t& offset, VariableInfo& info)
     {
         if (HardwareProgram::isAuto(name) ^ isAuto_) {
@@ -100,7 +131,7 @@ namespace af3d
         size_t offset = 0;
         VariableInfo info;
 
-        if (checkName(name, offset, info)) {
+        if (!checkName(name, offset, info)) {
             return;
         }
 
@@ -121,7 +152,7 @@ namespace af3d
             return;
         }
 
-        std::memcpy(&paramList_[0], data, ti.sizeInBytes * count);
+        std::memcpy(&paramList_[offset], data, ti.sizeInBytes * count);
         uniforms_[name] = count;
     }
 
@@ -131,6 +162,7 @@ namespace af3d
       type_(type),
       params_(type, false)
     {
+        btAssert(type);
     }
 
     Material::~Material()

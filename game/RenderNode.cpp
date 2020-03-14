@@ -55,6 +55,7 @@ namespace af3d
 
         node->va_ = vaSlice.va();
         node->materialParams_ = material->params();
+        node->materialParamsAuto_ = MaterialParams(material->type(), true);
         node->drawPrimitiveMode_ = primitiveMode;
         node->drawStart_ = vaSlice.start();
         node->drawCount_ = vaSlice.count();
@@ -268,6 +269,8 @@ namespace af3d
     void RenderNode::applyDraw(HardwareContext& ctx) const
     {
         LOG4CPLUS_DEBUG(logger(), "Draw(" << va_.get() << ", " << drawPrimitiveMode_ << ", " << drawStart_ << ", " << drawCount_ << ", " << drawBaseVertex_ << ")");
+        materialParamsAuto_.apply(ctx);
+        materialParams_.apply(ctx);
         if (drawCount_ == 0) {
             if (va_->ebo()) {
                 ogl.DrawElements(drawPrimitiveMode_, va_->ebo()->count(ctx),

@@ -52,7 +52,7 @@ namespace af3d
         default:
             btAssert(false);
         case WriteOnly:
-            return GL_WRITE_ONLY;
+            return GL_MAP_WRITE_BIT;
         }
     }
 

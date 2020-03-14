@@ -40,13 +40,14 @@ namespace af3d
 
     RenderNodePtr RenderList::compile() const
     {
+        const Matrix4f& viewProjMat = cc_->getFrustum().viewProjMat();
         auto rn = std::make_shared<RenderNode>(cc_->clearColor(), cc_->viewport());
         RenderNode tmpNode;
         for (const auto& geom : geomList_) {
             auto& params = rn->add(std::move(tmpNode), geom.material, geom.vaSlice, geom.primitiveMode);
             const auto& activeUniforms = geom.material->type()->prog()->activeUniforms();
             if (activeUniforms.count(UniformName::ProjMatrix) > 0) {
-                params.setUniform(UniformName::ProjMatrix, 1.0f);
+                params.setUniform(UniformName::ProjMatrix, viewProjMat * Matrix4f(geom.xf));
             }
             if (activeUniforms.count(UniformName::Time) > 0) {
                 params.setUniform(UniformName::Time, 0.0f);
