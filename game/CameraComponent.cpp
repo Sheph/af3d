@@ -25,6 +25,7 @@
 
 #include "CameraComponent.h"
 #include "SceneObject.h"
+#include "InputManager.h"
 
 namespace af3d
 {
@@ -36,6 +37,48 @@ namespace af3d
 
     void CameraComponent::preRender(float dt)
     {
+        float moveSpeed = 5.0f;
+
+        if (inputManager.keyboard().pressed(KI_LSHIFT)) {
+            moveSpeed *= 3.0f;
+        }
+
+        if (inputManager.keyboard().pressed(KI_W)) {
+            parent()->setPos(parent()->pos() + parent()->getForward(dt * moveSpeed));
+        }
+        if (inputManager.keyboard().pressed(KI_S)) {
+            parent()->setPos(parent()->pos() - parent()->getForward(dt * moveSpeed));
+        }
+        if (inputManager.keyboard().pressed(KI_A)) {
+            parent()->setPos(parent()->pos() - parent()->getRight(dt * moveSpeed));
+        }
+        if (inputManager.keyboard().pressed(KI_D)) {
+            parent()->setPos(parent()->pos() + parent()->getRight(dt * moveSpeed));
+        }
+        if (inputManager.keyboard().pressed(KI_SPACE)) {
+            parent()->setPos(parent()->pos() + parent()->getUp(dt * moveSpeed));
+        }
+        if (inputManager.keyboard().pressed(KI_LMENU)) {
+            parent()->setPos(parent()->pos() - parent()->getUp(dt * moveSpeed));
+        }
+
+        if (!inputManager.mouse().pressed(false)) {
+            mousePressed_ = false;
+            return;
+        }
+
+        if (!mousePressed_) {
+            mousePressed_ = true;
+            mousePrevPos_ = inputManager.mouse().pos();
+            return;
+        }
+
+        auto diff = inputManager.mouse().pos() - mousePrevPos_;
+
+        parent()->setTransform(parent()->transform() *
+            btTransform(btQuaternion(btRadians(-diff.x() * 80.0f), btRadians(diff.y() * 80.0f), 0.0f)));
+
+        mousePrevPos_ = inputManager.mouse().pos();
     }
 
     const Frustum& CameraComponent::getFrustum() const

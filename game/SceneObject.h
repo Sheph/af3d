@@ -182,7 +182,11 @@ namespace af3d
 
         //b2Vec2 getSmoothLocalPoint(const b2Vec2& worldPoint) const;
 
-        btVector3 getDirection(float length) const;
+        btVector3 getForward(float length) const;
+
+        btVector3 getRight(float length) const;
+
+        btVector3 getUp(float length) const;
 
         //b2Vec2 getSmoothDirection(float length) const;
 

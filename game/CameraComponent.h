@@ -80,6 +80,9 @@ namespace af3d
         AABB2i viewport_{Vector2i(0, 0), Vector2i(0, 0)};
 
         mutable Frustum frustum_;
+
+        bool mousePressed_ = false;
+        Vector2f mousePrevPos_;
     };
 
     using CameraComponentPtr = std::shared_ptr<CameraComponent>;

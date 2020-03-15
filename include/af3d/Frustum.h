@@ -94,7 +94,7 @@ namespace af3d
         inline btPlane& cachedPlane(Plane p) const { return cachedPlanes_[static_cast<int>(p)]; }
 
         ProjectionType projectionType_ = ProjectionType::Perspective;
-        float fov_ = btRadians(70.0f);
+        float fov_ = btRadians(45.0f);
         float orthoHeight_ = 40.0f;
         float aspect_ = 4.0f / 3.0f;
         float nearDist_ = 0.05f;

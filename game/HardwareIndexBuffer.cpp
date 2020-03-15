@@ -28,7 +28,8 @@
 namespace af3d
 {
     HardwareIndexBuffer::HardwareIndexBuffer(HardwareResourceManager* mgr, Usage usage, DataType dataType)
-    : HardwareBuffer(mgr, usage, dataTypeSize(dataType))
+    : HardwareBuffer(mgr, usage, dataTypeSize(dataType)),
+      dataType_(dataType)
     {
     }
 

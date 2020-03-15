@@ -533,9 +533,19 @@ namespace af3d
         }
     }*/
 
-    btVector3 SceneObject::getDirection(float length) const
+    btVector3 SceneObject::getForward(float length) const
     {
-        return quatRotate(transform().getRotation(), btVector3_forward * length);
+        return transform().getBasis() * btVector3_forward * length;
+    }
+
+    btVector3 SceneObject::getRight(float length) const
+    {
+        return transform().getBasis() * btVector3_right * length;
+    }
+
+    btVector3 SceneObject::getUp(float length) const
+    {
+        return transform().getBasis() * btVector3_up * length;
     }
 
 /*    b2Vec2 SceneObject::getSmoothDirection(float length) const

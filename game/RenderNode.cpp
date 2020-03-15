@@ -215,6 +215,7 @@ namespace af3d
 
     void RenderNode::applyRoot(HardwareContext& ctx) const
     {
+        //LOG4CPLUS_DEBUG(logger(), "draw(" << numDraws_ << ")");
         ogl.Viewport(viewport_.lowerBound[0], viewport_.lowerBound[1], viewport_.upperBound[0], viewport_.upperBound[1]);
         ogl.ClearColor(clearColor_[0], clearColor_[1], clearColor_[2], clearColor_[3]);
         ogl.Clear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
