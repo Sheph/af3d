@@ -45,6 +45,12 @@ namespace af3d
         {
         }
 
+        bool empty() const
+        {
+            btVector3 d = upperBound - lowerBound;
+            return d.x() <= 0.0f || d.y() <= 0.0f || d.z() <= 0.0f;
+        }
+
         // Get the center of the AABB.
         btVector3 getCenter() const
         {
@@ -96,6 +102,8 @@ namespace af3d
         valid = valid && btIsValid(aabb.lowerBound) && btIsValid(aabb.upperBound);
         return valid;
     }
+
+    extern const AABB AABB_empty;
 }
 
 #endif

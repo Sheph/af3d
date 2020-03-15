@@ -23,56 +23,55 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MATERIAL_MANAGER_H_
-#define _MATERIAL_MANAGER_H_
+#ifndef _LIGHT_H_
+#define _LIGHT_H_
 
-#include "ResourceManager.h"
 #include "Material.h"
-#include "af3d/Single.h"
-#include <unordered_map>
-#include <unordered_set>
+#include "af3d/Types.h"
+#include "af3d/AABB.h"
+#include "af3d/Vector4.h"
 
 namespace af3d
 {
-    class MaterialManager : public ResourceManager,
-                            public Single<MaterialManager>
+    class Light : boost::noncopyable
     {
     public:
-        MaterialManager() = default;
-        ~MaterialManager();
+        explicit Light(int typeId)
+        : typeId_(typeId)
+        {
+            btAssert(typeId > 0);
+        }
+        virtual ~Light() = default;
 
-        bool init() override;
+        inline const btTransform& transform() const { return xf_; }
+        inline void setTransform(const btTransform& value) { xf_ = value; }
 
-        void shutdown() override;
+        inline const Color& color() const { return color_; }
+        inline void setColor(const Color& value) { color_ = value; }
 
-        void reload() override;
+        inline float intensity() const { return color_.w(); }
+        inline void setIntensity(float value) { color_.setW(value); }
 
-        bool renderReload(HardwareContext& ctx) override;
+        inline bool hasAABB() const { return !localAABB_.empty(); }
 
-        MaterialTypePtr getMaterialType(MaterialTypeName name);
+        inline const AABB& localAABB() const { return localAABB_; }
+        AABB getWorldAABB() const;
 
-        MaterialPtr getMaterial(const std::string& name);
+        void setupMaterial(const btVector3& eyePos, MaterialParams& params) const;
 
-        MaterialPtr createMaterial(MaterialTypeName typeName, const std::string& name = "");
-
-        bool onMaterialClone(const MaterialPtr& material);
-
-        void onMaterialDestroy(Material* material);
-
-        static const std::string materialUnlitDefault;
+    protected:
+        inline void setLocalAABB(const AABB& value) { localAABB_ = value; }
 
     private:
-        using MaterialTypes = std::array<MaterialTypePtr, MaterialTypeMax + 1>;
-        using CachedMaterials = std::unordered_map<std::string, MaterialPtr>;
-        using ImmediateMaterials = std::unordered_set<Material*>;
+        virtual void doSetupMaterial(const btVector3& eyePos, MaterialParams& params) const = 0;
 
-        bool first_ = true;
-        MaterialTypes materialTypes_;
-        CachedMaterials cachedMaterials_;
-        ImmediateMaterials immediateMaterials_;
+        int typeId_ = 0; // 0 - ambient light.
+        btTransform xf_ = btTransform::getIdentity();
+        Color color_ = Color_one; // Color in rgb, alpha = intensity.
+        AABB localAABB_ = AABB_empty;
     };
 
-    extern MaterialManager materialManager;
+    using LightPtr = std::shared_ptr<Light>;
 }
 
 #endif

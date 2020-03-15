@@ -31,18 +31,13 @@
 
 namespace af3d
 {
-    const std::string MaterialManager::materialUnlitColoredDefault = "_builtin_unlitColoredDefault";
+    const std::string MaterialManager::materialUnlitDefault = "_builtin_unlitDefault";
 
     static const struct {
         const char* vert;
         const char* frag;
     } shaderPaths[MaterialTypeMax + 1] = {
-        //{"shaders/2d-textured.vert", "shaders/2d-textured.frag"},
-        //{"shaders/2d-colored.vert", "shaders/2d-colored.frag"},
-        {"shaders/unlit-textured.vert", "shaders/unlit-textured.frag"},
-        {"shaders/unlit-colored.vert", "shaders/unlit-colored.frag"},
-        //{"shaders/basic-textured.vert", "shaders/basic-textured.frag"},
-        //{"shaders/basic-colored.vert", "shaders/basic-colored.frag"}
+        {"shaders/unlit.vert", "shaders/unlit.frag"},
     };
 
     MaterialManager materialManager;
@@ -117,7 +112,7 @@ namespace af3d
 
         if (first_) {
             first_ = false;
-            createMaterial(MaterialTypeUnlitColored, materialUnlitColoredDefault);
+            createMaterial(MaterialTypeUnlit, materialUnlitDefault);
         }
 
         return true;

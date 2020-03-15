@@ -23,56 +23,16 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MATERIAL_MANAGER_H_
-#define _MATERIAL_MANAGER_H_
-
-#include "ResourceManager.h"
-#include "Material.h"
-#include "af3d/Single.h"
-#include <unordered_map>
-#include <unordered_set>
+#include "DirectionalLight.h"
 
 namespace af3d
 {
-    class MaterialManager : public ResourceManager,
-                            public Single<MaterialManager>
+    DirectionalLight::DirectionalLight()
+    : Light(TypeId)
     {
-    public:
-        MaterialManager() = default;
-        ~MaterialManager();
+    }
 
-        bool init() override;
-
-        void shutdown() override;
-
-        void reload() override;
-
-        bool renderReload(HardwareContext& ctx) override;
-
-        MaterialTypePtr getMaterialType(MaterialTypeName name);
-
-        MaterialPtr getMaterial(const std::string& name);
-
-        MaterialPtr createMaterial(MaterialTypeName typeName, const std::string& name = "");
-
-        bool onMaterialClone(const MaterialPtr& material);
-
-        void onMaterialDestroy(Material* material);
-
-        static const std::string materialUnlitDefault;
-
-    private:
-        using MaterialTypes = std::array<MaterialTypePtr, MaterialTypeMax + 1>;
-        using CachedMaterials = std::unordered_map<std::string, MaterialPtr>;
-        using ImmediateMaterials = std::unordered_set<Material*>;
-
-        bool first_ = true;
-        MaterialTypes materialTypes_;
-        CachedMaterials cachedMaterials_;
-        ImmediateMaterials immediateMaterials_;
-    };
-
-    extern MaterialManager materialManager;
+    void DirectionalLight::doSetupMaterial(const btVector3& eyePos, MaterialParams& params) const
+    {
+    }
 }
-
-#endif

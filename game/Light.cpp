@@ -23,56 +23,21 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MATERIAL_MANAGER_H_
-#define _MATERIAL_MANAGER_H_
-
-#include "ResourceManager.h"
-#include "Material.h"
-#include "af3d/Single.h"
-#include <unordered_map>
-#include <unordered_set>
+#include "Light.h"
 
 namespace af3d
 {
-    class MaterialManager : public ResourceManager,
-                            public Single<MaterialManager>
+    AABB Light::getWorldAABB() const
     {
-    public:
-        MaterialManager() = default;
-        ~MaterialManager();
+        return localAABB_.getTransformed(xf_);
+    }
 
-        bool init() override;
-
-        void shutdown() override;
-
-        void reload() override;
-
-        bool renderReload(HardwareContext& ctx) override;
-
-        MaterialTypePtr getMaterialType(MaterialTypeName name);
-
-        MaterialPtr getMaterial(const std::string& name);
-
-        MaterialPtr createMaterial(MaterialTypeName typeName, const std::string& name = "");
-
-        bool onMaterialClone(const MaterialPtr& material);
-
-        void onMaterialDestroy(Material* material);
-
-        static const std::string materialUnlitDefault;
-
-    private:
-        using MaterialTypes = std::array<MaterialTypePtr, MaterialTypeMax + 1>;
-        using CachedMaterials = std::unordered_map<std::string, MaterialPtr>;
-        using ImmediateMaterials = std::unordered_set<Material*>;
-
-        bool first_ = true;
-        MaterialTypes materialTypes_;
-        CachedMaterials cachedMaterials_;
-        ImmediateMaterials immediateMaterials_;
-    };
-
-    extern MaterialManager materialManager;
+    void Light::setupMaterial(const btVector3& eyePos, MaterialParams& params) const
+    {
+        params.setUniform(UniformName::EyePos, eyePos);
+        params.setUniform(UniformName::LightPos, Vector4f(xf_.getOrigin(), typeId_));
+        params.setUniform(UniformName::LightDir, xf_.getBasis() * btVector3_forward);
+        params.setUniform(UniformName::LightColor, color_);
+        doSetupMaterial(eyePos, params);
+    }
 }
-
-#endif

@@ -23,56 +23,24 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MATERIAL_MANAGER_H_
-#define _MATERIAL_MANAGER_H_
-
-#include "ResourceManager.h"
-#include "Material.h"
-#include "af3d/Single.h"
-#include <unordered_map>
-#include <unordered_set>
+#include "PointLight.h"
 
 namespace af3d
 {
-    class MaterialManager : public ResourceManager,
-                            public Single<MaterialManager>
+    PointLight::PointLight()
+    : Light(TypeId)
     {
-    public:
-        MaterialManager() = default;
-        ~MaterialManager();
+        setRadius(1.0f);
+    }
 
-        bool init() override;
+    void PointLight::setRadius(float value)
+    {
+        radius_ = value;
+        setLocalAABB(AABB(-btVector3_one * value * 0.5f, btVector3_one * value * 0.5f));
+    }
 
-        void shutdown() override;
-
-        void reload() override;
-
-        bool renderReload(HardwareContext& ctx) override;
-
-        MaterialTypePtr getMaterialType(MaterialTypeName name);
-
-        MaterialPtr getMaterial(const std::string& name);
-
-        MaterialPtr createMaterial(MaterialTypeName typeName, const std::string& name = "");
-
-        bool onMaterialClone(const MaterialPtr& material);
-
-        void onMaterialDestroy(Material* material);
-
-        static const std::string materialUnlitDefault;
-
-    private:
-        using MaterialTypes = std::array<MaterialTypePtr, MaterialTypeMax + 1>;
-        using CachedMaterials = std::unordered_map<std::string, MaterialPtr>;
-        using ImmediateMaterials = std::unordered_set<Material*>;
-
-        bool first_ = true;
-        MaterialTypes materialTypes_;
-        CachedMaterials cachedMaterials_;
-        ImmediateMaterials immediateMaterials_;
-    };
-
-    extern MaterialManager materialManager;
+    void PointLight::doSetupMaterial(const btVector3& eyePos, MaterialParams& params) const
+    {
+        params.setUniform(UniformName::LightRadius, radius_);
+    }
 }
-
-#endif

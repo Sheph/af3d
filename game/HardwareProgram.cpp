@@ -52,14 +52,19 @@ namespace af3d
     static const std::unordered_map<std::string, UniformName> staticUniformMap = {
         {"proj", UniformName::ProjMatrix},
         {"time", UniformName::Time},
-        {"ambientColor", UniformName::AmbientColor},
-        {"diffuseColor", UniformName::DiffuseColor},
+        {"eyePos", UniformName::EyePos},
+        {"lightPos", UniformName::LightPos},
+        {"lightDir", UniformName::LightDir},
+        {"lightColor", UniformName::LightColor},
+        {"lightRadius", UniformName::LightRadius},
+        {"mainColor", UniformName::MainColor},
         {"specularColor", UniformName::SpecularColor}
     };
 
     static const std::unordered_map<std::string, SamplerName> staticSamplerMap = {
         {"texMain", SamplerName::Main},
-        {"texNormal", SamplerName::Normal}
+        {"texNormal", SamplerName::Normal},
+        {"texSpecular", SamplerName::Specular}
     };
 
     GLint VariableInfo::sizeInBytes() const

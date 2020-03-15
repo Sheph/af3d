@@ -23,56 +23,26 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MATERIAL_MANAGER_H_
-#define _MATERIAL_MANAGER_H_
+#ifndef _DIRECTIONAL_LIGHT_H_
+#define _DIRECTIONAL_LIGHT_H_
 
-#include "ResourceManager.h"
-#include "Material.h"
-#include "af3d/Single.h"
-#include <unordered_map>
-#include <unordered_set>
+#include "Light.h"
 
 namespace af3d
 {
-    class MaterialManager : public ResourceManager,
-                            public Single<MaterialManager>
+    class DirectionalLight : public Light
     {
     public:
-        MaterialManager() = default;
-        ~MaterialManager();
+        static const int TypeId = 1;
 
-        bool init() override;
-
-        void shutdown() override;
-
-        void reload() override;
-
-        bool renderReload(HardwareContext& ctx) override;
-
-        MaterialTypePtr getMaterialType(MaterialTypeName name);
-
-        MaterialPtr getMaterial(const std::string& name);
-
-        MaterialPtr createMaterial(MaterialTypeName typeName, const std::string& name = "");
-
-        bool onMaterialClone(const MaterialPtr& material);
-
-        void onMaterialDestroy(Material* material);
-
-        static const std::string materialUnlitDefault;
+        DirectionalLight();
+        ~DirectionalLight() = default;
 
     private:
-        using MaterialTypes = std::array<MaterialTypePtr, MaterialTypeMax + 1>;
-        using CachedMaterials = std::unordered_map<std::string, MaterialPtr>;
-        using ImmediateMaterials = std::unordered_set<Material*>;
-
-        bool first_ = true;
-        MaterialTypes materialTypes_;
-        CachedMaterials cachedMaterials_;
-        ImmediateMaterials immediateMaterials_;
+        void doSetupMaterial(const btVector3& eyePos, MaterialParams& params) const override;
     };
 
-    extern MaterialManager materialManager;
+    using DirectionalLightPtr = std::shared_ptr<DirectionalLight>;
 }
 
 #endif

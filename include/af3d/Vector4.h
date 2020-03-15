@@ -27,6 +27,7 @@
 #define _AF3D_VECTOR4_H_
 
 #include "af3d/Types.h"
+#include "af3d/Vector3.h"
 #include <type_traits>
 
 namespace af3d
@@ -43,6 +44,14 @@ namespace af3d
             v[0] = _x;
             v[1] = _y;
             v[2] = _z;
+            v[3] = _w;
+        }
+
+        Vector4(const btVector3& other, T _w)
+        {
+            v[0] = other[0];
+            v[1] = other[1];
+            v[2] = other[2];
             v[3] = _w;
         }
 
@@ -367,6 +376,7 @@ namespace af3d
     extern const Vector4f Vector4f_zero;
     extern const Vector4i Vector4i_zero;
     extern const Color Color_zero;
+    extern const Color Color_one;
 
     inline bool btIsValid(const Vector4f& v)
     {

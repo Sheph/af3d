@@ -76,12 +76,12 @@ namespace af3d
         MaterialPtr material;
 
         if (texPath.empty()) {
-            material = materialManager.getMaterial(MaterialManager::materialUnlitColoredDefault);
+            material = materialManager.getMaterial(MaterialManager::materialUnlitDefault);
         } else {
             auto matName = "_coloredBox_" + texPath;
             material = materialManager.getMaterial(matName);
             if (!material) {
-                material = materialManager.createMaterial(MaterialTypeUnlitTextured, matName);
+                material = materialManager.createMaterial(MaterialTypeUnlit, matName);
                 runtime_assert(material);
                 material->setTextureBinding(SamplerName::Main, TextureBinding(textureManager.loadTexture(texPath)));
             }

@@ -49,6 +49,11 @@ set(SOURCES
     VertexArraySlice.cpp
     RenderList.cpp
     RenderNode.cpp
+    Light.cpp
+    DirectionalLight.cpp
+    PointLight.cpp
+    LightComponent.cpp
+    RenderSettings.cpp
 )
 
 file(READ "config.ini" _INI)

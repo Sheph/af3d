@@ -38,7 +38,7 @@ namespace af3d
         Pos = 0,
         UV,
         Normal,
-        Color,
+        Color, // Unlit shader only!
         Max = Color
     };
 
@@ -46,11 +46,15 @@ namespace af3d
     {
         ProjMatrix = 0,
         Time,
+        EyePos,
+        LightPos, // LightPos = vec4(x,y,z,lightType)
+        LightDir,
+        LightColor, // LightColor = vec4(r,g,b,intensity)
+        LightRadius,
         FirstAuto = ProjMatrix,
-        MaxAuto = Time,
-        AmbientColor,
-        DiffuseColor,
-        SpecularColor,
+        MaxAuto = LightRadius,
+        MainColor, // Light only!
+        SpecularColor, // Light only!
         Max = SpecularColor
     };
 
@@ -59,7 +63,8 @@ namespace af3d
     {
         Main = 0,
         Normal,
-        Max = Normal
+        Specular,
+        Max = Specular
     };
 
     struct VariableTypeInfo
