@@ -34,6 +34,7 @@
 #include "af3d/Vector4.h"
 #include "af3d/Matrix4.h"
 #include "af3d/Utils.h"
+#include <boost/optional.hpp>
 
 namespace af3d
 {
@@ -118,6 +119,12 @@ namespace af3d
         : texFilter(texFilter),
           texWrapU(texWrapU),
           texWrapV(texWrapV) {}
+        SamplerParams(GLenum texWrapU,
+            GLenum texWrapV)
+        : texWrapU(texWrapU),
+          texWrapV(texWrapV) {}
+        explicit SamplerParams(GLenum texFilter)
+        : texFilter(texFilter) {}
 
         inline bool operator<(const SamplerParams& other) const
         {
@@ -130,16 +137,16 @@ namespace af3d
             return texWrapV < other.texWrapV;
         }
 
-        GLenum texFilter = GL_LINEAR;
-        GLenum texWrapU = GL_CLAMP_TO_EDGE;
-        GLenum texWrapV = GL_CLAMP_TO_EDGE;
+        boost::optional<GLenum> texFilter;
+        GLenum texWrapU = GL_REPEAT;
+        GLenum texWrapV = GL_REPEAT;
     };
 
     struct TextureBinding
     {
         TextureBinding() = default;
-        TextureBinding(const TexturePtr& tex,
-            const SamplerParams& params)
+        explicit TextureBinding(const TexturePtr& tex,
+            const SamplerParams& params = SamplerParams())
         : tex(tex),
           params(params) {}
 

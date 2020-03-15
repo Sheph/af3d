@@ -106,16 +106,17 @@ namespace af3d
 
     void Scene::prepare()
     {
+        int i = 0;
         for (float z = -20.0f; z >= -100.0f; z -= 7.0f) {
             for (float x = 2.0f; x < 50.0f; x += 5.0f) {
-                auto obj = sceneObjectFactory.createColoredBox(btVector3(1.0f, 2.0f, 3.0f));
+                auto obj = sceneObjectFactory.createColoredBox(btVector3(1.0f, 2.0f, 3.0f), (i++ % 3 == 0) ? "glass1.png" : "bb.png");
                 obj->setPos(btVector3(x, 6.0f, z));
                 obj->setRotation(btQuaternion(btRadians(x), btRadians(x), btRadians(x)));
                 addObject(obj);
             }
         }
 
-        auto obj = sceneObjectFactory.createColoredBox(btVector3(1.0f, 1.0f, 1.0f));
+        auto obj = sceneObjectFactory.createColoredBox(btVector3(1.0f, 1.0f, 1.0f), "glass1.png");
         obj->setPos(btVector3(0.0f, 0.0f, -5.0f));
         obj->setRotation(btQuaternion(0.0f, btRadians(10.0f), 0.0f));
         addObject(obj);

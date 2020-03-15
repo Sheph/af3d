@@ -23,28 +23,41 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Texture.h"
-#include "TextureManager.h"
+#include "PNGUtils.h"
 
 namespace af3d
 {
-    Texture::Texture(TextureManager* mgr, const std::string& name,
-        const HardwareTexturePtr& hwTex,
-        const ResourceLoaderPtr& loader)
-    : Resource(name, loader),
-      mgr_(mgr),
-      hwTex_(hwTex)
+    static void PNGErrorFunc(png_structp pngPtr, png_const_charp msg)
+    {
+        PNGError* error = reinterpret_cast<PNGError*>(png_get_error_ptr(pngPtr));
+        ::longjmp(error->setjmp_buffer, 1);
+    }
+
+    static void PNGWarningFunc(png_structp pngPtr, png_const_charp msg)
     {
     }
 
-    Texture::~Texture()
+    static void PNGReadFunc(png_structp pngPtr, png_bytep data, png_size_t length)
     {
-        mgr_->onTextureDestroy(this);
+        std::istream* stream = reinterpret_cast<std::istream*>(::png_get_io_ptr(pngPtr));
+
+        if (!stream->read(reinterpret_cast<char*>(data), length)) {
+            PNGThrow(pngPtr);
+        }
     }
 
-    void Texture::upload(GLint internalFormat, GLenum format, GLenum type, std::vector<Byte>&& pixels)
+    png_structp PNGCreateReadStruct(PNGError& pngError)
     {
-        runtime_assert(false);
-        //TODO: load(MyBytesLoader(pixels));
+        return ::png_create_read_struct(PNG_LIBPNG_VER_STRING, &pngError, PNGErrorFunc, PNGWarningFunc);
+    }
+
+    void PNGThrow(png_structp pngPtr)
+    {
+        ::png_error(pngPtr, "");
+    }
+
+    void PNGSetSource(png_structp pngPtr, std::istream& is)
+    {
+        ::png_set_read_fn(pngPtr, &is, PNGReadFunc);
     }
 }

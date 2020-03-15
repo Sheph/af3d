@@ -115,8 +115,7 @@ namespace af3d
 
     btTransform makeLookDir(const btVector3& pos, const btVector3& dir, const btVector3& up)
     {
-        btTransform xf(makeLookBasis(dir, up), pos);
-        return xf;
+        return btTransform(makeLookBasis(dir, up), pos);
     }
 
     btTransform makeLookAt(const btVector3& pos, const btVector3& target, const btVector3& up)

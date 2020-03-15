@@ -23,28 +23,29 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Texture.h"
-#include "TextureManager.h"
+#ifndef _PNGUTILS_H_
+#define _PNGUTILS_H_
+
+#include "af3d/Types.h"
+#include "png.h"
+#include <setjmp.h>
+#include <iostream>
+
+#define PNGCatch(pngPtr) \
+    if (::setjmp(reinterpret_cast<af3d::PNGError*>(png_get_error_ptr(pngPtr))->setjmp_buffer))
 
 namespace af3d
 {
-    Texture::Texture(TextureManager* mgr, const std::string& name,
-        const HardwareTexturePtr& hwTex,
-        const ResourceLoaderPtr& loader)
-    : Resource(name, loader),
-      mgr_(mgr),
-      hwTex_(hwTex)
+    struct PNGError
     {
-    }
+        jmp_buf setjmp_buffer;
+    };
 
-    Texture::~Texture()
-    {
-        mgr_->onTextureDestroy(this);
-    }
+    png_structp PNGCreateReadStruct(PNGError& pngError);
 
-    void Texture::upload(GLint internalFormat, GLenum format, GLenum type, std::vector<Byte>&& pixels)
-    {
-        runtime_assert(false);
-        //TODO: load(MyBytesLoader(pixels));
-    }
+    void PNGThrow(png_structp pngPtr);
+
+    void PNGSetSource(png_structp pngPtr, std::istream& is);
 }
+
+#endif

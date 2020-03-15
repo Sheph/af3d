@@ -23,28 +23,38 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Texture.h"
-#include "TextureManager.h"
+#ifndef _AF3D_PNGDECODER_H_
+#define _AF3D_PNGDECODER_H_
+
+#include "af3d/Types.h"
+#include <boost/noncopyable.hpp>
+#include <vector>
+#include <iostream>
 
 namespace af3d
 {
-    Texture::Texture(TextureManager* mgr, const std::string& name,
-        const HardwareTexturePtr& hwTex,
-        const ResourceLoaderPtr& loader)
-    : Resource(name, loader),
-      mgr_(mgr),
-      hwTex_(hwTex)
+    /*
+     * RGBA8 PNG decoder, if PNG file is not RGBA8
+     * then 'init' will return false.
+     */
+    class PNGDecoder : boost::noncopyable
     {
-    }
+    public:
+        PNGDecoder(const std::string& path, std::istream& is);
+        ~PNGDecoder();
 
-    Texture::~Texture()
-    {
-        mgr_->onTextureDestroy(this);
-    }
+        bool init(bool debug = true);
 
-    void Texture::upload(GLint internalFormat, GLenum format, GLenum type, std::vector<Byte>&& pixels)
-    {
-        runtime_assert(false);
-        //TODO: load(MyBytesLoader(pixels));
-    }
+        bool decode(std::vector<Byte>& data);
+
+        std::uint32_t width() const;
+
+        std::uint32_t height() const;
+
+    private:
+        class Impl;
+        Impl* impl_;
+    };
 }
+
+#endif

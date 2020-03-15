@@ -104,8 +104,29 @@ namespace af3d
 
                                 Vector3f pos = (vDir + vAdd[idx]) * size_;
 
+                                Vector2f tex;
+                                if (std::abs(x)) {
+                                    tex.setX(vAdd[i].z());
+                                    tex.setY(vAdd[i].y());
+                                } else if (std::abs(y)) {
+                                    tex.setX(vAdd[i].x());
+                                    tex.setY(vAdd[i].z());
+                                } else if (std::abs(z)) {
+                                    tex.setX(vAdd[i].x());
+                                    tex.setY(vAdd[i].y());
+                                }
+                                //Inverse for negative directions
+                                if (x + y + z < 0) {
+                                    tex.setX(-tex.x());
+                                    tex.setY(-tex.y());
+                                }
+                                tex.setX((tex.x() + 1) * 0.5f);
+                                tex.setY((tex.y() + 1) * 0.5f);
+
                                 std::memcpy(verts, &pos.v[0], 12);
                                 verts += 3;
+                                std::memcpy(verts, &tex.v[0], 8);
+                                verts += 2;
                                 std::memcpy(verts, &c.v[0], 16);
                                 verts += 4;
                             }
@@ -161,8 +182,8 @@ namespace af3d
     void MeshManager::shutdown()
     {
         LOG4CPLUS_DEBUG(logger(), "meshManager: shutdown...");
-        runtime_assert(cachedMeshes_.empty());
         runtime_assert(immediateMeshes_.empty());
+        cachedMeshes_.clear();
     }
 
     void MeshManager::reload()
@@ -214,9 +235,10 @@ namespace af3d
         VertexArrayLayout vaLayout;
 
         vaLayout.addEntry(VertexArrayEntry(VertexAttribName::Pos, GL_FLOAT_VEC3, 0, 0));
-        vaLayout.addEntry(VertexArrayEntry(VertexAttribName::Color, GL_FLOAT_VEC4, 12, 0));
+        vaLayout.addEntry(VertexArrayEntry(VertexAttribName::UV, GL_FLOAT_VEC2, 12, 0));
+        vaLayout.addEntry(VertexArrayEntry(VertexAttribName::Color, GL_FLOAT_VEC4, 20, 0));
 
-        auto vbo = hwManager.createVertexBuffer(HardwareBuffer::Usage::StaticDraw, 28);
+        auto vbo = hwManager.createVertexBuffer(HardwareBuffer::Usage::StaticDraw, 36);
         auto ebo = hwManager.createIndexBuffer(HardwareBuffer::Usage::StaticDraw, HardwareIndexBuffer::UInt16);
 
         auto va = std::make_shared<VertexArray>(hwManager.createVertexArray(), vaLayout, VBOList{vbo}, ebo);

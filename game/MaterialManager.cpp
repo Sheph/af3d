@@ -39,7 +39,7 @@ namespace af3d
     } shaderPaths[MaterialTypeMax + 1] = {
         //{"shaders/2d-textured.vert", "shaders/2d-textured.frag"},
         //{"shaders/2d-colored.vert", "shaders/2d-colored.frag"},
-        //{"shaders/unlit-textured.vert", "shaders/unlit-textured.frag"},
+        {"shaders/unlit-textured.vert", "shaders/unlit-textured.frag"},
         {"shaders/unlit-colored.vert", "shaders/unlit-colored.frag"},
         //{"shaders/basic-textured.vert", "shaders/basic-textured.frag"},
         //{"shaders/basic-colored.vert", "shaders/basic-colored.frag"}
@@ -88,6 +88,8 @@ namespace af3d
         LOG4CPLUS_DEBUG(logger(), "materialManager: render reload...");
 
         for (const auto& mat : materialTypes_) {
+            LOG4CPLUS_DEBUG(logger(), "materialManager: loading " << shaderPaths[mat->name()].vert << "...");
+
             PlatformIFStream isVert(shaderPaths[mat->name()].vert);
 
             std::string vertSource;
@@ -96,6 +98,8 @@ namespace af3d
                 LOG4CPLUS_ERROR(logger(), "Unable to read \"" << shaderPaths[mat->name()].vert << "\"");
                 return false;
             }
+
+            LOG4CPLUS_DEBUG(logger(), "materialManager: loading " << shaderPaths[mat->name()].frag << "...");
 
             PlatformIFStream isFrag(shaderPaths[mat->name()].frag);
 
@@ -144,6 +148,8 @@ namespace af3d
                 LOG4CPLUS_ERROR(logger(), "Material " << name << " already exists");
                 return MaterialPtr();
             }
+
+            LOG4CPLUS_DEBUG(logger(), "materialManager: creating material (" << typeName << ") " << name << "...");
         }
 
         return material;

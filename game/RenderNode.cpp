@@ -245,6 +245,12 @@ namespace af3d
 
     void RenderNode::applyTextures(HardwareContext& ctx) const
     {
+        // TODO: Handle multitexturing and samplers.
+        for (int i = 0; i < static_cast<int>(textures_.size()); ++i) {
+            ogl.ActiveTexture(GL_TEXTURE0 + i);
+            GLuint id = textures_[i].tex ? textures_[i].tex->id(ctx) : 0;
+            ogl.BindTexture(GL_TEXTURE_2D, id);
+        }
     }
 
     void RenderNode::applyVertexArray(HardwareContext& ctx) const
@@ -259,6 +265,7 @@ namespace af3d
 
     void RenderNode::applyDraw(HardwareContext& ctx) const
     {
+        // TODO: Handle other draw modes.
         materialParamsAuto_.apply(ctx);
         materialParams_.apply(ctx);
         if (drawCount_ == 0) {

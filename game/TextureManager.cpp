@@ -25,11 +25,78 @@
 
 #include "TextureManager.h"
 #include "HardwareResourceManager.h"
+#include "Platform.h"
 #include "Logger.h"
 #include "af3d/Assert.h"
+#include "af3d/PNGDecoder.h"
 
 namespace af3d
 {
+    namespace
+    {
+        class TextureGenerator : public ResourceLoader
+        {
+        public:
+            explicit TextureGenerator(const std::string& path)
+            : path_(path)
+            {
+            }
+
+            bool init(std::uint32_t& width, std::uint32_t& height)
+            {
+                bool res = initImpl();
+
+                if (res) {
+                    width = decoder_->width();
+                    height = decoder_->height();
+                }
+
+                return res;
+            }
+
+            void load(Resource& res, HardwareContext& ctx) override
+            {
+                LOG4CPLUS_DEBUG(logger(), "textureManager: loading " << path_ << "...");
+
+                Texture& texture = static_cast<Texture&>(res);
+
+                if (!decoder_) {
+                    runtime_assert(initImpl());
+                }
+
+                std::vector<Byte> data;
+
+                if (decoder_->decode(data)) {
+                    texture.hwTex()->upload(GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE,
+                        reinterpret_cast<const GLvoid*>(&data[0]), ctx);
+                }
+
+                decoder_.reset();
+                is_.reset();
+            }
+
+        private:
+            bool initImpl()
+            {
+                auto is = std::make_shared<PlatformIFStream>(path_);
+                auto decoder = std::make_shared<PNGDecoder>(path_, *is);
+
+                if (!decoder->init(false)) {
+                    return false;
+                }
+
+                is_ = is;
+                decoder_ = decoder;
+
+                return true;
+            }
+
+            std::string path_;
+            std::shared_ptr<PlatformIFStream> is_;
+            std::shared_ptr<PNGDecoder> decoder_;
+        };
+    }
+
     TextureManager textureManager;
 
     template <>
@@ -50,8 +117,8 @@ namespace af3d
     void TextureManager::shutdown()
     {
         LOG4CPLUS_DEBUG(logger(), "textureManager: shutdown...");
-        runtime_assert(cachedTextures_.empty());
         runtime_assert(immediateTextures_.empty());
+        cachedTextures_.clear();
     }
 
     void TextureManager::reload()
@@ -80,12 +147,18 @@ namespace af3d
             return it->second;
         }
 
-        std::uint32_t width = 320;
-        std::uint32_t height = 240;
-        ResourceLoaderPtr myPngLoader; // = ...
+        auto loader = std::make_shared<TextureGenerator>(path);
+
+        std::uint32_t width;
+        std::uint32_t height;
+
+        if (!loader->init(width, height)) {
+            runtime_assert(path != "bad.png");
+            return loadTexture("bad.png");
+        }
 
         auto tex = std::make_shared<Texture>(this, path,
-            hwManager.createTexture(width, height), myPngLoader);
+            hwManager.createTexture(width, height), loader);
         tex->load();
         cachedTextures_.emplace(path, tex);
 

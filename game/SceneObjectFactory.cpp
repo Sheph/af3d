@@ -26,6 +26,7 @@
 #include "SceneObjectFactory.h"
 #include "MaterialManager.h"
 #include "MeshManager.h"
+#include "TextureManager.h"
 #include "RenderMeshComponent.h"
 #include "Settings.h"
 #include "Utils.h"
@@ -70,10 +71,24 @@ namespace af3d
         return obj;
     }
 
-    SceneObjectPtr SceneObjectFactory::createColoredBox(const btVector3& size)
+    SceneObjectPtr SceneObjectFactory::createColoredBox(const btVector3& size, const std::string& texPath)
     {
+        MaterialPtr material;
+
+        if (texPath.empty()) {
+            material = materialManager.getMaterial(MaterialManager::materialUnlitColoredDefault);
+        } else {
+            auto matName = "_coloredBox_" + texPath;
+            material = materialManager.getMaterial(matName);
+            if (!material) {
+                material = materialManager.createMaterial(MaterialTypeUnlitTextured, matName);
+                runtime_assert(material);
+                material->setTextureBinding(SamplerName::Main, TextureBinding(textureManager.loadTexture(texPath)));
+            }
+        }
+
         auto mesh = meshManager.createBoxMesh(size,
-            materialManager.getMaterial(MaterialManager::materialUnlitColoredDefault),
+            material,
             {
                 Color(1.0f, 0.0f, 0.0f, 1.0f),
                 Color(0.0f, 1.0f, 0.0f, 1.0f),
