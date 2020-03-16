@@ -33,18 +33,35 @@
 
 namespace af3d
 {
+    class RenderCookie;
+    class SceneObject;
+    class LightComponent;
+
+    class Light;
+    using LightPtr = std::shared_ptr<Light>;
+
     class Light : boost::noncopyable
     {
     public:
-        explicit Light(int typeId)
-        : typeId_(typeId)
+        Light(const std::string& name, int typeId)
+        : name_(name),
+          typeId_(typeId)
         {
             btAssert(typeId > 0);
         }
-        virtual ~Light() = default;
+        virtual ~Light();
+
+        virtual LightPtr sharedThis() = 0;
+
+        inline const std::string& name() const { return name_; }
+
+        inline LightComponent* parent() const { return parent_; }
+        SceneObject* parentObject() const;
 
         inline const btTransform& transform() const { return xf_; }
-        inline void setTransform(const btTransform& value) { xf_ = value; }
+        void setTransform(const btTransform& value);
+
+        inline const btTransform& worldTransform() const { return worldXf_; }
 
         inline const Color& color() const { return color_; }
         inline void setColor(const Color& value) { color_ = value; }
@@ -52,26 +69,54 @@ namespace af3d
         inline float intensity() const { return color_.w(); }
         inline void setIntensity(float value) { color_.setW(value); }
 
-        inline bool hasAABB() const { return !localAABB_.empty(); }
-
         inline const AABB& localAABB() const { return localAABB_; }
         AABB getWorldAABB() const;
 
+        void remove();
+
         void setupMaterial(const btVector3& eyePos, MaterialParams& params) const;
 
+        /*
+         * Internal, do not call.
+         * @{
+         */
+
+        void adopt(LightComponent* parent);
+        void abandon();
+
+        inline void setCookie(RenderCookie* value) { cookie_ = value; }
+        inline RenderCookie* cookie() const { return cookie_; }
+
+        void updateParentTransform();
+        bool needsRenderUpdate(AABB& prevAABB, AABB& aabb, btVector3& displacement);
+
+        /*
+         * @}
+         */
+
     protected:
-        inline void setLocalAABB(const AABB& value) { localAABB_ = value; }
+        void setLocalAABBImpl(const AABB& value);
 
     private:
         virtual void doSetupMaterial(const btVector3& eyePos, MaterialParams& params) const = 0;
 
+        std::string name_;
         int typeId_ = 0; // 0 - ambient light.
         btTransform xf_ = btTransform::getIdentity();
         Color color_ = Color_one; // Color in rgb, alpha = intensity.
         AABB localAABB_ = AABB_empty;
-    };
 
-    using LightPtr = std::shared_ptr<Light>;
+        LightComponent* parent_ = nullptr;
+        btTransform parentXf_ = btTransform::getIdentity();
+
+        btTransform worldXf_ = btTransform::getIdentity();
+
+        bool dirty_ = true;
+        btVector3 prevWorldPos_ = btVector3_zero;
+        AABB prevWorldAABB_ = AABB_empty;
+
+        RenderCookie* cookie_ = nullptr;
+    };
 }
 
 #endif

@@ -38,6 +38,11 @@ namespace af3d
         geomList_.emplace_back(xf, material, vaSlice, primitiveMode);
     }
 
+    void RenderList::addLight(const LightPtr& light)
+    {
+        lightList_.push_back(light);
+    }
+
     RenderNodePtr RenderList::compile() const
     {
         const Matrix4f& viewProjMat = cc_->getFrustum().viewProjMat();

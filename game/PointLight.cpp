@@ -27,8 +27,8 @@
 
 namespace af3d
 {
-    PointLight::PointLight()
-    : Light(TypeId)
+    PointLight::PointLight(const std::string& name)
+    : Light(name, TypeId)
     {
         setRadius(1.0f);
     }
@@ -36,7 +36,7 @@ namespace af3d
     void PointLight::setRadius(float value)
     {
         radius_ = value;
-        setLocalAABB(AABB(-btVector3_one * value * 0.5f, btVector3_one * value * 0.5f));
+        setLocalAABBImpl(AABB(-btVector3_one * value * 0.5f, btVector3_one * value * 0.5f));
     }
 
     void PointLight::doSetupMaterial(const btVector3& eyePos, MaterialParams& params) const

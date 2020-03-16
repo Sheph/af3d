@@ -30,13 +30,16 @@
 
 namespace af3d
 {
-    class PointLight : public Light
+    class PointLight : public std::enable_shared_from_this<PointLight>,
+        public Light
     {
     public:
         static const int TypeId = 2;
 
-        PointLight();
+        explicit PointLight(const std::string& name);
         ~PointLight() = default;
+
+        LightPtr sharedThis() override { return shared_from_this(); }
 
         inline float radius() const { return radius_; }
         void setRadius(float value);

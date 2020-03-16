@@ -30,13 +30,18 @@
 
 namespace af3d
 {
-    class DirectionalLight : public Light
+    class DirectionalLight : public std::enable_shared_from_this<DirectionalLight>,
+        public Light
     {
     public:
         static const int TypeId = 1;
 
-        DirectionalLight();
+        explicit DirectionalLight(const std::string& name);
         ~DirectionalLight() = default;
+
+        LightPtr sharedThis() override { return shared_from_this(); }
+
+        void setLocalAABB(const AABB& value);
 
     private:
         void doSetupMaterial(const btVector3& eyePos, MaterialParams& params) const override;

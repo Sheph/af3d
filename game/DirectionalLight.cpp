@@ -27,9 +27,15 @@
 
 namespace af3d
 {
-    DirectionalLight::DirectionalLight()
-    : Light(TypeId)
+    DirectionalLight::DirectionalLight(const std::string& name)
+    : Light(name, TypeId)
     {
+        setLocalAABB(AABB(btVector3_one * -1000.0f, btVector3_one * 1000.0f));
+    }
+
+    void DirectionalLight::setLocalAABB(const AABB& value)
+    {
+        setLocalAABBImpl(value);
     }
 
     void DirectionalLight::doSetupMaterial(const btVector3& eyePos, MaterialParams& params) const

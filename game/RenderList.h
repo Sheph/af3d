@@ -29,6 +29,7 @@
 #include "CameraComponent.h"
 #include "Material.h"
 #include "VertexArraySlice.h"
+#include "Light.h"
 #include "RenderNode.h"
 
 namespace af3d
@@ -43,7 +44,7 @@ namespace af3d
 
         void addGeometry(const btTransform& xf, const MaterialPtr& material, const VertexArraySlice& vaSlice, GLenum primitiveMode);
 
-        //void addLight(...);
+        void addLight(const LightPtr& light);
 
         RenderNodePtr compile() const;
 
@@ -69,9 +70,11 @@ namespace af3d
         };
 
         using GeometryList = std::vector<Geometry>;
+        using LightList = std::vector<LightPtr>;
 
         CameraComponentPtr cc_;
         GeometryList geomList_;
+        LightList lightList_;
     };
 }
 

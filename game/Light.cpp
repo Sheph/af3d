@@ -24,20 +24,94 @@
  */
 
 #include "Light.h"
+#include "LightComponent.h"
+#include "SceneObject.h"
 
 namespace af3d
 {
+    Light::~Light()
+    {
+        btAssert(parent_ == nullptr);
+        btAssert(cookie_ == nullptr);
+    }
+
+    SceneObject* Light::parentObject() const
+    {
+        return parent() ? parent()->parent() : nullptr;
+    }
+
+    void Light::setTransform(const btTransform& value)
+    {
+        xf_ = value;
+        worldXf_ = parentXf_ * xf_;
+        dirty_ = true;
+    }
+
     AABB Light::getWorldAABB() const
     {
-        return localAABB_.getTransformed(xf_);
+        return localAABB_.getTransformed(worldTransform());
+    }
+
+    void Light::remove()
+    {
+        if (parent()) {
+            parent()->removeLight(sharedThis());
+        }
     }
 
     void Light::setupMaterial(const btVector3& eyePos, MaterialParams& params) const
     {
+        const auto& xf = worldTransform();
         params.setUniform(UniformName::EyePos, eyePos);
-        params.setUniform(UniformName::LightPos, Vector4f(xf_.getOrigin(), typeId_));
-        params.setUniform(UniformName::LightDir, xf_.getBasis() * btVector3_forward);
+        params.setUniform(UniformName::LightPos, Vector4f(xf.getOrigin(), typeId_));
+        params.setUniform(UniformName::LightDir, xf.getBasis() * btVector3_forward);
         params.setUniform(UniformName::LightColor, color_);
         doSetupMaterial(eyePos, params);
+    }
+
+    void Light::adopt(LightComponent* parent)
+    {
+        parent_ = parent;
+    }
+
+    void Light::abandon()
+    {
+        parent_ = nullptr;
+    }
+
+    void Light::updateParentTransform()
+    {
+        btAssert(parent());
+        auto obj = parent()->parent();
+        btAssert(obj);
+        parentXf_ = obj->transform();
+        worldXf_ = parentXf_ * xf_;
+        dirty_ = true;
+    }
+
+    bool Light::needsRenderUpdate(AABB& prevAABB, AABB& aabb, btVector3& displacement)
+    {
+        if (!dirty_) {
+            return false;
+        }
+
+        aabb = getWorldAABB();
+        prevAABB = prevWorldAABB_;
+
+        auto worldPos = worldXf_.getOrigin();
+
+        displacement = worldPos - prevWorldPos_;
+
+        prevWorldPos_ = worldPos;
+        prevWorldAABB_ = aabb;
+        dirty_ = false;
+
+        return true;
+    }
+
+    void Light::setLocalAABBImpl(const AABB& value)
+    {
+        localAABB_ = value;
+        dirty_ = true;
     }
 }
