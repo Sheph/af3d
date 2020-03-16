@@ -551,19 +551,19 @@ namespace af3d
         }
     }*/
 
-    btVector3 SceneObject::getForward(float length) const
+    btVector3 SceneObject::getForward() const
     {
-        return transform().getBasis() * btVector3_forward * length;
+        return transform().getBasis() * btVector3_forward;
     }
 
-    btVector3 SceneObject::getRight(float length) const
+    btVector3 SceneObject::getRight() const
     {
-        return transform().getBasis() * btVector3_right * length;
+        return transform().getBasis() * btVector3_right;
     }
 
-    btVector3 SceneObject::getUp(float length) const
+    btVector3 SceneObject::getUp() const
     {
-        return transform().getBasis() * btVector3_up * length;
+        return transform().getBasis() * btVector3_up;
     }
 
 /*    b2Vec2 SceneObject::getSmoothDirection(float length) const

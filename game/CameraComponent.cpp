@@ -44,22 +44,22 @@ namespace af3d
         }
 
         if (inputManager.keyboard().pressed(KI_W)) {
-            parent()->setPos(parent()->pos() + parent()->getForward(dt * moveSpeed));
+            parent()->setPos(parent()->pos() + parent()->getForward() * dt * moveSpeed);
         }
         if (inputManager.keyboard().pressed(KI_S)) {
-            parent()->setPos(parent()->pos() - parent()->getForward(dt * moveSpeed));
+            parent()->setPos(parent()->pos() - parent()->getForward() * dt * moveSpeed);
         }
         if (inputManager.keyboard().pressed(KI_A)) {
-            parent()->setPos(parent()->pos() - parent()->getRight(dt * moveSpeed));
+            parent()->setPos(parent()->pos() - parent()->getRight() * dt * moveSpeed);
         }
         if (inputManager.keyboard().pressed(KI_D)) {
-            parent()->setPos(parent()->pos() + parent()->getRight(dt * moveSpeed));
+            parent()->setPos(parent()->pos() + parent()->getRight() * dt * moveSpeed);
         }
         if (inputManager.keyboard().pressed(KI_SPACE)) {
-            parent()->setPos(parent()->pos() + parent()->getUp(dt * moveSpeed));
+            parent()->setPos(parent()->pos() + parent()->getUp() * dt * moveSpeed);
         }
         if (inputManager.keyboard().pressed(KI_LMENU)) {
-            parent()->setPos(parent()->pos() - parent()->getUp(dt * moveSpeed));
+            parent()->setPos(parent()->pos() - parent()->getUp() * dt * moveSpeed);
         }
 
         if (!inputManager.mouse().pressed(false)) {
@@ -75,8 +75,8 @@ namespace af3d
 
         auto diff = inputManager.mouse().pos() - mousePrevPos_;
 
-        auto dir = quatRotate(btQuaternion(btVector3_up, btRadians(-diff.x() * 80.0f)), parent()->getForward(1.0f));
-        dir = quatRotate(btQuaternion(parent()->getRight(1.0f), btRadians(diff.y() * 80.0f)), dir);
+        auto dir = quatRotate(btQuaternion(btVector3_up, btRadians(-diff.x() * 80.0f)), parent()->getForward());
+        dir = quatRotate(btQuaternion(parent()->getRight(), btRadians(diff.y() * 80.0f)), dir);
 
         parent()->setBasis(makeLookBasis(dir, btVector3_up));
 
