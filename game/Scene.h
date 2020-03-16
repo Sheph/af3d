@@ -27,7 +27,7 @@
 #define _SCENE_H_
 
 #include "SceneObjectManager.h"
-#include "Component.h"
+#include "LightComponent.h"
 #include "af3d/AABB.h"
 #include <functional>
 
@@ -71,6 +71,8 @@ namespace af3d
 
         inline const SceneObjectPtr& camera() const { return camera_; }
 
+        inline const LightComponentPtr& lighting() const { return lightC_; }
+
         inline bool playable() const { return playable_; }
 
         inline const btTransform& respawnPoint() const { return respawnPoint_; }
@@ -110,6 +112,7 @@ namespace af3d
         InputMode inputMode_;
         SceneObjectPtr camera_;
         SceneObjectPtr dummy_;
+        LightComponentPtr lightC_;
 
         bool playable_;
         btTransform respawnPoint_;

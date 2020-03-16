@@ -108,6 +108,10 @@ namespace af3d
     btTransform makeLookDir(const btVector3& pos, const btVector3& dir, const btVector3& up);
 
     btTransform makeLookAt(const btVector3& pos, const btVector3& target, const btVector3& up);
+
+    btMatrix3x3 basisFromEuler(float eulerX, float eulerY, float eulerZ);
+
+    btQuaternion rotationFromEuler(float eulerX, float eulerY, float eulerZ);
 }
 
 #endif

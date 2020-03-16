@@ -126,4 +126,18 @@ namespace af3d
     {
         return makeLookDir(pos, target - pos, up);
     }
+
+    btMatrix3x3 basisFromEuler(float eulerX, float eulerY, float eulerZ)
+    {
+        btMatrix3x3 r;
+        r.setEulerZYX(eulerX, eulerY, eulerZ);
+        return r;
+    }
+
+    btQuaternion rotationFromEuler(float eulerX, float eulerY, float eulerZ)
+    {
+        btQuaternion r;
+        r.setEulerZYX(eulerZ, eulerY, eulerX);
+        return r;
+    }
 }

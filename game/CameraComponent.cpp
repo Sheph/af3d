@@ -75,8 +75,10 @@ namespace af3d
 
         auto diff = inputManager.mouse().pos() - mousePrevPos_;
 
-        parent()->setTransform(parent()->transform() *
-            btTransform(btQuaternion(btRadians(-diff.x() * 80.0f), btRadians(diff.y() * 80.0f), 0.0f)));
+        auto dir = quatRotate(btQuaternion(btVector3_up, btRadians(-diff.x() * 80.0f)), parent()->getForward(1.0f));
+        dir = quatRotate(btQuaternion(parent()->getRight(1.0f), btRadians(diff.y() * 80.0f)), dir);
+
+        parent()->setBasis(makeLookBasis(dir, btVector3_up));
 
         mousePrevPos_ = inputManager.mouse().pos();
     }

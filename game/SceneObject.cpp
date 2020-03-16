@@ -252,6 +252,24 @@ namespace af3d
         smoothPos_ = pos() + tmpPos;
     }*/
 
+    const btMatrix3x3& SceneObject::basis() const
+    {
+        if (body_) {
+            return body_->getWorldTransform().getBasis();
+        } else {
+            return bodyDef_.m_startWorldTransform.getBasis();
+        }
+    }
+
+    void SceneObject::setBasis(const btMatrix3x3& value)
+    {
+        if (body_) {
+            body_->setWorldTransform(btTransform(value, body_->getWorldTransform().getOrigin()));
+        } else {
+            bodyDef_.m_startWorldTransform.setBasis(value);
+        }
+    }
+
     btQuaternion SceneObject::rotation() const
     {
         if (body_) {

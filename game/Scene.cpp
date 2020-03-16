@@ -36,6 +36,7 @@
 #include "PhasedComponent.h"
 #include "RenderComponent.h"
 #include "CameraComponent.h"
+#include "PointLight.h"
 #include <Rocket/Core/ElementDocument.h>
 #include <cmath>
 
@@ -94,6 +95,10 @@ namespace af3d
 
         dummy_ = std::make_shared<SceneObject>();
 
+        lightC_ = std::make_shared<LightComponent>();
+
+        dummy_->addComponent(lightC_);
+
         addObject(dummy_);
 
         updateInputMode();
@@ -120,6 +125,18 @@ namespace af3d
         obj->setPos(btVector3(0.0f, 0.0f, -5.0f));
         obj->setRotation(btQuaternion(0.0f, btRadians(10.0f), 0.0f));
         addObject(obj);
+
+        auto l = std::make_shared<PointLight>("light0");
+        l->setTransform(makeLookDir(btVector3(20.0f, 10.0f, -20.0f), btVector3_forward, btVector3_up));
+        l->setRadius(10.0f);
+        l->setColor(Color(1.0f, 0.0f, 0.0f, 1.0f));
+        lighting()->addLight(l);
+
+        l = std::make_shared<PointLight>("light1");
+        l->setTransform(makeLookDir(btVector3(25.0f, 8.0f, -25.0f), btVector3_forward, btVector3_up));
+        l->setRadius(15.0f);
+        l->setColor(Color(0.0f, 1.0f, 0.0f, 1.0f));
+        lighting()->addLight(l);
     }
 
     void Scene::cleanup()
@@ -132,6 +149,8 @@ namespace af3d
 
         camera_.reset();
         dummy_.reset();
+
+        lightC_.reset();
 
         impl_->timers_.clear();
 

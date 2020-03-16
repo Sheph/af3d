@@ -40,6 +40,7 @@ namespace af3d
 
     void RenderList::addLight(const LightPtr& light)
     {
+        //LOG4CPLUS_DEBUG(logger(), "light " << light->name());
         lightList_.push_back(light);
     }
 

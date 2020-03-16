@@ -137,6 +137,9 @@ namespace af3d
 
         //void setPosSmoothed(const btVector3& value);
 
+        const btMatrix3x3& basis() const;
+        void setBasis(const btMatrix3x3& value);
+
         btQuaternion rotation() const;
         void setRotation(const btQuaternion& value);
         //void setRotationRecursive(const btQuaternion& value);
