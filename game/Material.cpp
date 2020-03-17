@@ -80,21 +80,36 @@ namespace af3d
     void MaterialParams::apply(HardwareContext& ctx) const
     {
         const auto& activeUniforms = materialType_->prog()->activeUniforms();
-        const auto& offsets = materialType_->paramListInfo(isAuto_).offsets;
-        for (const auto& kv : uniforms_) {
-            auto it = activeUniforms.find(kv.first);
-            runtime_assert(it != activeUniforms.end());
-            auto offIt = offsets.find(kv.first);
-            runtime_assert(offIt != offsets.end());
-            switch (it->second.type) {
+        const auto& paramListInfo = materialType_->paramListInfo(isAuto_);
+        for (const auto& kv : paramListInfo.offsets) {
+            auto jt = activeUniforms.find(kv.first);
+            runtime_assert(jt != activeUniforms.end());
+
+            const Byte* data = nullptr;
+            GLsizei count = 0;
+            auto it = uniforms_.find(kv.first);
+            if (it == uniforms_.end()) {
+                data = &paramListInfo.defaultParamList[0];
+                it = paramListInfo.defaultUniforms.find(kv.first);
+                if (it == uniforms_.end()) {
+                    count = jt->second.count;
+                } else {
+                    count = it->second;
+                }
+            } else {
+                data = &paramList_[0];
+                count = it->second;
+            }
+
+            switch (jt->second.type) {
             case GL_FLOAT:
-                ogl.Uniform1fv(it->second.location, kv.second, (const GLfloat*)&paramList_[offIt->second]);
+                ogl.Uniform1fv(jt->second.location, count, (const GLfloat*)&data[kv.second]);
                 break;
             case GL_FLOAT_VEC4:
-                ogl.Uniform4fv(it->second.location, kv.second, (const GLfloat*)&paramList_[offIt->second]);
+                ogl.Uniform4fv(jt->second.location, count, (const GLfloat*)&data[kv.second]);
                 break;
             case GL_FLOAT_MAT4:
-                ogl.UniformMatrix4fv(it->second.location, kv.second, GL_FALSE, (const GLfloat*)&paramList_[offIt->second]);
+                ogl.UniformMatrix4fv(jt->second.location, count, GL_FALSE, (const GLfloat*)&data[kv.second]);
                 break;
             default:
                 runtime_assert(false);

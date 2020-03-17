@@ -29,6 +29,10 @@
 #include "HardwareProgram.h"
 #include "af3d/EnumSet.h"
 #include "af3d/Utils.h"
+#include "af3d/Vector2.h"
+#include "af3d/Vector3.h"
+#include "af3d/Vector4.h"
+#include "af3d/Matrix4.h"
 
 namespace af3d
 {
@@ -46,6 +50,9 @@ namespace af3d
         {
             EnumUnorderedMap<UniformName, size_t> offsets;
             size_t totalSize = 0;
+
+            std::vector<Byte> defaultParamList;
+            EnumUnorderedMap<UniformName, GLsizei> defaultUniforms;
         };
 
         MaterialType(MaterialTypeName name, const HardwareProgramPtr& prog);
@@ -59,7 +66,20 @@ namespace af3d
 
         bool reload(const std::string& vertSource, const std::string& fragSource, HardwareContext& ctx);
 
+        void setDefaultUniform(UniformName name, float value);
+        void setDefaultUniform(UniformName name, std::int32_t value);
+        void setDefaultUniform(UniformName name, std::uint32_t value);
+        void setDefaultUniform(UniformName name, const Vector2f& value);
+        void setDefaultUniform(UniformName name, const Vector3f& value);
+        void setDefaultUniform(UniformName name, const btVector3& value);
+        void setDefaultUniform(UniformName name, const Vector4f& value);
+        void setDefaultUniform(UniformName name, const Matrix4f& value);
+
     private:
+        bool checkName(UniformName uName, size_t& offset, VariableInfo& info);
+
+        void setDefaultUniformImpl(UniformName uName, const Byte* data, GLenum baseType, GLint numComponents, GLsizei count);
+
         MaterialTypeName name_;
         HardwareProgramPtr prog_;
         ParamListInfo autoParamListInfo_;

@@ -25,6 +25,7 @@
 
 #include "MaterialType.h"
 #include "HardwareResourceManager.h"
+#include "Logger.h"
 
 namespace af3d
 {
@@ -66,6 +67,7 @@ namespace af3d
                 autoParamListInfo_.totalSize += it->second.sizeInBytes();
             }
         }
+        autoParamListInfo_.defaultParamList.resize(autoParamListInfo_.totalSize);
 
         for (int i = static_cast<int>(UniformName::MaxAuto) + 1; i <= static_cast<int>(UniformName::Max); ++i) {
             UniformName name = static_cast<UniformName>(i);
@@ -76,6 +78,98 @@ namespace af3d
             }
         }
 
+        paramListInfo_.defaultParamList.resize(paramListInfo_.totalSize);
+
         return true;
+    }
+
+    void MaterialType::setDefaultUniform(UniformName name, float value)
+    {
+        setDefaultUniformImpl(name, reinterpret_cast<const Byte*>(&value), GL_FLOAT, 1, 1);
+    }
+
+    void MaterialType::setDefaultUniform(UniformName name, std::int32_t value)
+    {
+        setDefaultUniformImpl(name, reinterpret_cast<const Byte*>(&value), GL_INT, 1, 1);
+    }
+
+    void MaterialType::setDefaultUniform(UniformName name, std::uint32_t value)
+    {
+        setDefaultUniformImpl(name, reinterpret_cast<const Byte*>(&value), GL_UNSIGNED_INT, 1, 1);
+    }
+
+    void MaterialType::setDefaultUniform(UniformName name, const Vector2f& value)
+    {
+        setDefaultUniformImpl(name, reinterpret_cast<const Byte*>(value.v), GL_FLOAT, 2, 1);
+    }
+
+    void MaterialType::setDefaultUniform(UniformName name, const Vector3f& value)
+    {
+        setDefaultUniformImpl(name, reinterpret_cast<const Byte*>(value.v), GL_FLOAT, 3, 1);
+    }
+
+    void MaterialType::setDefaultUniform(UniformName name, const btVector3& value)
+    {
+        setDefaultUniform(name, toVector3f(value));
+    }
+
+    void MaterialType::setDefaultUniform(UniformName name, const Vector4f& value)
+    {
+        setDefaultUniformImpl(name, reinterpret_cast<const Byte*>(value.v), GL_FLOAT, 4, 1);
+    }
+
+    void MaterialType::setDefaultUniform(UniformName name, const Matrix4f& value)
+    {
+        setDefaultUniformImpl(name, reinterpret_cast<const Byte*>(value.v), GL_FLOAT, 16, 1);
+    }
+
+    bool MaterialType::checkName(UniformName uName, size_t& offset, VariableInfo& info)
+    {
+        if (HardwareProgram::isAuto(uName)) {
+            LOG4CPLUS_WARN(logger(), "Material type " << name() << ", bad param " << uName << ": auto");
+            return false;
+        }
+
+        auto it = paramListInfo_.offsets.find(uName);
+        if (it == paramListInfo_.offsets.end()) {
+            return false;
+        }
+
+        offset = it->second;
+        auto jt = prog()->activeUniforms().find(uName);
+        runtime_assert(jt != prog()->activeUniforms().end());
+        info = jt->second;
+
+        return true;
+    }
+
+    void MaterialType::setDefaultUniformImpl(UniformName uName, const Byte* data, GLenum baseType, GLint numComponents, GLsizei count)
+    {
+        size_t offset = 0;
+        VariableInfo info;
+
+        if (!checkName(uName, offset, info)) {
+            return;
+        }
+
+        const auto& ti = HardwareProgram::getTypeInfo(info.type);
+
+        if (ti.baseType != baseType) {
+            LOG4CPLUS_WARN(logger(), "Material type " << name() << " bad param " << uName << ": base type mismatch");
+            return;
+        }
+
+        if (ti.numComponents != numComponents) {
+            LOG4CPLUS_WARN(logger(), "Material type " << name() << " bad param " << uName << ": num components mismatch");
+            return;
+        }
+
+        if (count > info.count) {
+            LOG4CPLUS_WARN(logger(), "Material type " << name() << " bad param " << uName << ": count too large");
+            return;
+        }
+
+        std::memcpy(&paramListInfo_.defaultParamList[offset], data, ti.sizeInBytes * count);
+        paramListInfo_.defaultUniforms[uName] = count;
     }
 }

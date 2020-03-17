@@ -144,12 +144,12 @@ namespace af3d
 
 inline std::ostream& operator <<(std::ostream& os, af3d::UniformName name)
 {
-    return (os << name);
+    return (os << static_cast<int>(name));
 }
 
 inline std::ostream& operator <<(std::ostream& os, af3d::SamplerName name)
 {
-    return (os << name);
+    return (os << static_cast<int>(name));
 }
 
 #endif

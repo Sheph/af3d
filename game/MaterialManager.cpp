@@ -108,6 +108,9 @@ namespace af3d
             if (!mat->reload(vertSource, fragSource, ctx)) {
                 return false;
             }
+
+            mat->setDefaultUniform(UniformName::MainColor, Color_one);
+            mat->setDefaultUniform(UniformName::SpecularColor, Color_one);
         }
 
         if (first_) {

@@ -29,10 +29,6 @@
 #include "Resource.h"
 #include "MaterialType.h"
 #include "Texture.h"
-#include "af3d/Vector2.h"
-#include "af3d/Vector3.h"
-#include "af3d/Vector4.h"
-#include "af3d/Matrix4.h"
 #include "af3d/Utils.h"
 #include <boost/optional.hpp>
 
