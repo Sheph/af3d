@@ -53,7 +53,6 @@ set(SOURCES
     DirectionalLight.cpp
     PointLight.cpp
     LightComponent.cpp
-    RenderSettings.cpp
 )
 
 file(READ "config.ini" _INI)

@@ -27,6 +27,7 @@
 #define _CAMERACOMPONENT_H_
 
 #include "PhasedComponent.h"
+#include "RenderSettings.h"
 #include "af3d/Frustum.h"
 #include "af3d/AABB2.h"
 
@@ -61,13 +62,12 @@ namespace af3d
         inline float farDist() const { return frustum_.farDist(); }
         inline void setFarDist(float value) { frustum_.setFarDist(value); }
 
-        inline const Color& clearColor() const { return clearColor_; }
-        inline void setClearColor(const Color& value) { clearColor_ = value; }
-
         inline const AABB2i& viewport() const { return viewport_; }
         inline void setViewport(const AABB2i& value) { viewport_ = value; }
 
         const Frustum& getFrustum() const;
+
+        inline RenderSettings& renderSettings() { return renderSettings_; }
 
     private:
         void onRegister() override;
@@ -76,10 +76,11 @@ namespace af3d
 
         btTransform xf_;
 
-        Color clearColor_ = Color(0.0f, 0.0f, 0.4f, 1.0f);
         AABB2i viewport_{Vector2i(0, 0), Vector2i(0, 0)};
 
         mutable Frustum frustum_;
+
+        RenderSettings renderSettings_;
 
         bool mousePressed_ = false;
         Vector2f mousePrevPos_;

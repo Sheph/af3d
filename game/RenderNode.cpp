@@ -29,6 +29,13 @@
 
 namespace af3d
 {
+    RenderNode::RenderNode(const AABB2i& viewport, const RenderSettings& rs)
+    : type_(Type::Root),
+      viewport_(viewport),
+      rs_(rs)
+    {
+    }
+
     MaterialParams& RenderNode::add(RenderNode&& tmpNode, const MaterialPtr& material, const VertexArraySlice& vaSlice, GLenum primitiveMode)
     {
         btAssert(type_ == Type::Root);
@@ -218,7 +225,7 @@ namespace af3d
     {
         //LOG4CPLUS_DEBUG(logger(), "draw(" << numDraws_ << ")");
         ogl.Viewport(viewport_.lowerBound[0], viewport_.lowerBound[1], viewport_.upperBound[0], viewport_.upperBound[1]);
-        ogl.ClearColor(clearColor_[0], clearColor_[1], clearColor_[2], clearColor_[3]);
+        ogl.ClearColor(rs_.clearColor()[0], rs_.clearColor()[1], rs_.clearColor()[2], rs_.clearColor()[3]);
         ogl.Clear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 

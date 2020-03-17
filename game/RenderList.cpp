@@ -47,7 +47,7 @@ namespace af3d
     RenderNodePtr RenderList::compile() const
     {
         const Matrix4f& viewProjMat = cc_->getFrustum().viewProjMat();
-        auto rn = std::make_shared<RenderNode>(cc_->clearColor(), cc_->viewport());
+        auto rn = std::make_shared<RenderNode>(cc_->viewport(), cc_->renderSettings());
         RenderNode tmpNode;
         for (const auto& geom : geomList_) {
             auto& params = rn->add(std::move(tmpNode), geom.material, geom.vaSlice, geom.primitiveMode);

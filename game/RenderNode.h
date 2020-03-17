@@ -28,6 +28,7 @@
 
 #include "Material.h"
 #include "VertexArraySlice.h"
+#include "RenderSettings.h"
 #include "af3d/AABB2.h"
 #include <set>
 
@@ -36,14 +37,7 @@ namespace af3d
     class RenderNode
     {
     public:
-        RenderNode(const Color& clearColor,
-            const AABB2i& viewport)
-        : type_(Type::Root),
-          clearColor_(clearColor),
-          viewport_(viewport)
-        {
-        }
-
+        RenderNode(const AABB2i& viewport, const RenderSettings& rs);
         RenderNode() = default;
         ~RenderNode() = default;
 
@@ -119,8 +113,8 @@ namespace af3d
         Type type_;
 
         // Type::Root
-        Color clearColor_;
         AABB2i viewport_;
+        RenderSettings rs_;
         int numDraws_ = 0;
 
         // Type::DepthTest
