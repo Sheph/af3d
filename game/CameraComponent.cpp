@@ -26,6 +26,7 @@
 #include "CameraComponent.h"
 #include "SceneObject.h"
 #include "InputManager.h"
+#include "Settings.h"
 
 namespace af3d
 {
@@ -58,7 +59,7 @@ namespace af3d
         if (inputManager.keyboard().pressed(KI_SPACE)) {
             parent()->setPos(parent()->pos() + parent()->getUp() * dt * moveSpeed);
         }
-        if (inputManager.keyboard().pressed(KI_LMENU)) {
+        if (inputManager.keyboard().pressed(KI_C)) {
             parent()->setPos(parent()->pos() - parent()->getUp() * dt * moveSpeed);
         }
 
@@ -73,7 +74,7 @@ namespace af3d
             return;
         }
 
-        auto diff = inputManager.mouse().pos() - mousePrevPos_;
+        auto diff = (inputManager.mouse().pos() - mousePrevPos_) / Vector2f(settings.viewHeight, settings.viewHeight);
 
         auto dir = quatRotate(btQuaternion(btVector3_up, btRadians(-diff.x() * 80.0f)), parent()->getForward());
         dir = quatRotate(btQuaternion(parent()->getRight(), btRadians(diff.y() * 80.0f)), dir);
