@@ -112,6 +112,10 @@ namespace af3d
 
     void Scene::prepare()
     {
+        auto obj = sceneObjectFactory.createLitBox(btVector3(300.0f, 1.0f, 300.0f), "glass1.png", false);
+        obj->setPos(btVector3(50.0f, -3.0f, -50.0f));
+        addObject(obj);
+
         int i = 0;
         for (float z = -20.0f; z >= -100.0f; z -= 7.0f) {
             for (float x = 2.0f; x < 50.0f; x += 5.0f) {
@@ -123,27 +127,27 @@ namespace af3d
             }
         }
 
-        auto obj = sceneObjectFactory.createColoredBox(btVector3(1.0f, 1.0f, 1.0f));
+        obj = sceneObjectFactory.createColoredBox(btVector3(1.0f, 1.0f, 1.0f));
         obj->setPos(btVector3(0.0f, 0.0f, -5.0f));
         obj->setRotation(btQuaternion(0.0f, btRadians(10.0f), 0.0f));
         addObject(obj);
 
         auto l = std::make_shared<DirectionalLight>("light0");
-        l->setTransform(makeLookDir(btVector3_zero, btVector3(1.0f, 1.0f, 0.6f), btVector3_up));
+        l->setTransform(makeLookDir(btVector3_zero, btVector3(-1.0f, -0.2f, -0.6f), btVector3_up));
         l->setColor(Color(1.0f, 1.0f, 1.0f, 0.5f));
         lighting()->addLight(l);
 
-        /*auto l = std::make_shared<PointLight>("light0");
-        l->setTransform(makeLookDir(btVector3(20.0f, 10.0f, -20.0f), btVector3_forward, btVector3_up));
-        l->setRadius(10.0f);
-        l->setColor(Color(1.0f, 0.0f, 0.0f, 1.0f));
-        lighting()->addLight(l);
+        auto l2 = std::make_shared<PointLight>("light1");
+        l2->setTransform(makeLookDir(btVector3(20.0f, 20.0f, -30.0f), btVector3_forward, btVector3_up));
+        l2->setRadius(70.0f);
+        l2->setColor(Color(1.0f, 0.0f, 0.0f, 1.0f));
+        lighting()->addLight(l2);
 
-        l = std::make_shared<PointLight>("light1");
-        l->setTransform(makeLookDir(btVector3(25.0f, 8.0f, -25.0f), btVector3_forward, btVector3_up));
-        l->setRadius(15.0f);
-        l->setColor(Color(0.0f, 1.0f, 0.0f, 1.0f));
-        lighting()->addLight(l);*/
+        l2 = std::make_shared<PointLight>("light2");
+        l2->setTransform(makeLookDir(btVector3(25.0f, 15.0f, -75.0f), btVector3_forward, btVector3_up));
+        l2->setRadius(45.0f);
+        l2->setColor(Color(0.0f, 1.0f, 0.0f, 1.0f));
+        lighting()->addLight(l2);
     }
 
     void Scene::cleanup()

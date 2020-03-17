@@ -45,9 +45,9 @@ namespace af3d
 
         SceneObjectPtr createDummy();
 
-        SceneObjectPtr createColoredBox(const btVector3& size, const std::string& texPath = "");
+        SceneObjectPtr createColoredBox(const btVector3& size, const std::string& texPath = "", bool rotated = true);
 
-        SceneObjectPtr createLitBox(const btVector3& size, const std::string& texPath = "");
+        SceneObjectPtr createLitBox(const btVector3& size, const std::string& texPath = "", bool rotated = true);
     };
 
     extern SceneObjectFactory sceneObjectFactory;

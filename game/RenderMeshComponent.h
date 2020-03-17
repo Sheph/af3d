@@ -46,6 +46,8 @@ namespace af3d
 
         void debugDraw() override;
 
+        bool testRotate = false;
+
     private:
         void onRegister() override;
 

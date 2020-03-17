@@ -34,6 +34,10 @@ void main()
         // directional
         attenuation = 1.0;
         lightDirection = -lightDir;
+    } else {
+        vec3 positionToLightSource = vec3(lightPos.xyz - v_pos);
+        lightDirection = normalize(positionToLightSource);
+        attenuation = max(0.0, 1.0 - length(positionToLightSource) / lightDir.x);
     }
 
     float diffuseCoeff = max(0.0, dot(normalDirection, lightDirection));
