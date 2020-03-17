@@ -58,6 +58,8 @@ namespace af3d
         MeshPtr createBoxMesh(const btVector3& size,
             const MaterialPtr& material, const std::array<Color, 6>& colors);
 
+        MeshPtr createBoxMesh(const btVector3& size, const MaterialPtr& material);
+
         void onMeshDestroy(Mesh* mesh);
 
     private:

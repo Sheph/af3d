@@ -45,14 +45,12 @@ namespace af3d
     enum class UniformName
     {
         ProjMatrix = 0,
-        Time,
         EyePos,
         LightPos, // LightPos = vec4(x,y,z,lightType)
-        LightDir,
         LightColor, // LightColor = vec4(r,g,b,intensity)
-        LightRadius,
+        LightDir, // length = distance
         FirstAuto = ProjMatrix,
-        MaxAuto = LightRadius,
+        MaxAuto = LightDir,
         MainColor, // Light only!
         SpecularColor, // Light only!
         Max = SpecularColor

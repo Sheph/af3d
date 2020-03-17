@@ -106,4 +106,28 @@ namespace af3d
 
         return obj;
     }
+
+    SceneObjectPtr SceneObjectFactory::createLitBox(const btVector3& size, const std::string& texPath)
+    {
+        auto matName = "_litBox_" + texPath;
+        auto material = materialManager.getMaterial(matName);
+        if (!material) {
+            material = materialManager.createMaterial(MaterialTypeBasic, matName);
+            runtime_assert(material);
+            if (!texPath.empty()) {
+                material->setTextureBinding(SamplerName::Main, TextureBinding(textureManager.loadTexture(texPath)));
+            }
+            material->params().setUniform(UniformName::MainColor, Color(1.0f, 0.0f, 0.0f, 1.0f));
+        }
+
+        auto mesh = meshManager.createBoxMesh(size, material);
+
+        auto obj = std::make_shared<SceneObject>();
+
+        auto rc = std::make_shared<RenderMeshComponent>(mesh);
+
+        obj->addComponent(rc);
+
+        return obj;
+    }
 }

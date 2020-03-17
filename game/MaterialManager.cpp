@@ -38,6 +38,7 @@ namespace af3d
         const char* frag;
     } shaderPaths[MaterialTypeMax + 1] = {
         {"shaders/unlit.vert", "shaders/unlit.frag"},
+        {"shaders/basic.vert", "shaders/basic.frag"}
     };
 
     MaterialManager materialManager;

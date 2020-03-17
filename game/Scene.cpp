@@ -37,6 +37,7 @@
 #include "RenderComponent.h"
 #include "CameraComponent.h"
 #include "PointLight.h"
+#include "DirectionalLight.h"
 #include <Rocket/Core/ElementDocument.h>
 #include <cmath>
 
@@ -114,7 +115,8 @@ namespace af3d
         int i = 0;
         for (float z = -20.0f; z >= -100.0f; z -= 7.0f) {
             for (float x = 2.0f; x < 50.0f; x += 5.0f) {
-                auto obj = sceneObjectFactory.createColoredBox(btVector3(1.0f, 2.0f, 3.0f), (i++ % 3 == 0) ? "glass1.png" : "bb.png");
+                auto obj = sceneObjectFactory.createLitBox(btVector3(1.0f, 2.0f, 3.0f), (i % 4 == 0) ? "" : ((i % 3 == 0) ? "glass1.png" : "bb.png"));
+                ++i;
                 obj->setPos(btVector3(x, 6.0f, z));
                 obj->setRotation(btQuaternion(btRadians(x), btRadians(x), btRadians(x)));
                 addObject(obj);
@@ -126,7 +128,12 @@ namespace af3d
         obj->setRotation(btQuaternion(0.0f, btRadians(10.0f), 0.0f));
         addObject(obj);
 
-        auto l = std::make_shared<PointLight>("light0");
+        auto l = std::make_shared<DirectionalLight>("light0");
+        l->setTransform(makeLookDir(btVector3_zero, btVector3(1.0f, 1.0f, 1.0f), btVector3_up));
+        l->setColor(Color(1.0f, 1.0f, 1.0f, 1.0f));
+        lighting()->addLight(l);
+
+        /*auto l = std::make_shared<PointLight>("light0");
         l->setTransform(makeLookDir(btVector3(20.0f, 10.0f, -20.0f), btVector3_forward, btVector3_up));
         l->setRadius(10.0f);
         l->setColor(Color(1.0f, 0.0f, 0.0f, 1.0f));
@@ -136,7 +143,7 @@ namespace af3d
         l->setTransform(makeLookDir(btVector3(25.0f, 8.0f, -25.0f), btVector3_forward, btVector3_up));
         l->setRadius(15.0f);
         l->setColor(Color(0.0f, 1.0f, 0.0f, 1.0f));
-        lighting()->addLight(l);
+        lighting()->addLight(l);*/
     }
 
     void Scene::cleanup()

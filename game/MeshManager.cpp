@@ -38,7 +38,14 @@ namespace af3d
         public:
             BoxMeshGenerator(const btVector3& size, const std::array<Color, 6>& colors)
             : size_(toVector3f(size / 2)),
-              colors_(colors)
+              colors_(colors),
+              colored_(true)
+            {
+            }
+
+            explicit BoxMeshGenerator(const btVector3& size)
+            : size_(toVector3f(size / 2)),
+              colored_(false)
             {
             }
 
@@ -127,8 +134,13 @@ namespace af3d
                                 verts += 3;
                                 std::memcpy(verts, &tex.v[0], 8);
                                 verts += 2;
-                                std::memcpy(verts, &c.v[0], 16);
-                                verts += 4;
+                                if (colored_) {
+                                    std::memcpy(verts, &c.v[0], 16);
+                                    verts += 4;
+                                } else {
+                                    std::memcpy(verts, &vDir[0], 12);
+                                    verts += 3;
+                                }
                             }
 
                             for (std::uint16_t i = 0; i < 3; ++i) {
@@ -159,6 +171,7 @@ namespace af3d
         private:
             Vector3f size_;
             std::array<Color, 6> colors_;
+            bool colored_;
         };
     }
 
@@ -247,6 +260,25 @@ namespace af3d
 
         return createMesh(AABB(btVector3_zero - (size / 2), btVector3_zero + (size / 2)),
             std::vector<SubMeshPtr>{subMesh}, std::make_shared<BoxMeshGenerator>(size, colors));
+    }
+
+    MeshPtr MeshManager::createBoxMesh(const btVector3& size, const MaterialPtr& material)
+    {
+        VertexArrayLayout vaLayout;
+
+        vaLayout.addEntry(VertexArrayEntry(VertexAttribName::Pos, GL_FLOAT_VEC3, 0, 0));
+        vaLayout.addEntry(VertexArrayEntry(VertexAttribName::UV, GL_FLOAT_VEC2, 12, 0));
+        vaLayout.addEntry(VertexArrayEntry(VertexAttribName::Normal, GL_FLOAT_VEC3, 20, 0));
+
+        auto vbo = hwManager.createVertexBuffer(HardwareBuffer::Usage::StaticDraw, 32);
+        auto ebo = hwManager.createIndexBuffer(HardwareBuffer::Usage::StaticDraw, HardwareIndexBuffer::UInt16);
+
+        auto va = std::make_shared<VertexArray>(hwManager.createVertexArray(), vaLayout, VBOList{vbo}, ebo);
+
+        auto subMesh = std::make_shared<SubMesh>(material, VertexArraySlice(va));
+
+        return createMesh(AABB(btVector3_zero - (size / 2), btVector3_zero + (size / 2)),
+            std::vector<SubMeshPtr>{subMesh}, std::make_shared<BoxMeshGenerator>(size));
     }
 
     void MeshManager::onMeshDestroy(Mesh* mesh)

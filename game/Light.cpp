@@ -64,7 +64,6 @@ namespace af3d
         const auto& xf = worldTransform();
         params.setUniform(UniformName::EyePos, eyePos);
         params.setUniform(UniformName::LightPos, Vector4f(xf.getOrigin(), typeId_));
-        params.setUniform(UniformName::LightDir, xf.getBasis() * btVector3_forward);
         params.setUniform(UniformName::LightColor, color_);
         doSetupMaterial(eyePos, params);
     }

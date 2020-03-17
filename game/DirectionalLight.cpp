@@ -40,5 +40,6 @@ namespace af3d
 
     void DirectionalLight::doSetupMaterial(const btVector3& eyePos, MaterialParams& params) const
     {
+        params.setUniform(UniformName::LightDir, worldTransform().getBasis() * btVector3_forward);
     }
 }

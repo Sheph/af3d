@@ -40,7 +40,6 @@ namespace af3d
 
     void RenderList::addLight(const LightPtr& light)
     {
-        //LOG4CPLUS_DEBUG(logger(), "light " << light->name());
         lightList_.push_back(light);
     }
 
@@ -55,8 +54,11 @@ namespace af3d
             if (activeUniforms.count(UniformName::ProjMatrix) > 0) {
                 params.setUniform(UniformName::ProjMatrix, viewProjMat * Matrix4f(geom.xf));
             }
-            if (activeUniforms.count(UniformName::Time) > 0) {
-                params.setUniform(UniformName::Time, 0.0f);
+            if (activeUniforms.count(UniformName::LightPos) > 0) {
+                params.setUniform(UniformName::LightPos, Vector4f_zero);
+            }
+            if (activeUniforms.count(UniformName::LightColor) > 0) {
+                params.setUniform(UniformName::LightColor, cc_->renderSettings().ambientColor());
             }
         }
         return rn;

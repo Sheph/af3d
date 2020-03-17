@@ -45,7 +45,7 @@ namespace af3d
 
     private:
         Color clearColor_ = Color(0.0f, 0.0f, 0.4f, 1.0f);
-        Color ambientColor_ = Color_zero;
+        Color ambientColor_ = Color(0.3f, 0.3f, 0.3f, 1.0f);
     };
 }
 

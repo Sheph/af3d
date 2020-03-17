@@ -41,6 +41,6 @@ namespace af3d
 
     void PointLight::doSetupMaterial(const btVector3& eyePos, MaterialParams& params) const
     {
-        params.setUniform(UniformName::LightRadius, radius_);
+        params.setUniform(UniformName::LightDir, Vector3f(radius_ * 0.5f, 0.0f, 0.0f));
     }
 }
