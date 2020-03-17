@@ -25,9 +25,46 @@
 
 #include "Texture.h"
 #include "TextureManager.h"
+#include "Logger.h"
 
 namespace af3d
 {
+    namespace
+    {
+        class TextureUploader : public ResourceLoader
+        {
+        public:
+            TextureUploader(GLint internalFormat,
+                GLenum format,
+                GLenum type,
+                std::vector<Byte>&& pixels)
+            : internalFormat_(internalFormat),
+              format_(format),
+              type_(type),
+              pixels_(std::move(pixels))
+            {
+            }
+
+            void load(Resource& res, HardwareContext& ctx) override
+            {
+                Texture& texture = static_cast<Texture&>(res);
+
+                LOG4CPLUS_DEBUG(logger(), "textureManager: loading " << texture.width() << "x" << texture.height() << "...");
+
+                texture.hwTex()->upload(internalFormat_, format_, type_,
+                    reinterpret_cast<const GLvoid*>(&pixels_[0]), ctx);
+
+                pixels_.clear();
+            }
+
+        private:
+            GLint internalFormat_;
+            GLenum format_;
+            GLenum type_;
+            std::vector<Byte> pixels_;
+        };
+    }
+
     Texture::Texture(TextureManager* mgr, const std::string& name,
         const HardwareTexturePtr& hwTex,
         const ResourceLoaderPtr& loader)
@@ -44,7 +81,6 @@ namespace af3d
 
     void Texture::upload(GLint internalFormat, GLenum format, GLenum type, std::vector<Byte>&& pixels)
     {
-        runtime_assert(false);
-        //TODO: load(MyBytesLoader(pixels));
+        load(std::make_shared<TextureUploader>(internalFormat, format, type, std::move(pixels)));
     }
 }

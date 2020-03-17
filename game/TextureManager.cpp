@@ -111,12 +111,14 @@ namespace af3d
     bool TextureManager::init()
     {
         LOG4CPLUS_DEBUG(logger(), "textureManager: init...");
+        white1x1_ = createTexture(1, 1);
         return true;
     }
 
     void TextureManager::shutdown()
     {
         LOG4CPLUS_DEBUG(logger(), "textureManager: shutdown...");
+        white1x1_.reset();
         runtime_assert(immediateTextures_.empty());
         cachedTextures_.clear();
     }
@@ -132,6 +134,8 @@ namespace af3d
             tex->invalidate();
             tex->load();
         }
+        std::vector<Byte> data{255, 255, 255, 255};
+        white1x1_->upload(GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, std::move(data));
     }
 
     bool TextureManager::renderReload(HardwareContext& ctx)

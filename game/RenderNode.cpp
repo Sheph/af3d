@@ -24,6 +24,7 @@
  */
 
 #include "RenderNode.h"
+#include "TextureManager.h"
 #include "Logger.h"
 
 namespace af3d
@@ -249,6 +250,9 @@ namespace af3d
         for (int i = 0; i < static_cast<int>(textures_.size()); ++i) {
             ogl.ActiveTexture(GL_TEXTURE0 + i);
             GLuint id = textures_[i].tex ? textures_[i].tex->id(ctx) : 0;
+            if (id == 0) {
+                id = textureManager.white1x1()->hwTex()->id(ctx);
+            }
             ogl.BindTexture(GL_TEXTURE_2D, id);
         }
     }

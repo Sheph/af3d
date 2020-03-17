@@ -56,12 +56,15 @@ namespace af3d
 
         void onTextureDestroy(Texture* tex);
 
+        inline TexturePtr white1x1() const { return white1x1_; }
+
     private:
         using CachedTextures = std::unordered_map<std::string, TexturePtr>;
         using ImmediateTextures = std::unordered_set<Texture*>;
 
         CachedTextures cachedTextures_;
         ImmediateTextures immediateTextures_;
+        TexturePtr white1x1_;
     };
 
     extern TextureManager textureManager;
