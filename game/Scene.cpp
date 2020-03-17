@@ -129,8 +129,8 @@ namespace af3d
         addObject(obj);
 
         auto l = std::make_shared<DirectionalLight>("light0");
-        l->setTransform(makeLookDir(btVector3_zero, btVector3(1.0f, 1.0f, 1.0f), btVector3_up));
-        l->setColor(Color(1.0f, 1.0f, 1.0f, 1.0f));
+        l->setTransform(makeLookDir(btVector3_zero, btVector3(1.0f, 1.0f, 0.6f), btVector3_up));
+        l->setColor(Color(1.0f, 1.0f, 1.0f, 0.5f));
         lighting()->addLight(l);
 
         /*auto l = std::make_shared<PointLight>("light0");

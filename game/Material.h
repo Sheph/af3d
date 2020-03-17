@@ -73,6 +73,16 @@ namespace af3d
           blendDfactor(GL_ZERO),
           blendSfactorAlpha(GL_ONE),
           blendDfactorAlpha(GL_ZERO) {}
+        BlendingParams(GLenum blendSfactor,
+            GLenum blendDfactor,
+            GLenum blendSfactorAlpha,
+            GLenum blendDfactorAlpha)
+        : blendSfactor(blendSfactor),
+          blendDfactor(blendDfactor),
+          blendSfactorAlpha(blendSfactorAlpha),
+          blendDfactorAlpha(blendDfactorAlpha)
+        {
+        }
 
         inline bool isEnabled() const
         {

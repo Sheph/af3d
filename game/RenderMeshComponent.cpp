@@ -56,7 +56,7 @@ namespace af3d
     {
         auto xf = parent()->transform() * xf_;
         for (const auto& subMesh : mesh_->subMeshes()) {
-            rl.addGeometry(xf, subMesh->material(), subMesh->vaSlice(), GL_TRIANGLES);
+            rl.addGeometry(xf, prevAABB_, subMesh->material(), subMesh->vaSlice(), GL_TRIANGLES);
         }
     }
 

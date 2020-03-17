@@ -117,7 +117,8 @@ namespace af3d
             if (!texPath.empty()) {
                 material->setTextureBinding(SamplerName::Main, TextureBinding(textureManager.loadTexture(texPath)));
             }
-            material->params().setUniform(UniformName::MainColor, Color(1.0f, 0.0f, 0.0f, 1.0f));
+            material->params().setUniform(UniformName::SpecularColor, Color_one);
+            material->params().setUniform(UniformName::Shininess, 50.0f);
         }
 
         auto mesh = meshManager.createBoxMesh(size, material);

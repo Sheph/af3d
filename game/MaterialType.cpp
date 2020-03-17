@@ -29,9 +29,10 @@
 
 namespace af3d
 {
-    MaterialType::MaterialType(MaterialTypeName name, const HardwareProgramPtr& prog)
+    MaterialType::MaterialType(MaterialTypeName name, const HardwareProgramPtr& prog, bool usesLight)
     : name_(name),
-      prog_(prog)
+      prog_(prog),
+      usesLight_(usesLight)
     {
     }
 

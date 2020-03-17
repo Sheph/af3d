@@ -42,7 +42,8 @@ namespace af3d
 
         inline const CameraComponentPtr& cc() const { return cc_; }
 
-        void addGeometry(const btTransform& xf, const MaterialPtr& material, const VertexArraySlice& vaSlice, GLenum primitiveMode);
+        void addGeometry(const btTransform& xf, const AABB& aabb, const MaterialPtr& material,
+            const VertexArraySlice& vaSlice, GLenum primitiveMode);
 
         void addLight(const LightPtr& light);
 
@@ -53,10 +54,12 @@ namespace af3d
         {
             Geometry() = default;
             Geometry(const btTransform& xf,
+                const AABB& aabb,
                 const MaterialPtr& material,
                 const VertexArraySlice& vaSlice,
                 GLenum primitiveMode)
             : xf(xf),
+              aabb(aabb),
               material(material),
               vaSlice(vaSlice),
               primitiveMode(primitiveMode)
@@ -64,6 +67,7 @@ namespace af3d
             }
 
             btTransform xf;
+            AABB aabb;
             MaterialPtr material;
             VertexArraySlice vaSlice;
             GLenum primitiveMode;

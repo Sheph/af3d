@@ -50,6 +50,8 @@ namespace af3d
         OGL();
         ~OGL();
 
+        void (GLAPIENTRY* DepthMask)(GLboolean flag);
+        void (GLAPIENTRY* DepthFunc)(GLenum func);
         void (GLAPIENTRY* CullFace)(GLenum mode);
         void (GLAPIENTRY* DrawElements)(GLenum mode, GLsizei count, GLenum type, const void* indices);
         void (GLAPIENTRY* GenVertexArrays)(GLsizei n, GLuint* array);
@@ -100,6 +102,7 @@ namespace af3d
         void (GLAPIENTRY* VertexAttribPointer)(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid* pointer);
         void (GLAPIENTRY* DrawArrays)(GLenum mode, GLint first, GLsizei count);
         void (GLAPIENTRY* Uniform1fv)(GLint location, GLsizei count, const GLfloat* value);
+        void (GLAPIENTRY* Uniform3fv)(GLint location, GLsizei count, const GLfloat* value);
         void (GLAPIENTRY* Uniform4fv)(GLint location, GLsizei count, const GLfloat* value);
         void (GLAPIENTRY* Enable)(GLenum cap);
         void (GLAPIENTRY* Disable)(GLenum cap);

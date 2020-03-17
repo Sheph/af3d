@@ -41,7 +41,8 @@ namespace af3d
         ~RenderNode() = default;
 
         // Returns empty material auto params, these should be filled in by the caller.
-        MaterialParams& add(RenderNode&& tmpNode, const MaterialPtr& material,
+        MaterialParams& add(RenderNode&& tmpNode, int pass, const MaterialPtr& material,
+            GLenum depthFunc, const BlendingParams& blendingParams,
             const VertexArraySlice& vaSlice, GLenum primitiveMode);
 
         bool operator<(const RenderNode& other) const;
@@ -52,6 +53,7 @@ namespace af3d
         enum class Type
         {
             Root = 0,
+            Pass,
             DepthTest,
             Depth,
             BlendingParams,
@@ -83,6 +85,7 @@ namespace af3d
 
         using Children = std::set<RenderNode>;
 
+        bool comparePass(const RenderNode& other) const;
         bool compareDepthTest(const RenderNode& other) const;
         bool compareDepth(const RenderNode& other) const;
         bool compareBlendingParams(const RenderNode& other) const;
@@ -91,7 +94,8 @@ namespace af3d
         bool compareVertexArray(const RenderNode& other) const;
         bool compareDraw(const RenderNode& other) const;
 
-        RenderNode* insertDepthTest(RenderNode&& tmpNode, bool depthTest);
+        RenderNode* insertPass(RenderNode&& tmpNode, int pass);
+        RenderNode* insertDepthTest(RenderNode&& tmpNode, bool depthTest, GLenum depthFunc);
         RenderNode* insertDepth(RenderNode&& tmpNode, float depth);
         RenderNode* insertBlendingParams(RenderNode&& tmpNode, const BlendingParams& blendingParams);
         RenderNode* insertMaterialType(RenderNode&& tmpNode, const MaterialTypePtr& materialType);
@@ -101,6 +105,7 @@ namespace af3d
         RenderNode* insertImpl(RenderNode&& tmpNode);
 
         void applyRoot(HardwareContext& ctx) const;
+        void applyPass(HardwareContext& ctx) const;
         void applyDepthTest(HardwareContext& ctx) const;
         void applyDepth(HardwareContext& ctx) const;
         void applyBlendingParams(HardwareContext& ctx) const;
@@ -117,8 +122,12 @@ namespace af3d
         Color clearColor_;
         int numDraws_ = 0;
 
+        // Type::Pass
+        int pass_;
+
         // Type::DepthTest
         bool depthTest_;
+        GLenum depthFunc_;
 
         // Type::Depth
         float depth_;

@@ -33,9 +33,10 @@ namespace af3d
     {
     }
 
-    void RenderList::addGeometry(const btTransform& xf, const MaterialPtr& material, const VertexArraySlice& vaSlice, GLenum primitiveMode)
+    void RenderList::addGeometry(const btTransform& xf, const AABB& aabb, const MaterialPtr& material,
+        const VertexArraySlice& vaSlice, GLenum primitiveMode)
     {
-        geomList_.emplace_back(xf, material, vaSlice, primitiveMode);
+        geomList_.emplace_back(xf, aabb, material, vaSlice, primitiveMode);
     }
 
     void RenderList::addLight(const LightPtr& light)
@@ -45,22 +46,52 @@ namespace af3d
 
     RenderNodePtr RenderList::compile() const
     {
-        const Matrix4f& viewProjMat = cc_->getFrustum().viewProjMat();
+        const auto& frustum = cc_->getFrustum();
+        const Matrix4f& viewProjMat = frustum.viewProjMat();
         auto rn = std::make_shared<RenderNode>(cc_->viewport(), cc_->renderSettings().clearColor());
         RenderNode tmpNode;
         for (const auto& geom : geomList_) {
-            auto& params = rn->add(std::move(tmpNode), geom.material, geom.vaSlice, geom.primitiveMode);
+            auto& params = rn->add(std::move(tmpNode), 0, geom.material,
+                GL_LESS, geom.material->blendingParams(), geom.vaSlice, geom.primitiveMode);
             const auto& activeUniforms = geom.material->type()->prog()->activeUniforms();
             if (activeUniforms.count(UniformName::ProjMatrix) > 0) {
                 params.setUniform(UniformName::ProjMatrix, viewProjMat * Matrix4f(geom.xf));
+            }
+            if (activeUniforms.count(UniformName::ModelMatrix) > 0) {
+                params.setUniform(UniformName::ModelMatrix, Matrix4f(geom.xf));
             }
             if (activeUniforms.count(UniformName::LightPos) > 0) {
                 params.setUniform(UniformName::LightPos, Vector4f_zero);
             }
             if (activeUniforms.count(UniformName::LightColor) > 0) {
-                params.setUniform(UniformName::LightColor, cc_->renderSettings().ambientColor());
+                auto ac = cc_->renderSettings().ambientColor();
+                params.setUniform(UniformName::LightColor, Vector3f(ac.x(), ac.y(), ac.z()) * ac.w());
             }
         }
+
+        int pass = 1;
+        BlendingParams lightBp(GL_ONE, GL_ONE, GL_ONE, GL_ONE);
+
+        for (const auto& light : lightList_) {
+            auto lightAABB = light->getWorldAABB();
+            for (const auto& geom : geomList_) {
+                if (!geom.material->type()->usesLight() || !lightAABB.overlaps(geom.aabb)) {
+                    continue;
+                }
+                auto& params = rn->add(std::move(tmpNode), pass, geom.material,
+                    GL_EQUAL, lightBp, geom.vaSlice, geom.primitiveMode);
+                const auto& activeUniforms = geom.material->type()->prog()->activeUniforms();
+                if (activeUniforms.count(UniformName::ProjMatrix) > 0) {
+                    params.setUniform(UniformName::ProjMatrix, viewProjMat * Matrix4f(geom.xf));
+                }
+                if (activeUniforms.count(UniformName::ModelMatrix) > 0) {
+                    params.setUniform(UniformName::ModelMatrix, Matrix4f(geom.xf));
+                }
+                light->setupMaterial(frustum.transform().getOrigin(), params);
+            }
+            ++pass;
+        }
+
         return rn;
     }
 }

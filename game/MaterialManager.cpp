@@ -36,9 +36,10 @@ namespace af3d
     static const struct {
         const char* vert;
         const char* frag;
-    } shaderPaths[MaterialTypeMax + 1] = {
-        {"shaders/unlit.vert", "shaders/unlit.frag"},
-        {"shaders/basic.vert", "shaders/basic.frag"}
+        bool usesLight;
+    } shaders[MaterialTypeMax + 1] = {
+        {"shaders/unlit.vert", "shaders/unlit.frag", false},
+        {"shaders/basic.vert", "shaders/basic.frag", true}
     };
 
     MaterialManager materialManager;
@@ -57,7 +58,7 @@ namespace af3d
         LOG4CPLUS_DEBUG(logger(), "materialManager: init...");
         for (int i = MaterialTypeFirst; i <= MaterialTypeMax; ++i) {
             MaterialTypeName name = static_cast<MaterialTypeName>(i);
-            materialTypes_[name] = std::make_shared<MaterialType>(name, hwManager.createProgram());
+            materialTypes_[name] = std::make_shared<MaterialType>(name, hwManager.createProgram(), shaders[name].usesLight);
         }
 
         return true;
@@ -84,25 +85,25 @@ namespace af3d
         LOG4CPLUS_DEBUG(logger(), "materialManager: render reload...");
 
         for (const auto& mat : materialTypes_) {
-            LOG4CPLUS_DEBUG(logger(), "materialManager: loading " << shaderPaths[mat->name()].vert << "...");
+            LOG4CPLUS_DEBUG(logger(), "materialManager: loading " << shaders[mat->name()].vert << "...");
 
-            PlatformIFStream isVert(shaderPaths[mat->name()].vert);
+            PlatformIFStream isVert(shaders[mat->name()].vert);
 
             std::string vertSource;
 
             if (!readStream(isVert, vertSource)) {
-                LOG4CPLUS_ERROR(logger(), "Unable to read \"" << shaderPaths[mat->name()].vert << "\"");
+                LOG4CPLUS_ERROR(logger(), "Unable to read \"" << shaders[mat->name()].vert << "\"");
                 return false;
             }
 
-            LOG4CPLUS_DEBUG(logger(), "materialManager: loading " << shaderPaths[mat->name()].frag << "...");
+            LOG4CPLUS_DEBUG(logger(), "materialManager: loading " << shaders[mat->name()].frag << "...");
 
-            PlatformIFStream isFrag(shaderPaths[mat->name()].frag);
+            PlatformIFStream isFrag(shaders[mat->name()].frag);
 
             std::string fragSource;
 
             if (!readStream(isFrag, fragSource)) {
-                LOG4CPLUS_ERROR(logger(), "Unable to read \"" << shaderPaths[mat->name()].frag << "\"");
+                LOG4CPLUS_ERROR(logger(), "Unable to read \"" << shaders[mat->name()].frag << "\"");
                 return false;
             }
 
@@ -111,7 +112,8 @@ namespace af3d
             }
 
             mat->setDefaultUniform(UniformName::MainColor, Color_one);
-            mat->setDefaultUniform(UniformName::SpecularColor, Color_one);
+            mat->setDefaultUniform(UniformName::SpecularColor, Color(0.0f, 0.0f, 0.0f, 1.0f));
+            mat->setDefaultUniform(UniformName::Shininess, 1.0f);
         }
 
         if (first_) {

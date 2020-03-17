@@ -36,15 +36,18 @@ namespace af3d
     {
     }
 
-    MaterialParams& RenderNode::add(RenderNode&& tmpNode, const MaterialPtr& material, const VertexArraySlice& vaSlice, GLenum primitiveMode)
+    MaterialParams& RenderNode::add(RenderNode&& tmpNode, int pass, const MaterialPtr& material,
+        GLenum depthFunc, const BlendingParams& blendingParams,
+        const VertexArraySlice& vaSlice, GLenum primitiveMode)
     {
         btAssert(type_ == Type::Root);
 
         RenderNode* node = this;
 
-        node = node->insertDepthTest(std::move(tmpNode), material->depthTest());
+        node = node->insertPass(std::move(tmpNode), pass);
+        node = node->insertDepthTest(std::move(tmpNode), material->depthTest(), depthFunc);
         node = node->insertDepth(std::move(tmpNode), material->depthValue());
-        node = node->insertBlendingParams(std::move(tmpNode), material->blendingParams());
+        node = node->insertBlendingParams(std::move(tmpNode), blendingParams);
         node = node->insertMaterialType(std::move(tmpNode), material->type());
 
         const auto& samplers = material->type()->prog()->samplers();
@@ -75,6 +78,7 @@ namespace af3d
     bool RenderNode::operator<(const RenderNode& other) const
     {
         switch (type_) {
+        case Type::Pass: return comparePass(other);
         case Type::DepthTest: return compareDepthTest(other);
         case Type::Depth: return compareDepth(other);
         case Type::BlendingParams: return compareBlendingParams(other);
@@ -94,6 +98,9 @@ namespace af3d
         switch (type_) {
         case Type::Root:
             applyRoot(ctx);
+            break;
+        case Type::Pass:
+            applyPass(ctx);
             break;
         case Type::DepthTest:
             applyDepthTest(ctx);
@@ -127,9 +134,17 @@ namespace af3d
         }
     }
 
+    bool RenderNode::comparePass(const RenderNode& other) const
+    {
+        return pass_ < other.pass_;
+    }
+
     bool RenderNode::compareDepthTest(const RenderNode& other) const
     {
-        return (int)depthTest_ < (int)other.depthTest_;
+        if (depthTest_ != other.depthTest_) {
+            return (int)depthTest_ < (int)other.depthTest_;
+        }
+        return depthFunc_ < other.depthFunc_;
     }
 
     bool RenderNode::compareDepth(const RenderNode& other) const
@@ -166,10 +181,18 @@ namespace af3d
         return drawIdx_ < other.drawIdx_;
     }
 
-    RenderNode* RenderNode::insertDepthTest(RenderNode&& tmpNode, bool depthTest)
+    RenderNode* RenderNode::insertPass(RenderNode&& tmpNode, int pass)
+    {
+        tmpNode.type_ = Type::Pass;
+        tmpNode.pass_ = pass;
+        return insertImpl(std::move(tmpNode));
+    }
+
+    RenderNode* RenderNode::insertDepthTest(RenderNode&& tmpNode, bool depthTest, GLenum depthFunc)
     {
         tmpNode.type_ = Type::DepthTest;
         tmpNode.depthTest_ = depthTest;
+        tmpNode.depthFunc_ = depthFunc;
         return insertImpl(std::move(tmpNode));
     }
 
@@ -229,9 +252,14 @@ namespace af3d
         ogl.Clear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 
+    void RenderNode::applyPass(HardwareContext& ctx) const
+    {
+    }
+
     void RenderNode::applyDepthTest(HardwareContext& ctx) const
     {
         if (depthTest_) {
+            ogl.DepthFunc(depthFunc_);
             ogl.Enable(GL_DEPTH_TEST);
         } else {
             ogl.Disable(GL_DEPTH_TEST);
@@ -244,6 +272,13 @@ namespace af3d
 
     void RenderNode::applyBlendingParams(HardwareContext& ctx) const
     {
+        if (blendingParams_.isEnabled()) {
+            ogl.BlendFuncSeparate(blendingParams_.blendSfactor, blendingParams_.blendDfactor,
+                blendingParams_.blendSfactorAlpha, blendingParams_.blendDfactorAlpha);
+            ogl.Enable(GL_BLEND);
+        } else {
+            ogl.Disable(GL_BLEND);
+        }
     }
 
     void RenderNode::applyMaterialType(HardwareContext& ctx) const

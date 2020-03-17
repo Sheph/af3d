@@ -45,6 +45,7 @@ namespace af3d
     enum class UniformName
     {
         ProjMatrix = 0,
+        ModelMatrix,
         EyePos,
         LightPos, // LightPos = vec4(x,y,z,lightType)
         LightColor, // LightColor = vec4(r,g,b,intensity)
@@ -53,7 +54,8 @@ namespace af3d
         MaxAuto = LightDir,
         MainColor, // Light only!
         SpecularColor, // Light only!
-        Max = SpecularColor
+        Shininess, // Light only!
+        Max = Shininess
     };
 
     // Must always be declared in that order inside shader.
