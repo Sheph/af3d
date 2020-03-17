@@ -28,7 +28,6 @@
 
 #include "Material.h"
 #include "VertexArraySlice.h"
-#include "RenderSettings.h"
 #include "af3d/AABB2.h"
 #include <set>
 
@@ -37,12 +36,13 @@ namespace af3d
     class RenderNode
     {
     public:
-        RenderNode(const AABB2i& viewport, const RenderSettings& rs);
+        RenderNode(const AABB2i& viewport, const Color& clearColor);
         RenderNode() = default;
         ~RenderNode() = default;
 
         // Returns empty material auto params, these should be filled in by the caller.
-        MaterialParams& add(RenderNode&& tmpNode, const MaterialPtr& material, const VertexArraySlice& vaSlice, GLenum primitiveMode);
+        MaterialParams& add(RenderNode&& tmpNode, const MaterialPtr& material,
+            const VertexArraySlice& vaSlice, GLenum primitiveMode);
 
         bool operator<(const RenderNode& other) const;
 
@@ -114,7 +114,7 @@ namespace af3d
 
         // Type::Root
         AABB2i viewport_;
-        RenderSettings rs_;
+        Color clearColor_;
         int numDraws_ = 0;
 
         // Type::DepthTest
