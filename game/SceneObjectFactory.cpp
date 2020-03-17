@@ -71,7 +71,7 @@ namespace af3d
         return obj;
     }
 
-    SceneObjectPtr SceneObjectFactory::createColoredBox(const btVector3& size, const std::string& texPath, bool rotated)
+    MeshPtr SceneObjectFactory::createColoredBox(const btVector3& size, const std::string& texPath)
     {
         MaterialPtr material;
 
@@ -97,18 +97,10 @@ namespace af3d
                 Color(1.0f, 0.0f, 1.0f, 1.0f),
                 Color(0.0f, 1.0f, 1.0f, 1.0f)
             });
-
-        auto obj = std::make_shared<SceneObject>();
-
-        auto rc = std::make_shared<RenderMeshComponent>(mesh);
-        rc->testRotate = rotated;
-
-        obj->addComponent(rc);
-
-        return obj;
+        return mesh;
     }
 
-    SceneObjectPtr SceneObjectFactory::createLitBox(const btVector3& size, const std::string& texPath, bool rotated)
+    MeshPtr SceneObjectFactory::createLitBox(const btVector3& size, const std::string& texPath)
     {
         auto matName = "_litBox_" + texPath;
         auto material = materialManager.getMaterial(matName);
@@ -122,8 +114,11 @@ namespace af3d
             material->params().setUniform(UniformName::Shininess, 50.0f);
         }
 
-        auto mesh = meshManager.createBoxMesh(size, material);
+        return meshManager.createBoxMesh(size, material);
+    }
 
+    SceneObjectPtr SceneObjectFactory::createStaticMeshObj(const MeshPtr& mesh, bool rotated)
+    {
         auto obj = std::make_shared<SceneObject>();
 
         auto rc = std::make_shared<RenderMeshComponent>(mesh);

@@ -29,7 +29,7 @@
 #include "af3d/Types.h"
 #include "af3d/Single.h"
 #include "SceneObject.h"
-#include <boost/optional.hpp>
+#include "Mesh.h"
 
 namespace af3d
 {
@@ -45,9 +45,11 @@ namespace af3d
 
         SceneObjectPtr createDummy();
 
-        SceneObjectPtr createColoredBox(const btVector3& size, const std::string& texPath = "", bool rotated = true);
+        MeshPtr createColoredBox(const btVector3& size, const std::string& texPath = "");
 
-        SceneObjectPtr createLitBox(const btVector3& size, const std::string& texPath = "", bool rotated = true);
+        MeshPtr createLitBox(const btVector3& size, const std::string& texPath = "");
+
+        SceneObjectPtr createStaticMeshObj(const MeshPtr& mesh, bool rotated = true);
     };
 
     extern SceneObjectFactory sceneObjectFactory;

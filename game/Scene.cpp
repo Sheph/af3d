@@ -112,14 +112,18 @@ namespace af3d
 
     void Scene::prepare()
     {
-        auto obj = sceneObjectFactory.createLitBox(btVector3(300.0f, 1.0f, 300.0f), "glass1.png", false);
+        auto obj = sceneObjectFactory.createStaticMeshObj(sceneObjectFactory.createLitBox(btVector3(300.0f, 1.0f, 300.0f), "glass1.png"), false);
         obj->setPos(btVector3(50.0f, -3.0f, -50.0f));
         addObject(obj);
+
+        auto mesh1 = sceneObjectFactory.createLitBox(btVector3(1.0f, 2.0f, 3.0f), "");
+        auto mesh2 = sceneObjectFactory.createLitBox(btVector3(1.0f, 2.0f, 3.0f), "glass1.png");
+        auto mesh3 = sceneObjectFactory.createLitBox(btVector3(1.0f, 2.0f, 3.0f), "bb.png");
 
         int i = 0;
         for (float z = -20.0f; z >= -100.0f; z -= 7.0f) {
             for (float x = 2.0f; x < 50.0f; x += 5.0f) {
-                auto obj = sceneObjectFactory.createLitBox(btVector3(1.0f, 2.0f, 3.0f), (i % 4 == 0) ? "" : ((i % 3 == 0) ? "glass1.png" : "bb.png"));
+                auto obj = sceneObjectFactory.createStaticMeshObj((i % 4 == 0) ? mesh1 : ((i % 3 == 0) ? mesh2 : mesh3));
                 ++i;
                 obj->setPos(btVector3(x, 6.0f, z));
                 obj->setRotation(btQuaternion(btRadians(x), btRadians(x), btRadians(x)));
@@ -127,7 +131,7 @@ namespace af3d
             }
         }
 
-        obj = sceneObjectFactory.createColoredBox(btVector3(1.0f, 1.0f, 1.0f));
+        obj = sceneObjectFactory.createStaticMeshObj(sceneObjectFactory.createColoredBox(btVector3(1.0f, 1.0f, 1.0f)));
         obj->setPos(btVector3(0.0f, 0.0f, -5.0f));
         obj->setRotation(btQuaternion(0.0f, btRadians(10.0f), 0.0f));
         addObject(obj);
