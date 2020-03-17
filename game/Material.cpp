@@ -91,8 +91,9 @@ namespace af3d
             if (it == uniforms_.end()) {
                 data = &paramListInfo.defaultParamList[0];
                 it = paramListInfo.defaultUniforms.find(kv.first);
-                if (it == uniforms_.end()) {
-                    count = jt->second.count;
+                if (it == paramListInfo.defaultUniforms.end()) {
+                    // No default, just skip, possibly keeping an old value bound.
+                    continue;
                 } else {
                     count = it->second;
                 }
