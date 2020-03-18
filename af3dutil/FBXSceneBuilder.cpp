@@ -73,8 +73,9 @@ namespace af3d
     }
 
     FBXSceneBuilder::FBXSceneBuilder()
+    : scene_(std::make_shared<FBXScene>())
     {
-        defBuilder_.otBuilder.ptBuilder.mtlTemplateBuilder.setTarget(&mtlTemplate_);
+        defBuilder_.otBuilder.ptBuilder.mtlTemplateBuilder.setTarget(&scene_->mtlTemplate());
     }
 
     FBXDomBuilder* FBXSceneBuilder::childBegin(const std::string& name)

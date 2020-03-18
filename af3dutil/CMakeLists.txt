@@ -11,9 +11,7 @@ set(SOURCES
     PNGUtils.cpp
     BinaryReader.cpp
     FBXParser.cpp
-    FBXScene.cpp
     FBXSceneBuilder.cpp
-    FBXMesh.cpp
     FBXMeshBuilder.cpp
     FBXProperties70Builder.cpp
     FBXMaterialTemplateBuilder.cpp

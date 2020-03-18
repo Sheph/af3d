@@ -28,6 +28,7 @@
 
 #include "af3d/FBXDomBuilder.h"
 #include "af3d/FBXMaterialTemplateBuilder.h"
+#include "af3d/FBXScene.h"
 #include <boost/noncopyable.hpp>
 
 namespace af3d
@@ -40,6 +41,8 @@ namespace af3d
         ~FBXSceneBuilder() = default;
 
         FBXDomBuilder* childBegin(const std::string& name) override;
+
+        inline const FBXScenePtr& scene() const { return scene_; }
 
     private:
         class ObjectTypeBuilder;
@@ -98,7 +101,7 @@ namespace af3d
 
         DefinitionsBuilder defBuilder_;
 
-        FBXMaterialTemplate mtlTemplate_;
+        FBXScenePtr scene_;
     };
 }
 
