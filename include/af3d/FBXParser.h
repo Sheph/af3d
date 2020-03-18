@@ -28,7 +28,7 @@
 
 #include "af3d/Types.h"
 #include "af3d/BinaryReader.h"
-#include "af3d/FBXNodeBuilder.h"
+#include "af3d/FBXDomBuilder.h"
 #include <boost/noncopyable.hpp>
 #include <iostream>
 
@@ -40,14 +40,14 @@ namespace af3d
         FBXParser(const std::string& path, std::istream& is);
         ~FBXParser() = default;
 
-        bool parse(FBXNodeBuilder* rootBuilder);
+        bool parse(FBXDomBuilder* rootBuilder);
 
     private:
         bool readHeader();
 
-        bool readNode(FBXNodeBuilder* builder, bool& isEmpty);
+        bool readNode(FBXDomBuilder* builder, bool& isEmpty);
 
-        bool readProperty(FBXNodeBuilder* builder);
+        bool readProperty(FBXDomBuilder* builder);
 
         bool decompress(std::uint32_t compressedLength, Byte* data, std::uint32_t dataSize);
 

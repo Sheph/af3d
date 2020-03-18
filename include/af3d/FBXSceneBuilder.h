@@ -26,25 +26,25 @@
 #ifndef _AF3D_FBX_SCENE_BUILDER_H_
 #define _AF3D_FBX_SCENE_BUILDER_H_
 
-#include "af3d/FBXNodeBuilder.h"
+#include "af3d/FBXDomBuilder.h"
 #include "af3d/FBXMaterialTemplateBuilder.h"
 #include <boost/noncopyable.hpp>
 
 namespace af3d
 {
-    class FBXSceneBuilder : public FBXNodeBuilder,
+    class FBXSceneBuilder : public FBXDomBuilder,
         boost::noncopyable
     {
     public:
         FBXSceneBuilder();
         ~FBXSceneBuilder() = default;
 
-        FBXNodeBuilder* childBegin(const std::string& name) override;
+        FBXDomBuilder* childBegin(const std::string& name) override;
 
     private:
         class ObjectTypeBuilder;
 
-        class PropertyTemplateBuilder : public FBXNodeBuilder
+        class PropertyTemplateBuilder : public FBXDomBuilder
         {
         public:
             explicit PropertyTemplateBuilder(ObjectTypeBuilder* parent)
@@ -54,19 +54,19 @@ namespace af3d
 
             void addValue(const std::string& value) override;
 
-            FBXNodeBuilder* childBegin(const std::string& name) override;
-            void childEnd(const std::string& name, FBXNodeBuilder* builder) override;
+            FBXDomBuilder* childBegin(const std::string& name) override;
+            void childEnd(const std::string& name, FBXDomBuilder* builder) override;
 
             FBXMaterialTemplateBuilder mtlTemplateBuilder;
 
         private:
             ObjectTypeBuilder* parent_;
-            FBXNodeBuilder* childBuilder_ = nullptr;
+            FBXDomBuilder* childBuilder_ = nullptr;
         };
 
         class DefinitionsBuilder;
 
-        class ObjectTypeBuilder : public FBXNodeBuilder
+        class ObjectTypeBuilder : public FBXDomBuilder
         {
         public:
             explicit ObjectTypeBuilder(DefinitionsBuilder* parent)
@@ -75,7 +75,7 @@ namespace af3d
 
             void addValue(const std::string& value) override;
 
-            FBXNodeBuilder* childBegin(const std::string& name) override;
+            FBXDomBuilder* childBegin(const std::string& name) override;
 
             std::string objType;
 
@@ -85,13 +85,13 @@ namespace af3d
             DefinitionsBuilder* parent_;
         };
 
-        class DefinitionsBuilder : public FBXNodeBuilder
+        class DefinitionsBuilder : public FBXDomBuilder
         {
         public:
             DefinitionsBuilder()
             : otBuilder(this) {}
 
-            FBXNodeBuilder* childBegin(const std::string& name) override;
+            FBXDomBuilder* childBegin(const std::string& name) override;
 
             ObjectTypeBuilder otBuilder;
         };

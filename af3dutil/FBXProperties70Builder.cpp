@@ -148,7 +148,7 @@ namespace af3d
     {
     }
 
-    FBXNodeBuilder* FBXProperties70Builder::childBegin(const std::string& name)
+    FBXDomBuilder* FBXProperties70Builder::childBegin(const std::string& name)
     {
         if (name == "P") {
             pBuilder_.reset();

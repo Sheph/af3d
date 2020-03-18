@@ -23,18 +23,18 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _AF3D_FBX_NODE_BUILDER_H_
-#define _AF3D_FBX_NODE_BUILDER_H_
+#ifndef _AF3D_FBX_DOM_BUILDER_H_
+#define _AF3D_FBX_DOM_BUILDER_H_
 
 #include "af3d/Types.h"
 
 namespace af3d
 {
-    class FBXNodeBuilder
+    class FBXDomBuilder
     {
     public:
-        FBXNodeBuilder() = default;
-        virtual ~FBXNodeBuilder() = default;
+        FBXDomBuilder() = default;
+        virtual ~FBXDomBuilder() = default;
 
         virtual void addValue(std::int16_t value) {}
         virtual void addValue(bool value) {}
@@ -65,8 +65,8 @@ namespace af3d
         virtual std::int64_t* addArrayInt64(std::uint32_t count) { return nullptr; }
         virtual void endArrayInt64(std::int64_t* value, std::uint32_t count) {}
 
-        virtual FBXNodeBuilder* childBegin(const std::string& name) { return nullptr; }
-        virtual void childEnd(const std::string& name, FBXNodeBuilder* builder) {}
+        virtual FBXDomBuilder* childBegin(const std::string& name) { return nullptr; }
+        virtual void childEnd(const std::string& name, FBXDomBuilder* builder) {}
     };
 }
 

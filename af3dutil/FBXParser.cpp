@@ -38,7 +38,7 @@ namespace af3d
     {
     }
 
-    bool FBXParser::parse(FBXNodeBuilder* rootBuilder)
+    bool FBXParser::parse(FBXDomBuilder* rootBuilder)
     {
         log4cplus::NDCContextCreator ndc(path_);
 
@@ -89,7 +89,7 @@ namespace af3d
         return reader_.isOk();
     }
 
-    bool FBXParser::readNode(FBXNodeBuilder* builder, bool& isEmpty)
+    bool FBXParser::readNode(FBXDomBuilder* builder, bool& isEmpty)
     {
         std::uint32_t endOffset = reader_.readUInt32Le();
         std::uint32_t numProperties = reader_.readUInt32Le();
@@ -136,7 +136,7 @@ namespace af3d
         return res;
     }
 
-    bool FBXParser::readProperty(FBXNodeBuilder* builder)
+    bool FBXParser::readProperty(FBXDomBuilder* builder)
     {
         auto type = reader_.readUInt8();
 

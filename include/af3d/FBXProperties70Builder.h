@@ -26,19 +26,19 @@
 #ifndef _AF3D_FBX_PROPERTIES70_BUILDER_H_
 #define _AF3D_FBX_PROPERTIES70_BUILDER_H_
 
-#include "af3d/FBXNodeBuilder.h"
+#include "af3d/FBXDomBuilder.h"
 #include "af3d/Vector4.h"
 #include <boost/noncopyable.hpp>
 
 namespace af3d
 {
-    class FBXProperties70Builder : public FBXNodeBuilder,
+    class FBXProperties70Builder : public FBXDomBuilder,
         boost::noncopyable
     {
     public:
         FBXProperties70Builder();
 
-        FBXNodeBuilder* childBegin(const std::string& name) override;
+        FBXDomBuilder* childBegin(const std::string& name) override;
 
         virtual void onProperty(const std::string& key, bool value) = 0;
         virtual void onProperty(const std::string& key, std::int32_t value) = 0;
@@ -48,7 +48,7 @@ namespace af3d
         virtual void onProperty(const std::string& key, const Color& value) = 0;
 
     private:
-        class PBuilder : public FBXNodeBuilder
+        class PBuilder : public FBXDomBuilder
         {
         public:
             explicit PBuilder(FBXProperties70Builder* parent)

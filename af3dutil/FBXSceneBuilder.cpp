@@ -37,7 +37,7 @@ namespace af3d
         }
     }
 
-    FBXNodeBuilder* FBXSceneBuilder::PropertyTemplateBuilder::childBegin(const std::string& name)
+    FBXDomBuilder* FBXSceneBuilder::PropertyTemplateBuilder::childBegin(const std::string& name)
     {
         if (name == "Properties70") {
             return childBuilder_;
@@ -45,7 +45,7 @@ namespace af3d
         return nullptr;
     }
 
-    void FBXSceneBuilder::PropertyTemplateBuilder::childEnd(const std::string& name, FBXNodeBuilder* builder)
+    void FBXSceneBuilder::PropertyTemplateBuilder::childEnd(const std::string& name, FBXDomBuilder* builder)
     {
         childBuilder_ = nullptr;
     }
@@ -55,7 +55,7 @@ namespace af3d
         objType = value;
     }
 
-    FBXNodeBuilder* FBXSceneBuilder::ObjectTypeBuilder::childBegin(const std::string& name)
+    FBXDomBuilder* FBXSceneBuilder::ObjectTypeBuilder::childBegin(const std::string& name)
     {
         if (name == "PropertyTemplate") {
             ptBuilder.reset();
@@ -64,7 +64,7 @@ namespace af3d
         return nullptr;
     }
 
-    FBXNodeBuilder* FBXSceneBuilder::DefinitionsBuilder::childBegin(const std::string& name)
+    FBXDomBuilder* FBXSceneBuilder::DefinitionsBuilder::childBegin(const std::string& name)
     {
         if (name == "ObjectType") {
             return &otBuilder;
@@ -77,7 +77,7 @@ namespace af3d
         defBuilder_.otBuilder.ptBuilder.mtlTemplateBuilder.setTarget(&mtlTemplate_);
     }
 
-    FBXNodeBuilder* FBXSceneBuilder::childBegin(const std::string& name)
+    FBXDomBuilder* FBXSceneBuilder::childBegin(const std::string& name)
     {
         if (name == "Definitions") {
             return &defBuilder_;
