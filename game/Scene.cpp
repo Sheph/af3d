@@ -36,6 +36,7 @@
 #include "PhasedComponent.h"
 #include "RenderComponent.h"
 #include "CameraComponent.h"
+#include "MeshManager.h"
 #include "PointLight.h"
 #include "DirectionalLight.h"
 #include <Rocket/Core/ElementDocument.h>
@@ -112,6 +113,11 @@ namespace af3d
 
     void Scene::prepare()
     {
+        meshManager.loadMesh("muro.fbx");
+        //auto obj = sceneObjectFactory.createStaticMeshObj(meshManager.loadMesh("muro.fbx"), true);
+        //obj->setPos(btVector3(0.0f, 0.0f, -10.0f));
+        //addObject(obj);
+
         auto obj = sceneObjectFactory.createStaticMeshObj(sceneObjectFactory.createLitBox(btVector3(300.0f, 1.0f, 300.0f), "glass1.png"), false);
         obj->setPos(btVector3(50.0f, -3.0f, -50.0f));
         addObject(obj);

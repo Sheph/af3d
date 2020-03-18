@@ -26,7 +26,10 @@
 #include "MeshManager.h"
 #include "HardwareResourceManager.h"
 #include "Logger.h"
+#include "Platform.h"
 #include "af3d/Assert.h"
+#include "af3d/FBXParser.h"
+#include "af3d/FBXSceneBuilder.h"
 #include <cstring>
 
 namespace af3d
@@ -53,8 +56,8 @@ namespace af3d
             {
                 Mesh& mesh = static_cast<Mesh&>(res);
 
-                auto vbo = mesh.va()->vbos()[0];
-                auto ebo = mesh.va()->ebo();
+                auto vbo = mesh.subMeshes()[0]->vaSlice().va()->vbos()[0];
+                auto ebo = mesh.subMeshes()[0]->vaSlice().va()->ebo();
 
                 vbo->resize(4 * 6, ctx); // 4 verts per face
                 ebo->resize(6 * 6, ctx); // 6 indices per face
@@ -225,9 +228,17 @@ namespace af3d
             return it->second;
         }
 
-        MeshPtr mesh; // = ...;
-        mesh->load();
-        cachedMeshes_.emplace(path, mesh);
+        MeshPtr mesh;
+
+        PlatformIFStream is(path);
+
+        FBXParser parser(path, is);
+
+        FBXSceneBuilder sb;
+
+        if (!parser.parse(&sb)) {
+            runtime_assert(false);
+        }
 
         return mesh;
     }
@@ -236,7 +247,7 @@ namespace af3d
         const std::vector<SubMeshPtr>& subMeshes,
         const ResourceLoaderPtr& loader)
     {
-        auto mesh = std::make_shared<Mesh>(this, "", aabb, subMeshes, subMeshes[0]->vaSlice().va(), loader);
+        auto mesh = std::make_shared<Mesh>(this, "", aabb, subMeshes, loader);
         mesh->load();
         immediateMeshes_.insert(mesh.get());
         return mesh;

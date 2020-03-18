@@ -9,6 +9,14 @@ set(SOURCES
     Plane.cpp
     PNGDecoder.cpp
     PNGUtils.cpp
+    BinaryReader.cpp
+    FBXParser.cpp
+    FBXScene.cpp
+    FBXSceneBuilder.cpp
+    FBXMesh.cpp
+    FBXMeshBuilder.cpp
+    FBXProperties70Builder.cpp
+    FBXMaterialTemplateBuilder.cpp
 )
 
 add_library(af3dutil STATIC ${SOURCES})

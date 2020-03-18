@@ -32,13 +32,11 @@ namespace af3d
         const std::string& name,
         const AABB& aabb,
         const std::vector<SubMeshPtr>& subMeshes,
-        const VertexArrayPtr& va,
         const ResourceLoaderPtr& loader)
     : Resource(name, loader),
       mgr_(mgr),
       aabb_(aabb),
-      subMeshes_(subMeshes),
-      va_(va)
+      subMeshes_(subMeshes)
     {
     }
 

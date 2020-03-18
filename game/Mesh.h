@@ -42,7 +42,6 @@ namespace af3d
             const std::string& name,
             const AABB& aabb,
             const std::vector<SubMeshPtr>& subMeshes,
-            const VertexArrayPtr& va,
             const ResourceLoaderPtr& loader = ResourceLoaderPtr());
         ~Mesh();
 
@@ -52,13 +51,10 @@ namespace af3d
 
         const std::vector<SubMeshPtr>& subMeshes() const { return subMeshes_; }
 
-        inline const VertexArrayPtr& va() const { return va_; }
-
     private:
         MeshManager* mgr_;
         AABB aabb_;
         std::vector<SubMeshPtr> subMeshes_;
-        VertexArrayPtr va_;
     };
 
     using MeshPtr = std::shared_ptr<Mesh>;
