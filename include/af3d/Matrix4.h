@@ -194,13 +194,13 @@ namespace af3d
 
             std::memset(&v[0], 0, sizeof(T[16]));
 
-            v[0] = a;
-            v[5] = b;
-            v[10] = c;
-            v[12] = tx;
-            v[13] = ty;
-            v[14] = tz;
-            v[15] = T(1);
+            m[0][0] = a;
+            m[1][1] = b;
+            m[2][2] = c;
+            m[0][3] = tx;
+            m[1][3] = ty;
+            m[2][3] = tz;
+            m[3][3] = T(1);
         }
 
         static const Matrix4<T>& getIdentity()
