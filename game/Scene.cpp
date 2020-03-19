@@ -113,7 +113,8 @@ namespace af3d
 
     void Scene::prepare()
     {
-        auto obj = sceneObjectFactory.createStaticMeshObj(meshManager.loadMesh("muro.fbx"), true, btVector3(0.02f, 0.02f, 0.02f));
+        auto manMesh = meshManager.loadMesh("muro.fbx");
+        auto obj = sceneObjectFactory.createStaticMeshObj(manMesh, true, btVector3(0.02f, 0.02f, 0.02f));
         obj->setPos(btVector3(0.0f, 0.0f, -10.0f));
         addObject(obj);
 
@@ -128,7 +129,15 @@ namespace af3d
         int i = 0;
         for (float z = -20.0f; z >= -100.0f; z -= 7.0f) {
             for (float x = 2.0f; x < 50.0f; x += 5.0f) {
-                auto obj = sceneObjectFactory.createStaticMeshObj((i % 4 == 0) ? mesh1 : ((i % 3 == 0) ? mesh2 : mesh3));
+                if (i % 4 == 0) {
+                    if (i % 8 == 0) {
+                        obj = sceneObjectFactory.createStaticMeshObj(manMesh, true, btVector3(0.04f, 0.04f, 0.04f));
+                    } else {
+                        obj = sceneObjectFactory.createStaticMeshObj(mesh1);
+                    }
+                } else {
+                    obj = sceneObjectFactory.createStaticMeshObj((i % 3 == 0) ? mesh2 : mesh3);
+                }
                 ++i;
                 obj->setPos(btVector3(x, 6.0f, z));
                 obj->setRotation(btQuaternion(btRadians(x), btRadians(x), btRadians(x)));

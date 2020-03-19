@@ -69,7 +69,11 @@ namespace af3d
                 float val;
                 std::uint32_t mx = 1;
                 if (aiGetMaterialFloatArray(matData, AI_MATKEY_SHININESS, &val, &mx) == aiReturn_SUCCESS) {
-                    mat->params().setUniform(UniformName::Shininess, val);
+                    float val2;
+                    mx = 1;
+                    if (aiGetMaterialFloatArray(matData, AI_MATKEY_SHININESS_STRENGTH, &val2, &mx) == aiReturn_SUCCESS) {
+                        mat->params().setUniform(UniformName::Shininess, val * val2);
+                    }
                 }
             }
             mats[i] = mat;
