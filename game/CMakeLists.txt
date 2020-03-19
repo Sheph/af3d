@@ -57,6 +57,7 @@ set(SOURCES
     AssimpIOSystem.cpp
     AssimpIOStream.cpp
     AssimpLogStream.cpp
+    BoxMeshGenerator.cpp
 )
 
 file(READ "config.ini" _INI)
