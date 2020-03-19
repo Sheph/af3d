@@ -28,6 +28,8 @@
 
 #include "af3d/FBXDomBuilder.h"
 #include "af3d/FBXMaterialTemplateBuilder.h"
+#include "af3d/FBXTextureTemplateBuilder.h"
+#include "af3d/FBXMeshBuilder.h"
 #include "af3d/FBXScene.h"
 #include <boost/noncopyable.hpp>
 
@@ -61,6 +63,7 @@ namespace af3d
             void childEnd(const std::string& name, FBXDomBuilder* builder) override;
 
             FBXMaterialTemplateBuilder mtlTemplateBuilder;
+            FBXTextureTemplateBuilder texTemplateBuilder;
 
         private:
             ObjectTypeBuilder* parent_;
@@ -99,7 +102,23 @@ namespace af3d
             ObjectTypeBuilder otBuilder;
         };
 
+        class ObjectsBuilder : public FBXDomBuilder
+        {
+        public:
+            explicit ObjectsBuilder(FBXSceneBuilder* parent)
+            : parent_(parent) {}
+
+            FBXDomBuilder* childBegin(const std::string& name) override;
+            void childEnd(const std::string& name, FBXDomBuilder* builder) override;
+
+        private:
+            FBXSceneBuilder* parent_;
+
+            FBXMeshBuilder meshBuilder_;
+        };
+
         DefinitionsBuilder defBuilder_;
+        ObjectsBuilder objsBuilder_;
 
         FBXScenePtr scene_;
     };

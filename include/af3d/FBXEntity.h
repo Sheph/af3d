@@ -23,44 +23,29 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _AF3D_FBX_MESH_H_
-#define _AF3D_FBX_MESH_H_
+#ifndef _AF3D_FBX_ENTITY_H_
+#define _AF3D_FBX_ENTITY_H_
 
-#include "af3d/FBXEntity.h"
-#include "af3d/Vector2.h"
-#include "af3d/Vector3.h"
-#include <boost/noncopyable.hpp>
-#include <memory>
+#include "af3d/Types.h"
 
 namespace af3d
 {
-    class FBXMesh : public FBXEntity,
-        boost::noncopyable
+    class FBXEntity
     {
     public:
-        FBXMesh() = default;
-        ~FBXMesh() = default;
+        FBXEntity() = default;
+        virtual ~FBXEntity() = default;
 
-        inline const std::vector<Vector3f>& vertices() const { return vertices_; }
-        inline std::vector<Vector3f>& vertices() { return vertices_; }
+        inline std::int64_t uid() const { return uid_; }
+        inline void setUID(std::int64_t value) { uid_ = value; }
 
-        inline const std::vector<std::uint16_t>& indices() const { return indices_; }
-        inline std::vector<std::uint16_t>& indices() { return indices_; }
-
-        inline const std::vector<Vector3f>& normals() const { return normals_; }
-        inline std::vector<Vector3f>& normals() { return normals_; }
-
-        inline const std::vector<Vector2f>& uvs() const { return uvs_; }
-        inline std::vector<Vector2f>& uvs() { return uvs_; }
+        inline const std::string& name() const { return name_; }
+        inline void setName(const std::string& value) { name_ = value; }
 
     private:
-        std::vector<Vector3f> vertices_;
-        std::vector<std::uint16_t> indices_;
-        std::vector<Vector3f> normals_;
-        std::vector<Vector2f> uvs_;
+        std::int64_t uid_;
+        std::string name_;
     };
-
-    using FBXMeshPtr = std::shared_ptr<FBXMesh>;
 }
 
 #endif

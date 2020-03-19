@@ -32,6 +32,8 @@ namespace af3d
     {
         if (parent_->objType == "Material" && value == "FbxSurfacePhong") {
             childBuilder_ = &mtlTemplateBuilder;
+        } else if (parent_->objType == "Texture" && value == "FbxFileTexture") {
+            childBuilder_ = &texTemplateBuilder;
         } else {
             //LOG4CPLUS_WARN(af3dutil::logger(), "PropertyTemplateBuilder: unknown template " << parent_->objType << ":" << value);
         }
@@ -72,16 +74,36 @@ namespace af3d
         return nullptr;
     }
 
+    FBXDomBuilder* FBXSceneBuilder::ObjectsBuilder::childBegin(const std::string& name)
+    {
+        if (name == "Geometry") {
+            meshBuilder_.setTarget(parent_->scene()->addMesh().get());
+            return &meshBuilder_;
+        }
+        return nullptr;
+    }
+
+    void FBXSceneBuilder::ObjectsBuilder::childEnd(const std::string& name, FBXDomBuilder* builder)
+    {
+        if (builder == &meshBuilder_) {
+            //auto mesh = meshBuilder_.target();
+        }
+    }
+
     FBXSceneBuilder::FBXSceneBuilder()
-    : scene_(std::make_shared<FBXScene>())
+    : objsBuilder_(this),
+      scene_(std::make_shared<FBXScene>())
     {
         defBuilder_.otBuilder.ptBuilder.mtlTemplateBuilder.setTarget(&scene_->mtlTemplate());
+        defBuilder_.otBuilder.ptBuilder.texTemplateBuilder.setTarget(&scene_->texTemplate());
     }
 
     FBXDomBuilder* FBXSceneBuilder::childBegin(const std::string& name)
     {
         if (name == "Definitions") {
             return &defBuilder_;
+        } else if (name == "Objects") {
+            return &objsBuilder_;
         }
         return nullptr;
     }

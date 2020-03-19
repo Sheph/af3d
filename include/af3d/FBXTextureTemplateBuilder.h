@@ -23,44 +23,29 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _AF3D_FBX_MESH_H_
-#define _AF3D_FBX_MESH_H_
+#ifndef _AF3D_FBX_TEXTURE_TEMPLATE_BUILDER_H_
+#define _AF3D_FBX_TEXTURE_TEMPLATE_BUILDER_H_
 
-#include "af3d/FBXEntity.h"
-#include "af3d/Vector2.h"
-#include "af3d/Vector3.h"
-#include <boost/noncopyable.hpp>
-#include <memory>
+#include "af3d/FBXProperties70Builder.h"
+#include "af3d/FBXTextureTemplate.h"
 
 namespace af3d
 {
-    class FBXMesh : public FBXEntity,
-        boost::noncopyable
+    class FBXTextureTemplateBuilder : public FBXProperties70Builder
     {
     public:
-        FBXMesh() = default;
-        ~FBXMesh() = default;
+        inline void setTarget(FBXTextureTemplate* target) { target_ = target; }
 
-        inline const std::vector<Vector3f>& vertices() const { return vertices_; }
-        inline std::vector<Vector3f>& vertices() { return vertices_; }
-
-        inline const std::vector<std::uint16_t>& indices() const { return indices_; }
-        inline std::vector<std::uint16_t>& indices() { return indices_; }
-
-        inline const std::vector<Vector3f>& normals() const { return normals_; }
-        inline std::vector<Vector3f>& normals() { return normals_; }
-
-        inline const std::vector<Vector2f>& uvs() const { return uvs_; }
-        inline std::vector<Vector2f>& uvs() { return uvs_; }
+        void onProperty(const std::string& key, bool value) override;
+        void onProperty(const std::string& key, std::int32_t value) override;
+        void onProperty(const std::string& key, float value) override;
+        void onProperty(const std::string& key, const std::string& value) override;
+        void onProperty(const std::string& key, const btVector3& value) override;
+        void onProperty(const std::string& key, const Color& value) override;
 
     private:
-        std::vector<Vector3f> vertices_;
-        std::vector<std::uint16_t> indices_;
-        std::vector<Vector3f> normals_;
-        std::vector<Vector2f> uvs_;
+        FBXTextureTemplate* target_ = nullptr;
     };
-
-    using FBXMeshPtr = std::shared_ptr<FBXMesh>;
 }
 
 #endif

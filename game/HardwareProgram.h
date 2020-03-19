@@ -48,7 +48,7 @@ namespace af3d
         ModelMatrix,
         EyePos,
         LightPos, // LightPos = vec4(x,y,z,lightType)
-        LightColor, // LightColor = vec4(r,g,b,intensity)
+        LightColor, // LightColor = vec3(r,g,b)
         LightDir, // length = distance
         FirstAuto = ProjMatrix,
         MaxAuto = LightDir,

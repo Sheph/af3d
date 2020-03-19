@@ -27,6 +27,8 @@
 #define _AF3D_FBX_SCENE_H_
 
 #include "af3d/FBXMaterialTemplate.h"
+#include "af3d/FBXTextureTemplate.h"
+#include "af3d/FBXMesh.h"
 #include <memory>
 
 namespace af3d
@@ -40,8 +42,21 @@ namespace af3d
         inline const FBXMaterialTemplate& mtlTemplate() const { return mtlTemplate_; }
         inline FBXMaterialTemplate& mtlTemplate() { return mtlTemplate_; }
 
+        inline const FBXTextureTemplate& texTemplate() const { return texTemplate_; }
+        inline FBXTextureTemplate& texTemplate() { return texTemplate_; }
+
+        inline const std::vector<FBXMeshPtr>& meshes() const { return meshes_; }
+        inline const FBXMeshPtr& addMesh()
+        {
+            meshes_.push_back(std::make_shared<FBXMesh>());
+            return meshes_.back();
+        }
+
     private:
         FBXMaterialTemplate mtlTemplate_;
+        FBXTextureTemplate texTemplate_;
+
+        std::vector<FBXMeshPtr> meshes_;
     };
 
     using FBXScenePtr = std::shared_ptr<FBXScene>;
