@@ -28,9 +28,17 @@
 
 #include "af3d/Types.h"
 #include "af3d/Utils.h"
+#include "assimp/Importer.hpp"
+#include "assimp/scene.h"
+#include <memory>
 
 namespace af3d
 {
+    using AssimpScenePtr = std::unique_ptr<aiScene>;
+
+    AssimpScenePtr assimpImport(Assimp::Importer& importer,
+        const std::string& path,
+        std::uint32_t flags);
 }
 
 #endif

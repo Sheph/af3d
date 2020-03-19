@@ -23,26 +23,31 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "AssimpLogStream.h"
-#include <log4cplus/loggingmacros.h>
+#ifndef _ASSIMPMESHLOADER_H_
+#define _ASSIMPMESHLOADER_H_
+
+#include "Resource.h"
+#include "SubMesh.h"
+#include "Utils.h"
+#include "af3d/AABB.h"
 
 namespace af3d
 {
-    AssimpLogStream::AssimpLogStream(log4cplus::LogLevel level)
-    : level_(level)
+    class AssimpMeshLoader : public ResourceLoader
     {
-    }
+    public:
+        explicit AssimpMeshLoader(const std::string& path);
 
-    void AssimpLogStream::write(const char* message)
-    {
-        static log4cplus::Logger logger = log4cplus::Logger::getInstance("assimp");
-        auto sz = std::strlen(message);
-        std::string str;
-        if (message[sz - 1] == '\n') {
-            str.assign(message, sz - 1);
-        } else {
-            str.assign(message, sz);
-        }
-        logger.log(level_, std::move(str));
-    }
+        bool init(Assimp::Importer& importer, AABB& aabb, std::vector<SubMeshPtr>& subMeshes);
+
+        void load(Resource& res, HardwareContext& ctx) override;
+
+    private:
+        AssimpScenePtr loadScene(Assimp::Importer& importer);
+
+        std::string path_;
+        AssimpScenePtr scene_;
+    };
 }
+
+#endif

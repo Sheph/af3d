@@ -27,4 +27,14 @@
 
 namespace af3d
 {
+    AssimpScenePtr assimpImport(Assimp::Importer& importer,
+        const std::string& path,
+        std::uint32_t flags)
+    {
+        const aiScene* tmp = importer.ReadFile(path, flags);
+        if (!tmp) {
+            return AssimpScenePtr();
+        }
+        return AssimpScenePtr(importer.GetOrphanedScene());
+    }
 }

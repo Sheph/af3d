@@ -70,6 +70,12 @@ namespace af3d
             upperBound.setMax(aabb.upperBound);
         }
 
+        void combine(const btVector3& other)
+        {
+            lowerBound.setMin(other);
+            upperBound.setMax(other);
+        }
+
         bool contains(const AABB& aabb) const
         {
             bool result = true;

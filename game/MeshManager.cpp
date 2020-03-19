@@ -25,6 +25,7 @@
 
 #include "MeshManager.h"
 #include "BoxMeshGenerator.h"
+#include "AssimpMeshLoader.h"
 #include "HardwareResourceManager.h"
 #include "Logger.h"
 #include "Platform.h"
@@ -85,18 +86,16 @@ namespace af3d
             return it->second;
         }
 
-        MeshPtr mesh;
+        auto loader = std::make_shared<AssimpMeshLoader>(path);
 
-        //PlatformIFStream is(path);
+        AABB aabb;
+        std::vector<SubMeshPtr> subMeshes;
 
-        //FBXParser parser(path, is);
+        runtime_assert(loader->init(importer_, aabb, subMeshes));
 
-        //FBXSceneBuilder sb;
-
-        //if (!parser.parse(&sb)) {
-            //runtime_assert(false);
-        //}
-
+        auto mesh = std::make_shared<Mesh>(this, path, aabb, subMeshes, loader);
+        mesh->load();
+        cachedMeshes_.emplace(path, mesh);
         return mesh;
     }
 

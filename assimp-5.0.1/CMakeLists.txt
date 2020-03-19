@@ -842,8 +842,6 @@ SET ( openddl_parser_SRCS
 INCLUDE_DIRECTORIES( "../contrib/rapidjson/include" )
 INCLUDE_DIRECTORIES( "../contrib" )
 
-ADD_DEFINITIONS( -DASSIMP_BUILD_DLL_EXPORT )
-
 SET (unzip_compile_SRCS ${unzip_SRCS})
 INCLUDE_DIRECTORIES( "../contrib/unzip/" )
 
