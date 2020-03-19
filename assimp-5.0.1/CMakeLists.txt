@@ -604,7 +604,10 @@ SET( PostProcessing_SRCS
   PostProcessing/GenBoundingBoxesProcess.h
 )
 
-SET( IrrXML_SRCS ${HEADER_PATH}/irrXMLWrapper.h )
+SET( IrrXML_SRCS
+  ../contrib/irrXML/irrXML.cpp
+  ${HEADER_PATH}/irrXMLWrapper.h
+)
 
 ADD_ASSIMP_IMPORTER( Q3D
   Q3D/Q3DLoader.cpp
@@ -880,6 +883,7 @@ SET( assimp_src
   ${COMPILER_HEADERS}
 )
 ADD_DEFINITIONS( -DOPENDDLPARSER_BUILD )
+ADD_DEFINITIONS( -DASSIMP_BUILD_NO_C4D_IMPORTER )
 
 INCLUDE_DIRECTORIES(
   ../contrib/openddlparser/include
