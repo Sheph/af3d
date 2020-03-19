@@ -27,6 +27,7 @@
 #define _UTILS_H_
 
 #include "af3d/Types.h"
+#include "af3d/Vector4.h"
 #include "af3d/Utils.h"
 #include "assimp/Importer.hpp"
 #include "assimp/scene.h"
@@ -39,6 +40,16 @@ namespace af3d
     AssimpScenePtr assimpImport(Assimp::Importer& importer,
         const std::string& path,
         std::uint32_t flags);
+
+    inline btVector3 fromAssimp(const aiVector3D& v)
+    {
+        return btVector3(v.x, v.y, v.z);
+    }
+
+    inline Color fromAssimp(const aiColor4D& c)
+    {
+        return Color(c.r, c.g, c.b, c.a);
+    }
 }
 
 #endif

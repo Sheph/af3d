@@ -67,7 +67,7 @@ namespace af3d
                 std::vector<Byte> data;
 
                 if (decoder_->decode(data)) {
-                    texture.hwTex()->upload(GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE,
+                    texture.hwTex()->upload(GL_RGBA, decoder_->hasAlpha() ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE,
                         reinterpret_cast<const GLvoid*>(&data[0]), ctx);
                 }
 

@@ -26,7 +26,9 @@
 #include "AssimpMeshLoader.h"
 #include "MaterialManager.h"
 #include "HardwareResourceManager.h"
+#include "TextureManager.h"
 #include "Mesh.h"
+#include "Logger.h"
 #include "assimp/postprocess.h"
 
 namespace af3d
@@ -43,11 +45,34 @@ namespace af3d
             return false;
         }
 
-        auto matName = "_ass";
-        auto material = materialManager.getMaterial(matName);
-        if (!material) {
-            material = materialManager.createMaterial(MaterialTypeBasic, matName);
-            runtime_assert(material);
+        std::vector<MaterialPtr> mats(scene_->mNumMaterials);
+
+        for (std::uint32_t i = 0; i < scene_->mNumMaterials; ++i) {
+            auto matData = scene_->mMaterials[i];
+            std::string matName = path_ + "/" + matData->GetName().C_Str();
+            auto mat = materialManager.getMaterial(matName);
+            if (!mat) {
+                mat = materialManager.createMaterial(MaterialTypeBasic, matName);
+                runtime_assert(mat);
+                aiString texPath;
+                if (matData->GetTexture(aiTextureType_DIFFUSE, 0, &texPath) == aiReturn_SUCCESS) {
+                    mat->setTextureBinding(SamplerName::Main,
+                        TextureBinding(textureManager.loadTexture(texPath.C_Str())));
+                }
+                aiColor4D color;
+                if (aiGetMaterialColor(matData, AI_MATKEY_COLOR_DIFFUSE, &color) == aiReturn_SUCCESS) {
+                    mat->params().setUniform(UniformName::MainColor, fromAssimp(color));
+                }
+                if (aiGetMaterialColor(matData, AI_MATKEY_COLOR_SPECULAR, &color) == aiReturn_SUCCESS) {
+                    mat->params().setUniform(UniformName::SpecularColor, fromAssimp(color));
+                }
+                float val;
+                std::uint32_t mx = 1;
+                if (aiGetMaterialFloatArray(matData, AI_MATKEY_SHININESS, &val, &mx) == aiReturn_SUCCESS) {
+                    mat->params().setUniform(UniformName::Shininess, val);
+                }
+            }
+            mats[i] = mat;
         }
 
         VertexArrayLayout vaLayout;
@@ -60,12 +85,12 @@ namespace af3d
             auto meshData = scene_->mMeshes[i];
 
             if (i == 0) {
-                aabb.lowerBound.setValue(meshData->mVertices[0].x, meshData->mVertices[0].y, meshData->mVertices[0].z);
-                aabb.upperBound.setValue(meshData->mVertices[0].x, meshData->mVertices[0].y, meshData->mVertices[0].z);
+                aabb.lowerBound = fromAssimp(meshData->mVertices[0]);
+                aabb.upperBound = fromAssimp(meshData->mVertices[0]);
             }
 
             for (std::uint32_t j = 0; j < meshData->mNumVertices; ++j) {
-                aabb.combine(btVector3(meshData->mVertices[j].x, meshData->mVertices[j].y, meshData->mVertices[j].z));
+                aabb.combine(fromAssimp(meshData->mVertices[j]));
             }
 
             auto vbo = hwManager.createVertexBuffer(HardwareBuffer::Usage::StaticDraw, 32);
@@ -73,7 +98,7 @@ namespace af3d
 
             auto va = std::make_shared<VertexArray>(hwManager.createVertexArray(), vaLayout, VBOList{vbo}, ebo);
 
-            auto subMesh = std::make_shared<SubMesh>(material, VertexArraySlice(va));
+            auto subMesh = std::make_shared<SubMesh>(mats[meshData->mMaterialIndex], VertexArraySlice(va));
 
             subMeshes.push_back(subMesh);
         }

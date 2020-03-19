@@ -39,6 +39,7 @@ namespace af3d
           is_(is),
           pngPtr_(NULL),
           pngInfoPtr_(NULL),
+          hasAlpha_(true),
           width_(0),
           height_(0)
         {
@@ -66,6 +67,7 @@ namespace af3d
         PNGError pngError_;
         png_structp pngPtr_;
         png_infop pngInfoPtr_;
+        bool hasAlpha_;
         std::uint32_t width_;
         std::uint32_t height_;
         std::vector<png_bytep> rowPointers_;
@@ -127,16 +129,18 @@ namespace af3d
 
         if ((impl_->width_ == 0) ||
             (impl_->height_ == 0) ||
-            (colorType != PNG_COLOR_TYPE_RGB_ALPHA) ||
+            ((colorType != PNG_COLOR_TYPE_RGB_ALPHA) && (colorType != PNG_COLOR_TYPE_RGB)) ||
             (bitDepth != 8)) {
             LOG4CPLUS_ERROR(af3dutil::logger(), "Bad PNG file");
 
             return false;
         }
 
+        impl_->hasAlpha_ = (colorType == PNG_COLOR_TYPE_RGB_ALPHA);
+
         ::png_read_update_info(impl_->pngPtr_, impl_->pngInfoPtr_);
 
-        if (::png_get_rowbytes(impl_->pngPtr_, impl_->pngInfoPtr_) != (impl_->width_ * 4)) {
+        if (::png_get_rowbytes(impl_->pngPtr_, impl_->pngInfoPtr_) != (impl_->width_ * (impl_->hasAlpha_ ? 4 : 3))) {
             LOG4CPLUS_ERROR(af3dutil::logger(), "Bad PNG file");
 
             return false;
@@ -174,6 +178,11 @@ namespace af3d
         ::png_read_image(impl_->pngPtr_, &impl_->rowPointers_[0]);
 
         return true;
+    }
+
+    bool PNGDecoder::hasAlpha() const
+    {
+        return impl_->hasAlpha_;
     }
 
     std::uint32_t PNGDecoder::width() const

@@ -34,7 +34,7 @@
 namespace af3d
 {
     /*
-     * RGBA8 PNG decoder, if PNG file is not RGBA8
+     * RGBA8 PNG decoder, if PNG file is not RGBA8 or RGB8
      * then 'init' will return false.
      */
     class PNGDecoder : boost::noncopyable
@@ -46,6 +46,8 @@ namespace af3d
         bool init(bool debug = true);
 
         bool decode(std::vector<Byte>& data);
+
+        bool hasAlpha() const;
 
         std::uint32_t width() const;
 
