@@ -374,6 +374,7 @@ namespace af3d
     static_assert(sizeof(Vector4i) == 16, "Bad Vector4i size");
 
     extern const Vector4f Vector4f_zero;
+    extern const Vector4f Vector4f_one;
     extern const Vector4i Vector4i_zero;
     extern const Color Color_zero;
     extern const Color Color_one;

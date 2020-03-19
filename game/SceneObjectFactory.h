@@ -49,7 +49,7 @@ namespace af3d
 
         MeshPtr createLitBox(const btVector3& size, const std::string& texPath = "");
 
-        SceneObjectPtr createStaticMeshObj(const MeshPtr& mesh, bool rotated = true);
+        SceneObjectPtr createStaticMeshObj(const MeshPtr& mesh, bool rotated = true, const btVector3& scale = btVector3_one);
     };
 
     extern SceneObjectFactory sceneObjectFactory;

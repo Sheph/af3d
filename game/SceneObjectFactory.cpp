@@ -117,12 +117,17 @@ namespace af3d
         return meshManager.createBoxMesh(size, material);
     }
 
-    SceneObjectPtr SceneObjectFactory::createStaticMeshObj(const MeshPtr& mesh, bool rotated)
+    SceneObjectPtr SceneObjectFactory::createStaticMeshObj(const MeshPtr& mesh, bool rotated, const btVector3& scale)
     {
         auto obj = std::make_shared<SceneObject>();
 
         auto rc = std::make_shared<RenderMeshComponent>(mesh);
         rc->testRotate = rotated;
+        rc->setScale(scale);
+
+        btTransform xf = btTransform::getIdentity();
+        xf.setOrigin(-mesh->aabb().scaled(scale).getCenter());
+        rc->setTransform(xf);
 
         obj->addComponent(rc);
 

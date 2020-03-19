@@ -28,21 +28,22 @@
 
 namespace af3d
 {
-    RenderMeshComponent::RenderMeshComponent(const MeshPtr& mesh, const btTransform& xf)
-    : mesh_(mesh),
-      xf_(xf)
+    RenderMeshComponent::RenderMeshComponent(const MeshPtr& mesh)
+    : mesh_(mesh)
     {
     }
 
     void RenderMeshComponent::update(float dt)
     {
         if (testRotate) {
-            xf_ *= btTransform(btQuaternion(btVector3(1.0f, 1.0f, 1.0f), btRadians(dt * 90.0f)));
+            setTransform(btTransform(btQuaternion(btVector3(1.0f, 1.0f, 1.0f), btRadians(dt * 90.0f))) * xf_);
         }
 
-        if (parent()->transform() == prevParentXf_) {
+        if ((parent()->transform() == prevParentXf_) && !dirty_) {
             return;
         }
+
+        dirty_ = false;
 
         AABB aabb = calcAABB();
 
@@ -56,14 +57,26 @@ namespace af3d
 
     void RenderMeshComponent::render(RenderList& rl, void* const* parts, size_t numParts)
     {
-        auto xf = parent()->transform() * xf_;
+        auto modelMat = Matrix4f(parent()->transform() * xf_).scaled(scale_);
         for (const auto& subMesh : mesh_->subMeshes()) {
-            rl.addGeometry(xf, prevAABB_, subMesh->material(), subMesh->vaSlice(), GL_TRIANGLES);
+            rl.addGeometry(modelMat, prevAABB_, subMesh->material(), subMesh->vaSlice(), GL_TRIANGLES);
         }
     }
 
     void RenderMeshComponent::debugDraw()
     {
+    }
+
+    void RenderMeshComponent::setTransform(const btTransform& value)
+    {
+        xf_ = value;
+        dirty_ = true;
+    }
+
+    void RenderMeshComponent::setScale(const btVector3& value)
+    {
+        scale_ = value;
+        dirty_ = true;
     }
 
     void RenderMeshComponent::onRegister()
@@ -80,6 +93,6 @@ namespace af3d
 
     AABB RenderMeshComponent::calcAABB() const
     {
-        return mesh_->aabb().getTransformed(parent()->transform() * xf_);
+        return mesh_->aabb().scaled(scale_).getTransformed(parent()->transform() * xf_);
     }
 }

@@ -113,7 +113,7 @@ namespace af3d
 
     void Scene::prepare()
     {
-        auto obj = sceneObjectFactory.createStaticMeshObj(meshManager.loadMesh("muro.fbx"), true);
+        auto obj = sceneObjectFactory.createStaticMeshObj(meshManager.loadMesh("muro.fbx"), true, btVector3(0.02f, 0.02f, 0.02f));
         obj->setPos(btVector3(0.0f, 0.0f, -10.0f));
         addObject(obj);
 

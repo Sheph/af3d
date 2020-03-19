@@ -35,7 +35,7 @@ namespace af3d
         public RenderComponent
     {
     public:
-        explicit RenderMeshComponent(const MeshPtr& mesh, const btTransform& xf = btTransform::getIdentity());
+        explicit RenderMeshComponent(const MeshPtr& mesh);
         ~RenderMeshComponent() = default;
 
         ComponentPtr sharedThis() override { return shared_from_this(); }
@@ -45,6 +45,12 @@ namespace af3d
         void render(RenderList& rl, void* const* parts, size_t numParts) override;
 
         void debugDraw() override;
+
+        inline const btTransform& transform() const { return xf_; }
+        void setTransform(const btTransform& value);
+
+        inline const btVector3& scale() const { return scale_; }
+        void setScale(const btVector3& value);
 
         bool testRotate = false;
 
@@ -56,7 +62,9 @@ namespace af3d
         AABB calcAABB() const;
 
         MeshPtr mesh_;
-        btTransform xf_;
+        btTransform xf_ = btTransform::getIdentity();
+        btVector3 scale_ = btVector3_one;
+        bool dirty_ = false;
 
         btTransform prevParentXf_;
         AABB prevAABB_;

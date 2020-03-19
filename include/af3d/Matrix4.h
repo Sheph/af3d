@@ -214,6 +214,11 @@ namespace af3d
             return identityMatrix;
         }
 
+        Matrix4<T> scaled(const btVector3& s) const
+        {
+            return scaled(Vector4<T>(s.x(), s.y(), s.z(), T(1)));
+        }
+
         Matrix4<T> scaled(const Vector4<T>& s) const
         {
             return Matrix4<T>(

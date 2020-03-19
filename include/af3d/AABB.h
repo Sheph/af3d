@@ -99,6 +99,17 @@ namespace af3d
             btTransformAabb(lowerBound, upperBound, 0.0f, xf, res.lowerBound, res.upperBound);
             return res;
         }
+
+        AABB scaled(const btVector3& s) const
+        {
+            return AABB(lowerBound * s, upperBound * s);
+        }
+
+        void scale(const btVector3& s)
+        {
+            lowerBound *= s;
+            upperBound *= s;
+        }
     };
 
     inline bool btIsValid(const AABB& aabb)

@@ -48,6 +48,7 @@ namespace af3d
     const btVector3 btVector3_one(1.0f, 1.0f, 1.0f);
 
     const Vector4f Vector4f_zero(0.0f, 0.0f, 0.0f, 0.0f);
+    const Vector4f Vector4f_one(1.0f, 1.0f, 1.0f, 1.0f);
     const Vector4i Vector4i_zero(0, 0, 0, 0);
     const Color Color_zero(0.0f, 0.0f, 0.0f, 0.0f);
     const Color Color_one(1.0f, 1.0f, 1.0f, 1.0f);

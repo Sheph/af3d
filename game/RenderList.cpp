@@ -33,10 +33,10 @@ namespace af3d
     {
     }
 
-    void RenderList::addGeometry(const btTransform& xf, const AABB& aabb, const MaterialPtr& material,
+    void RenderList::addGeometry(const Matrix4f& modelMat, const AABB& aabb, const MaterialPtr& material,
         const VertexArraySlice& vaSlice, GLenum primitiveMode)
     {
-        geomList_.emplace_back(xf, aabb, material, vaSlice, primitiveMode);
+        geomList_.emplace_back(modelMat, aabb, material, vaSlice, primitiveMode);
     }
 
     void RenderList::addLight(const LightPtr& light)
@@ -55,10 +55,10 @@ namespace af3d
                 GL_LESS, geom.material->blendingParams(), geom.vaSlice, geom.primitiveMode);
             const auto& activeUniforms = geom.material->type()->prog()->activeUniforms();
             if (activeUniforms.count(UniformName::ProjMatrix) > 0) {
-                params.setUniform(UniformName::ProjMatrix, viewProjMat * Matrix4f(geom.xf));
+                params.setUniform(UniformName::ProjMatrix, viewProjMat * geom.modelMat);
             }
             if (activeUniforms.count(UniformName::ModelMatrix) > 0) {
-                params.setUniform(UniformName::ModelMatrix, Matrix4f(geom.xf));
+                params.setUniform(UniformName::ModelMatrix, geom.modelMat);
             }
             if (activeUniforms.count(UniformName::LightPos) > 0) {
                 params.setUniform(UniformName::LightPos, Vector4f_zero);
@@ -82,10 +82,10 @@ namespace af3d
                     GL_EQUAL, lightBp, geom.vaSlice, geom.primitiveMode);
                 const auto& activeUniforms = geom.material->type()->prog()->activeUniforms();
                 if (activeUniforms.count(UniformName::ProjMatrix) > 0) {
-                    params.setUniform(UniformName::ProjMatrix, viewProjMat * Matrix4f(geom.xf));
+                    params.setUniform(UniformName::ProjMatrix, viewProjMat * geom.modelMat);
                 }
                 if (activeUniforms.count(UniformName::ModelMatrix) > 0) {
-                    params.setUniform(UniformName::ModelMatrix, Matrix4f(geom.xf));
+                    params.setUniform(UniformName::ModelMatrix, geom.modelMat);
                 }
                 light->setupMaterial(frustum.transform().getOrigin(), params);
             }
