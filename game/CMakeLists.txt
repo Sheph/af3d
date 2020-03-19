@@ -25,6 +25,7 @@ set(SOURCES
     Platform.cpp
     PlatformLinux.cpp
     Utils.cpp
+    HardwareContext.cpp
     HardwareResource.cpp
     HardwareBuffer.cpp
     HardwareVertexBuffer.cpp
@@ -53,6 +54,9 @@ set(SOURCES
     DirectionalLight.cpp
     PointLight.cpp
     LightComponent.cpp
+    AssimpIOSystem.cpp
+    AssimpIOStream.cpp
+    AssimpLogStream.cpp
 )
 
 file(READ "config.ini" _INI)

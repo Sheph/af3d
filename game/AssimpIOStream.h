@@ -23,26 +23,30 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _HARDWARE_CONTEXT_H_
-#define _HARDWARE_CONTEXT_H_
+#ifndef _ASSIMPIOSTREAM_H_
+#define _ASSIMPIOSTREAM_H_
 
+#include "Platform.h"
 #include "af3d/Types.h"
-#include "OGL.h"
-#include "assimp/Importer.hpp"
-#include <boost/noncopyable.hpp>
+#include "assimp/IOStream.hpp"
 
 namespace af3d
 {
-    class HardwareContext : boost::noncopyable
+    class AssimpIOStream : public Assimp::IOStream
     {
     public:
-        HardwareContext();
-        ~HardwareContext() = default;
+        explicit AssimpIOStream(std::unique_ptr<PlatformIFStream> is);
+        ~AssimpIOStream() = default;
 
-        inline Assimp::Importer& importer() { return importer_; }
+        size_t Read(void* pvBuffer, size_t pSize, size_t pCount) override;
+        size_t Write(const void* pvBuffer, size_t pSize, size_t pCount) override;
+        aiReturn Seek(size_t pOffset, aiOrigin pOrigin) override;
+        size_t Tell() const override;
+        size_t FileSize() const override;
+        void Flush() override;
 
     private:
-        Assimp::Importer importer_;
+        std::unique_ptr<PlatformIFStream> is_;
     };
 }
 

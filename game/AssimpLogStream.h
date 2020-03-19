@@ -23,26 +23,25 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _HARDWARE_CONTEXT_H_
-#define _HARDWARE_CONTEXT_H_
+#ifndef _ASSIMPLOGSTREAM_H_
+#define _ASSIMPLOGSTREAM_H_
 
 #include "af3d/Types.h"
-#include "OGL.h"
-#include "assimp/Importer.hpp"
-#include <boost/noncopyable.hpp>
+#include "assimp/LogStream.hpp"
+#include <log4cplus/loglevel.h>
 
 namespace af3d
 {
-    class HardwareContext : boost::noncopyable
+    class AssimpLogStream : public Assimp::LogStream
     {
     public:
-        HardwareContext();
-        ~HardwareContext() = default;
+        explicit AssimpLogStream(log4cplus::LogLevel level);
+        ~AssimpLogStream() = default;
 
-        inline Assimp::Importer& importer() { return importer_; }
+        void write(const char* message) override;
 
     private:
-        Assimp::Importer importer_;
+        log4cplus::LogLevel level_;
     };
 }
 

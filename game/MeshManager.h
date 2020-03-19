@@ -68,6 +68,8 @@ namespace af3d
 
         CachedMeshes cachedMeshes_;
         ImmediateMeshes immediateMeshes_;
+
+        Assimp::Importer importer_;
     };
 
     extern MeshManager meshManager;

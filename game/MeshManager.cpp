@@ -27,9 +27,8 @@
 #include "HardwareResourceManager.h"
 #include "Logger.h"
 #include "Platform.h"
+#include "AssimpIOSystem.h"
 #include "af3d/Assert.h"
-#include "af3d/FBXParser.h"
-#include "af3d/FBXSceneBuilder.h"
 #include <cstring>
 
 namespace af3d
@@ -192,6 +191,7 @@ namespace af3d
     bool MeshManager::init()
     {
         LOG4CPLUS_DEBUG(logger(), "meshManager: init...");
+        importer_.SetIOHandler(new AssimpIOSystem());
         return true;
     }
 
@@ -230,15 +230,15 @@ namespace af3d
 
         MeshPtr mesh;
 
-        PlatformIFStream is(path);
+        //PlatformIFStream is(path);
 
-        FBXParser parser(path, is);
+        //FBXParser parser(path, is);
 
-        FBXSceneBuilder sb;
+        //FBXSceneBuilder sb;
 
-        if (!parser.parse(&sb)) {
-            runtime_assert(false);
-        }
+        //if (!parser.parse(&sb)) {
+            //runtime_assert(false);
+        //}
 
         return mesh;
     }

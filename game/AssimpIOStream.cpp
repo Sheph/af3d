@@ -23,27 +23,58 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _HARDWARE_CONTEXT_H_
-#define _HARDWARE_CONTEXT_H_
-
-#include "af3d/Types.h"
-#include "OGL.h"
-#include "assimp/Importer.hpp"
-#include <boost/noncopyable.hpp>
+#include "AssimpIOStream.h"
+#include "af3d/Assert.h"
 
 namespace af3d
 {
-    class HardwareContext : boost::noncopyable
+    AssimpIOStream::AssimpIOStream(std::unique_ptr<PlatformIFStream> is)
+    : is_(std::move(is))
     {
-    public:
-        HardwareContext();
-        ~HardwareContext() = default;
+    }
 
-        inline Assimp::Importer& importer() { return importer_; }
+    size_t AssimpIOStream::Read(void* pvBuffer, size_t pSize, size_t pCount)
+    {
+        is_->read(reinterpret_cast<char*>(pvBuffer), pSize * pCount);
+        return is_->gcount();
+    }
 
-    private:
-        Assimp::Importer importer_;
-    };
+    size_t AssimpIOStream::Write(const void* pvBuffer, size_t pSize, size_t pCount)
+    {
+        runtime_assert(false);
+        return 0;
+    }
+
+    aiReturn AssimpIOStream::Seek(size_t pOffset, aiOrigin pOrigin)
+    {
+        is_->clear();
+
+        if (pOrigin == aiOrigin_SET) {
+            is_->seekg(pOffset, std::ios_base::beg);
+        } else if (pOrigin == aiOrigin_CUR) {
+            is_->seekg(pOffset, std::ios_base::cur);
+        } else if (pOrigin == aiOrigin_END) {
+            is_->seekg(pOffset, std::ios_base::end);
+        }
+
+        return aiReturn_SUCCESS;
+    }
+
+    size_t AssimpIOStream::Tell() const
+    {
+        return is_->tellg();
+    }
+
+    size_t AssimpIOStream::FileSize() const
+    {
+        size_t off = is_->tellg();
+        is_->seekg(0, std::ios::end);
+        size_t sz = is_->tellg();
+        is_->seekg(off, std::ios::beg);
+        return sz;
+    }
+
+    void AssimpIOStream::Flush()
+    {
+    }
 }
-
-#endif

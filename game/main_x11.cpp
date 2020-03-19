@@ -31,10 +31,12 @@
 #include "PlatformLinux.h"
 #include "GameLogAppender.h"
 #include "DummyShell.h"
+#include "AssimpLogStream.h"
 #include "af3d/Types.h"
 #include "af3d/StreamAppConfig.h"
 #include "af3d/SequentialAppConfig.h"
 #include "af3d/OAL.h"
+#include "assimp/DefaultLogger.hpp"
 #include <log4cplus/configurator.h>
 #include <log4cplus/spi/factory.h>
 #include <boost/make_shared.hpp>
@@ -1336,6 +1338,18 @@ int main(int argc, char *argv[])
     log4cplus::PropertyConfigurator loggerConfigurator(iss);
     loggerConfigurator.configure();
 
+    auto logLevel = log4cplus::Logger::getRoot().getLogLevel();
+    if (logLevel <= log4cplus::DEBUG_LOG_LEVEL) {
+        Assimp::DefaultLogger::create("", Assimp::Logger::VERBOSE);
+    } else {
+        Assimp::DefaultLogger::create("", Assimp::Logger::NORMAL);
+    }
+
+    Assimp::DefaultLogger::get()->attachStream(new af3d::AssimpLogStream(log4cplus::DEBUG_LOG_LEVEL), Assimp::Logger::Debugging);
+    Assimp::DefaultLogger::get()->attachStream(new af3d::AssimpLogStream(log4cplus::INFO_LOG_LEVEL), Assimp::Logger::Info);
+    Assimp::DefaultLogger::get()->attachStream(new af3d::AssimpLogStream(log4cplus::WARN_LOG_LEVEL), Assimp::Logger::Warn);
+    Assimp::DefaultLogger::get()->attachStream(new af3d::AssimpLogStream(log4cplus::ERROR_LOG_LEVEL), Assimp::Logger::Err);
+
     af3d::settings.init(appConfig);
 
     LOG4CPLUS_INFO(af3d::logger(), "Starting...");
@@ -1443,6 +1457,8 @@ int main(int argc, char *argv[])
     XCloseDisplay(dpy);
 
     gamepadShutdown();
+
+    Assimp::DefaultLogger::kill();
 
     platformLinux->shutdown();
 

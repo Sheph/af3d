@@ -23,27 +23,19 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _HARDWARE_CONTEXT_H_
-#define _HARDWARE_CONTEXT_H_
-
-#include "af3d/Types.h"
-#include "OGL.h"
-#include "assimp/Importer.hpp"
-#include <boost/noncopyable.hpp>
+#include "AssimpLogStream.h"
+#include <log4cplus/loggingmacros.h>
 
 namespace af3d
 {
-    class HardwareContext : boost::noncopyable
+    AssimpLogStream::AssimpLogStream(log4cplus::LogLevel level)
+    : level_(level)
     {
-    public:
-        HardwareContext();
-        ~HardwareContext() = default;
+    }
 
-        inline Assimp::Importer& importer() { return importer_; }
-
-    private:
-        Assimp::Importer importer_;
-    };
+    void AssimpLogStream::write(const char* message)
+    {
+        static log4cplus::Logger logger = log4cplus::Logger::getInstance("assimp");
+        logger.log(level_, message);
+    }
 }
-
-#endif

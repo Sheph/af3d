@@ -23,27 +23,29 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _HARDWARE_CONTEXT_H_
-#define _HARDWARE_CONTEXT_H_
-
-#include "af3d/Types.h"
-#include "OGL.h"
-#include "assimp/Importer.hpp"
-#include <boost/noncopyable.hpp>
+#include "AssimpIOSystem.h"
+#include "AssimpIOStream.h"
 
 namespace af3d
 {
-    class HardwareContext : boost::noncopyable
+    bool AssimpIOSystem::Exists(const char* pFile) const
     {
-    public:
-        HardwareContext();
-        ~HardwareContext() = default;
+        PlatformIFStream is(pFile);
+        return (bool)is;
+    }
 
-        inline Assimp::Importer& importer() { return importer_; }
+    char AssimpIOSystem::getOsSeparator() const
+    {
+        return '/';
+    }
 
-    private:
-        Assimp::Importer importer_;
-    };
+    Assimp::IOStream* AssimpIOSystem::Open(const char* pFile, const char* pMode)
+    {
+        return new AssimpIOStream(std::unique_ptr<PlatformIFStream>(new PlatformIFStream(pFile)));
+    }
+
+    void AssimpIOSystem::Close(Assimp::IOStream* pFile)
+    {
+        delete pFile;
+    }
 }
-
-#endif
