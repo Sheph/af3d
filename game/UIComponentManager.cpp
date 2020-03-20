@@ -26,6 +26,7 @@
 #include "UIComponentManager.h"
 #include "UIComponent.h"
 #include "Scene.h"
+#include "Settings.h"
 
 namespace af3d
 {
@@ -95,7 +96,19 @@ namespace af3d
 
     RenderNodePtr UIComponentManager::render()
     {
-        RenderList rl{CameraComponentPtr()};
+        Frustum frustum;
+
+        frustum.setProjectionType(ProjectionType::Orthographic);
+        frustum.setOrthoHeight(settings.viewHeight);
+        frustum.setAspect(settings.viewAspect);
+        frustum.setNearDist(-1.0f);
+        frustum.setFarDist(1.0f);
+
+        RenderSettings rs;
+        rs.setClearMask(0);
+        rs.setCullFaceMode(0);
+
+        RenderList rl(frustum, rs);
 
         for (const auto& c : components_) {
             if (c->visible()) {
@@ -103,6 +116,13 @@ namespace af3d
             }
         }
 
-        return RenderNodePtr();
+        auto rn = rl.compile();
+
+        AABB2i viewport(Vector2i(settings.viewX, settings.viewY),
+            Vector2i(settings.viewX + settings.viewWidth, settings.viewY + settings.viewHeight));
+
+        rn->setViewport(viewport);
+
+        return rn;
     }
 }

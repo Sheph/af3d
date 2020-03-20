@@ -26,24 +26,26 @@
 #ifndef _RENDER_LIST_H_
 #define _RENDER_LIST_H_
 
-#include "CameraComponent.h"
 #include "Material.h"
 #include "VertexArraySlice.h"
 #include "Light.h"
 #include "RenderNode.h"
+#include "RenderSettings.h"
+#include "af3d/Frustum.h"
 
 namespace af3d
 {
     class RenderList : boost::noncopyable
     {
     public:
-        explicit RenderList(const CameraComponentPtr& cc);
+        RenderList(const Frustum& frustum, const RenderSettings& rs);
         ~RenderList() = default;
 
-        inline const CameraComponentPtr& cc() const { return cc_; }
-
         void addGeometry(const Matrix4f& modelMat, const AABB& aabb, const MaterialPtr& material,
-            const VertexArraySlice& vaSlice, GLenum primitiveMode);
+            const VertexArraySlice& vaSlice, GLenum primitiveMode, float depthValue = 0.0f, const ScissorParams& scissorParams = ScissorParams());
+
+        void addGeometry(const MaterialPtr& material,
+            const VertexArraySlice& vaSlice, GLenum primitiveMode, float depthValue = 0.0f, const ScissorParams& scissorParams = ScissorParams());
 
         void addLight(const LightPtr& light);
 
@@ -53,16 +55,32 @@ namespace af3d
         struct Geometry
         {
             Geometry() = default;
+            Geometry(const MaterialPtr& material,
+                const VertexArraySlice& vaSlice,
+                GLenum primitiveMode,
+                float depthValue,
+                const ScissorParams& scissorParams)
+            : material(material),
+              vaSlice(vaSlice),
+              primitiveMode(primitiveMode),
+              depthValue(depthValue),
+              scissorParams(scissorParams)
+            {
+            }
             Geometry(const Matrix4f& modelMat,
                 const AABB& aabb,
                 const MaterialPtr& material,
                 const VertexArraySlice& vaSlice,
-                GLenum primitiveMode)
+                GLenum primitiveMode,
+                float depthValue,
+                const ScissorParams& scissorParams)
             : modelMat(modelMat),
               aabb(aabb),
               material(material),
               vaSlice(vaSlice),
-              primitiveMode(primitiveMode)
+              primitiveMode(primitiveMode),
+              depthValue(depthValue),
+              scissorParams(scissorParams)
             {
             }
 
@@ -71,12 +89,16 @@ namespace af3d
             MaterialPtr material;
             VertexArraySlice vaSlice;
             GLenum primitiveMode;
+            float depthValue;
+            ScissorParams scissorParams;
         };
 
         using GeometryList = std::vector<Geometry>;
         using LightList = std::vector<LightPtr>;
 
-        CameraComponentPtr cc_;
+        const Frustum& frustum_;
+        const RenderSettings& rs_;
+
         GeometryList geomList_;
         LightList lightList_;
     };

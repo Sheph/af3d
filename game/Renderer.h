@@ -50,7 +50,7 @@ namespace af3d
         bool reload(HardwareContext& ctx);
 
         void scheduleHwOp(const HwOpFn& hwOp); // Will get executed in 'render'.
-        void swap(const RenderNodePtr& rn);
+        void swap(const RenderNodeList& rnl);
         void cancelSwap(HardwareContext& ctx);
 
         bool render(HardwareContext& ctx);

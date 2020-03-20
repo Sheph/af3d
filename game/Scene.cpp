@@ -298,24 +298,18 @@ namespace af3d
             * it can run custom logic...
             */
             impl_->renderComponentManager_->update(dt);
-            auto cc = camera_->findComponent<CameraComponent>();
-            cc->setViewport(AABB2i(Vector2i(settings.viewX, settings.viewY),
-                Vector2i(settings.viewX + settings.viewWidth, settings.viewY + settings.viewHeight)));
-            impl_->renderComponentManager_->cull(cc);
+            impl_->renderComponentManager_->cull(camera_->findComponent<CameraComponent>());
         } else {
             impl_->uiComponentManager_->update(dt);
             if (forceUpdateRender || !paused_) {
                 impl_->renderComponentManager_->update(dt);
-                auto cc = camera_->findComponent<CameraComponent>();
-                cc->setViewport(AABB2i(Vector2i(settings.viewX, settings.viewY),
-                    Vector2i(settings.viewX + settings.viewWidth, settings.viewY + settings.viewHeight)));
-                impl_->renderComponentManager_->cull(cc);
+                impl_->renderComponentManager_->cull(camera_->findComponent<CameraComponent>());
             }
         }
 
         auto rn = impl_->renderComponentManager_->render();
 
-        auto rn2 = impl_->uiComponentManager_->render();
+        auto uiRn = impl_->uiComponentManager_->render();
 
         inputManager.update();
 
@@ -325,7 +319,7 @@ namespace af3d
             inputManager.proceed();
         }
 
-        renderer.swap(rn);
+        renderer.swap(RenderNodeList{rn, uiRn});
 
         firstUpdate_ = false;
     }

@@ -41,7 +41,7 @@ namespace af3d
             Vector3<T> row[3];
         };
 
-        Matrix3() {}
+        Matrix3() = default;
         Matrix3(T xx, T xy, T xz,
             T yx, T yy, T yz,
             T zx, T zy, T zz)

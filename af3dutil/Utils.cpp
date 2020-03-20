@@ -29,6 +29,7 @@
 #include "af3d/Vector3.h"
 #include "af3d/Vector4.h"
 #include "af3d/AABB.h"
+#include "af3d/AABB2.h"
 #include <chrono>
 
 namespace af3d
@@ -54,6 +55,9 @@ namespace af3d
     const Color Color_one(1.0f, 1.0f, 1.0f, 1.0f);
 
     const AABB AABB_empty(btVector3_zero, btVector3_zero);
+
+    const AABB2f AABB2f_empty(Vector2f_zero, Vector2f_zero);
+    const AABB2i AABB2i_empty(Vector2i_zero, Vector2i_zero);
 
     static std::chrono::steady_clock::time_point startTime;
 

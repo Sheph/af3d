@@ -39,7 +39,7 @@ namespace af3d
         Vector2<T> lowerBound;
         Vector2<T> upperBound;
 
-        AABB2() {}
+        AABB2() = default;
         AABB2(const Vector2<T>& lowerBound, const Vector2<T>& upperBound)
         : lowerBound(lowerBound),
           upperBound(upperBound)
@@ -86,6 +86,9 @@ namespace af3d
         valid = valid && btIsValid(aabb.lowerBound) && btIsValid(aabb.upperBound);
         return valid;
     }
+
+    extern const AABB2f AABB2f_empty;
+    extern const AABB2i AABB2i_empty;
 }
 
 #endif

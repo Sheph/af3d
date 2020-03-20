@@ -196,7 +196,6 @@ namespace af3d
         cloned->params_ = params_;
         cloned->blendingParams_ = blendingParams_;
         cloned->depthTest_ = depthTest_;
-        cloned->depthValue_ = depthValue_;
         if (!mgr_->onMaterialClone(cloned)) {
             return MaterialPtr();
         }
@@ -236,15 +235,5 @@ namespace af3d
     void Material::setDepthTest(bool value)
     {
         depthTest_ = value;
-    }
-
-    float Material::depthValue() const
-    {
-        return depthValue_;
-    }
-
-    void Material::setDepthValue(float value)
-    {
-        depthValue_ = value;
     }
 }

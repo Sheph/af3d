@@ -71,11 +71,6 @@ namespace af3d
         LOG4CPLUS_INFO(logger(), "sample_buffers = " << sampleBuffers << ", samples = " << samples);
         LOG4CPLUS_INFO(logger(), "texture filter: " << (settings.trilinearFilter ? "trilinear" : "bilinear"));
 
-        ogl.Disable(GL_BLEND);
-        ogl.Disable(GL_DEPTH_TEST);
-        ogl.Enable(GL_CULL_FACE);
-        ogl.CullFace(GL_BACK);
-
         return true;
     }
 
@@ -97,7 +92,7 @@ namespace af3d
         cond_.notify_one();
     }
 
-    void Renderer::swap(const RenderNodePtr& rn)
+    void Renderer::swap(const RenderNodeList& rnl)
     {
         {
             ScopedLockA lock(mtx_);
@@ -117,8 +112,10 @@ namespace af3d
             }
 
             rendering_ = true;
-            ops_.push_back([this, rn](HardwareContext& ctx) {
-                doRender(rn, ctx);
+            ops_.push_back([this, rnl](HardwareContext& ctx) {
+                for (const auto& rn : rnl) {
+                    doRender(rn, ctx);
+                }
                 {
                     ScopedLockA lock(mtx_);
                     rendering_ = false;

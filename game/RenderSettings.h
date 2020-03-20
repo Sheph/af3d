@@ -28,6 +28,7 @@
 
 #include "af3d/Types.h"
 #include "af3d/Vector4.h"
+#include "OGL.h"
 
 namespace af3d
 {
@@ -37,15 +38,23 @@ namespace af3d
         RenderSettings() = default;
         ~RenderSettings() = default;
 
+        inline GLenum clearMask() const { return clearMask_; }
+        inline void setClearMask(GLenum value) { clearMask_ = value; }
+
         inline const Color& clearColor() const { return clearColor_; }
         inline void setClearColor(const Color& value) { clearColor_ = value; }
 
         inline const Color& ambientColor() const { return ambientColor_; }
         inline void setAmbientColor(const Color& value) { ambientColor_ = value; }
 
+        inline GLenum cullFaceMode() const { return cullFaceMode_; }
+        inline void setCullFaceMode(GLenum value) { cullFaceMode_ = value; }
+
     private:
+        GLenum clearMask_ = GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT;
         Color clearColor_ = Color(0.0f, 0.0f, 0.4f, 1.0f);
         Color ambientColor_ = Color(0.2f, 0.2f, 0.2f, 1.0f);
+        GLenum cullFaceMode_ = GL_BACK;
     };
 }
 

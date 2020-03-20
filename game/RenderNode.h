@@ -33,17 +33,41 @@
 
 namespace af3d
 {
+    struct ScissorParams
+    {
+        ScissorParams() = default;
+        ScissorParams(GLint x,
+            GLint y,
+            GLsizei width,
+            GLsizei height)
+        : enabled(true),
+          x(x),
+          y(y),
+          width(width),
+          height(height) {}
+
+        bool enabled = false;
+        GLint x;
+        GLint y;
+        GLsizei width;
+        GLsizei height;
+    };
+
     class RenderNode
     {
     public:
-        RenderNode(const AABB2i& viewport, const Color& clearColor);
+        RenderNode(GLenum clearMask, const Color& clearColor);
         RenderNode() = default;
         ~RenderNode() = default;
 
+        inline const AABB2i& viewport() const { btAssert(type_ == Type::Root); return viewport_; }
+        inline void setViewport(const AABB2i& value) { btAssert(type_ == Type::Root); viewport_ = value; }
+
         // Returns empty material auto params, these should be filled in by the caller.
         MaterialParams& add(RenderNode&& tmpNode, int pass, const MaterialPtr& material,
-            GLenum depthFunc, const BlendingParams& blendingParams,
-            const VertexArraySlice& vaSlice, GLenum primitiveMode);
+            GLenum depthFunc, float depthValue, GLenum cullFaceMode, const BlendingParams& blendingParams,
+            const VertexArraySlice& vaSlice, GLenum primitiveMode,
+            const ScissorParams& scissorParams);
 
         bool operator<(const RenderNode& other) const;
 
@@ -56,6 +80,7 @@ namespace af3d
             Pass,
             DepthTest,
             Depth,
+            CullFace,
             BlendingParams,
             MaterialType,
             Textures,
@@ -88,6 +113,7 @@ namespace af3d
         bool comparePass(const RenderNode& other) const;
         bool compareDepthTest(const RenderNode& other) const;
         bool compareDepth(const RenderNode& other) const;
+        bool compareCullFace(const RenderNode& other) const;
         bool compareBlendingParams(const RenderNode& other) const;
         bool compareMaterialType(const RenderNode& other) const;
         bool compareTextures(const RenderNode& other) const;
@@ -97,6 +123,7 @@ namespace af3d
         RenderNode* insertPass(RenderNode&& tmpNode, int pass);
         RenderNode* insertDepthTest(RenderNode&& tmpNode, bool depthTest, GLenum depthFunc);
         RenderNode* insertDepth(RenderNode&& tmpNode, float depth);
+        RenderNode* insertCullFace(RenderNode&& tmpNode, GLenum cullFaceMode);
         RenderNode* insertBlendingParams(RenderNode&& tmpNode, const BlendingParams& blendingParams);
         RenderNode* insertMaterialType(RenderNode&& tmpNode, const MaterialTypePtr& materialType);
         RenderNode* insertTextures(RenderNode&& tmpNode, std::vector<HardwareTextureBinding>&& textures);
@@ -108,6 +135,7 @@ namespace af3d
         void applyPass(HardwareContext& ctx) const;
         void applyDepthTest(HardwareContext& ctx) const;
         void applyDepth(HardwareContext& ctx) const;
+        void applyCullFace(HardwareContext& ctx) const;
         void applyBlendingParams(HardwareContext& ctx) const;
         void applyMaterialType(HardwareContext& ctx) const;
         void applyTextures(HardwareContext& ctx) const;
@@ -119,18 +147,34 @@ namespace af3d
 
         // Type::Root
         AABB2i viewport_;
+        GLenum clearMask_;
         Color clearColor_;
-        int numDraws_ = 0;
+        int numDraws_;
 
-        // Type::Pass
-        int pass_;
-
-        // Type::DepthTest
-        bool depthTest_;
-        GLenum depthFunc_;
-
-        // Type::Depth
-        float depth_;
+        union
+        {
+            struct
+            {
+                // Type::Pass
+                int pass_;
+            };
+            struct
+            {
+                // Type::DepthTest
+                bool depthTest_;
+                GLenum depthFunc_;
+            };
+            struct
+            {
+                // Type::Depth
+                float depth_;
+            };
+            struct
+            {
+                // Type::CullFace
+                GLenum cullFaceMode_; // 0 - disabled.
+            };
+        };
 
         // Type::BlendingParams
         BlendingParams blendingParams_;
@@ -146,6 +190,7 @@ namespace af3d
 
         // Type::Draw
         int drawIdx_;
+        ScissorParams scissorParams_;
         MaterialParams materialParams_;
         MaterialParams materialParamsAuto_;
         GLenum drawPrimitiveMode_;
@@ -157,6 +202,8 @@ namespace af3d
     };
 
     using RenderNodePtr = std::shared_ptr<RenderNode>;
+
+    using RenderNodeList = std::vector<RenderNodePtr>;
 }
 
 #endif

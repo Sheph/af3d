@@ -61,6 +61,8 @@ set(SOURCES
     AssimpMeshLoader.cpp
     UIComponentManager.cpp
     UITimerComponent.cpp
+    ImGuiManager.cpp
+    ImGuiComponent.cpp
 )
 
 file(READ "config.ini" _INI)

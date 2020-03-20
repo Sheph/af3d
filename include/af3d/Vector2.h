@@ -37,7 +37,7 @@ namespace af3d
     public:
         T v[2];
 
-        Vector2() {}
+        Vector2() = default;
         Vector2(T _x, T _y)
         {
             v[0] = _x;

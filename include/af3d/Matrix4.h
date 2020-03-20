@@ -42,7 +42,7 @@ namespace af3d
             Vector4<T> row[4];
         };
 
-        Matrix4() {}
+        Matrix4() = default;
         Matrix4(T xx, T xy, T xz, T xw,
             T yx, T yy, T yz, T yw,
             T zx, T zy, T zz, T zw,

@@ -29,16 +29,18 @@
 
 namespace af3d
 {
-    RenderNode::RenderNode(const AABB2i& viewport, const Color& clearColor)
+    RenderNode::RenderNode(GLenum clearMask, const Color& clearColor)
     : type_(Type::Root),
-      viewport_(viewport),
-      clearColor_(clearColor)
+      viewport_(AABB2i_empty),
+      clearMask_(clearMask),
+      clearColor_(clearColor),
+      numDraws_(0)
     {
     }
 
     MaterialParams& RenderNode::add(RenderNode&& tmpNode, int pass, const MaterialPtr& material,
-        GLenum depthFunc, const BlendingParams& blendingParams,
-        const VertexArraySlice& vaSlice, GLenum primitiveMode)
+        GLenum depthFunc, float depthValue, GLenum cullFaceMode, const BlendingParams& blendingParams,
+        const VertexArraySlice& vaSlice, GLenum primitiveMode, const ScissorParams& scissorParams)
     {
         btAssert(type_ == Type::Root);
 
@@ -46,7 +48,8 @@ namespace af3d
 
         node = node->insertPass(std::move(tmpNode), pass);
         node = node->insertDepthTest(std::move(tmpNode), material->depthTest(), depthFunc);
-        node = node->insertDepth(std::move(tmpNode), material->depthValue());
+        node = node->insertDepth(std::move(tmpNode), depthValue);
+        node = node->insertCullFace(std::move(tmpNode), cullFaceMode);
         node = node->insertBlendingParams(std::move(tmpNode), blendingParams);
         node = node->insertMaterialType(std::move(tmpNode), material->type());
 
@@ -65,6 +68,7 @@ namespace af3d
         node = node->insertDraw(std::move(tmpNode), numDraws_++);
 
         node->va_ = vaSlice.va();
+        node->scissorParams_ = scissorParams;
         node->materialParams_ = material->params();
         node->materialParamsAuto_ = MaterialParams(material->type(), true);
         node->drawPrimitiveMode_ = primitiveMode;
@@ -81,6 +85,7 @@ namespace af3d
         case Type::Pass: return comparePass(other);
         case Type::DepthTest: return compareDepthTest(other);
         case Type::Depth: return compareDepth(other);
+        case Type::CullFace: return compareCullFace(other);
         case Type::BlendingParams: return compareBlendingParams(other);
         case Type::MaterialType: return compareMaterialType(other);
         case Type::Textures: return compareTextures(other);
@@ -107,6 +112,9 @@ namespace af3d
             break;
         case Type::Depth:
             applyDepth(ctx);
+            break;
+        case Type::CullFace:
+            applyCullFace(ctx);
             break;
         case Type::BlendingParams:
             applyBlendingParams(ctx);
@@ -156,6 +164,11 @@ namespace af3d
         }
     }
 
+    bool RenderNode::compareCullFace(const RenderNode& other) const
+    {
+        return cullFaceMode_ < other.cullFaceMode_;
+    }
+
     bool RenderNode::compareBlendingParams(const RenderNode& other) const
     {
         return blendingParams_ < other.blendingParams_;
@@ -200,6 +213,13 @@ namespace af3d
     {
         tmpNode.type_ = Type::Depth;
         tmpNode.depth_ = depth;
+        return insertImpl(std::move(tmpNode));
+    }
+
+    RenderNode* RenderNode::insertCullFace(RenderNode&& tmpNode, GLenum cullFaceMode)
+    {
+        tmpNode.type_ = Type::CullFace;
+        tmpNode.cullFaceMode_ = cullFaceMode;
         return insertImpl(std::move(tmpNode));
     }
 
@@ -248,8 +268,10 @@ namespace af3d
     {
         //LOG4CPLUS_DEBUG(logger(), "draw(" << numDraws_ << ")");
         ogl.Viewport(viewport_.lowerBound[0], viewport_.lowerBound[1], viewport_.upperBound[0], viewport_.upperBound[1]);
-        ogl.ClearColor(clearColor_[0], clearColor_[1], clearColor_[2], clearColor_[3]);
-        ogl.Clear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        if (clearMask_ != 0) {
+            ogl.ClearColor(clearColor_[0], clearColor_[1], clearColor_[2], clearColor_[3]);
+            ogl.Clear(clearMask_);
+        }
     }
 
     void RenderNode::applyPass(HardwareContext& ctx) const
@@ -268,6 +290,16 @@ namespace af3d
 
     void RenderNode::applyDepth(HardwareContext& ctx) const
     {
+    }
+
+    void RenderNode::applyCullFace(HardwareContext& ctx) const
+    {
+        if (cullFaceMode_) {
+            ogl.CullFace(cullFaceMode_);
+            ogl.Enable(GL_CULL_FACE);
+        } else {
+            ogl.Disable(GL_CULL_FACE);
+        }
     }
 
     void RenderNode::applyBlendingParams(HardwareContext& ctx) const
@@ -311,6 +343,11 @@ namespace af3d
 
     void RenderNode::applyDraw(HardwareContext& ctx) const
     {
+        if (scissorParams_.enabled) {
+            ogl.Scissor(scissorParams_.x, scissorParams_.y, scissorParams_.width, scissorParams_.height);
+            ogl.Enable(GL_SCISSOR_TEST);
+        }
+
         // TODO: Handle other draw modes.
         materialParamsAuto_.apply(ctx);
         materialParams_.apply(ctx);
@@ -320,6 +357,10 @@ namespace af3d
                     va_->ebo()->glDataType(),
                     (const void*)(va_->ebo()->elementSize() * drawStart_));
             }
+        }
+
+        if (scissorParams_.enabled) {
+            ogl.Disable(GL_SCISSOR_TEST);
         }
     }
 }

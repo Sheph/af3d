@@ -189,9 +189,6 @@ namespace af3d
         bool depthTest() const;
         void setDepthTest(bool value);
 
-        float depthValue() const;
-        void setDepthValue(float value);
-
     private:
         MaterialManager* mgr_;
         MaterialTypePtr type_;
@@ -199,7 +196,6 @@ namespace af3d
         MaterialParams params_;
         BlendingParams blendingParams_;
         bool depthTest_ = true;
-        float depthValue_ = 0.0f;
     };
 }
 

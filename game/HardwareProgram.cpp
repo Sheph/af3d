@@ -50,7 +50,8 @@ namespace af3d
     };
 
     static const std::unordered_map<std::string, UniformName> staticUniformMap = {
-        {"proj", UniformName::ProjMatrix},
+        {"viewProj", UniformName::ViewProjMatrix},
+        {"modelViewProj", UniformName::ModelViewProjMatrix},
         {"model", UniformName::ModelMatrix},
         {"eyePos", UniformName::EyePos},
         {"lightPos", UniformName::LightPos},

@@ -28,15 +28,22 @@
 
 namespace af3d
 {
-    RenderList::RenderList(const CameraComponentPtr& cc)
-    : cc_(cc)
+    RenderList::RenderList(const Frustum& frustum, const RenderSettings& rs)
+    : frustum_(frustum),
+      rs_(rs)
     {
     }
 
     void RenderList::addGeometry(const Matrix4f& modelMat, const AABB& aabb, const MaterialPtr& material,
-        const VertexArraySlice& vaSlice, GLenum primitiveMode)
+        const VertexArraySlice& vaSlice, GLenum primitiveMode, float depthValue, const ScissorParams& scissorParams)
     {
-        geomList_.emplace_back(modelMat, aabb, material, vaSlice, primitiveMode);
+        geomList_.emplace_back(modelMat, aabb, material, vaSlice, primitiveMode, depthValue, scissorParams);
+    }
+
+    void RenderList::addGeometry(const MaterialPtr& material,
+        const VertexArraySlice& vaSlice, GLenum primitiveMode, float depthValue, const ScissorParams& scissorParams)
+    {
+        geomList_.emplace_back(material, vaSlice, primitiveMode, depthValue, scissorParams);
     }
 
     void RenderList::addLight(const LightPtr& light)
@@ -46,16 +53,19 @@ namespace af3d
 
     RenderNodePtr RenderList::compile() const
     {
-        const auto& frustum = cc_->getFrustum();
-        const Matrix4f& viewProjMat = frustum.viewProjMat();
-        auto rn = std::make_shared<RenderNode>(cc_->viewport(), cc_->renderSettings().clearColor());
+        const Matrix4f& viewProjMat = frustum_.viewProjMat();
+        auto rn = std::make_shared<RenderNode>(rs_.clearMask(), rs_.clearColor());
         RenderNode tmpNode;
         for (const auto& geom : geomList_) {
             auto& params = rn->add(std::move(tmpNode), 0, geom.material,
-                GL_LESS, geom.material->blendingParams(), geom.vaSlice, geom.primitiveMode);
+                GL_LESS, geom.depthValue, rs_.cullFaceMode(), geom.material->blendingParams(),
+                geom.vaSlice, geom.primitiveMode, geom.scissorParams);
             const auto& activeUniforms = geom.material->type()->prog()->activeUniforms();
-            if (activeUniforms.count(UniformName::ProjMatrix) > 0) {
-                params.setUniform(UniformName::ProjMatrix, viewProjMat * geom.modelMat);
+            if (activeUniforms.count(UniformName::ViewProjMatrix) > 0) {
+                params.setUniform(UniformName::ViewProjMatrix, viewProjMat);
+            }
+            if (activeUniforms.count(UniformName::ModelViewProjMatrix) > 0) {
+                params.setUniform(UniformName::ModelViewProjMatrix, viewProjMat * geom.modelMat);
             }
             if (activeUniforms.count(UniformName::ModelMatrix) > 0) {
                 params.setUniform(UniformName::ModelMatrix, geom.modelMat);
@@ -64,7 +74,7 @@ namespace af3d
                 params.setUniform(UniformName::LightPos, Vector4f_zero);
             }
             if (activeUniforms.count(UniformName::LightColor) > 0) {
-                auto ac = cc_->renderSettings().ambientColor();
+                auto ac = rs_.ambientColor();
                 params.setUniform(UniformName::LightColor, Vector3f(ac.x(), ac.y(), ac.z()) * ac.w());
             }
         }
@@ -79,15 +89,19 @@ namespace af3d
                     continue;
                 }
                 auto& params = rn->add(std::move(tmpNode), pass, geom.material,
-                    GL_EQUAL, lightBp, geom.vaSlice, geom.primitiveMode);
+                    GL_EQUAL, geom.depthValue, rs_.cullFaceMode(), lightBp,
+                    geom.vaSlice, geom.primitiveMode, geom.scissorParams);
                 const auto& activeUniforms = geom.material->type()->prog()->activeUniforms();
-                if (activeUniforms.count(UniformName::ProjMatrix) > 0) {
-                    params.setUniform(UniformName::ProjMatrix, viewProjMat * geom.modelMat);
+                if (activeUniforms.count(UniformName::ViewProjMatrix) > 0) {
+                    params.setUniform(UniformName::ViewProjMatrix, viewProjMat);
+                }
+                if (activeUniforms.count(UniformName::ModelViewProjMatrix) > 0) {
+                    params.setUniform(UniformName::ModelViewProjMatrix, viewProjMat * geom.modelMat);
                 }
                 if (activeUniforms.count(UniformName::ModelMatrix) > 0) {
                     params.setUniform(UniformName::ModelMatrix, geom.modelMat);
                 }
-                light->setupMaterial(frustum.transform().getOrigin(), params);
+                light->setupMaterial(frustum_.transform().getOrigin(), params);
             }
             ++pass;
         }

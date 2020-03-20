@@ -25,6 +25,7 @@
 
 #include "RenderComponentManager.h"
 #include "RenderComponent.h"
+#include "Settings.h"
 
 namespace af3d
 {
@@ -174,7 +175,7 @@ namespace af3d
 
     RenderNodePtr RenderComponentManager::render()
     {
-        RenderList rl(cc_->shared_from_this());
+        RenderList rl(cc_->getFrustum(), cc_->renderSettings());
 
         for (const auto& kv : cullResults_) {
             if (kv.first->visible()) {
@@ -182,6 +183,13 @@ namespace af3d
             }
         }
 
-        return rl.compile();
+        auto rn = rl.compile();
+
+        AABB2i viewport(Vector2i(settings.viewX, settings.viewY),
+            Vector2i(settings.viewX + settings.viewWidth, settings.viewY + settings.viewHeight));
+
+        rn->setViewport(viewport);
+
+        return rn;
     }
 }

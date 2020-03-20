@@ -38,7 +38,7 @@ namespace af3d
     public:
         T v[4];
 
-        Vector4() {}
+        Vector4() = default;
         Vector4(T _x, T _y, T _z, T _w)
         {
             v[0] = _x;
