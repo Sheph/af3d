@@ -33,9 +33,11 @@
 #include "Renderer.h"
 #include "PhasedComponentManager.h"
 #include "RenderComponentManager.h"
+#include "UIComponentManager.h"
 #include "PhasedComponent.h"
 #include "RenderComponent.h"
 #include "CameraComponent.h"
+#include "UIComponent.h"
 #include "MeshManager.h"
 #include "PointLight.h"
 #include "DirectionalLight.h"
@@ -53,6 +55,7 @@ namespace af3d
         {
             phasedComponentManager_.reset(new PhasedComponentManager());
             renderComponentManager_.reset(new RenderComponentManager());
+            uiComponentManager_.reset(new UIComponentManager());
 
             timerIt_ = timers_.end();
         }
@@ -63,6 +66,7 @@ namespace af3d
 
         std::unique_ptr<PhasedComponentManager> phasedComponentManager_;
         std::unique_ptr<RenderComponentManager> renderComponentManager_;
+        std::unique_ptr<UIComponentManager> uiComponentManager_;
         TimerMap timers_;
         std::uint32_t nextTimerCookie_ = 1;
         TimerMap::const_iterator timerIt_;
@@ -86,6 +90,7 @@ namespace af3d
 
         impl_->phasedComponentManager_->setScene(this);
         impl_->renderComponentManager_->setScene(this);
+        impl_->uiComponentManager_->setScene(this);
 
         camera_ = std::make_shared<SceneObject>();
 
@@ -185,6 +190,7 @@ namespace af3d
 
         impl_->phasedComponentManager_->cleanup();
         impl_->renderComponentManager_->cleanup();
+        impl_->uiComponentManager_->cleanup();
     }
 
     void Scene::registerComponent(const ComponentPtr& component)
@@ -193,6 +199,8 @@ namespace af3d
             impl_->phasedComponentManager_->addComponent(component);
         } else if (std::dynamic_pointer_cast<RenderComponent>(component)) {
             impl_->renderComponentManager_->addComponent(component);
+        } else if (std::dynamic_pointer_cast<UIComponent>(component)) {
+            impl_->uiComponentManager_->addComponent(component);
         } else {
             runtime_assert(false);
         }
@@ -275,12 +283,27 @@ namespace af3d
                 //freezeThawObjects(cc->getTrueAABB());
             }
 
+            impl_->uiComponentManager_->update(dt);
+
+            /*
+            * FIXME: Or not?
+            * The reason we call render component manager update _after_ ui component manager
+            * update is because ui component manager update can actually invoke
+            * scripts (e.g. in-game dialog "ok" action) and, thus, modify
+            * scene, i.e. remove/add render components. However, render component manager assumes
+            * that scene is not modified in between its "update" and "render" calls.
+            * Having render component manager update after ui component manager update should be
+            * ok though since render component manager update is a part of render itself, i.e. it
+            * just culls the scene. However, ui component manager update is more than render preparations,
+            * it can run custom logic...
+            */
             impl_->renderComponentManager_->update(dt);
             auto cc = camera_->findComponent<CameraComponent>();
             cc->setViewport(AABB2i(Vector2i(settings.viewX, settings.viewY),
                 Vector2i(settings.viewX + settings.viewWidth, settings.viewY + settings.viewHeight)));
             impl_->renderComponentManager_->cull(cc);
         } else {
+            impl_->uiComponentManager_->update(dt);
             if (forceUpdateRender || !paused_) {
                 impl_->renderComponentManager_->update(dt);
                 auto cc = camera_->findComponent<CameraComponent>();
@@ -291,6 +314,8 @@ namespace af3d
         }
 
         auto rn = impl_->renderComponentManager_->render();
+
+        auto rn2 = impl_->uiComponentManager_->render();
 
         inputManager.update();
 

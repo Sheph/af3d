@@ -73,7 +73,7 @@ namespace af3d
 
         if (components_.erase(renderComponent) ||
             frozenComponents_.erase(renderComponent)) {
-            renderComponent->setManager(NULL);
+            renderComponent->setManager(nullptr);
         }
     }
 

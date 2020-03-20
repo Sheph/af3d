@@ -59,6 +59,8 @@ set(SOURCES
     AssimpLogStream.cpp
     BoxMeshGenerator.cpp
     AssimpMeshLoader.cpp
+    UIComponentManager.cpp
+    UITimerComponent.cpp
 )
 
 file(READ "config.ini" _INI)
