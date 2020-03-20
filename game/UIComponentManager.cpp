@@ -106,7 +106,6 @@ namespace af3d
         btTransform xf = btTransform::getIdentity();
         xf.setOrigin(btVector3(0.5f * settings.viewWidth, 0.5f * settings.viewHeight, 0.0f));
         frustum.setTransform(xf);
-        //frustum.setFlipY(true);
 
         RenderSettings rs;
         rs.setClearMask(0);

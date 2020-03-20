@@ -79,9 +79,6 @@ namespace af3d
         inline const btTransform& transform() const { return xf_; }
         void setTransform(const btTransform& value);
 
-        inline bool flipY() const { return flipY_; }
-        void setFlipY(bool value);
-
         const Matrix4f& viewProjMat() const;
         const Planes& planes() const;
 
@@ -104,7 +101,6 @@ namespace af3d
         float farDist_ = 10000.0f;
 
         btTransform xf_ = btTransform::getIdentity();
-        bool flipY_ = false;
 
         mutable Matrix4f cachedProjMat_;
         mutable Matrix4f cachedViewProjMat_;
