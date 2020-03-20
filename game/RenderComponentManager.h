@@ -29,6 +29,7 @@
 #include "ComponentManager.h"
 #include "CameraComponent.h"
 #include "RenderNode.h"
+#include "VertexArrayWriter.h"
 #include "bullet/BulletCollision/BroadphaseCollision/btDbvt.h"
 #include <unordered_set>
 #include <list>
@@ -73,7 +74,7 @@ namespace af3d
 
         void cull(const CameraComponentPtr& cc);
 
-        RenderNodePtr render();
+        RenderNodePtr render(VertexArrayWriter& defaultVa);
 
     private:
         struct NodeData

@@ -28,9 +28,100 @@
 
 namespace af3d
 {
-    RenderList::RenderList(const Frustum& frustum, const RenderSettings& rs)
+    RenderImmIndexed::RenderImmIndexed(const MaterialPtr& material,
+        GLenum primitiveMode,
+        int zOrder,
+        const ScissorParams& scissorParams,
+        RenderList& rl)
+    : material_(material),
+      primitiveMode_(primitiveMode),
+      zOrder_(zOrder),
+      scissorParams_(scissorParams),
+      rl_(rl),
+      startVertices_(rl_.defaultVa_.data().vertices.size() / 9),
+      startIndices_(rl_.defaultVa_.data().indices.size())
+    {
+    }
+
+    RenderImmIndexed::~RenderImmIndexed()
+    {
+        VertexArraySlice vaSlice(rl_.defaultVa_.va(),
+            startIndices_,
+            rl_.defaultVa_.data().indices.size() - startIndices_,
+            startVertices_);
+        rl_.addGeometry(material_, vaSlice, primitiveMode_, zOrder_, scissorParams_);
+    }
+
+    std::vector<float>& RenderImmIndexed::vertices()
+    {
+        return rl_.defaultVa_.data().vertices;
+    }
+
+    std::vector<std::uint16_t>& RenderImmIndexed::indices()
+    {
+        return rl_.defaultVa_.data().indices;
+    }
+
+    RenderImm::RenderImm(const MaterialPtr& material,
+        GLenum primitiveMode,
+        int zOrder,
+        const ScissorParams& scissorParams,
+        RenderList& rl)
+    : material_(material),
+      primitiveMode_(primitiveMode),
+      zOrder_(zOrder),
+      scissorParams_(scissorParams),
+      rl_(rl),
+      startVertices_(rl_.defaultVa_.data().vertices.size() / 9)
+    {
+    }
+
+    RenderImm::~RenderImm()
+    {
+        VertexArraySlice vaSlice(rl_.defaultVa_.vaNoEbo(),
+            startVertices_,
+            (rl_.defaultVa_.data().vertices.size() / 9) - startVertices_,
+            0);
+        rl_.addGeometry(material_, vaSlice, primitiveMode_, zOrder_, scissorParams_);
+    }
+
+    std::vector<float>& RenderImm::vertices()
+    {
+        return rl_.defaultVa_.data().vertices;
+    }
+
+    void RenderImm::addVertex(const btVector3& pos, const Vector2f& uv, const Color& color)
+    {
+        auto& verts = vertices();
+        size_t sz = verts.size();
+        verts.resize(sz + 9);
+        float* f = &verts[sz];
+        std::memcpy(f, &pos.m_floats[0], 12);
+        f += 3;
+        std::memcpy(f, &uv.v[0], 8);
+        f += 2;
+        std::memcpy(f, &color.v[0], 16);
+    }
+
+    void RenderImm::addVertex(const Vector2f& pos, const Vector2f& uv, const Color& color)
+    {
+        auto& verts = vertices();
+        size_t sz = verts.size();
+        verts.resize(sz + 9);
+        float* f = &verts[sz];
+        std::memcpy(f, &pos.v[0], 8);
+        f += 2;
+        *f = 0.0f;
+        ++f;
+        std::memcpy(f, &uv.v[0], 8);
+        f += 2;
+        std::memcpy(f, &color.v[0], 16);
+    }
+
+    RenderList::RenderList(const Frustum& frustum, const RenderSettings& rs, VertexArrayWriter& defaultVa)
     : frustum_(frustum),
-      rs_(rs)
+      rs_(rs),
+      defaultVa_(defaultVa)
     {
     }
 
@@ -44,6 +135,20 @@ namespace af3d
         const VertexArraySlice& vaSlice, GLenum primitiveMode, float depthValue, const ScissorParams& scissorParams)
     {
         geomList_.emplace_back(material, vaSlice, primitiveMode, depthValue, scissorParams);
+    }
+
+    RenderImmIndexed RenderList::addGeometryIndexed(const MaterialPtr& material,
+        GLenum primitiveMode,
+        int zOrder, const ScissorParams& scissorParams)
+    {
+        return RenderImmIndexed(material, primitiveMode, zOrder, scissorParams, *this);
+    }
+
+    RenderImm RenderList::addGeometry(const MaterialPtr& material,
+        GLenum primitiveMode,
+        int zOrder, const ScissorParams& scissorParams)
+    {
+        return RenderImm(material, primitiveMode, zOrder, scissorParams, *this);
     }
 
     void RenderList::addLight(const LightPtr& light)

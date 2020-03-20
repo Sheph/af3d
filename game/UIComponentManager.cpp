@@ -94,7 +94,7 @@ namespace af3d
         }
     }
 
-    RenderNodePtr UIComponentManager::render()
+    RenderNodePtr UIComponentManager::render(VertexArrayWriter& defaultVa)
     {
         Frustum frustum;
 
@@ -103,12 +103,16 @@ namespace af3d
         frustum.setAspect(settings.viewAspect);
         frustum.setNearDist(-1.0f);
         frustum.setFarDist(1.0f);
+        btTransform xf = btTransform::getIdentity();
+        xf.setOrigin(btVector3(0.5f * settings.viewWidth, 0.5f * settings.viewHeight, 0.0f));
+        frustum.setTransform(xf);
+        //frustum.setFlipY(true);
 
         RenderSettings rs;
         rs.setClearMask(0);
         rs.setCullFaceMode(0);
 
-        RenderList rl(frustum, rs);
+        RenderList rl(frustum, rs, defaultVa);
 
         for (const auto& c : components_) {
             if (c->visible()) {

@@ -28,17 +28,73 @@
 
 #include "Material.h"
 #include "VertexArraySlice.h"
+#include "VertexArrayWriter.h"
 #include "Light.h"
 #include "RenderNode.h"
 #include "RenderSettings.h"
 #include "af3d/Frustum.h"
+#include "af3d/Vector2.h"
 
 namespace af3d
 {
+    class RenderList;
+
+    class RenderImmIndexed
+    {
+    public:
+        RenderImmIndexed(const MaterialPtr& material,
+            GLenum primitiveMode,
+            int zOrder,
+            const ScissorParams& scissorParams,
+            RenderList& rl);
+        ~RenderImmIndexed();
+
+        // layout: pos(3),uv(2),color(4)
+        std::vector<float>& vertices();
+
+        std::vector<std::uint16_t>& indices();
+
+    private:
+        MaterialPtr material_;
+        GLenum primitiveMode_;
+        int zOrder_;
+        ScissorParams scissorParams_;
+
+        RenderList& rl_;
+        size_t startVertices_;
+        size_t startIndices_;
+    };
+
+    class RenderImm
+    {
+    public:
+        RenderImm(const MaterialPtr& material,
+            GLenum primitiveMode,
+            int zOrder,
+            const ScissorParams& scissorParams,
+            RenderList& rl);
+        ~RenderImm();
+
+        // layout: pos(3),uv(2),color(4)
+        std::vector<float>& vertices();
+
+        void addVertex(const btVector3& pos, const Vector2f& uv, const Color& color);
+        void addVertex(const Vector2f& pos, const Vector2f& uv, const Color& color);
+
+    private:
+        MaterialPtr material_;
+        GLenum primitiveMode_;
+        int zOrder_;
+        ScissorParams scissorParams_;
+
+        RenderList& rl_;
+        size_t startVertices_;
+    };
+
     class RenderList : boost::noncopyable
     {
     public:
-        RenderList(const Frustum& frustum, const RenderSettings& rs);
+        RenderList(const Frustum& frustum, const RenderSettings& rs, VertexArrayWriter& defaultVa);
         ~RenderList() = default;
 
         void addGeometry(const Matrix4f& modelMat, const AABB& aabb, const MaterialPtr& material,
@@ -47,11 +103,22 @@ namespace af3d
         void addGeometry(const MaterialPtr& material,
             const VertexArraySlice& vaSlice, GLenum primitiveMode, float depthValue = 0.0f, const ScissorParams& scissorParams = ScissorParams());
 
+        RenderImmIndexed addGeometryIndexed(const MaterialPtr& material,
+            GLenum primitiveMode,
+            int zOrder = 0, const ScissorParams& scissorParams = ScissorParams());
+
+        RenderImm addGeometry(const MaterialPtr& material,
+            GLenum primitiveMode,
+            int zOrder = 0, const ScissorParams& scissorParams = ScissorParams());
+
         void addLight(const LightPtr& light);
 
         RenderNodePtr compile() const;
 
     private:
+        friend class RenderImmIndexed;
+        friend class RenderImm;
+
         struct Geometry
         {
             Geometry() = default;
@@ -98,6 +165,7 @@ namespace af3d
 
         const Frustum& frustum_;
         const RenderSettings& rs_;
+        VertexArrayWriter& defaultVa_;
 
         GeometryList geomList_;
         LightList lightList_;

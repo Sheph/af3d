@@ -173,9 +173,9 @@ namespace af3d
         cc_ = cc.get();
     }
 
-    RenderNodePtr RenderComponentManager::render()
+    RenderNodePtr RenderComponentManager::render(VertexArrayWriter& defaultVa)
     {
-        RenderList rl(cc_->getFrustum(), cc_->renderSettings());
+        RenderList rl(cc_->getFrustum(), cc_->renderSettings(), defaultVa);
 
         for (const auto& kv : cullResults_) {
             if (kv.first->visible()) {

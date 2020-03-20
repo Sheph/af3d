@@ -28,6 +28,7 @@
 
 #include "ComponentManager.h"
 #include "RenderNode.h"
+#include "VertexArrayWriter.h"
 #include <unordered_set>
 
 namespace af3d
@@ -55,7 +56,7 @@ namespace af3d
 
         virtual void debugDraw() override;
 
-        RenderNodePtr render();
+        RenderNodePtr render(VertexArrayWriter& defaultVa);
 
     private:
         std::unordered_set<UIComponentPtr> components_;

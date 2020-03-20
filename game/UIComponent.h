@@ -41,7 +41,7 @@ namespace af3d
 
         ~UIComponent() = default;
 
-        virtual UIComponentManager* manager() { return manager_; }
+        UIComponentManager* manager() override { return manager_; }
         inline void setManager(UIComponentManager* value)
         {
             onSetManager(manager_, value);

@@ -31,6 +31,7 @@
 #include "Texture.h"
 #include "af3d/Utils.h"
 #include <boost/optional.hpp>
+#include <sstream>
 
 namespace af3d
 {
@@ -141,6 +142,18 @@ namespace af3d
                 return texWrapU < other.texWrapU;
             }
             return texWrapV < other.texWrapV;
+        }
+
+        inline std::string toString() const
+        {
+            std::ostringstream os;
+            if (texFilter) {
+                os << *texFilter;
+            } else {
+                os << 0;
+            }
+            os << "|" << texWrapU << "|" << texWrapV;
+            return os.str();
         }
 
         boost::optional<GLenum> texFilter;

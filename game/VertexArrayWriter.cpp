@@ -23,39 +23,38 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _SCENEOBJECTFACTORY_H_
-#define _SCENEOBJECTFACTORY_H_
-
-#include "af3d/Types.h"
-#include "af3d/Single.h"
-#include "af3d/AABB2.h"
-#include "SceneObject.h"
-#include "Mesh.h"
+#include "VertexArrayWriter.h"
+#include "HardwareResourceManager.h"
+#include "Renderer.h"
 
 namespace af3d
 {
-    class SceneObjectFactory : public Single<SceneObjectFactory>
+    VertexArrayWriter::VertexArrayWriter(VertexArrayLayout vaLayout, const VBOList& vbos,
+        const HardwareIndexBufferPtr& ebo)
+    : va_(std::make_shared<VertexArray>(hwManager.createVertexArray(), vaLayout, vbos, ebo)),
+      vaNoEbo_(std::make_shared<VertexArray>(hwManager.createVertexArray(), vaLayout, vbos, HardwareIndexBufferPtr())),
+      data_(std::make_shared<Data>())
     {
-    public:
-        SceneObjectFactory() = default;
-        ~SceneObjectFactory() = default;
+    }
 
-        bool init();
-
-        void shutdown();
-
-        SceneObjectPtr createDummy();
-
-        MeshPtr createColoredBox(const btVector3& size, const std::string& texPath = "");
-
-        MeshPtr createLitBox(const btVector3& size, const std::string& texPath = "");
-
-        SceneObjectPtr createStaticMeshObj(const MeshPtr& mesh, bool rotated = true, const btVector3& scale = btVector3_one);
-
-        SceneObjectPtr createUIBox(const std::string& texturePath, const AABB2f& aabb, int zOrder);
-    };
-
-    extern SceneObjectFactory sceneObjectFactory;
+    void VertexArrayWriter::upload()
+    {
+        auto va = va_;
+        auto data = data_;
+        renderer.scheduleHwOp([va, data](HardwareContext& ctx) {
+            if (!data->vertices.empty()) {
+                GLsizei sz = data->vertices.size() * sizeof(data->vertices[0]);
+                btAssert((sz % va->vbos()[0]->elementSize()) == 0);
+                int cnt = sz / va->vbos()[0]->elementSize();
+                va->vbos()[0]->reload(cnt, &data->vertices[0], ctx);
+            }
+            if (!data->indices.empty()) {
+                GLsizei sz = data->indices.size() * sizeof(data->indices[0]);
+                btAssert((sz % va->ebo()->elementSize()) == 0);
+                int cnt = sz / va->ebo()->elementSize();
+                va->ebo()->reload(cnt, &data->indices[0], ctx);
+            }
+        });
+        data_ = std::make_shared<Data>();
+    }
 }
-
-#endif

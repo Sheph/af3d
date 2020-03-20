@@ -49,6 +49,8 @@ namespace af3d
     private:
         void doResize(HardwareContext& ctx) override;
 
+        void doReload(GLsizeiptr cnt, const GLvoid* data, HardwareContext& ctx) override;
+
         void doUpload(GLintptr offset, GLsizeiptr cnt, const GLvoid* data, HardwareContext& ctx) override;
 
         GLvoid* doLock(GLintptr offset, GLsizeiptr cnt, Access access, HardwareContext& ctx) override;

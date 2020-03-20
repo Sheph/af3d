@@ -36,7 +36,8 @@ namespace af3d
         enum class Usage
         {
             StaticDraw = 0,
-            DynamicDraw
+            DynamicDraw,
+            StreamDraw
         };
 
         enum Access
@@ -65,6 +66,8 @@ namespace af3d
 
         void resize(GLsizeiptr cnt, HardwareContext& ctx);
 
+        void reload(GLsizeiptr cnt, const GLvoid* data, HardwareContext& ctx);
+
         void upload(GLintptr offset, GLsizeiptr cnt, const GLvoid* data, HardwareContext& ctx);
 
         GLvoid* lock(GLintptr offset, GLsizeiptr cnt, Access access, HardwareContext& ctx);
@@ -75,6 +78,8 @@ namespace af3d
 
     private:
         virtual void doResize(HardwareContext& ctx) = 0;
+
+        virtual void doReload(GLsizeiptr cnt, const GLvoid* data, HardwareContext& ctx) = 0;
 
         virtual void doUpload(GLintptr offset, GLsizeiptr cnt, const GLvoid* data, HardwareContext& ctx) = 0;
 

@@ -61,6 +61,8 @@ namespace af3d
         switch (usage_) {
         case Usage::DynamicDraw:
             return GL_DYNAMIC_DRAW;
+        case Usage::StreamDraw:
+            return GL_STREAM_DRAW;
         default:
             btAssert(false);
         case Usage::StaticDraw:
@@ -84,6 +86,13 @@ namespace af3d
         createBuffer();
         count_ = cnt;
         doResize(ctx);
+    }
+
+    void HardwareBuffer::reload(GLsizeiptr cnt, const GLvoid* data, HardwareContext& ctx)
+    {
+        createBuffer();
+        count_ = cnt;
+        doReload(cnt, data, ctx);
     }
 
     void HardwareBuffer::upload(GLintptr offset, GLsizeiptr cnt, const GLvoid* data, HardwareContext& ctx)

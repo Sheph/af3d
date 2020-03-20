@@ -84,6 +84,15 @@ namespace af3d
         }
     }
 
+    void Frustum::setFlipY(bool value)
+    {
+        if (flipY_ != value) {
+            flipY_ = value;
+            recalcViewProjMat_ = true;
+            recalcPlanes_ = true;
+        }
+    }
+
     const Matrix4f& Frustum::viewProjMat() const
     {
         updateViewProjMat();
@@ -168,7 +177,11 @@ namespace af3d
             }
         }
 
-        cachedViewProjMat_ = cachedProjMat_ * Matrix4f(xf_.inverse());
+        if (flipY_) {
+            cachedViewProjMat_ = cachedProjMat_ * Matrix4f(xf_.inverse()).scaled(Vector4f(1.0f, -1.0f, 1.0f, 1.0f));
+        } else {
+            cachedViewProjMat_ = cachedProjMat_ * Matrix4f(xf_.inverse());
+        }
     }
 
     bool Frustum::isVisible(const AABB& aabb) const

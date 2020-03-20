@@ -357,6 +357,11 @@ namespace af3d
                     va_->ebo()->glDataType(),
                     (const void*)(va_->ebo()->elementSize() * drawStart_));
             }
+        } else {
+            if (va_->ebo()) {
+            } else {
+                ogl.DrawArrays(drawPrimitiveMode_, drawStart_, drawCount_);
+            }
         }
 
         if (scissorParams_.enabled) {

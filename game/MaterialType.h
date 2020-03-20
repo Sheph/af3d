@@ -38,10 +38,11 @@ namespace af3d
 {
     enum MaterialTypeName
     {
-        MaterialTypeUnlit = 0, // Unlit shader. pos, color and one texture
-        MaterialTypeBasic,     // Basic lit shader
+        MaterialTypeUnlit = 0, // Unlit shader. pos(3d), color(4d) and one texture(2d)
+        MaterialTypeBasic,     // Basic lit shader.
+        MaterialType2D,        // 2D shader. pos(2d), color(4d) and one texture(2d)
         MaterialTypeFirst = MaterialTypeUnlit,
-        MaterialTypeMax = MaterialTypeBasic
+        MaterialTypeMax = MaterialType2D
     };
 
     class MaterialType : boost::noncopyable

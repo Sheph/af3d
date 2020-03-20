@@ -23,39 +23,47 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _SCENEOBJECTFACTORY_H_
-#define _SCENEOBJECTFACTORY_H_
-
-#include "af3d/Types.h"
-#include "af3d/Single.h"
-#include "af3d/AABB2.h"
+#include "UIBoxComponent.h"
 #include "SceneObject.h"
-#include "Mesh.h"
 
 namespace af3d
 {
-    class SceneObjectFactory : public Single<SceneObjectFactory>
+    UIBoxComponent::UIBoxComponent(const AABB2f& aabb, const MaterialPtr& material, int zOrder)
+    : UIComponent(zOrder),
+      material_(material)
     {
-    public:
-        SceneObjectFactory() = default;
-        ~SceneObjectFactory() = default;
+        v_[0] = btVector3(aabb.lowerBound.x(), aabb.lowerBound.y(), 0.0f);
+        v_[1] = btVector3(aabb.upperBound.x(), aabb.lowerBound.y(), 0.0f);
+        v_[2] = btVector3(aabb.upperBound.x(), aabb.upperBound.y(), 0.0f);
+        v_[3] = btVector3(aabb.lowerBound.x(), aabb.upperBound.y(), 0.0f);
+    }
 
-        bool init();
+    void UIBoxComponent::render(RenderList& rl)
+    {
+        auto rop = rl.addGeometry(material_, GL_TRIANGLES, zOrder());
 
-        void shutdown();
+        Color c = Color(1.0f, 1.0f, 1.0f, 0.8f);
 
-        SceneObjectPtr createDummy();
+        btVector3 tmp[4];
 
-        MeshPtr createColoredBox(const btVector3& size, const std::string& texPath = "");
+        for (int i = 0; i < 4; ++i) {
+            tmp[i] = parent()->transform() * v_[i];
+        }
 
-        MeshPtr createLitBox(const btVector3& size, const std::string& texPath = "");
+        rop.addVertex(tmp[0], Vector2f(0.0f, 1.0f), c);
+        rop.addVertex(tmp[1], Vector2f(1.0f, 1.0f), c);
+        rop.addVertex(tmp[2], Vector2f(1.0f, 0.0f), c);
 
-        SceneObjectPtr createStaticMeshObj(const MeshPtr& mesh, bool rotated = true, const btVector3& scale = btVector3_one);
+        rop.addVertex(tmp[0], Vector2f(0.0f, 1.0f), c);
+        rop.addVertex(tmp[2], Vector2f(1.0f, 0.0f), c);
+        rop.addVertex(tmp[3], Vector2f(0.0f, 0.0f), c);
+    }
 
-        SceneObjectPtr createUIBox(const std::string& texturePath, const AABB2f& aabb, int zOrder);
-    };
+    void UIBoxComponent::onRegister()
+    {
+    }
 
-    extern SceneObjectFactory sceneObjectFactory;
+    void UIBoxComponent::onUnregister()
+    {
+    }
 }
-
-#endif

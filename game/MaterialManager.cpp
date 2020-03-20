@@ -25,6 +25,7 @@
 
 #include "MaterialManager.h"
 #include "HardwareResourceManager.h"
+#include "TextureManager.h"
 #include "Logger.h"
 #include "Platform.h"
 #include "af3d/Assert.h"
@@ -39,7 +40,8 @@ namespace af3d
         bool usesLight;
     } shaders[MaterialTypeMax + 1] = {
         {"shaders/unlit.vert", "shaders/unlit.frag", false},
-        {"shaders/basic.vert", "shaders/basic.frag", true}
+        {"shaders/basic.vert", "shaders/basic.frag", true},
+        {"shaders/2d.vert", "shaders/2d.frag", false}
     };
 
     MaterialManager materialManager;
@@ -136,6 +138,26 @@ namespace af3d
             return MaterialPtr();
         }
         return it->second;
+    }
+
+    MaterialPtr MaterialManager::load2DMaterial(const std::string& texturePath, const SamplerParams& params)
+    {
+        std::string matName = "_bmat2d/" + texturePath + "@" + params.toString();
+
+        auto it = cachedMaterials_.find(matName);
+        if (it != cachedMaterials_.end()) {
+            return it->second;
+        }
+
+        auto tex = textureManager.loadTexture(texturePath);
+
+        auto mat = createMaterial(MaterialType2D, matName);
+
+        mat->setTextureBinding(SamplerName::Main, TextureBinding(tex, params));
+        mat->setBlendingParams(BlendingParams(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+        mat->setDepthTest(false);
+
+        return mat;
     }
 
     MaterialPtr MaterialManager::createMaterial(MaterialTypeName typeName, const std::string& name)

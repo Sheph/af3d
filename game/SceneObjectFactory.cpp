@@ -28,6 +28,7 @@
 #include "MeshManager.h"
 #include "TextureManager.h"
 #include "RenderMeshComponent.h"
+#include "UIBoxComponent.h"
 #include "Settings.h"
 #include "Utils.h"
 #include "Logger.h"
@@ -129,6 +130,18 @@ namespace af3d
         xf.setOrigin(-mesh->aabb().scaled(scale).getCenter());
         rc->setTransform(xf);
 
+        obj->addComponent(rc);
+
+        return obj;
+    }
+
+    SceneObjectPtr SceneObjectFactory::createUIBox(const std::string& texturePath, const AABB2f& aabb, int zOrder)
+    {
+        auto mat = materialManager.load2DMaterial(texturePath, SamplerParams());
+
+        auto obj = std::make_shared<SceneObject>();
+
+        auto rc = std::make_shared<UIBoxComponent>(aabb, mat, zOrder);
         obj->addComponent(rc);
 
         return obj;

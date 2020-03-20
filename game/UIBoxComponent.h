@@ -23,39 +23,34 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _SCENEOBJECTFACTORY_H_
-#define _SCENEOBJECTFACTORY_H_
+#ifndef _UIBOXCOMPONENT_H_
+#define _UIBOXCOMPONENT_H_
 
-#include "af3d/Types.h"
-#include "af3d/Single.h"
-#include "af3d/AABB2.h"
-#include "SceneObject.h"
-#include "Mesh.h"
+#include "UIComponent.h"
 
 namespace af3d
 {
-    class SceneObjectFactory : public Single<SceneObjectFactory>
+    class UIBoxComponent : public std::enable_shared_from_this<UIBoxComponent>,
+        public UIComponent
     {
     public:
-        SceneObjectFactory() = default;
-        ~SceneObjectFactory() = default;
+        explicit UIBoxComponent(const AABB2f& aabb, const MaterialPtr& material, int zOrder = 0);
+        ~UIBoxComponent() = default;
 
-        bool init();
+        ComponentPtr sharedThis() override { return shared_from_this(); }
 
-        void shutdown();
+        void render(RenderList& rl) override;
 
-        SceneObjectPtr createDummy();
+    private:
+        void onRegister() override;
 
-        MeshPtr createColoredBox(const btVector3& size, const std::string& texPath = "");
+        void onUnregister() override;
 
-        MeshPtr createLitBox(const btVector3& size, const std::string& texPath = "");
-
-        SceneObjectPtr createStaticMeshObj(const MeshPtr& mesh, bool rotated = true, const btVector3& scale = btVector3_one);
-
-        SceneObjectPtr createUIBox(const std::string& texturePath, const AABB2f& aabb, int zOrder);
+        btVector3 v_[4];
+        MaterialPtr material_;
     };
 
-    extern SceneObjectFactory sceneObjectFactory;
+    using UIBoxComponentPtr = std::shared_ptr<UIBoxComponent>;
 }
 
 #endif

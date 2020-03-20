@@ -23,39 +23,38 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _SCENEOBJECTFACTORY_H_
-#define _SCENEOBJECTFACTORY_H_
+#ifndef _VERTEX_ARRAY_WRITER_H_
+#define _VERTEX_ARRAY_WRITER_H_
 
-#include "af3d/Types.h"
-#include "af3d/Single.h"
-#include "af3d/AABB2.h"
-#include "SceneObject.h"
-#include "Mesh.h"
+#include "VertexArray.h"
 
 namespace af3d
 {
-    class SceneObjectFactory : public Single<SceneObjectFactory>
+    class VertexArrayWriter
     {
     public:
-        SceneObjectFactory() = default;
-        ~SceneObjectFactory() = default;
+        struct Data
+        {
+            std::vector<float> vertices;
+            std::vector<std::uint16_t> indices;
+        };
 
-        bool init();
+        VertexArrayWriter() = default;
+        VertexArrayWriter(VertexArrayLayout vaLayout, const VBOList& vbos,
+            const HardwareIndexBufferPtr& ebo);
+        ~VertexArrayWriter() = default;
 
-        void shutdown();
+        inline const VertexArrayPtr& va() const { return va_; }
+        inline const VertexArrayPtr& vaNoEbo() const { return vaNoEbo_; }
+        inline Data& data() { return *data_; }
 
-        SceneObjectPtr createDummy();
+        void upload();
 
-        MeshPtr createColoredBox(const btVector3& size, const std::string& texPath = "");
-
-        MeshPtr createLitBox(const btVector3& size, const std::string& texPath = "");
-
-        SceneObjectPtr createStaticMeshObj(const MeshPtr& mesh, bool rotated = true, const btVector3& scale = btVector3_one);
-
-        SceneObjectPtr createUIBox(const std::string& texturePath, const AABB2f& aabb, int zOrder);
+    private:
+        VertexArrayPtr va_;
+        VertexArrayPtr vaNoEbo_;
+        std::shared_ptr<Data> data_;
     };
-
-    extern SceneObjectFactory sceneObjectFactory;
 }
 
 #endif
