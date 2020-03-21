@@ -54,7 +54,6 @@ namespace af3d
 
         ImGui::StyleColorsDark();
 
-        io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
         io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset; // We can honor the ImDrawCmd::VtxOffset field, allowing for large meshes.
         io.BackendPlatformName = "AirForce3D";
         io.BackendRendererName = "AirForce3D";
