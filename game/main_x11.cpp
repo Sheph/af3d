@@ -367,6 +367,7 @@ static bool OGLPreInit()
         }
     }
 
+    GL_GET_PROC(DrawElementsBaseVertex, glDrawElementsBaseVertex);
     GL_GET_PROC(DepthMask, glDepthMask);
     GL_GET_PROC(DepthFunc, glDepthFunc);
     GL_GET_PROC(CullFace, glCullFace);

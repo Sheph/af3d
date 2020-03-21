@@ -38,7 +38,7 @@ namespace af3d
       zOrder_(zOrder),
       scissorParams_(scissorParams),
       rl_(rl),
-      startVertices_(rl_.defaultVa_.data().vertices.size() / 9),
+      startVertices_(rl_.defaultVa_.data().vertices.size()),
       startIndices_(rl_.defaultVa_.data().indices.size())
     {
     }
@@ -52,7 +52,7 @@ namespace af3d
         rl_.addGeometry(material_, vaSlice, primitiveMode_, zOrder_, scissorParams_);
     }
 
-    std::vector<float>& RenderImmIndexed::vertices()
+    std::vector<VertexImm>& RenderImmIndexed::vertices()
     {
         return rl_.defaultVa_.data().vertices;
     }
@@ -72,7 +72,7 @@ namespace af3d
       zOrder_(zOrder),
       scissorParams_(scissorParams),
       rl_(rl),
-      startVertices_(rl_.defaultVa_.data().vertices.size() / 9)
+      startVertices_(rl_.defaultVa_.data().vertices.size())
     {
     }
 
@@ -80,42 +80,14 @@ namespace af3d
     {
         VertexArraySlice vaSlice(rl_.defaultVa_.vaNoEbo(),
             startVertices_,
-            (rl_.defaultVa_.data().vertices.size() / 9) - startVertices_,
+            rl_.defaultVa_.data().vertices.size() - startVertices_,
             0);
         rl_.addGeometry(material_, vaSlice, primitiveMode_, zOrder_, scissorParams_);
     }
 
-    std::vector<float>& RenderImm::vertices()
+    std::vector<VertexImm>& RenderImm::vertices()
     {
         return rl_.defaultVa_.data().vertices;
-    }
-
-    void RenderImm::addVertex(const btVector3& pos, const Vector2f& uv, const Color& color)
-    {
-        auto& verts = vertices();
-        size_t sz = verts.size();
-        verts.resize(sz + 9);
-        float* f = &verts[sz];
-        std::memcpy(f, &pos.m_floats[0], 12);
-        f += 3;
-        std::memcpy(f, &uv.v[0], 8);
-        f += 2;
-        std::memcpy(f, &color.v[0], 16);
-    }
-
-    void RenderImm::addVertex(const Vector2f& pos, const Vector2f& uv, const Color& color)
-    {
-        auto& verts = vertices();
-        size_t sz = verts.size();
-        verts.resize(sz + 9);
-        float* f = &verts[sz];
-        std::memcpy(f, &pos.v[0], 8);
-        f += 2;
-        *f = 0.0f;
-        ++f;
-        std::memcpy(f, &uv.v[0], 8);
-        f += 2;
-        std::memcpy(f, &color.v[0], 16);
     }
 
     RenderList::RenderList(const Frustum& frustum, const RenderSettings& rs, VertexArrayWriter& defaultVa)
@@ -149,6 +121,29 @@ namespace af3d
         int zOrder, const ScissorParams& scissorParams)
     {
         return RenderImm(material, primitiveMode, zOrder, scissorParams, *this);
+    }
+
+    VertexArraySlice RenderList::createGeometry(const VertexImm* vertices, std::uint32_t numVertices,
+        const std::uint16_t* indices, std::uint32_t numIndices)
+    {
+        auto startVertices = defaultVa_.data().vertices.size();
+
+        defaultVa_.data().vertices.insert(defaultVa_.data().vertices.end(), vertices, vertices + numVertices);
+        if (indices) {
+            auto startIndices = defaultVa_.data().indices.size();
+
+            defaultVa_.data().indices.insert(defaultVa_.data().indices.end(), indices, indices + numIndices);
+
+            return VertexArraySlice(defaultVa_.va(),
+                startIndices,
+                defaultVa_.data().indices.size() - startIndices,
+                startVertices);
+        } else {
+            return VertexArraySlice(defaultVa_.vaNoEbo(),
+                startVertices,
+                defaultVa_.data().vertices.size() - startVertices,
+                0);
+        }
     }
 
     void RenderList::addLight(const LightPtr& light)

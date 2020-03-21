@@ -34,6 +34,7 @@
 #include "TextureManager.h"
 #include "MaterialManager.h"
 #include "MeshManager.h"
+#include "ImGuiManager.h"
 #include "af3d/Utils.h"
 #include "af3d/StreamAppConfig.h"
 
@@ -73,6 +74,10 @@ namespace af3d
         }
 
         if (!inputManager.init()) {
+            return false;
+        }
+
+        if (!imGuiManager.init()) {
             return false;
         }
 
@@ -177,6 +182,7 @@ namespace af3d
         textureManager.reload();
         materialManager.reload();
         meshManager.reload();
+        imGuiManager.reload();
         gameShell->reload();
     }
 
@@ -198,7 +204,11 @@ namespace af3d
 
         float dt = static_cast<float>(deltaUs) / 1000000.0f;
 
+        imGuiManager.frameStart(dt);
+
         level_->scene()->update(dt);
+
+        imGuiManager.frameEnd();
 
         std::uint64_t timeUs2 = getTimeUs();
 
@@ -254,6 +264,8 @@ namespace af3d
         level_.reset();
 
         sceneObjectFactory.shutdown();
+
+        imGuiManager.shutdown();
 
         inputManager.shutdown();
 

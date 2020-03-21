@@ -40,6 +40,10 @@ namespace af3d
             std::uint32_t baseVertex = 0);
         ~VertexArraySlice() = default;
 
+        VertexArraySlice subSlice(std::uint32_t start,
+            std::uint32_t count,
+            std::uint32_t baseVertex) const;
+
         inline const VertexArrayPtr& va() const { return va_; }
 
         inline std::uint32_t start() const { return start_; }

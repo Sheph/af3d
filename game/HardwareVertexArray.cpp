@@ -86,7 +86,7 @@ namespace af3d
             GLint location = HardwareProgram::getVertexAttribLocation(entry.name);
             ogl.EnableVertexAttribArray(location);
             const auto& ti = HardwareProgram::getTypeInfo(entry.type);
-            ogl.VertexAttribPointer(location, ti.numComponents, ti.baseType, GL_FALSE, vbo->elementSize(), (const GLvoid*)entry.offset);
+            ogl.VertexAttribPointer(location, ti.numComponents, ti.baseType, entry.normalize, vbo->elementSize(), (const GLvoid*)entry.offset);
         }
 
         if (ebo_) {

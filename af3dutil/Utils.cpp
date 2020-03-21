@@ -53,6 +53,8 @@ namespace af3d
     const Vector4i Vector4i_zero(0, 0, 0, 0);
     const Color Color_zero(0.0f, 0.0f, 0.0f, 0.0f);
     const Color Color_one(1.0f, 1.0f, 1.0f, 1.0f);
+    const PackedColor PackedColor_zero(0, 0, 0, 0);
+    const PackedColor PackedColor_one(1, 1, 1, 1);
 
     const AABB AABB_empty(btVector3_zero, btVector3_zero);
 

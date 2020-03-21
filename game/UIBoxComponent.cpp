@@ -25,6 +25,7 @@
 
 #include "UIBoxComponent.h"
 #include "SceneObject.h"
+#include "imgui.h"
 
 namespace af3d
 {
@@ -36,6 +37,12 @@ namespace af3d
         v_[1] = btVector3(aabb.upperBound.x(), aabb.lowerBound.y(), 0.0f);
         v_[2] = btVector3(aabb.upperBound.x(), aabb.upperBound.y(), 0.0f);
         v_[3] = btVector3(aabb.lowerBound.x(), aabb.upperBound.y(), 0.0f);
+    }
+
+    void UIBoxComponent::update(float dt)
+    {
+        bool open = true;
+        ImGui::ShowDemoWindow(&open);
     }
 
     void UIBoxComponent::render(RenderList& rl)

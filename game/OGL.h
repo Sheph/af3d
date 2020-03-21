@@ -50,6 +50,7 @@ namespace af3d
         OGL();
         ~OGL();
 
+        void (GLAPIENTRY* DrawElementsBaseVertex)(GLenum mode, GLsizei count, GLenum type, void* indices, GLint basevertex);
         void (GLAPIENTRY* DepthMask)(GLboolean flag);
         void (GLAPIENTRY* DepthFunc)(GLenum func);
         void (GLAPIENTRY* CullFace)(GLenum mode);

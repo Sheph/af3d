@@ -37,4 +37,12 @@ namespace af3d
       baseVertex_(baseVertex)
     {
     }
+
+    VertexArraySlice VertexArraySlice::subSlice(std::uint32_t start,
+        std::uint32_t count,
+        std::uint32_t baseVertex) const
+    {
+        btAssert(start_ + start + count <= start_ + count_);
+        return VertexArraySlice(va_, start_ + start, count, baseVertex_ + baseVertex);
+    }
 }

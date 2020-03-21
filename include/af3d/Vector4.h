@@ -368,16 +368,21 @@ namespace af3d
 
     using Vector4f = Vector4<float>;
     using Vector4i = Vector4<int>;
+    using Vector4b = Vector4<Byte>;
     using Color = Vector4f;
+    using PackedColor = Vector4b;
 
     static_assert(sizeof(Vector4f) == 16, "Bad Vector4f size");
     static_assert(sizeof(Vector4i) == 16, "Bad Vector4i size");
+    static_assert(sizeof(Vector4b) == 4, "Bad Vector4b size");
 
     extern const Vector4f Vector4f_zero;
     extern const Vector4f Vector4f_one;
     extern const Vector4i Vector4i_zero;
     extern const Color Color_zero;
     extern const Color Color_one;
+    extern const PackedColor PackedColor_zero;
+    extern const PackedColor PackedColor_one;
 
     inline bool btIsValid(const Vector4f& v)
     {
@@ -404,6 +409,16 @@ namespace af3d
         Vector4<T> n = v;
         btZeroNormalize(n);
         return n;
+    }
+
+    inline PackedColor toPackedColor(const Color& c)
+    {
+        return PackedColor(c.x() * 255.0f, c.y() * 255.0f, c.z() * 255.0f, c.w() * 255.0f);
+    }
+
+    inline Color fromPackedColor(const PackedColor& c)
+    {
+        return Color(c.x() / 255.0f, c.y() / 255.0f, c.z() / 255.0f, c.w() / 255.0f);
     }
 }
 

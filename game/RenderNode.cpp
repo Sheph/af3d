@@ -361,6 +361,9 @@ namespace af3d
             }
         } else {
             if (va_->ebo()) {
+                ogl.DrawElementsBaseVertex(drawPrimitiveMode_, drawCount_,
+                    va_->ebo()->glDataType(),
+                    (void*)(va_->ebo()->elementSize() * drawStart_), drawBaseVertex_);
             } else {
                 ogl.DrawArrays(drawPrimitiveMode_, drawStart_, drawCount_);
             }

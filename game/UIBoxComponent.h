@@ -39,6 +39,8 @@ namespace af3d
 
         ComponentPtr sharedThis() override { return shared_from_this(); }
 
+        void update(float dt) override;
+
         void render(RenderList& rl) override;
 
     private:

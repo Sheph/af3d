@@ -93,7 +93,7 @@ namespace af3d
                         vDir.setZ(z);
                     }
 
-                    const Color& c = colors_[face];
+                    PackedColor c = toPackedColor(colors_[face]);
 
                     for (int i = 0; i < 4; ++i) {
                         int idx = i;
@@ -127,8 +127,8 @@ namespace af3d
                         std::memcpy(verts, &tex.v[0], 8);
                         verts += 2;
                         if (colored_) {
-                            std::memcpy(verts, &c.v[0], 16);
-                            verts += 4;
+                            std::memcpy(verts, &c.v[0], 4);
+                            verts += 1;
                         } else {
                             std::memcpy(verts, &vDir[0], 12);
                             verts += 3;

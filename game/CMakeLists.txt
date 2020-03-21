@@ -108,7 +108,7 @@ file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/config.ini.cpp" ";\n")
 
 add_executable(af3d WIN32 ${SOURCES})
 
-target_link_libraries(af3d af3dutil log4cplus bullet assimp)
+target_link_libraries(af3d af3dutil log4cplus bullet assimp imgui)
 
 if (NOT WIN32)
     target_link_libraries(af3d ${X11_LIBRARIES} ${X11_Xxf86vm_LIB} rt dl)

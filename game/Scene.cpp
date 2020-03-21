@@ -44,6 +44,7 @@
 #include "DirectionalLight.h"
 #include "VertexArrayWriter.h"
 #include "HardwareResourceManager.h"
+#include "Const.h"
 #include <Rocket/Core/ElementDocument.h>
 #include <cmath>
 
@@ -56,17 +57,6 @@ namespace af3d
     public:
         explicit Impl(Scene* scene)
         {
-            VertexArrayLayout vaLayout;
-
-            vaLayout.addEntry(VertexArrayEntry(VertexAttribName::Pos, GL_FLOAT_VEC3, 0, 0));
-            vaLayout.addEntry(VertexArrayEntry(VertexAttribName::UV, GL_FLOAT_VEC2, 12, 0));
-            vaLayout.addEntry(VertexArrayEntry(VertexAttribName::Color, GL_FLOAT_VEC4, 20, 0));
-
-            auto vbo = hwManager.createVertexBuffer(HardwareBuffer::Usage::StreamDraw, 36);
-            auto ebo = hwManager.createIndexBuffer(HardwareBuffer::Usage::StreamDraw, HardwareIndexBuffer::UInt16);
-
-            defaultVa_ = VertexArrayWriter(vaLayout, VBOList{vbo}, ebo);
-
             phasedComponentManager_.reset(new PhasedComponentManager());
             renderComponentManager_.reset(new RenderComponentManager());
             uiComponentManager_.reset(new UIComponentManager());
@@ -117,8 +107,10 @@ namespace af3d
 
         dummy_ = std::make_shared<SceneObject>();
 
+        imGuiC_ = std::make_shared<ImGuiComponent>(zOrderImGui);
         lightC_ = std::make_shared<LightComponent>();
 
+        dummy_->addComponent(imGuiC_);
         dummy_->addComponent(lightC_);
 
         addObject(dummy_);
@@ -137,10 +129,10 @@ namespace af3d
         uiBox->setPos(btVector3(205.0f, 205.0f, 0.0f));
         addObject(uiBox);
 
-        uiBox = sceneObjectFactory.createUIBox("Muro_body_nm.png", AABB2f(Vector2f(-200.0f, -200.0f), Vector2f(200.0f, 200.0f)), 2);
+        /*uiBox = sceneObjectFactory.createUIBox("Muro_body_nm.png", AABB2f(Vector2f(-200.0f, -200.0f), Vector2f(200.0f, 200.0f)), 2);
         uiBox->setPos(btVector3(275.0f, 255.0f, 0.0f));
         uiBox->setRotation(btQuaternion(0.0f, 0.0f, btRadians(10.0f)));
-        addObject(uiBox);
+        addObject(uiBox);*/
 
         auto manMesh = meshManager.loadMesh("muro.fbx");
         auto obj = sceneObjectFactory.createStaticMeshObj(manMesh, true, btVector3(0.02f, 0.02f, 0.02f));
@@ -209,6 +201,7 @@ namespace af3d
         dummy_.reset();
 
         lightC_.reset();
+        imGuiC_.reset();
 
         impl_->timers_.clear();
 

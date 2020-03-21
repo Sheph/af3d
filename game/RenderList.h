@@ -49,8 +49,7 @@ namespace af3d
             RenderList& rl);
         ~RenderImmIndexed();
 
-        // layout: pos(3),uv(2),color(4)
-        std::vector<float>& vertices();
+        std::vector<VertexImm>& vertices();
 
         std::vector<std::uint16_t>& indices();
 
@@ -75,11 +74,17 @@ namespace af3d
             RenderList& rl);
         ~RenderImm();
 
-        // layout: pos(3),uv(2),color(4)
-        std::vector<float>& vertices();
+        std::vector<VertexImm>& vertices();
 
-        void addVertex(const btVector3& pos, const Vector2f& uv, const Color& color);
-        void addVertex(const Vector2f& pos, const Vector2f& uv, const Color& color);
+        inline void addVertex(const btVector3& pos, const Vector2f& uv, const Color& color)
+        {
+            vertices().emplace_back(pos, uv, toPackedColor(color));
+        }
+
+        inline void addVertex(const Vector2f& pos, const Vector2f& uv, const Color& color)
+        {
+            vertices().emplace_back(pos, uv, toPackedColor(color));
+        }
 
     private:
         MaterialPtr material_;
@@ -110,6 +115,10 @@ namespace af3d
         RenderImm addGeometry(const MaterialPtr& material,
             GLenum primitiveMode,
             int zOrder = 0, const ScissorParams& scissorParams = ScissorParams());
+
+        // Create immediate geometry by using default VAO, use only for small stuff like UI!
+        VertexArraySlice createGeometry(const VertexImm* vertices, std::uint32_t numVertices,
+            const std::uint16_t* indices = nullptr, std::uint32_t numIndices = 0);
 
         void addLight(const LightPtr& light);
 

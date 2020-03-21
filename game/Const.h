@@ -23,33 +23,16 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _IMGUICOMPONENT_H_
-#define _IMGUICOMPONENT_H_
+#ifndef _CONST_H_
+#define _CONST_H_
 
-#include "UIComponent.h"
+#include "af3d/Types.h"
 
 namespace af3d
 {
-    class ImGuiComponent : public std::enable_shared_from_this<ImGuiComponent>,
-        public UIComponent
-    {
-    public:
-        explicit ImGuiComponent(int zOrder = 0);
-        ~ImGuiComponent() = default;
-
-        ComponentPtr sharedThis() override { return shared_from_this(); }
-
-        void render(RenderList& rl) override;
-
-    private:
-        void onRegister() override;
-
-        void onUnregister() override;
-
-        MaterialPtr material_;
-    };
-
-    using ImGuiComponentPtr = std::shared_ptr<ImGuiComponent>;
+    static const int zOrderMenu = 2;
+    static const int zOrderEditor = 100;
+    static const int zOrderImGui = 9999;
 }
 
 #endif

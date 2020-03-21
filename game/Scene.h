@@ -28,6 +28,7 @@
 
 #include "SceneObjectManager.h"
 #include "LightComponent.h"
+#include "ImGuiComponent.h"
 #include "af3d/AABB.h"
 #include <functional>
 
@@ -112,6 +113,7 @@ namespace af3d
         InputMode inputMode_;
         SceneObjectPtr camera_;
         SceneObjectPtr dummy_;
+        ImGuiComponentPtr imGuiC_;
         LightComponentPtr lightC_;
 
         bool playable_;

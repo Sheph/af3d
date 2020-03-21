@@ -27,21 +27,60 @@
 #define _VERTEX_ARRAY_WRITER_H_
 
 #include "VertexArray.h"
+#include "af3d/Vector2.h"
+#include "af3d/Vector3.h"
+#include "af3d/Vector4.h"
 
 namespace af3d
 {
+    // Common "immediate mode" vertex.
+    #pragma pack(1)
+    struct VertexImm
+    {
+        VertexImm() = default;
+        VertexImm(const Vector3f& pos,
+            const Vector2f& uv,
+            const PackedColor& color)
+        : pos(pos),
+          uv(uv),
+          color(color)
+        {
+        }
+        VertexImm(const btVector3& pos,
+            const Vector2f& uv,
+            const PackedColor& color)
+        : pos(toVector3f(pos)),
+          uv(uv),
+          color(color)
+        {
+        }
+        VertexImm(const Vector2f& pos,
+            const Vector2f& uv,
+            const PackedColor& color)
+        : pos(pos.x(), pos.y(), 0.0f),
+          uv(uv),
+          color(color)
+        {
+        }
+
+        Vector3f pos;
+        Vector2f uv;
+        PackedColor color;
+    };
+    #pragma pack()
+
+    static_assert(sizeof(VertexImm) == 24, "Bad VertexImm size");
+
     class VertexArrayWriter
     {
     public:
         struct Data
         {
-            std::vector<float> vertices;
+            std::vector<VertexImm> vertices;
             std::vector<std::uint16_t> indices;
         };
 
-        VertexArrayWriter() = default;
-        VertexArrayWriter(VertexArrayLayout vaLayout, const VBOList& vbos,
-            const HardwareIndexBufferPtr& ebo);
+        VertexArrayWriter();
         ~VertexArrayWriter() = default;
 
         inline const VertexArrayPtr& va() const { return va_; }

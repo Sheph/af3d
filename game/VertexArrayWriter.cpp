@@ -29,12 +29,21 @@
 
 namespace af3d
 {
-    VertexArrayWriter::VertexArrayWriter(VertexArrayLayout vaLayout, const VBOList& vbos,
-        const HardwareIndexBufferPtr& ebo)
-    : va_(std::make_shared<VertexArray>(hwManager.createVertexArray(), vaLayout, vbos, ebo)),
-      vaNoEbo_(std::make_shared<VertexArray>(hwManager.createVertexArray(), vaLayout, vbos, HardwareIndexBufferPtr())),
-      data_(std::make_shared<Data>())
+    VertexArrayWriter::VertexArrayWriter()
+    : data_(std::make_shared<Data>())
     {
+        VertexArrayLayout vaLayout;
+
+        vaLayout.addEntry(VertexArrayEntry(VertexAttribName::Pos, GL_FLOAT_VEC3, 0, 0));
+        vaLayout.addEntry(VertexArrayEntry(VertexAttribName::UV, GL_FLOAT_VEC2, 12, 0));
+        vaLayout.addEntry(VertexArrayEntry(VertexAttribName::Color, GL_UNSIGNED_INT8_VEC4_NV, 20, 0, true));
+
+        auto vbo = hwManager.createVertexBuffer(HardwareBuffer::Usage::StreamDraw, sizeof(VertexImm));
+        auto ebo = hwManager.createIndexBuffer(HardwareBuffer::Usage::StreamDraw, HardwareIndexBuffer::UInt16);
+        VBOList vbos{vbo};
+
+        va_ = std::make_shared<VertexArray>(hwManager.createVertexArray(), vaLayout, vbos, ebo);
+        vaNoEbo_ = std::make_shared<VertexArray>(hwManager.createVertexArray(), vaLayout, vbos, HardwareIndexBufferPtr());
     }
 
     void VertexArrayWriter::upload()
@@ -43,16 +52,10 @@ namespace af3d
         auto data = data_;
         renderer.scheduleHwOp([va, data](HardwareContext& ctx) {
             if (!data->vertices.empty()) {
-                GLsizei sz = data->vertices.size() * sizeof(data->vertices[0]);
-                btAssert((sz % va->vbos()[0]->elementSize()) == 0);
-                int cnt = sz / va->vbos()[0]->elementSize();
-                va->vbos()[0]->reload(cnt, &data->vertices[0], ctx);
+                va->vbos()[0]->reload(data->vertices.size(), &data->vertices[0], ctx);
             }
             if (!data->indices.empty()) {
-                GLsizei sz = data->indices.size() * sizeof(data->indices[0]);
-                btAssert((sz % va->ebo()->elementSize()) == 0);
-                int cnt = sz / va->ebo()->elementSize();
-                va->ebo()->reload(cnt, &data->indices[0], ctx);
+                va->ebo()->reload(data->indices.size(), &data->indices[0], ctx);
             }
         });
         data_ = std::make_shared<Data>();
