@@ -28,9 +28,7 @@
 
 #include "af3d/Types.h"
 #include "af3d/Single.h"
-#include "af3d/AABB2.h"
 #include "SceneObject.h"
-#include "Mesh.h"
 
 namespace af3d
 {
@@ -45,14 +43,6 @@ namespace af3d
         void shutdown();
 
         SceneObjectPtr createDummy();
-
-        MeshPtr createColoredBox(const btVector3& size, const std::string& texPath = "");
-
-        MeshPtr createLitBox(const btVector3& size, const std::string& texPath = "");
-
-        SceneObjectPtr createStaticMeshObj(const MeshPtr& mesh, bool rotated = true, const btVector3& scale = btVector3_one);
-
-        SceneObjectPtr createUIBox(const std::string& texturePath, const AABB2f& aabb, int zOrder);
     };
 
     extern SceneObjectFactory sceneObjectFactory;

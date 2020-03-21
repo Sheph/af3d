@@ -52,8 +52,6 @@ namespace af3d
         inline const btVector3& scale() const { return scale_; }
         void setScale(const btVector3& value);
 
-        bool testRotate = false;
-
     private:
         void onRegister() override;
 

@@ -34,7 +34,6 @@
 #include "PhasedComponentManager.h"
 #include "RenderComponentManager.h"
 #include "UIComponentManager.h"
-#include "UIBoxComponent.h"
 #include "PhasedComponent.h"
 #include "RenderComponent.h"
 #include "CameraComponent.h"
@@ -125,68 +124,6 @@ namespace af3d
 
     void Scene::prepare()
     {
-        auto uiBox = sceneObjectFactory.createUIBox("Muro_body_dm.png", AABB2f(Vector2f(-200.0f, -200.0f), Vector2f(200.0f, 200.0f)), 1);
-        uiBox->setPos(btVector3(205.0f, 205.0f, 0.0f));
-        addObject(uiBox);
-
-        /*uiBox = sceneObjectFactory.createUIBox("Muro_body_nm.png", AABB2f(Vector2f(-200.0f, -200.0f), Vector2f(200.0f, 200.0f)), 2);
-        uiBox->setPos(btVector3(275.0f, 255.0f, 0.0f));
-        uiBox->setRotation(btQuaternion(0.0f, 0.0f, btRadians(10.0f)));
-        addObject(uiBox);*/
-
-        auto manMesh = meshManager.loadMesh("muro.fbx");
-        auto obj = sceneObjectFactory.createStaticMeshObj(manMesh, true, btVector3(0.02f, 0.02f, 0.02f));
-        obj->setPos(btVector3(0.0f, 0.0f, -10.0f));
-        addObject(obj);
-
-        obj = sceneObjectFactory.createStaticMeshObj(sceneObjectFactory.createLitBox(btVector3(300.0f, 1.0f, 300.0f), "glass1.png"), false);
-        obj->setPos(btVector3(50.0f, -3.0f, -50.0f));
-        addObject(obj);
-
-        auto mesh1 = sceneObjectFactory.createLitBox(btVector3(1.0f, 2.0f, 3.0f), "");
-        auto mesh2 = sceneObjectFactory.createLitBox(btVector3(1.0f, 2.0f, 3.0f), "glass1.png");
-        auto mesh3 = sceneObjectFactory.createLitBox(btVector3(1.0f, 2.0f, 3.0f), "bb.png");
-
-        int i = 0;
-        for (float z = -20.0f; z >= -100.0f; z -= 7.0f) {
-            for (float x = 2.0f; x < 50.0f; x += 5.0f) {
-                if (i % 4 == 0) {
-                    if (i % 8 == 0) {
-                        obj = sceneObjectFactory.createStaticMeshObj(manMesh, true, btVector3(0.04f, 0.04f, 0.04f));
-                    } else {
-                        obj = sceneObjectFactory.createStaticMeshObj(mesh1);
-                    }
-                } else {
-                    obj = sceneObjectFactory.createStaticMeshObj((i % 3 == 0) ? mesh2 : mesh3);
-                }
-                ++i;
-                obj->setPos(btVector3(x, 6.0f, z));
-                obj->setRotation(btQuaternion(btRadians(x), btRadians(x), btRadians(x)));
-                addObject(obj);
-            }
-        }
-
-        obj = sceneObjectFactory.createStaticMeshObj(sceneObjectFactory.createColoredBox(btVector3(1.0f, 1.0f, 1.0f)));
-        obj->setPos(btVector3(0.0f, 0.0f, -5.0f));
-        obj->setRotation(btQuaternion(0.0f, btRadians(10.0f), 0.0f));
-        addObject(obj);
-
-        auto l = std::make_shared<DirectionalLight>("light0");
-        l->setTransform(makeLookDir(btVector3_zero, btVector3(-1.0f, -0.2f, -0.6f), btVector3_up));
-        l->setColor(Color(1.0f, 1.0f, 1.0f, 0.5f));
-        lighting()->addLight(l);
-
-        auto l2 = std::make_shared<PointLight>("light1");
-        l2->setTransform(makeLookDir(btVector3(20.0f, 20.0f, -30.0f), btVector3_forward, btVector3_up));
-        l2->setRadius(70.0f);
-        l2->setColor(Color(1.0f, 0.0f, 0.0f, 1.0f));
-        lighting()->addLight(l2);
-
-        l2 = std::make_shared<PointLight>("light2");
-        l2->setTransform(makeLookDir(btVector3(25.0f, 15.0f, -75.0f), btVector3_forward, btVector3_up));
-        l2->setRadius(45.0f);
-        l2->setColor(Color(0.0f, 1.0f, 0.0f, 1.0f));
-        lighting()->addLight(l2);
     }
 
     void Scene::cleanup()

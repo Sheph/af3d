@@ -35,10 +35,6 @@ namespace af3d
 
     void RenderMeshComponent::update(float dt)
     {
-        if (testRotate) {
-            setTransform(btTransform(btQuaternion(btVector3(1.0f, 1.0f, 1.0f), btRadians(dt * 90.0f))) * xf_);
-        }
-
         if ((parent()->transform() == prevParentXf_) && !dirty_) {
             return;
         }

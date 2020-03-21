@@ -24,11 +24,6 @@
  */
 
 #include "SceneObjectFactory.h"
-#include "MaterialManager.h"
-#include "MeshManager.h"
-#include "TextureManager.h"
-#include "RenderMeshComponent.h"
-#include "UIBoxComponent.h"
 #include "Settings.h"
 #include "Utils.h"
 #include "Logger.h"
@@ -68,81 +63,6 @@ namespace af3d
         //obj->setBodyDef(body->bodyDef());
 
         //obj->addComponent(component);
-
-        return obj;
-    }
-
-    MeshPtr SceneObjectFactory::createColoredBox(const btVector3& size, const std::string& texPath)
-    {
-        MaterialPtr material;
-
-        if (texPath.empty()) {
-            material = materialManager.getMaterial(MaterialManager::materialUnlitDefault);
-        } else {
-            auto matName = "_coloredBox_" + texPath;
-            material = materialManager.getMaterial(matName);
-            if (!material) {
-                material = materialManager.createMaterial(MaterialTypeUnlit, matName);
-                runtime_assert(material);
-                material->setTextureBinding(SamplerName::Main, TextureBinding(textureManager.loadTexture(texPath)));
-            }
-        }
-
-        auto mesh = meshManager.createBoxMesh(size,
-            material,
-            {
-                Color(1.0f, 0.0f, 0.0f, 1.0f),
-                Color(0.0f, 1.0f, 0.0f, 1.0f),
-                Color(0.0f, 0.0f, 1.0f, 1.0f),
-                Color(1.0f, 1.0f, 0.0f, 1.0f),
-                Color(1.0f, 0.0f, 1.0f, 1.0f),
-                Color(0.0f, 1.0f, 1.0f, 1.0f)
-            });
-        return mesh;
-    }
-
-    MeshPtr SceneObjectFactory::createLitBox(const btVector3& size, const std::string& texPath)
-    {
-        auto matName = "_litBox_" + texPath;
-        auto material = materialManager.getMaterial(matName);
-        if (!material) {
-            material = materialManager.createMaterial(MaterialTypeBasic, matName);
-            runtime_assert(material);
-            if (!texPath.empty()) {
-                material->setTextureBinding(SamplerName::Main, TextureBinding(textureManager.loadTexture(texPath)));
-            }
-            material->params().setUniform(UniformName::SpecularColor, Color_one);
-            material->params().setUniform(UniformName::Shininess, 50.0f);
-        }
-
-        return meshManager.createBoxMesh(size, material);
-    }
-
-    SceneObjectPtr SceneObjectFactory::createStaticMeshObj(const MeshPtr& mesh, bool rotated, const btVector3& scale)
-    {
-        auto obj = std::make_shared<SceneObject>();
-
-        auto rc = std::make_shared<RenderMeshComponent>(mesh);
-        rc->testRotate = rotated;
-        rc->setScale(scale);
-
-        btTransform xf = btTransform::getIdentity();
-        xf.setOrigin(-mesh->aabb().scaled(scale).getCenter());
-        rc->setTransform(xf);
-
-        obj->addComponent(rc);
-
-        return obj;
-    }
-
-    SceneObjectPtr SceneObjectFactory::createUIBox(const std::string& texturePath, const AABB2f& aabb, int zOrder)
-    {
-        auto mat = materialManager.load2DMaterial(texturePath, SamplerParams());
-
-        auto obj = std::make_shared<SceneObject>();
-
-        auto rc = std::make_shared<UIBoxComponent>(aabb, mat, zOrder);
-        obj->addComponent(rc);
 
         return obj;
     }

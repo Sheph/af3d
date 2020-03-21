@@ -63,7 +63,6 @@ set(SOURCES
     UITimerComponent.cpp
     ImGuiManager.cpp
     ImGuiComponent.cpp
-    UIBoxComponent.cpp
     VertexArrayWriter.cpp
 )
 
