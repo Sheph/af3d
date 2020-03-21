@@ -47,7 +47,7 @@ namespace af3d
 
     void UIBoxComponent::render(RenderList& rl)
     {
-        auto rop = rl.addGeometry(material_, GL_TRIANGLES, zOrder());
+        /*auto rop = rl.addGeometry(material_, GL_TRIANGLES, zOrder());
 
         Color c = Color(1.0f, 1.0f, 1.0f, 0.8f);
 
@@ -63,7 +63,7 @@ namespace af3d
 
         rop.addVertex(tmp[0], Vector2f(0.0f, 1.0f), c);
         rop.addVertex(tmp[2], Vector2f(1.0f, 0.0f), c);
-        rop.addVertex(tmp[3], Vector2f(0.0f, 0.0f), c);
+        rop.addVertex(tmp[3], Vector2f(0.0f, 0.0f), c);*/
     }
 
     void UIBoxComponent::onRegister()

@@ -84,6 +84,7 @@ namespace af3d
 
                     if (clipRect.x < fbWidth && clipRect.y < fbHeight && clipRect.z >= 0.0f && clipRect.w >= 0.0f) {
                         ScissorParams scissorParams;
+                        scissorParams.enabled = true;
                         scissorParams.x = clipRect.x;
                         scissorParams.y = fbHeight - clipRect.w;
                         scissorParams.width = clipRect.z - clipRect.x;

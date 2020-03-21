@@ -26,8 +26,9 @@
 #ifndef _IMGUIMANAGER_H_
 #define _IMGUIMANAGER_H_
 
-#include "af3d/Single.h"
+#include "InputManager.h"
 #include "Material.h"
+#include "af3d/Single.h"
 #include "imgui.h"
 
 namespace af3d
@@ -49,6 +50,18 @@ namespace af3d
 
         void frameStart(float dt);
         void frameEnd();
+
+        void keyPress(KeyIdentifier ki);
+
+        void keyRelease(KeyIdentifier ki);
+
+        void mouseDown(bool left);
+
+        void mouseUp(bool left);
+
+        void mouseWheel(int delta);
+
+        void mouseMove(const Vector2f& point);
 
     private:
         using TextureCache = std::unordered_set<TexturePtr>;

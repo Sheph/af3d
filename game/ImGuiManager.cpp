@@ -24,7 +24,6 @@
  */
 
 #include "ImGuiManager.h"
-#include "InputManager.h"
 #include "TextureManager.h"
 #include "VertexArrayWriter.h"
 #include "Settings.h"
@@ -82,6 +81,10 @@ namespace af3d
         io.KeyMap[ImGuiKey_X] = KI_X;
         io.KeyMap[ImGuiKey_Y] = KI_Y;
         io.KeyMap[ImGuiKey_Z] = KI_Z;
+
+        for (int i = 0; i < ImGuiKey_COUNT; ++i) {
+            io.KeyMap[i] = InputKeyboard::kiToChar(static_cast<KeyIdentifier>(io.KeyMap[i]));
+        }
 
         //io.SetClipboardTextFn = &ImGuiManager::setClipboardText;
         //io.GetClipboardTextFn = &ImGuiManager::getClipboardText;
@@ -156,6 +159,48 @@ namespace af3d
     {
         ImGui::EndFrame();
         textureCache_.clear();
+    }
+
+    void ImGuiManager::keyPress(KeyIdentifier ki)
+    {
+        ImGuiIO& io = ImGui::GetIO();
+        bool isTextInput;
+        int c = InputKeyboard::kiToChar(ki, &isTextInput);
+        io.KeysDown[c] = true;
+        if (isTextInput) {
+            io.AddInputCharacter(c);
+        }
+    }
+
+    void ImGuiManager::keyRelease(KeyIdentifier ki)
+    {
+        ImGuiIO& io = ImGui::GetIO();
+        io.KeysDown[InputKeyboard::kiToChar(ki)] = false;
+    }
+
+    void ImGuiManager::mouseDown(bool left)
+    {
+        ImGuiIO& io = ImGui::GetIO();
+        io.MouseDown[left ? 0 : 1] = true;
+    }
+
+    void ImGuiManager::mouseUp(bool left)
+    {
+        ImGuiIO& io = ImGui::GetIO();
+        io.MouseDown[left ? 0 : 1] = false;
+    }
+
+    void ImGuiManager::mouseWheel(int delta)
+    {
+        ImGuiIO& io = ImGui::GetIO();
+        io.MouseWheel -= delta;
+    }
+
+    void ImGuiManager::mouseMove(const Vector2f& point)
+    {
+        ImGuiIO& io = ImGui::GetIO();
+        io.MousePos.x = point.x();
+        io.MousePos.y = point.y();
     }
 
     const char* ImGuiManager::getClipboardText(void* userData)

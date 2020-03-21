@@ -283,25 +283,30 @@ namespace af3d
     void Game::keyPress(KeyIdentifier ki)
     {
         inputManager.keyboard().press(ki);
+        imGuiManager.keyPress(ki);
     }
 
     void Game::keyRelease(KeyIdentifier ki)
     {
         inputManager.keyboard().release(ki);
+        imGuiManager.keyRelease(ki);
     }
 
     void Game::mouseDown(bool left)
     {
         inputManager.mouse().press(left);
+        imGuiManager.mouseDown(left);
     }
 
     void Game::mouseUp(bool left)
     {
         inputManager.mouse().release(left);
+        imGuiManager.mouseUp(left);
     }
 
     void Game::mouseWheel(int delta)
     {
+        imGuiManager.mouseWheel(delta);
     }
 
     void Game::mouseMove(const Vector2f& point)
@@ -309,6 +314,7 @@ namespace af3d
         Vector2f pt = point - Vector2f(settings.viewX, settings.viewY);
 
         inputManager.mouse().move(pt);
+        imGuiManager.mouseMove(pt);
     }
 
     void Game::gamepadMoveStick(bool left, const Vector2f& value)

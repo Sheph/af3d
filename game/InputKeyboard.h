@@ -40,6 +40,8 @@ namespace af3d
         InputKeyboard() = default;
         ~InputKeyboard() = default;
 
+        static int kiToChar(KeyIdentifier ki, bool* isTextInput = nullptr);
+
         void press(KeyIdentifier ki);
 
         void release(KeyIdentifier ki);
