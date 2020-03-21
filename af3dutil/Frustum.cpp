@@ -75,6 +75,14 @@ namespace af3d
         }
     }
 
+    void Frustum::setFlipY(bool value)
+    {
+        if (flipY_ != value) {
+            flipY_ = value;
+            projUpdated();
+        }
+    }
+
     void Frustum::setTransform(const btTransform& value)
     {
         if (xf_ != value) {
@@ -157,6 +165,10 @@ namespace af3d
                 float bottom = -top;
                 float right = aspect_ * top;
                 float left = -right;
+                if (flipY_) {
+                    top = -top;
+                    bottom = -bottom;
+                }
                 cachedProjMat_.setPerspective(left, right, bottom, top, nearDist_, farDist_);
             } else {
                 float orthoWidth = orthoHeight_ * aspect_;
@@ -164,6 +176,10 @@ namespace af3d
                 float right = orthoWidth / 2.0f;
                 float bottom = -orthoHeight_ / 2.0f;
                 float top = orthoHeight_ / 2.0f;
+                if (flipY_) {
+                    top = -top;
+                    bottom = -bottom;
+                }
                 cachedProjMat_.setOrtho(left, right, bottom, top, nearDist_, farDist_);
             }
         }

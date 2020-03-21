@@ -308,7 +308,7 @@ namespace af3d
     {
         Vector2f pt = point - Vector2f(settings.viewX, settings.viewY);
 
-        inputManager.mouse().move(Vector2f(pt.x(), settings.viewHeight - pt.y()));
+        inputManager.mouse().move(pt);
     }
 
     void Game::gamepadMoveStick(bool left, const Vector2f& value)

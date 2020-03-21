@@ -76,6 +76,9 @@ namespace af3d
         inline float farDist() const { return farDist_; }
         void setFarDist(float value);
 
+        inline bool flipY() const { return flipY_; }
+        void setFlipY(bool value);
+
         inline const btTransform& transform() const { return xf_; }
         void setTransform(const btTransform& value);
 
@@ -99,6 +102,7 @@ namespace af3d
         float aspect_ = 4.0f / 3.0f;
         float nearDist_ = 0.05f;
         float farDist_ = 10000.0f;
+        bool flipY_ = false;
 
         btTransform xf_ = btTransform::getIdentity();
 

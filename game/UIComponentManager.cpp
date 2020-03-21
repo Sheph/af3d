@@ -103,6 +103,7 @@ namespace af3d
         frustum.setAspect(settings.viewAspect);
         frustum.setNearDist(-1.0f);
         frustum.setFarDist(1.0f);
+        frustum.setFlipY(true);
         btTransform xf = btTransform::getIdentity();
         xf.setOrigin(btVector3(0.5f * settings.viewWidth, 0.5f * settings.viewHeight, 0.0f));
         frustum.setTransform(xf);
