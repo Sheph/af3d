@@ -23,30 +23,21 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _UITIMERCOMPONENT_H_
-#define _UITIMERCOMPONENT_H_
-
 #include "UIComponent.h"
 
 namespace af3d
 {
-    class UITimerComponent : public UIComponent
+    ACLASS_DEFINE_BEGIN_ABSTRACT(UIComponent, Component)
+    ACLASS_DEFINE_END(UIComponent)
+
+    UIComponent::UIComponent(const AClass& klass, int zOrder)
+    : Component(klass),
+      zOrder_(zOrder)
     {
-    public:
-        explicit UITimerComponent(float t, int zOrder = 0);
-        ~UITimerComponent() = default;
+    }
 
-        void update(float dt) override;
-
-    private:
-        virtual void timeoutReached(float dt) = 0;
-
-        float timeout_;
-        float t_;
-        bool first_;
-    };
-
-    using UITimerComponentPtr = std::shared_ptr<UITimerComponent>;
+    const AClass& UIComponent::staticKlass()
+    {
+        return AClass_UIComponent;
+    }
 }
-
-#endif

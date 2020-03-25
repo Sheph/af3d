@@ -27,6 +27,7 @@
 #define _LIGHT_H_
 
 #include "Material.h"
+#include "AObject.h"
 #include "af3d/Types.h"
 #include "af3d/AABB.h"
 #include "af3d/Vector4.h"
@@ -40,20 +41,15 @@ namespace af3d
     class Light;
     using LightPtr = std::shared_ptr<Light>;
 
-    class Light : boost::noncopyable
+    class Light : public AObject
     {
     public:
-        Light(const std::string& name, int typeId)
-        : name_(name),
-          typeId_(typeId)
-        {
-            btAssert(typeId > 0);
-        }
+        Light(const AClass& klass, int typeId);
         virtual ~Light();
 
-        virtual LightPtr sharedThis() = 0;
+        static const AClass& staticKlass();
 
-        inline const std::string& name() const { return name_; }
+        virtual LightPtr sharedThis() = 0;
 
         inline LightComponent* parent() const { return parent_; }
         SceneObject* parentObject() const;
@@ -100,7 +96,6 @@ namespace af3d
     private:
         virtual void doSetupMaterial(const btVector3& eyePos, MaterialParams& params) const = 0;
 
-        std::string name_;
         int typeId_ = 0; // 0 - ambient light.
         btTransform xf_ = btTransform::getIdentity();
         Color color_ = Color_one; // Color in rgb, alpha = intensity.
@@ -117,6 +112,8 @@ namespace af3d
 
         RenderCookie* cookie_ = nullptr;
     };
+
+    ACLASS_DECLARE(Light)
 }
 
 #endif

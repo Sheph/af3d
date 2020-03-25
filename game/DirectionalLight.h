@@ -36,8 +36,12 @@ namespace af3d
     public:
         static const int TypeId = 1;
 
-        explicit DirectionalLight(const std::string& name);
+        explicit DirectionalLight();
         ~DirectionalLight() = default;
+
+        static const AClass& staticKlass();
+
+        static AObjectPtr create(const APropertyValueMap& propVals);
 
         LightPtr sharedThis() override { return shared_from_this(); }
 
@@ -48,6 +52,8 @@ namespace af3d
     };
 
     using DirectionalLightPtr = std::shared_ptr<DirectionalLight>;
+
+    ACLASS_DECLARE(DirectionalLight)
 }
 
 #endif

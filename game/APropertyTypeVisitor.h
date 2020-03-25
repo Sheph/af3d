@@ -23,33 +23,44 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "UITimerComponent.h"
+#ifndef _APROPERTY_TYPE_VISITOR_H_
+#define _APROPERTY_TYPE_VISITOR_H_
+
+#include "af3d/Types.h"
 
 namespace af3d
 {
-    UITimerComponent::UITimerComponent(float t, int zOrder)
-    : UIComponent(zOrder),
-      timeout_(t),
-      t_(t),
-      first_(true)
-    {
-    }
+    class APropertyType;
+    class APropertyTypeNull;
+    class APropertyTypeBool;
+    class APropertyTypeInt;
+    class APropertyTypeFloat;
+    class APropertyTypeString;
+    class APropertyTypeVec2f;
+    class APropertyTypeVec3f;
+    class APropertyTypeVec4f;
+    class APropertyTypeColor;
+    class APropertyTypeEnum;
+    class APropertyTypeObject;
 
-    void UITimerComponent::update(float dt)
+    class APropertyTypeVisitor
     {
-        if (first_) {
-            /*
-             * FIXME: Skip the very first update, since it happens right when
-             * the timer is added.
-             */
-            first_ = false;
-            return;
-        }
+    public:
+        APropertyTypeVisitor() = default;
+        virtual ~APropertyTypeVisitor() = default;
 
-        t_ -= dt;
-        if (t_ <= 0.0f) {
-            t_ = timeout_;
-            timeoutReached(dt);
-        }
-    }
+        virtual void visitNull(const APropertyTypeNull& type) = 0;
+        virtual void visitBool(const APropertyTypeBool& type) = 0;
+        virtual void visitInt(const APropertyTypeInt& type) = 0;
+        virtual void visitFloat(const APropertyTypeFloat& type) = 0;
+        virtual void visitString(const APropertyTypeString& type) = 0;
+        virtual void visitVec2f(const APropertyTypeVec2f& type) = 0;
+        virtual void visitVec3f(const APropertyTypeVec3f& type) = 0;
+        virtual void visitVec4f(const APropertyTypeVec4f& type) = 0;
+        virtual void visitColor(const APropertyTypeColor& type) = 0;
+        virtual void visitEnum(const APropertyTypeEnum& type) = 0;
+        virtual void visitObject(const APropertyTypeObject& type) = 0;
+    };
 }
+
+#endif

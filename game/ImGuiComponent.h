@@ -37,6 +37,10 @@ namespace af3d
         explicit ImGuiComponent(int zOrder = 0);
         ~ImGuiComponent() = default;
 
+        static const AClass& staticKlass();
+
+        static AObjectPtr create(const APropertyValueMap& propVals);
+
         ComponentPtr sharedThis() override { return shared_from_this(); }
 
         void render(RenderList& rl) override;
@@ -50,6 +54,8 @@ namespace af3d
     };
 
     using ImGuiComponentPtr = std::shared_ptr<ImGuiComponent>;
+
+    ACLASS_DECLARE(ImGuiComponent)
 }
 
 #endif

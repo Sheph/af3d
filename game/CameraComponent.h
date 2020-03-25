@@ -40,9 +40,16 @@ namespace af3d
         explicit CameraComponent(const btTransform& xf = btTransform::getIdentity());
         ~CameraComponent() = default;
 
+        static const AClass& staticKlass();
+
+        static AObjectPtr create(const APropertyValueMap& propVals);
+
         ComponentPtr sharedThis() override { return shared_from_this(); }
 
         void preRender(float dt) override;
+
+        inline const btTransform& transform() const { return xf_; }
+        inline void setTransform(const btTransform& value) { xf_ = value; }
 
         inline ProjectionType projectionType() const { return frustum_.projectionType(); }
         inline void setProjectionType(ProjectionType value) { frustum_.setProjectionType(value); }
@@ -87,6 +94,8 @@ namespace af3d
     };
 
     using CameraComponentPtr = std::shared_ptr<CameraComponent>;
+
+    ACLASS_DECLARE(CameraComponent)
 }
 
 #endif

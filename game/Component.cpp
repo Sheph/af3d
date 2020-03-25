@@ -28,6 +28,19 @@
 
 namespace af3d
 {
+    ACLASS_DEFINE_BEGIN_ABSTRACT(Component, AObject)
+    ACLASS_DEFINE_END(Component)
+
+    Component::Component(const AClass& klass)
+    : AObject(klass)
+    {
+    }
+
+    const AClass& Component::staticKlass()
+    {
+        return AClass_Component;
+    }
+
     void Component::removeFromParent()
     {
         if (parent_) {

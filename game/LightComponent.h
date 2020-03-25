@@ -40,6 +40,10 @@ namespace af3d
         LightComponent();
         ~LightComponent();
 
+        static const AClass& staticKlass();
+
+        static AObjectPtr create(const APropertyValueMap& propVals);
+
         ComponentPtr sharedThis() override { return shared_from_this(); }
 
         void update(float dt) override;
@@ -79,6 +83,8 @@ namespace af3d
     };
 
     using LightComponentPtr = std::shared_ptr<LightComponent>;
+
+    ACLASS_DECLARE(LightComponent)
 }
 
 #endif

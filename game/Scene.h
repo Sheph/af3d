@@ -49,6 +49,10 @@ namespace af3d
         explicit Scene(const std::string& scriptPath);
         ~Scene();
 
+        static const AClass& staticKlass();
+
+        static AObjectPtr create(const APropertyValueMap& propVals);
+
         void prepare();
 
         void cleanup();
@@ -130,6 +134,8 @@ namespace af3d
         float timeScale_;
         float realDt_;
     };
+
+    ACLASS_DECLARE(Scene)
 }
 
 #endif

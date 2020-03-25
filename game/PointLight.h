@@ -36,8 +36,12 @@ namespace af3d
     public:
         static const int TypeId = 2;
 
-        explicit PointLight(const std::string& name);
+        explicit PointLight();
         ~PointLight() = default;
+
+        static const AClass& staticKlass();
+
+        static AObjectPtr create(const APropertyValueMap& propVals);
 
         LightPtr sharedThis() override { return shared_from_this(); }
 
@@ -51,6 +55,8 @@ namespace af3d
     };
 
     using PointLightPtr = std::shared_ptr<PointLight>;
+
+    ACLASS_DECLARE(PointLight)
 }
 
 #endif

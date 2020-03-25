@@ -26,6 +26,7 @@
 #ifndef _SCENEOBJECTMANAGER_H_
 #define _SCENEOBJECTMANAGER_H_
 
+#include "AObject.h"
 #include "af3d/Types.h"
 #include "af3d/EnumSet.h"
 #include <boost/noncopyable.hpp>
@@ -63,11 +64,15 @@ namespace af3d
 
     using SceneObjectTypes = EnumSet<SceneObjectType>;
 
-    class SceneObjectManager : boost::noncopyable
+    extern const APropertyTypeEnumImpl<SceneObjectType> APropertyType_SceneObjectType;
+
+    class SceneObjectManager : public AObject
     {
     public:
-        SceneObjectManager() = default;
+        SceneObjectManager(const AClass& klass);
         virtual ~SceneObjectManager() = default;
+
+        static const AClass& staticKlass();
 
         void addObject(const SceneObjectPtr& obj);
 
@@ -98,6 +103,8 @@ namespace af3d
 
         std::unordered_set<SceneObjectPtr> objects_;
     };
+
+    ACLASS_DECLARE(SceneObjectManager)
 }
 
 #endif

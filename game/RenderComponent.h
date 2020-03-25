@@ -34,12 +34,10 @@ namespace af3d
     class RenderComponent : public Component
     {
     public:
-        explicit RenderComponent(bool renderAlways = false)
-        : renderAlways_(renderAlways)
-        {
-        }
-
+        explicit RenderComponent(const AClass& klass, bool renderAlways = false);
         ~RenderComponent() = default;
+
+        static const AClass& staticKlass();
 
         RenderComponentManager* manager() override { return manager_; }
         inline void setManager(RenderComponentManager* value)
@@ -57,15 +55,13 @@ namespace af3d
 
         virtual void render(RenderList& rl, void* const* parts, size_t numParts) = 0;
 
-        inline const std::string& name() const { return name_; }
-        inline void setName(const std::string& value) { name_ = value; }
-
     private:
         bool renderAlways_;
         bool visible_ = true;
-        std::string name_;
         RenderComponentManager* manager_ = nullptr;
     };
+
+    ACLASS_DECLARE(RenderComponent)
 }
 
 #endif

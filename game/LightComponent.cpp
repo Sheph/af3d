@@ -28,7 +28,11 @@
 
 namespace af3d
 {
+    ACLASS_DEFINE_BEGIN(LightComponent, RenderComponent)
+    ACLASS_DEFINE_END(LightComponent)
+
     LightComponent::LightComponent()
+    : RenderComponent(AClass_LightComponent)
     {
     }
 
@@ -37,6 +41,18 @@ namespace af3d
         while (!lights_.empty()) {
             lights_.back()->remove();
         }
+    }
+
+    const AClass& LightComponent::staticKlass()
+    {
+        return AClass_LightComponent;
+    }
+
+    AObjectPtr LightComponent::create(const APropertyValueMap& propVals)
+    {
+        auto obj = std::make_shared<LightComponent>();
+        obj->propertiesSet(propVals);
+        return obj;
     }
 
     void LightComponent::update(float dt)

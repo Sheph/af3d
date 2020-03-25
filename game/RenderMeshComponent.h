@@ -38,6 +38,10 @@ namespace af3d
         explicit RenderMeshComponent(const MeshPtr& mesh);
         ~RenderMeshComponent() = default;
 
+        static const AClass& staticKlass();
+
+        static AObjectPtr create(const APropertyValueMap& propVals);
+
         ComponentPtr sharedThis() override { return shared_from_this(); }
 
         void update(float dt) override;
@@ -70,6 +74,8 @@ namespace af3d
     };
 
     using RenderMeshComponentPtr = std::shared_ptr<RenderMeshComponent>;
+
+    ACLASS_DECLARE(RenderMeshComponent)
 }
 
 #endif

@@ -27,10 +27,25 @@
 
 namespace af3d
 {
-    DirectionalLight::DirectionalLight(const std::string& name)
-    : Light(name, TypeId)
+    ACLASS_DEFINE_BEGIN(DirectionalLight, Light)
+    ACLASS_DEFINE_END(DirectionalLight)
+
+    DirectionalLight::DirectionalLight()
+    : Light(AClass_DirectionalLight, TypeId)
     {
         setLocalAABB(AABB(btVector3_one * -1000.0f, btVector3_one * 1000.0f));
+    }
+
+    const AClass& DirectionalLight::staticKlass()
+    {
+        return AClass_DirectionalLight;
+    }
+
+    AObjectPtr DirectionalLight::create(const APropertyValueMap& propVals)
+    {
+        auto obj = std::make_shared<DirectionalLight>();
+        obj->propertiesSet(propVals);
+        return obj;
     }
 
     void DirectionalLight::setLocalAABB(const AABB& value)

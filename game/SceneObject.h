@@ -40,10 +40,11 @@ namespace af3d
         SceneObject();
         ~SceneObject();
 
-        inline std::uint32_t cookie() const { return cookie_; }
+        static const AClass& staticKlass();
 
-        inline const std::string& name() const { return name_; }
-        inline void setName(const std::string& value) { name_ = value; }
+        static AObjectPtr create(const APropertyValueMap& propVals);
+
+        inline std::uint32_t cookie() const { return cookie_; }
 
         void addComponent(const ComponentPtr& component);
 
@@ -247,8 +248,6 @@ namespace af3d
 
         SceneObjectType type_;
 
-        std::string name_;
-
         btRigidBody::btRigidBodyConstructionInfo bodyDef_;
         btRigidBody* body_;
 
@@ -260,6 +259,8 @@ namespace af3d
 
         bool physicsActive_;
     };
+
+    ACLASS_DECLARE(SceneObject)
 }
 
 #endif

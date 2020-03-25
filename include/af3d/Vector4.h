@@ -217,6 +217,19 @@ namespace af3d
             return !(*this == other);
         }
 
+        bool operator<(const Vector4<T>& other) const
+        {
+            if (v[0] != other.v[0]) {
+                return v[0] < other.v[0];
+            } else if (v[1] != other.v[1]) {
+                return v[1] < other.v[1];
+            } else if (v[2] != other.v[2]) {
+                return v[2] < other.v[2];
+            } else {
+                return v[3] < other.v[3];
+            }
+        }
+
         void setMax(const Vector4<T>& other)
         {
             btSetMax(v[0], other.v[0]);

@@ -29,10 +29,25 @@
 
 namespace af3d
 {
+    ACLASS_DEFINE_BEGIN_ABSTRACT(Light, AObject)
+    ACLASS_DEFINE_END(Light)
+
+    Light::Light(const AClass& klass, int typeId)
+    : AObject(klass),
+      typeId_(typeId)
+    {
+        btAssert(typeId > 0);
+    }
+
     Light::~Light()
     {
         btAssert(parent_ == nullptr);
         btAssert(cookie_ == nullptr);
+    }
+
+    const AClass& Light::staticKlass()
+    {
+        return AClass_Light;
     }
 
     SceneObject* Light::parentObject() const

@@ -36,13 +36,10 @@ namespace af3d
     class PhasedComponent : public Component
     {
     public:
-        explicit PhasedComponent(std::uint32_t phases, int order = 0)
-        : phases_(phases),
-          order_(order)
-        {
-        }
-
+        PhasedComponent(const AClass& klass, std::uint32_t phases, int order = 0);
         ~PhasedComponent() = default;
+
+        static const AClass& staticKlass();
 
         inline std::uint32_t phases() const { return phases_; }
         inline int order() const { return order_; }
@@ -62,6 +59,8 @@ namespace af3d
         int order_;
         PhasedComponentManager* manager_ = nullptr;
     };
+
+    ACLASS_DECLARE(PhasedComponent)
 }
 
 #endif

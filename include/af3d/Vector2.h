@@ -200,6 +200,15 @@ namespace af3d
             return !(*this == other);
         }
 
+        bool operator<(const Vector2<T>& other) const
+        {
+            if (v[0] != other.v[0]) {
+                return v[0] < other.v[0];
+            } else {
+                return v[1] < other.v[1];
+            }
+        }
+
         void setMax(const Vector2<T>& other)
         {
             btSetMax(v[0], other.v[0]);

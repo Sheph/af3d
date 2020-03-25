@@ -28,9 +28,25 @@
 
 namespace af3d
 {
+    ACLASS_DEFINE_BEGIN(RenderMeshComponent, RenderComponent)
+    ACLASS_DEFINE_END(RenderMeshComponent)
+
     RenderMeshComponent::RenderMeshComponent(const MeshPtr& mesh)
-    : mesh_(mesh)
+    : RenderComponent(AClass_RenderMeshComponent),
+      mesh_(mesh)
     {
+    }
+
+    const AClass& RenderMeshComponent::staticKlass()
+    {
+        return AClass_RenderMeshComponent;
+    }
+
+    AObjectPtr RenderMeshComponent::create(const APropertyValueMap& propVals)
+    {
+        auto obj = std::make_shared<RenderMeshComponent>(MeshPtr());
+        obj->propertiesSet(propVals);
+        return obj;
     }
 
     void RenderMeshComponent::update(float dt)

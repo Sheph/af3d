@@ -49,6 +49,9 @@
 
 namespace af3d
 {
+    ACLASS_DEFINE_BEGIN(Scene, SceneObjectManager)
+    ACLASS_DEFINE_END(Scene)
+
     using TimerMap = std::map<std::int32_t, Scene::TimerFn>;
 
     class Scene::Impl
@@ -77,7 +80,8 @@ namespace af3d
     };
 
     Scene::Scene(const std::string& scriptPath)
-    : impl_(new Impl(this)),
+    : SceneObjectManager(AClass_Scene),
+      impl_(new Impl(this)),
       inputMode_(InputMode::Game),
       playable_(false),
       paused_(false),
@@ -120,6 +124,18 @@ namespace af3d
     Scene::~Scene()
     {
         impl_.reset();
+    }
+
+    const AClass& Scene::staticKlass()
+    {
+        return AClass_Scene;
+    }
+
+    AObjectPtr Scene::create(const APropertyValueMap& propVals)
+    {
+        auto obj = std::make_shared<Scene>("");
+        obj->propertiesSet(propVals);
+        return obj;
     }
 
     void Scene::prepare()

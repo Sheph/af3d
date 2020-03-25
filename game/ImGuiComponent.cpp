@@ -29,12 +29,27 @@
 
 namespace af3d
 {
+    ACLASS_DEFINE_BEGIN(ImGuiComponent, UIComponent)
+    ACLASS_DEFINE_END(ImGuiComponent)
+
     ImGuiComponent::ImGuiComponent(int zOrder)
-    : UIComponent(zOrder)
+    : UIComponent(AClass_ImGuiComponent, zOrder)
     {
         material_ = materialManager.createMaterial(MaterialType2D);
         material_->setBlendingParams(BlendingParams(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
         material_->setDepthTest(false);
+    }
+
+    const AClass& ImGuiComponent::staticKlass()
+    {
+        return AClass_ImGuiComponent;
+    }
+
+    AObjectPtr ImGuiComponent::create(const APropertyValueMap& propVals)
+    {
+        auto obj = std::make_shared<ImGuiComponent>();
+        obj->propertiesSet(propVals);
+        return obj;
     }
 
     void ImGuiComponent::render(RenderList& rl)

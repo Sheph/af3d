@@ -29,6 +29,41 @@
 
 namespace af3d
 {
+    ACLASS_DEFINE_BEGIN_ABSTRACT(SceneObjectManager, AObject)
+    ACLASS_DEFINE_END(SceneObjectManager)
+
+    const APropertyTypeEnumImpl<SceneObjectType> APropertyType_SceneObjectType{"SceneObjectType",
+        {
+            "Other",
+            "Player",
+            "Enemy",
+            "PlayerMissile",
+            "EnemyMissile",
+            "Terrain",
+            "Rock",
+            "Blocker",
+            "Ally",
+            "AllyMissile",
+            "EnemyBuilding",
+            "Gizmo",
+            "NeutralMissile",
+            "Garbage",
+            "Vehicle",
+            "Deadbody",
+            "Liquid",
+        }
+    };
+
+    SceneObjectManager::SceneObjectManager(const AClass& klass)
+    : AObject(klass)
+    {
+    }
+
+    const AClass& SceneObjectManager::staticKlass()
+    {
+        return AClass_SceneObjectManager;
+    }
+
     void SceneObjectManager::addObject(const SceneObjectPtr& obj)
     {
         btAssert(!obj->parent());

@@ -30,10 +30,25 @@
 
 namespace af3d
 {
+    ACLASS_DEFINE_BEGIN(CameraComponent, PhasedComponent)
+    ACLASS_DEFINE_END(CameraComponent)
+
     CameraComponent::CameraComponent(const btTransform& xf)
-    : PhasedComponent(phasePreRender),
+    : PhasedComponent(AClass_CameraComponent, phasePreRender),
       xf_(xf)
     {
+    }
+
+    const AClass& CameraComponent::staticKlass()
+    {
+        return AClass_CameraComponent;
+    }
+
+    AObjectPtr CameraComponent::create(const APropertyValueMap& propVals)
+    {
+        auto obj = std::make_shared<CameraComponent>();
+        obj->propertiesSet(propVals);
+        return obj;
     }
 
     void CameraComponent::preRender(float dt)

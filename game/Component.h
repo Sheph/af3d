@@ -26,6 +26,7 @@
 #ifndef _COMPONENT_H_
 #define _COMPONENT_H_
 
+#include "AObject.h"
 #include "af3d/Types.h"
 #include "af3d/Assert.h"
 #include <boost/noncopyable.hpp>
@@ -40,11 +41,13 @@ namespace af3d
     class Component;
     using ComponentPtr = std::shared_ptr<Component>;
 
-    class Component : boost::noncopyable
+    class Component : public AObject
     {
     public:
-        Component() = default;
-        virtual ~Component() = default;
+        explicit Component(const AClass& klass);
+        ~Component() = default;
+
+        static const AClass& staticKlass();
 
         virtual ComponentPtr sharedThis() = 0;
 
@@ -89,6 +92,8 @@ namespace af3d
 
         mutable SceneObject* parent_ = nullptr;
     };
+
+    ACLASS_DECLARE(Component)
 }
 
 #endif

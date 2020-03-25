@@ -27,10 +27,25 @@
 
 namespace af3d
 {
-    PointLight::PointLight(const std::string& name)
-    : Light(name, TypeId)
+    ACLASS_DEFINE_BEGIN(PointLight, Light)
+    ACLASS_DEFINE_END(PointLight)
+
+    PointLight::PointLight()
+    : Light(AClass_PointLight, TypeId)
     {
         setRadius(1.0f);
+    }
+
+    const AClass& PointLight::staticKlass()
+    {
+        return AClass_PointLight;
+    }
+
+    AObjectPtr PointLight::create(const APropertyValueMap& propVals)
+    {
+        auto obj = std::make_shared<PointLight>();
+        obj->propertiesSet(propVals);
+        return obj;
     }
 
     void PointLight::setRadius(float value)

@@ -34,12 +34,10 @@ namespace af3d
     class UIComponent : public Component
     {
     public:
-        explicit UIComponent(int zOrder = 0)
-        : zOrder_(zOrder)
-        {
-        }
-
+        explicit UIComponent(const AClass& klass, int zOrder = 0);
         ~UIComponent() = default;
+
+        static const AClass& staticKlass();
 
         UIComponentManager* manager() override { return manager_; }
         inline void setManager(UIComponentManager* value)
@@ -62,6 +60,8 @@ namespace af3d
         bool visible_ = true;
         UIComponentManager* manager_ = nullptr;
     };
+
+    ACLASS_DECLARE(UIComponent)
 }
 
 #endif

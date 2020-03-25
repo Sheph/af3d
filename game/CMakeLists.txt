@@ -54,16 +54,23 @@ set(SOURCES
     DirectionalLight.cpp
     PointLight.cpp
     LightComponent.cpp
+    PhasedComponent.cpp
+    UIComponent.cpp
+    RenderComponent.cpp
     AssimpIOSystem.cpp
     AssimpIOStream.cpp
     AssimpLogStream.cpp
     BoxMeshGenerator.cpp
     AssimpMeshLoader.cpp
     UIComponentManager.cpp
-    UITimerComponent.cpp
     ImGuiManager.cpp
     ImGuiComponent.cpp
     VertexArrayWriter.cpp
+    APropertyType.cpp
+    APropertyTypes.cpp
+    APropertyValue.cpp
+    AClass.cpp
+    AObject.cpp
 )
 
 file(READ "config.ini" _INI)

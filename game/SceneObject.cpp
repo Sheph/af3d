@@ -30,6 +30,9 @@
 
 namespace af3d
 {
+    ACLASS_DEFINE_BEGIN(SceneObject, SceneObjectManager)
+    ACLASS_DEFINE_END(SceneObject)
+
     static std::uint32_t nextCookie = 0;
 
     static void insertComponent(std::vector<ComponentPtr>& components,
@@ -58,7 +61,8 @@ namespace af3d
     }
 
     SceneObject::SceneObject()
-    : cookie_(nextCookie++),
+    : SceneObjectManager(AClass_SceneObject),
+      cookie_(nextCookie++),
       type_(SceneObjectType::Other),
       bodyDef_(0.0f, nullptr, nullptr),
       body_(nullptr),
@@ -83,6 +87,18 @@ namespace af3d
         //if (body_) {
             //body_->GetWorld()->DestroyBody(body_);
         //}
+    }
+
+    const AClass& SceneObject::staticKlass()
+    {
+        return AClass_SceneObject;
+    }
+
+    AObjectPtr SceneObject::create(const APropertyValueMap& propVals)
+    {
+        auto obj = std::make_shared<SceneObject>();
+        obj->propertiesSet(propVals);
+        return obj;
     }
 
     void SceneObject::addComponent(const ComponentPtr& component)
