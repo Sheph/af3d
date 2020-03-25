@@ -62,6 +62,9 @@ namespace af3d
         std::string name_;
     };
 
+    extern const APropertyTypeObject APropertyType_AObject;
+    extern const APropertyTypeArray APropertyType_ArrayAObject;
+
     ACLASS_DECLARE(AObject)
 }
 

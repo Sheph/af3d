@@ -138,6 +138,16 @@ namespace af3d
         return obj;
     }
 
+    std::vector<AObjectPtr> Scene::getChildren() const
+    {
+        std::vector<AObjectPtr> res;
+        res.reserve(objects().size());
+        for (const auto& obj : objects()) {
+            res.push_back(obj);
+        }
+        return res;
+    }
+
     void Scene::prepare()
     {
     }

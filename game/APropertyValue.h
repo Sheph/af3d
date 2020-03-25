@@ -52,11 +52,11 @@ namespace af3d
             Vec3f,
             Vec4f,
             Object,
-            Transform
+            Transform,
+            Array
         };
 
         APropertyValue();
-        APropertyValue(bool val);
         APropertyValue(int val);
         APropertyValue(float val);
         APropertyValue(const char* val);
@@ -67,6 +67,7 @@ namespace af3d
         APropertyValue(const Vector4f& val);
         APropertyValue(const AObjectPtr& val);
         APropertyValue(const btTransform& val);
+        APropertyValue(const std::vector<APropertyValue>& val);
 
         ~APropertyValue() = default;
 
@@ -84,6 +85,7 @@ namespace af3d
         Vector4f toVec4f() const;
         AObjectPtr toObject() const;
         btTransform toTransform() const;
+        std::vector<APropertyValue> toArray() const;
 
         template <class T>
         std::shared_ptr<T> toObject() const
@@ -121,6 +123,7 @@ namespace af3d
         std::string str_;
         AObjectPtr obj_;
         btTransform xf_;
+        std::vector<APropertyValue> arr_;
     };
 
     using APropertyValueMap = std::unordered_map<std::string, APropertyValue>;

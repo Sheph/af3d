@@ -114,6 +114,8 @@ namespace af3d
 
         void removeFromParentRecursive();
 
+        std::vector<AObjectPtr> getChildren() const override;
+
         inline SceneObjectType type() const { return type_; }
         void setType(SceneObjectType value) { type_ = value; }
 

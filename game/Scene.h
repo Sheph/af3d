@@ -53,6 +53,8 @@ namespace af3d
 
         static AObjectPtr create(const APropertyValueMap& propVals);
 
+        std::vector<AObjectPtr> getChildren() const override;
+
         void prepare();
 
         void cleanup();

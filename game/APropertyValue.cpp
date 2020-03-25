@@ -33,12 +33,6 @@ namespace af3d
     {
     }
 
-    APropertyValue::APropertyValue(bool val)
-    : type_(Int),
-      pod_(val)
-    {
-    }
-
     APropertyValue::APropertyValue(int val)
     : type_(Int),
       pod_(val)
@@ -99,6 +93,12 @@ namespace af3d
     {
     }
 
+    APropertyValue::APropertyValue(const std::vector<APropertyValue>& val)
+    : type_(Array),
+      arr_(val)
+    {
+    }
+
     bool APropertyValue::toBool() const
     {
         switch (type_) {
@@ -138,6 +138,8 @@ namespace af3d
     std::string APropertyValue::toString() const
     {
         switch (type_) {
+        case None:
+            return "";
         case Int:
             return std::to_string(pod_.intVal);
         case Float:
@@ -167,6 +169,18 @@ namespace af3d
         case Transform: {
             std::ostringstream os;
             os << xf_;
+            return os.str();
+        }
+        case Array: {
+            std::ostringstream os;
+            os << "(";
+            for (size_t i = 0; i < arr_.size(); ++i) {
+                if (i != 0) {
+                    os << ",";
+                }
+                os << arr_[i].toString();
+            }
+            os << ")";
             return os.str();
         }
         default:
@@ -251,6 +265,16 @@ namespace af3d
         }
     }
 
+    std::vector<APropertyValue> APropertyValue::toArray() const
+    {
+        switch (type_) {
+        case Array:
+            return arr_;
+        default:
+            return std::vector<APropertyValue>();
+        }
+    }
+
     bool APropertyValue::operator<(const APropertyValue& rhs) const
     {
         if (type_ != rhs.type_) {
@@ -275,6 +299,16 @@ namespace af3d
             return obj_ < rhs.obj_;
         case Transform:
             btAssert(false);
+            return false;
+        case Array:
+            if (arr_.size() != rhs.arr_.size()) {
+                return arr_.size() < rhs.arr_.size();
+            }
+            for (size_t i = 0; i < arr_.size(); ++i) {
+                if (arr_[i] != rhs.arr_[i]) {
+                    return arr_[i] < rhs.arr_[i];
+                }
+            }
             return false;
         default:
             btAssert(false);
@@ -306,6 +340,16 @@ namespace af3d
             return obj_ == rhs.obj_;
         case Transform:
             return xf_ == rhs.xf_;
+        case Array:
+            if (arr_.size() != rhs.arr_.size()) {
+                return false;
+            }
+            for (size_t i = 0; i < arr_.size(); ++i) {
+                if (arr_[i] != rhs.arr_[i]) {
+                    return false;
+                }
+            }
+            return true;
         default:
             btAssert(false);
             return false;

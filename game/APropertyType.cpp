@@ -140,4 +140,15 @@ namespace af3d
     {
         visitor.visitTransform(*this);
     }
+
+    APropertyTypeArray::APropertyTypeArray(const char* name, const APropertyType& type)
+    : APropertyType(name),
+      type_(type)
+    {
+    }
+
+    void APropertyTypeArray::accept(APropertyTypeVisitor& visitor) const
+    {
+        visitor.visitArray(*this);
+    }
 }

@@ -72,6 +72,16 @@ namespace af3d
             return std::shared_ptr<T>();
         }
 
+        APropertyValue propertyChildrenGet() const
+        {
+            std::vector<APropertyValue> res;
+            res.reserve(lights_.size());
+            for (const auto& light : lights_) {
+                res.emplace_back(light);
+            }
+            return res;
+        }
+
     private:
         void onRegister() override;
 

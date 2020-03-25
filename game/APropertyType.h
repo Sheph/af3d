@@ -188,6 +188,19 @@ namespace af3d
 
         void accept(APropertyTypeVisitor& visitor) const override;
     };
+
+    class APropertyTypeArray : public APropertyType
+    {
+    public:
+        APropertyTypeArray(const char* name, const APropertyType& type);
+
+        inline const APropertyType& type() const { return type_; }
+
+        void accept(APropertyTypeVisitor& visitor) const override;
+
+    private:
+        const APropertyType& type_;
+    };
 }
 
 #endif

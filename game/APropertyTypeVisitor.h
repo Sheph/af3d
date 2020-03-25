@@ -42,6 +42,7 @@ namespace af3d
     class APropertyTypeEnum;
     class APropertyTypeObject;
     class APropertyTypeTransform;
+    class APropertyTypeArray;
 
     class APropertyTypeVisitor
     {
@@ -60,6 +61,7 @@ namespace af3d
         virtual void visitEnum(const APropertyTypeEnum& type) = 0;
         virtual void visitObject(const APropertyTypeObject& type) = 0;
         virtual void visitTransform(const APropertyTypeTransform& type) = 0;
+        virtual void visitArray(const APropertyTypeArray& type) = 0;
     };
 }
 

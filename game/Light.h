@@ -129,6 +129,9 @@ namespace af3d
         RenderCookie* cookie_ = nullptr;
     };
 
+    extern const APropertyTypeObject APropertyType_Light;
+    extern const APropertyTypeArray APropertyType_ArrayLight;
+
     ACLASS_DECLARE(Light)
 }
 

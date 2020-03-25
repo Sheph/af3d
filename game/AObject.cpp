@@ -27,6 +27,9 @@
 
 namespace af3d
 {
+    const APropertyTypeObject APropertyType_AObject{"AObject", AClass_AObject};
+    const APropertyTypeArray APropertyType_ArrayAObject{"ArrayAObject", APropertyType_AObject};
+
     ACLASS_DEFINE_BEGIN_ABSTRACT(AObject, Null)
     ACLASS_PROPERTY(AObject, Name, AProperty_Name, "Object name", String, "", General)
     ACLASS_DEFINE_END(AObject)

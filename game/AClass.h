@@ -107,6 +107,9 @@ namespace af3d
     #define ACLASS_PROPERTY(ClassName, Member, Name, Tooltip, Type, Def, Category) \
         {Name, Tooltip, APropertyType_##Type, Def, APropertyCategory::Category, APropertyReadable|APropertyWritable, (APropertyGetter)&ClassName::property##Member##Get, (APropertySetter)&ClassName::property##Member##Set},
 
+    #define ACLASS_PROPERTY_RO(ClassName, Member, Name, Tooltip, Type, Category) \
+        {Name, Tooltip, APropertyType_##Type, APropertyValue(), APropertyCategory::Category, APropertyReadable, (APropertyGetter)&ClassName::property##Member##Get, nullptr},
+
     #define ACLASS_DEFINE_END(Name) }};
 
     ACLASS_DECLARE(Null)

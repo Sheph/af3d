@@ -41,6 +41,7 @@ namespace af3d
     {
         General = 0,
         Position,
+        Hierarchy,
         Max = Position
     };
 
@@ -89,6 +90,7 @@ namespace af3d
     #define AProperty_LocalTransform "local transform"
     #define AProperty_WorldTransform "world transform"
     #define AProperty_Scale "scale"
+    #define AProperty_Children "children"
 }
 
 inline std::ostream& operator <<(std::ostream& os, af3d::APropertyCategory cat)
