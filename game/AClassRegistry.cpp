@@ -38,7 +38,7 @@ namespace af3d
     {
         LOG4CPLUS_DEBUG(logger(), "AClassRegistry::dump():");
         for (const auto& kv : map_) {
-            LOG4CPLUS_DEBUG(logger(), "class \"" << kv.second->name() << "\" (\"" << (kv.second->super() ? kv.second->super()->name() : "Null")  << "\"):");
+            LOG4CPLUS_DEBUG(logger(), "class \"" << kv.second->name() << "\" (\"" << (kv.second->super() ? kv.second->super()->name() : "")  << "\"):");
             const auto& props = kv.second->thisProperties();
             for (const auto& prop : props) {
                 LOG4CPLUS_DEBUG(logger(), "  " << prop.name() << "(" << prop.type().name() << "): tooltip = \"" <<

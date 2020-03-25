@@ -33,7 +33,6 @@ namespace af3d
     class AObject : boost::noncopyable
     {
     public:
-        explicit AObject(const AClass& klass);
         virtual ~AObject() = default;
 
         static const AClass& staticKlass();
@@ -53,6 +52,9 @@ namespace af3d
 
         APropertyValue propertyNameGet() const { return name(); }
         void propertyNameSet(const APropertyValue& value) { setName(value.toString()); }
+
+    protected:
+        explicit AObject(const AClass& klass);
 
     private:
         const AClass* klass_;

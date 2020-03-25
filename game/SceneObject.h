@@ -233,6 +233,12 @@ namespace af3d
          * @}
          */
 
+        APropertyValue propertyTransformGet() const { return transform(); }
+        void propertyTransformSet(const APropertyValue& value) { setTransform(value.toTransform()); }
+
+        APropertyValue propertyTypeGet() const { return static_cast<int>(type()); }
+        void propertyTypeSet(const APropertyValue& value) { setType(static_cast<SceneObjectType>(value.toInt())); }
+
     private:
         enum class Flag
         {

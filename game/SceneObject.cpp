@@ -31,6 +31,8 @@
 namespace af3d
 {
     ACLASS_DEFINE_BEGIN(SceneObject, SceneObjectManager)
+    ACLASS_PROPERTY(SceneObject, Transform, AProperty_WorldTransform, "World transform", Transform, btTransform::getIdentity(), Position)
+    ACLASS_PROPERTY(SceneObject, Type, "type", "Scene object type", SceneObjectType, static_cast<int>(SceneObjectType::Other), General)
     ACLASS_DEFINE_END(SceneObject)
 
     static std::uint32_t nextCookie = 0;

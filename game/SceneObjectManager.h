@@ -69,7 +69,7 @@ namespace af3d
     class SceneObjectManager : public AObject
     {
     public:
-        SceneObjectManager(const AClass& klass);
+        explicit SceneObjectManager(const AClass& klass);
         virtual ~SceneObjectManager() = default;
 
         static const AClass& staticKlass();

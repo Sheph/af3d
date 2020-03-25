@@ -31,7 +31,6 @@
 namespace af3d
 {
     class APropertyType;
-    class APropertyTypeNull;
     class APropertyTypeBool;
     class APropertyTypeInt;
     class APropertyTypeFloat;
@@ -50,7 +49,6 @@ namespace af3d
         APropertyTypeVisitor() = default;
         virtual ~APropertyTypeVisitor() = default;
 
-        virtual void visitNull(const APropertyTypeNull& type) = 0;
         virtual void visitBool(const APropertyTypeBool& type) = 0;
         virtual void visitInt(const APropertyTypeInt& type) = 0;
         virtual void visitFloat(const APropertyTypeFloat& type) = 0;

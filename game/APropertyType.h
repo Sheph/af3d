@@ -51,14 +51,6 @@ namespace af3d
         const char* name_;
     };
 
-    class APropertyTypeNull : public APropertyType
-    {
-    public:
-        APropertyTypeNull();
-
-        void accept(APropertyTypeVisitor& visitor) const override;
-    };
-
     class APropertyTypeBool : public APropertyType
     {
     public:

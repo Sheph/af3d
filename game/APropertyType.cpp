@@ -28,16 +28,6 @@
 
 namespace af3d
 {
-    APropertyTypeNull::APropertyTypeNull()
-    : APropertyType("Null")
-    {
-    }
-
-    void APropertyTypeNull::accept(APropertyTypeVisitor& visitor) const
-    {
-        visitor.visitNull(*this);
-    }
-
     APropertyTypeBool::APropertyTypeBool()
     : APropertyType("Bool")
     {

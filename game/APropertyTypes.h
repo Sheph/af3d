@@ -30,7 +30,6 @@
 
 namespace af3d
 {
-    extern const APropertyTypeNull APropertyType_Null;
     extern const APropertyTypeBool APropertyType_Bool;
     extern const APropertyTypeInt APropertyType_Int;
     extern const APropertyTypeInt APropertyType_UInt;

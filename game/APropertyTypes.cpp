@@ -27,7 +27,6 @@
 
 namespace af3d
 {
-    const APropertyTypeNull APropertyType_Null;
     const APropertyTypeBool APropertyType_Bool;
     const APropertyTypeInt APropertyType_Int;
     const APropertyTypeInt APropertyType_UInt{0};
