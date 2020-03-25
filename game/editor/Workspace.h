@@ -27,6 +27,7 @@
 #define _EDITOR_WORKSPACE_H_
 
 #include "UIComponent.h"
+#include "editor/Action.h"
 
 namespace af3d { namespace editor
 {
@@ -34,8 +35,12 @@ namespace af3d { namespace editor
         public UIComponent
     {
     public:
-        Workspace() = default;
+        Workspace();
         ~Workspace() = default;
+
+        static const AClass& staticKlass();
+
+        static AObjectPtr create(const APropertyValueMap& propVals);
 
         ComponentPtr sharedThis() override { return shared_from_this(); }
 
@@ -43,13 +48,19 @@ namespace af3d { namespace editor
 
         void render(RenderList& rl) override;
 
+        inline Action& actionMainPopup() { return *actionMainPopup_; }
+
     private:
         void onRegister() override;
 
         void onUnregister() override;
+
+        std::unique_ptr<Action> actionMainPopup_;
     };
 
     using WorkspacePtr = std::shared_ptr<Workspace>;
-} }
+}
+    ACLASS_NS_DECLARE(editor, Workspace)
+}
 
 #endif

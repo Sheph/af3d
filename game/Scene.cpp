@@ -100,6 +100,13 @@ namespace af3d
         impl_->renderComponentManager_->setScene(this);
         impl_->uiComponentManager_->setScene(this);
 
+        if (settings.editor) {
+            workspaceObj_ = std::make_shared<SceneObject>();
+            workspace_ = std::make_shared<editor::Workspace>();
+            workspaceObj_->addComponent(workspace_);
+            addObject(workspaceObj_);
+        }
+
         camera_ = std::make_shared<SceneObject>();
 
         auto cc = std::make_shared<CameraComponent>();
@@ -163,6 +170,9 @@ namespace af3d
 
         lightC_.reset();
         imGuiC_.reset();
+
+        workspaceObj_.reset();
+        workspace_.reset();
 
         impl_->timers_.clear();
 

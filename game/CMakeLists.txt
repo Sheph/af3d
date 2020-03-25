@@ -72,7 +72,12 @@ set(SOURCES
     AClass.cpp
     AObject.cpp
     AClassRegistry.cpp
+    editor/Workspace.cpp
+    editor/ActionMainPopup.cpp
+    editor/MainPopup.cpp
 )
+
+include_directories(.)
 
 file(READ "config.ini" _INI)
 

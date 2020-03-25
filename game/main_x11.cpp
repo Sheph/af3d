@@ -1383,6 +1383,10 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    if (argc > 2) {
+        af3d::settings.editor = atoi(argv[2]) > 0;
+    }
+
     bool res = game.init(argc > 1 ? argv[1] : "startup.lua");
 
     if (!res) {

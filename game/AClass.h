@@ -98,11 +98,19 @@ namespace af3d
 
     #define ACLASS_DECLARE(Name) extern const AClass AClass_##Name;
 
+    #define ACLASS_NS_DECLARE(NS, Name) extern const AClass AClass_##NS##Name;
+
     #define ACLASS_DEFINE_BEGIN_ABSTRACT(Name, Super) \
         const AClass AClass_##Name{#Name, AClass_##Super, nullptr, {
 
+    #define ACLASS_NS_DEFINE_BEGIN_ABSTRACT(NS, Name, Super) \
+        const AClass AClass_##NS##Name{#NS "::" #Name, AClass_##Super, nullptr, {
+
     #define ACLASS_DEFINE_BEGIN(Name, Super) \
         const AClass AClass_##Name{#Name, AClass_##Super, &Name::create, {
+
+    #define ACLASS_NS_DEFINE_BEGIN(NS, Name, Super) \
+        const AClass AClass_##NS##Name{#NS "::" #Name, AClass_##Super, &NS::Name::create, {
 
     #define ACLASS_PROPERTY(ClassName, Member, Name, Tooltip, Type, Def, Category) \
         {Name, Tooltip, APropertyType_##Type, Def, APropertyCategory::Category, APropertyReadable|APropertyWritable, (APropertyGetter)&ClassName::property##Member##Get, (APropertySetter)&ClassName::property##Member##Set},
@@ -111,6 +119,8 @@ namespace af3d
         {Name, Tooltip, APropertyType_##Type, APropertyValue(), APropertyCategory::Category, APropertyReadable, (APropertyGetter)&ClassName::property##Member##Get, nullptr},
 
     #define ACLASS_DEFINE_END(Name) }};
+
+    #define ACLASS_NS_DEFINE_END(NS, Name) }};
 
     ACLASS_DECLARE(Null)
 }

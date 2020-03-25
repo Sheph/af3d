@@ -23,57 +23,54 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "editor/Workspace.h"
-#include "editor/ActionMainPopup.h"
+#include "editor/MainPopup.h"
 #include "Const.h"
-#include "InputManager.h"
+#include "Logger.h"
 #include "imgui.h"
 
 namespace af3d {
-    ACLASS_NS_DEFINE_BEGIN(editor, Workspace, UIComponent)
-    ACLASS_NS_DEFINE_END(editor, Workspace)
+    ACLASS_NS_DEFINE_BEGIN(editor, MainPopup, UIComponent)
+    ACLASS_NS_DEFINE_END(editor, MainPopup)
 
 namespace editor {
-    Workspace::Workspace()
-    : UIComponent(AClass_editorWorkspace, zOrderEditor)
+    MainPopup::MainPopup()
+    : UIComponent(AClass_editorMainPopup, zOrderEditor)
     {
-        actionMainPopup_.reset(new ActionMainPopup(this));
     }
 
-    const AClass& Workspace::staticKlass()
+    const AClass& MainPopup::staticKlass()
     {
-        return AClass_editorWorkspace;
+        return AClass_editorMainPopup;
     }
 
-    AObjectPtr Workspace::create(const APropertyValueMap& propVals)
+    AObjectPtr MainPopup::create(const APropertyValueMap& propVals)
     {
-        auto obj = std::make_shared<Workspace>();
+        auto obj = std::make_shared<MainPopup>();
         obj->propertiesSet(propVals);
         return obj;
     }
 
-    void Workspace::update(float dt)
+    void MainPopup::update(float dt)
     {
-        ImGuiIO& io = ImGui::GetIO();
-
-        if (io.WantCaptureMouse) {
+        if (!ImGui::BeginPopup("MainPopup")) {
+            removeFromParent();
             return;
         }
 
-        if (inputManager.keyboard().triggered(KI_M)) {
-            actionMainPopup().trigger();
-        }
+        ImGui::MenuItem("Test1");
+        ImGui::MenuItem("Test2");
+        ImGui::EndPopup();
     }
 
-    void Workspace::render(RenderList& rl)
+    void MainPopup::onRegister()
     {
+        LOG4CPLUS_DEBUG(logger(), "MainPopup open");
+        ImGui::OpenPopup("MainPopup");
+        update(0);
     }
 
-    void Workspace::onRegister()
+    void MainPopup::onUnregister()
     {
-    }
-
-    void Workspace::onUnregister()
-    {
+        LOG4CPLUS_DEBUG(logger(), "MainPopup closed");
     }
 } }

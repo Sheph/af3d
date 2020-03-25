@@ -23,57 +23,25 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "editor/Workspace.h"
 #include "editor/ActionMainPopup.h"
-#include "Const.h"
-#include "InputManager.h"
-#include "imgui.h"
+#include "editor/MainPopup.h"
+#include "Workspace.h"
+#include "SceneObject.h"
 
-namespace af3d {
-    ACLASS_NS_DEFINE_BEGIN(editor, Workspace, UIComponent)
-    ACLASS_NS_DEFINE_END(editor, Workspace)
-
-namespace editor {
-    Workspace::Workspace()
-    : UIComponent(AClass_editorWorkspace, zOrderEditor)
+namespace af3d { namespace editor
+{
+    ActionMainPopup::ActionMainPopup(Workspace* workspace)
+    : Action(workspace)
     {
-        actionMainPopup_.reset(new ActionMainPopup(this));
     }
 
-    const AClass& Workspace::staticKlass()
+    void ActionMainPopup::trigger()
     {
-        return AClass_editorWorkspace;
-    }
-
-    AObjectPtr Workspace::create(const APropertyValueMap& propVals)
-    {
-        auto obj = std::make_shared<Workspace>();
-        obj->propertiesSet(propVals);
-        return obj;
-    }
-
-    void Workspace::update(float dt)
-    {
-        ImGuiIO& io = ImGui::GetIO();
-
-        if (io.WantCaptureMouse) {
-            return;
+        auto popup = workspace().parent()->findComponent<MainPopup>();
+        if (popup) {
+            popup->removeFromParent();
         }
-
-        if (inputManager.keyboard().triggered(KI_M)) {
-            actionMainPopup().trigger();
-        }
-    }
-
-    void Workspace::render(RenderList& rl)
-    {
-    }
-
-    void Workspace::onRegister()
-    {
-    }
-
-    void Workspace::onUnregister()
-    {
+        popup = std::make_shared<MainPopup>();
+        workspace().parent()->addComponent(popup);
     }
 } }

@@ -46,6 +46,7 @@ namespace af3d
 #ifdef _WIN32
         std::string assets;
 #endif
+        bool editor;
         std::uint32_t developer;
         std::uint32_t viewWidth;
         std::uint32_t viewHeight;

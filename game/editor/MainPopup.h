@@ -23,57 +23,37 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "editor/Workspace.h"
-#include "editor/ActionMainPopup.h"
-#include "Const.h"
-#include "InputManager.h"
-#include "imgui.h"
+#ifndef _EDITOR_MAINPOPUP_H_
+#define _EDITOR_MAINPOPUP_H_
 
-namespace af3d {
-    ACLASS_NS_DEFINE_BEGIN(editor, Workspace, UIComponent)
-    ACLASS_NS_DEFINE_END(editor, Workspace)
+#include "UIComponent.h"
 
-namespace editor {
-    Workspace::Workspace()
-    : UIComponent(AClass_editorWorkspace, zOrderEditor)
+namespace af3d { namespace editor
+{
+    class MainPopup : public std::enable_shared_from_this<MainPopup>,
+        public UIComponent
     {
-        actionMainPopup_.reset(new ActionMainPopup(this));
-    }
+    public:
+        MainPopup();
+        ~MainPopup() = default;
 
-    const AClass& Workspace::staticKlass()
-    {
-        return AClass_editorWorkspace;
-    }
+        static const AClass& staticKlass();
 
-    AObjectPtr Workspace::create(const APropertyValueMap& propVals)
-    {
-        auto obj = std::make_shared<Workspace>();
-        obj->propertiesSet(propVals);
-        return obj;
-    }
+        static AObjectPtr create(const APropertyValueMap& propVals);
 
-    void Workspace::update(float dt)
-    {
-        ImGuiIO& io = ImGui::GetIO();
+        ComponentPtr sharedThis() override { return shared_from_this(); }
 
-        if (io.WantCaptureMouse) {
-            return;
-        }
+        void update(float dt) override;
 
-        if (inputManager.keyboard().triggered(KI_M)) {
-            actionMainPopup().trigger();
-        }
-    }
+    private:
+        void onRegister() override;
 
-    void Workspace::render(RenderList& rl)
-    {
-    }
+        void onUnregister() override;
+    };
 
-    void Workspace::onRegister()
-    {
-    }
+    using MainPopupPtr = std::shared_ptr<MainPopup>;
+}
+    ACLASS_NS_DECLARE(editor, MainPopup)
+}
 
-    void Workspace::onUnregister()
-    {
-    }
-} }
+#endif

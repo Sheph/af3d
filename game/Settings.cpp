@@ -46,6 +46,7 @@ namespace af3d
 #ifdef _WIN32
         assets = appConfig->getString(".assets");
 #endif
+        editor = false;
         developer = appConfig->getInt(".developer");
         viewWidth = appConfig->getInt(".viewWidth");
         viewHeight = appConfig->getInt(".viewHeight");

@@ -29,6 +29,7 @@
 #include "SceneObjectManager.h"
 #include "LightComponent.h"
 #include "ImGuiComponent.h"
+#include "editor/Workspace.h"
 #include "af3d/AABB.h"
 #include <functional>
 
@@ -76,6 +77,8 @@ namespace af3d
         void setGravity(const btVector3& value);
         btVector3 gravity() const;
 
+        inline const editor::WorkspacePtr& workspace() const { return workspace_; }
+
         inline const SceneObjectPtr& camera() const { return camera_; }
 
         inline const LightComponentPtr& lighting() const { return lightC_; }
@@ -117,8 +120,10 @@ namespace af3d
         std::unique_ptr<Impl> impl_;
 
         InputMode inputMode_;
+        SceneObjectPtr workspaceObj_;
         SceneObjectPtr camera_;
         SceneObjectPtr dummy_;
+        editor::WorkspacePtr workspace_;
         ImGuiComponentPtr imGuiC_;
         LightComponentPtr lightC_;
 
