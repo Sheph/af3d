@@ -71,6 +71,7 @@ set(SOURCES
     APropertyValue.cpp
     AClass.cpp
     AObject.cpp
+    AClassRegistry.cpp
 )
 
 file(READ "config.ini" _INI)

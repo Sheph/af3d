@@ -32,6 +32,7 @@
 #include <array>
 #include <cstdio>
 #include <cinttypes>
+#include <ostream>
 
 namespace af3d
 {

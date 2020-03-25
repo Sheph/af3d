@@ -28,12 +28,17 @@
 
 namespace af3d
 {
+    const APropertyTypeObject APropertyType_Mesh{"Mesh", AClass_Mesh};
+
+    ACLASS_DEFINE_BEGIN(Mesh, Resource)
+    ACLASS_DEFINE_END(Mesh)
+
     Mesh::Mesh(MeshManager* mgr,
         const std::string& name,
         const AABB& aabb,
         const std::vector<SubMeshPtr>& subMeshes,
         const ResourceLoaderPtr& loader)
-    : Resource(name, loader),
+    : Resource(AClass_Mesh, name, loader),
       mgr_(mgr),
       aabb_(aabb),
       subMeshes_(subMeshes)
@@ -43,5 +48,15 @@ namespace af3d
     Mesh::~Mesh()
     {
         mgr_->onMeshDestroy(this);
+    }
+
+    const AClass& Mesh::staticKlass()
+    {
+        return AClass_Mesh;
+    }
+
+    AObjectPtr Mesh::create(const APropertyValueMap& propVals)
+    {
+        return MeshPtr();
     }
 }

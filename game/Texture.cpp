@@ -29,6 +29,9 @@
 
 namespace af3d
 {
+    ACLASS_DEFINE_BEGIN(Texture, Resource)
+    ACLASS_DEFINE_END(Texture)
+
     namespace
     {
         class TextureUploader : public ResourceLoader
@@ -68,7 +71,7 @@ namespace af3d
     Texture::Texture(TextureManager* mgr, const std::string& name,
         const HardwareTexturePtr& hwTex,
         const ResourceLoaderPtr& loader)
-    : Resource(name, loader),
+    : Resource(AClass_Texture, name, loader),
       mgr_(mgr),
       hwTex_(hwTex)
     {
@@ -77,6 +80,16 @@ namespace af3d
     Texture::~Texture()
     {
         mgr_->onTextureDestroy(this);
+    }
+
+    const AClass& Texture::staticKlass()
+    {
+        return AClass_Texture;
+    }
+
+    AObjectPtr Texture::create(const APropertyValueMap& propVals)
+    {
+        return TexturePtr();
     }
 
     void Texture::upload(GLint internalFormat, GLenum format, GLenum type, std::vector<Byte>&& pixels)

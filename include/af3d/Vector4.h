@@ -29,6 +29,7 @@
 #include "af3d/Types.h"
 #include "af3d/Vector3.h"
 #include <type_traits>
+#include <ostream>
 
 namespace af3d
 {
@@ -433,6 +434,12 @@ namespace af3d
     {
         return Color(c.x() / 255.0f, c.y() / 255.0f, c.z() / 255.0f, c.w() / 255.0f);
     }
+}
+
+template <class T>
+inline std::ostream& operator <<(std::ostream& os, const af3d::Vector4<T>& value)
+{
+    return (os << "(" << value.x() << "," << value.y() << "," << value.z() << "," << value.w() << ")");
 }
 
 #endif

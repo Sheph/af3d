@@ -28,6 +28,7 @@
 namespace af3d
 {
     ACLASS_DEFINE_BEGIN_ABSTRACT(RenderComponent, Component)
+    ACLASS_PROPERTY(RenderComponent, Visible, AProperty_Visible, "Component is visible", Bool, true, General)
     ACLASS_DEFINE_END(RenderComponent)
 
     RenderComponent::RenderComponent(const AClass& klass, bool renderAlways)

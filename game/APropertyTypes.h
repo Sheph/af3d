@@ -42,6 +42,7 @@ namespace af3d
     extern const APropertyTypeVec4f APropertyType_Vec4f;
     extern const APropertyTypeColor APropertyType_ColorRGB;
     extern const APropertyTypeColor APropertyType_ColorRGBA;
+    extern const APropertyTypeTransform APropertyType_Transform;
 }
 
 #endif

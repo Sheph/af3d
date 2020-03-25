@@ -30,6 +30,9 @@
 
 namespace af3d
 {
+    ACLASS_DEFINE_BEGIN(Material, Resource)
+    ACLASS_DEFINE_END(Material)
+
     MaterialParams::MaterialParams(const MaterialTypePtr& materialType, bool isAuto)
     : materialType_(materialType),
       isAuto_(isAuto),
@@ -176,7 +179,7 @@ namespace af3d
     }
 
     Material::Material(MaterialManager* mgr, const std::string& name, const MaterialTypePtr& type)
-    : Resource(name),
+    : Resource(AClass_Material, name),
       mgr_(mgr),
       type_(type),
       params_(type, false)
@@ -187,6 +190,16 @@ namespace af3d
     Material::~Material()
     {
         mgr_->onMaterialDestroy(this);
+    }
+
+    const AClass& Material::staticKlass()
+    {
+        return AClass_Material;
+    }
+
+    AObjectPtr Material::create(const APropertyValueMap& propVals)
+    {
+        return MaterialPtr();
     }
 
     MaterialPtr Material::clone(const std::string& newName) const

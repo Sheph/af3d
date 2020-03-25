@@ -24,11 +24,12 @@
  */
 
 #include "APropertyType.h"
+#include "AClass.h"
 
 namespace af3d
 {
     APropertyTypeNull::APropertyTypeNull()
-    : APropertyType("null")
+    : APropertyType("Null")
     {
     }
 
@@ -38,7 +39,7 @@ namespace af3d
     }
 
     APropertyTypeBool::APropertyTypeBool()
-    : APropertyType("bool")
+    : APropertyType("Bool")
     {
     }
 
@@ -48,7 +49,7 @@ namespace af3d
     }
 
     APropertyTypeInt::APropertyTypeInt(int vMin, int vMax)
-    : APropertyTypeNumeric<int>("int", vMin, vMax)
+    : APropertyTypeNumeric<int>("Int", vMin, vMax)
     {
     }
 
@@ -58,7 +59,7 @@ namespace af3d
     }
 
     APropertyTypeFloat::APropertyTypeFloat(float vMin, float vMax)
-    : APropertyTypeNumeric<float>("float", vMin, vMax)
+    : APropertyTypeNumeric<float>("Float", vMin, vMax)
     {
     }
 
@@ -68,7 +69,7 @@ namespace af3d
     }
 
     APropertyTypeString::APropertyTypeString()
-    : APropertyType("string")
+    : APropertyType("String")
     {
     }
 
@@ -78,7 +79,7 @@ namespace af3d
     }
 
     APropertyTypeVec2f::APropertyTypeVec2f()
-    : APropertyType("vec2f")
+    : APropertyType("Vec2f")
     {
     }
 
@@ -88,7 +89,7 @@ namespace af3d
     }
 
     APropertyTypeVec3f::APropertyTypeVec3f()
-    : APropertyType("vec3f")
+    : APropertyType("Vec3f")
     {
     }
 
@@ -98,7 +99,7 @@ namespace af3d
     }
 
     APropertyTypeVec4f::APropertyTypeVec4f()
-    : APropertyType("vec4f")
+    : APropertyType("Vec4f")
     {
     }
 
@@ -108,7 +109,7 @@ namespace af3d
     }
 
     APropertyTypeColor::APropertyTypeColor(bool hasAlpha)
-    : APropertyType("color"),
+    : APropertyType("Color"),
       hasAlpha_(hasAlpha)
     {
     }
@@ -129,8 +130,8 @@ namespace af3d
         visitor.visitEnum(*this);
     }
 
-    APropertyTypeObject::APropertyTypeObject(const AClass& klass)
-    : APropertyType(""),
+    APropertyTypeObject::APropertyTypeObject(const char* name, const AClass& klass)
+    : APropertyType(name),
       klass_(klass)
     {
     }
@@ -138,5 +139,15 @@ namespace af3d
     void APropertyTypeObject::accept(APropertyTypeVisitor& visitor) const
     {
         visitor.visitObject(*this);
+    }
+
+    APropertyTypeTransform::APropertyTypeTransform()
+    : APropertyType("Transform")
+    {
+    }
+
+    void APropertyTypeTransform::accept(APropertyTypeVisitor& visitor) const
+    {
+        visitor.visitTransform(*this);
     }
 }

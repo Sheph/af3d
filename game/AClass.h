@@ -73,16 +73,20 @@ namespace af3d
             const AClass& super,
             CreateFn createFn,
             const std::vector<PropertyDef>& propertyDefs);
-        ~AClass() = default;
+        ~AClass();
 
         inline const std::string& name() const { return name_; }
 
-        inline const APropertyList& properties() const { return properties_; }
+        const AClass* super() const;
+
+        inline const APropertyList& thisProperties() const { return properties_; }
+
+        APropertyList getProperties() const;
 
         APropertyValue propertyGet(const AObject* obj, const std::string& key) const;
         void propertySet(AObject* obj, const std::string& key, const APropertyValue& value) const;
 
-        AObjectPtr create(const APropertyValueMap& propVals = APropertyValueMap());
+        AObjectPtr create(const APropertyValueMap& propVals = APropertyValueMap()) const;
 
     private:
         std::string name_;
@@ -101,7 +105,7 @@ namespace af3d
         const AClass AClass_##Name{#Name, AClass_##Super, &Name::create, {
 
     #define ACLASS_PROPERTY(ClassName, Member, Name, Tooltip, Type, Def, Category) \
-        {Name, Tooltip, APropertyType_##Type, Def, APropertyCategory::Category, APropertyReadable|APropertyWritable, &ClassName::property##Member##Get, &ClassName::property##Member##Set},
+        {Name, Tooltip, APropertyType_##Type, Def, APropertyCategory::Category, APropertyReadable|APropertyWritable, (APropertyGetter)&ClassName::property##Member##Get, (APropertySetter)&ClassName::property##Member##Set},
 
     #define ACLASS_DEFINE_END(Name) }};
 

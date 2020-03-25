@@ -30,6 +30,10 @@
 namespace af3d
 {
     ACLASS_DEFINE_BEGIN_ABSTRACT(Light, AObject)
+    ACLASS_PROPERTY(Light, LocalTransform, AProperty_LocalTransform, "Local transform", Transform, btTransform::getIdentity(), Position)
+    ACLASS_PROPERTY(Light, WorldTransform, AProperty_WorldTransform, "World transform", Transform, btTransform::getIdentity(), Position)
+    ACLASS_PROPERTY(Light, Color, "color", "Color", ColorRGB, Color(1.0f, 1.0f, 1.0f, 1.0f), General)
+    ACLASS_PROPERTY(Light, Intensity, "intensity", "Intensity", Float, 1.0f, General)
     ACLASS_DEFINE_END(Light)
 
     Light::Light(const AClass& klass, int typeId)

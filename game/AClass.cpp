@@ -24,6 +24,7 @@
  */
 
 #include "AClass.h"
+#include "AClassRegistry.h"
 
 namespace af3d
 {
@@ -46,6 +47,28 @@ namespace af3d
         for (const auto& def : propertyDefs) {
             properties_.emplace_back(def.prop);
             runtime_assert(funcs_.emplace(def.prop.name(), def.funcs).second);
+        }
+        AClassRegistry::instance().classRegister(*this);
+    }
+
+    AClass::~AClass()
+    {
+        // Nothing we can do here actually...
+    }
+
+    const AClass* AClass::super() const
+    {
+        return (&super_ == &AClass_Null) ? nullptr : &super_;
+    }
+
+    APropertyList AClass::getProperties() const
+    {
+        if (&super_ == this) {
+            return properties_;
+        } else {
+            auto superProps = super_.getProperties();
+            superProps.insert(superProps.end(), properties_.begin(), properties_.end());
+            return superProps;
         }
     }
 
@@ -86,7 +109,7 @@ namespace af3d
         (obj->*(it->second.setter))(value);
     }
 
-    AObjectPtr AClass::create(const APropertyValueMap& propVals)
+    AObjectPtr AClass::create(const APropertyValueMap& propVals) const
     {
         return createFn_ ? createFn_(propVals) : AObjectPtr();
     }

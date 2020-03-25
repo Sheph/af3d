@@ -185,6 +185,10 @@ namespace af3d
         Material(MaterialManager* mgr, const std::string& name, const MaterialTypePtr& type);
         ~Material();
 
+        static const AClass& staticKlass();
+
+        static AObjectPtr create(const APropertyValueMap& propVals);
+
         virtual ResourcePtr sharedThis() override { return shared_from_this(); }
 
         inline const MaterialTypePtr& type() const { return type_; }
@@ -210,6 +214,8 @@ namespace af3d
         BlendingParams blendingParams_;
         bool depthTest_ = true;
     };
+
+    ACLASS_DECLARE(Material)
 }
 
 #endif

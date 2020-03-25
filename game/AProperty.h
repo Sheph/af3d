@@ -56,7 +56,7 @@ namespace af3d
             std::uint32_t flags)
         : name_(name),
           tooltip_(tooltip),
-          type_(type),
+          type_(&type),
           def_(def),
           category_(category),
           flags_(flags)
@@ -65,7 +65,7 @@ namespace af3d
 
         inline const std::string& name() const { return name_; }
         inline const std::string& tooltip() const { return tooltip_; }
-        inline const APropertyType& type() const { return type_; }
+        inline const APropertyType& type() const { return *type_; }
         inline const APropertyValue& def() const { return def_; }
         inline APropertyCategory category() const { return category_; }
         inline std::uint32_t flags() const { return flags_; }
@@ -73,16 +73,27 @@ namespace af3d
     private:
         std::string name_;
         std::string tooltip_;
-        const APropertyType& type_ = APropertyType_Null;
+        const APropertyType* type_;
         APropertyValue def_;
-        APropertyCategory category_ = APropertyCategory::General;
-        std::uint32_t flags_ = 0;
+        APropertyCategory category_;
+        std::uint32_t flags_;
     };
 
     using APropertySetter = void (AObject::*)(const APropertyValue&);
     using APropertyGetter = APropertyValue (AObject::*)() const;
 
     using APropertyList = std::vector<AProperty>;
+
+    #define AProperty_Name "name"
+    #define AProperty_Visible "visible"
+    #define AProperty_LocalTransform "local transform"
+    #define AProperty_WorldTransform "world transform"
+    #define AProperty_Scale "scale"
+}
+
+inline std::ostream& operator <<(std::ostream& os, af3d::APropertyCategory cat)
+{
+    return (os << static_cast<int>(cat));
 }
 
 #endif

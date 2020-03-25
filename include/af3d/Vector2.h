@@ -28,6 +28,7 @@
 
 #include "af3d/Types.h"
 #include <type_traits>
+#include <ostream>
 
 namespace af3d
 {
@@ -391,6 +392,12 @@ namespace af3d
         btZeroNormalize(n);
         return n;
     }
+}
+
+template <class T>
+inline std::ostream& operator <<(std::ostream& os, const af3d::Vector2<T>& value)
+{
+    return (os << "(" << value.x() << "," << value.y() << ")");
 }
 
 #endif

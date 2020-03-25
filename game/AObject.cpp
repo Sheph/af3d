@@ -28,7 +28,7 @@
 namespace af3d
 {
     ACLASS_DEFINE_BEGIN_ABSTRACT(AObject, Null)
-    ACLASS_PROPERTY(AObject, Name, "name", "Name", String, "", General)
+    ACLASS_PROPERTY(AObject, Name, AProperty_Name, "Object name", String, "", General)
     ACLASS_DEFINE_END(AObject)
 
     AObject::AObject(const AClass& klass)

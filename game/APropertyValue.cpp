@@ -24,6 +24,7 @@
  */
 
 #include "APropertyValue.h"
+#include <sstream>
 
 namespace af3d
 {
@@ -50,6 +51,12 @@ namespace af3d
     {
     }
 
+    APropertyValue::APropertyValue(const char* val)
+    : type_(String),
+      str_(val)
+    {
+    }
+
     APropertyValue::APropertyValue(const std::string& val)
     : type_(String),
       str_(val)
@@ -68,6 +75,12 @@ namespace af3d
     {
     }
 
+    APropertyValue::APropertyValue(const btVector3& val)
+    : type_(Vec3f),
+      pod_(toVector3f(val))
+    {
+    }
+
     APropertyValue::APropertyValue(const Vector4f& val)
     : type_(Vec4f),
       pod_(val)
@@ -77,6 +90,12 @@ namespace af3d
     APropertyValue::APropertyValue(const AObjectPtr& val)
     : type_(Object),
       obj_(val)
+    {
+    }
+
+    APropertyValue::APropertyValue(const btTransform& val)
+    : type_(Transform),
+      xf_(val)
     {
     }
 
@@ -125,7 +144,33 @@ namespace af3d
             return std::to_string(pod_.floatVal);
         case String:
             return str_;
+        case Vec2f: {
+            std::ostringstream os;
+            os << pod_.vec2fVal;
+            return os.str();
+        }
+        case Vec3f: {
+            std::ostringstream os;
+            os << pod_.vec3fVal;
+            return os.str();
+        }
+        case Vec4f: {
+            std::ostringstream os;
+            os << pod_.vec4fVal;
+            return os.str();
+        }
+        case Object: {
+            std::ostringstream os;
+            os << "<" << obj_.get() << ">";
+            return os.str();
+        }
+        case Transform: {
+            std::ostringstream os;
+            os << xf_;
+            return os.str();
+        }
         default:
+            btAssert(false);
             return "";
         }
     }
@@ -158,6 +203,20 @@ namespace af3d
         }
     }
 
+    btVector3 APropertyValue::toVec3() const
+    {
+        switch (type_) {
+        case Vec2f:
+            return btVector3(pod_.vec2fVal.x(), pod_.vec2fVal.y(), 0.0f);
+        case Vec3f:
+            return fromVector3f(pod_.vec3fVal);
+        case Vec4f:
+            return btVector3(pod_.vec4fVal.x(), pod_.vec4fVal.y(), pod_.vec4fVal.z());
+        default:
+            return btVector3_zero;
+        }
+    }
+
     Vector4f APropertyValue::toVec4f() const
     {
         switch (type_) {
@@ -179,6 +238,16 @@ namespace af3d
             return obj_;
         default:
             return AObjectPtr();
+        }
+    }
+
+    btTransform APropertyValue::toTransform() const
+    {
+        switch (type_) {
+        case Transform:
+            return xf_;
+        default:
+            return btTransform::getIdentity();
         }
     }
 
@@ -204,6 +273,9 @@ namespace af3d
             return pod_.vec4fVal < rhs.pod_.vec4fVal;
         case Object:
             return obj_ < rhs.obj_;
+        case Transform:
+            btAssert(false);
+            return false;
         default:
             btAssert(false);
             return false;
@@ -232,6 +304,8 @@ namespace af3d
             return pod_.vec4fVal == rhs.pod_.vec4fVal;
         case Object:
             return obj_ == rhs.obj_;
+        case Transform:
+            return xf_ == rhs.xf_;
         default:
             btAssert(false);
             return false;

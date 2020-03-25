@@ -27,6 +27,7 @@
 #define _RESOURCE_H_
 
 #include "HardwareContext.h"
+#include "AObject.h"
 #include <memory>
 #include <atomic>
 
@@ -48,7 +49,7 @@ namespace af3d
     class Resource;
     using ResourcePtr = std::shared_ptr<Resource>;
 
-    class Resource : boost::noncopyable
+    class Resource : public AObject
     {
     public:
         enum State
@@ -58,13 +59,13 @@ namespace af3d
             Loaded
         };
 
-        explicit Resource(const std::string& name,
+        Resource(const AClass& klass, const std::string& name,
             const ResourceLoaderPtr& loader = ResourceLoaderPtr());
         virtual ~Resource() = default;
 
-        virtual ResourcePtr sharedThis() = 0;
+        static const AClass& staticKlass();
 
-        inline const std::string& name() const { return name_; }
+        virtual ResourcePtr sharedThis() = 0;
 
         void invalidate();
 
@@ -75,10 +76,11 @@ namespace af3d
     private:
         virtual void doInvalidate();
 
-        std::string name_;
         ResourceLoaderPtr loader_;
         std::atomic<State> state_;
     };
+
+    ACLASS_DECLARE(Resource)
 }
 
 #endif

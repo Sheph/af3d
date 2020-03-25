@@ -35,6 +35,7 @@
 #include "MaterialManager.h"
 #include "MeshManager.h"
 #include "ImGuiManager.h"
+#include "AClassRegistry.h"
 #include "af3d/Utils.h"
 #include "af3d/StreamAppConfig.h"
 
@@ -53,6 +54,8 @@ namespace af3d
 
     bool Game::init(const std::string& startScript)
     {
+        AClassRegistry::instance().dump();
+
         if (!hwManager.init()) {
             return false;
         }

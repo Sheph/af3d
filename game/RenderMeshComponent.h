@@ -28,6 +28,7 @@
 
 #include "RenderComponent.h"
 #include "Mesh.h"
+#include "SceneObject.h"
 
 namespace af3d
 {
@@ -35,7 +36,7 @@ namespace af3d
         public RenderComponent
     {
     public:
-        explicit RenderMeshComponent(const MeshPtr& mesh);
+        RenderMeshComponent();
         ~RenderMeshComponent() = default;
 
         static const AClass& staticKlass();
@@ -50,11 +51,26 @@ namespace af3d
 
         void debugDraw() override;
 
+        inline const MeshPtr& mesh() const { return mesh_; }
+        void setMesh(const MeshPtr& value);
+
         inline const btTransform& transform() const { return xf_; }
         void setTransform(const btTransform& value);
 
         inline const btVector3& scale() const { return scale_; }
         void setScale(const btVector3& value);
+
+        APropertyValue propertyMeshGet() const { return APropertyValue(mesh()); }
+        void propertyMeshSet(const APropertyValue& value) { setMesh(value.toObject<Mesh>()); }
+
+        APropertyValue propertyLocalTransformGet() const { return transform(); }
+        void propertyLocalTransformSet(const APropertyValue& value) { setTransform(value.toTransform()); }
+
+        APropertyValue propertyWorldTransformGet() const { return parent()->transform() * transform(); }
+        void propertyWorldTransformSet(const APropertyValue& value) { setTransform(parent()->transform().inverse() * value.toTransform()); }
+
+        APropertyValue propertyScaleGet() const { return scale(); }
+        void propertyScaleSet(const APropertyValue& value) { setScale(value.toVec3()); }
 
     private:
         void onRegister() override;

@@ -90,6 +90,22 @@ namespace af3d
          * @}
          */
 
+        APropertyValue propertyLocalTransformGet() const { return transform(); }
+        void propertyLocalTransformSet(const APropertyValue& value) { setTransform(value.toTransform()); }
+
+        APropertyValue propertyWorldTransformGet() const { return worldTransform(); }
+        void propertyWorldTransformSet(const APropertyValue& value) { setTransform(parentXf_.inverse() * value.toTransform()); }
+
+        APropertyValue propertyColorGet() const { return Color(color().x(), color().y(), color().z(), 1.0f); }
+        void propertyColorSet(const APropertyValue& value)
+        {
+            auto v = value.toVec3f();
+            setColor(Color(v.x(), v.y(), v.z(), color().w()));
+        }
+
+        APropertyValue propertyIntensityGet() const { return intensity(); }
+        void propertyIntensitySet(const APropertyValue& value) { setIntensity(value.toFloat()); }
+
     protected:
         void setLocalAABBImpl(const AABB& value);
 

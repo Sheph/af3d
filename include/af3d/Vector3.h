@@ -28,6 +28,7 @@
 
 #include "af3d/Types.h"
 #include <type_traits>
+#include <ostream>
 
 namespace af3d
 {
@@ -460,6 +461,27 @@ namespace af3d
         btZeroNormalize(n);
         return n;
     }
+}
+
+template <class T>
+inline std::ostream& operator <<(std::ostream& os, const af3d::Vector3<T>& value)
+{
+    return (os << "(" << value.x() << "," << value.y() << "," << value.z() << ")");
+}
+
+inline std::ostream& operator <<(std::ostream& os, const btVector3& value)
+{
+    return (os << "(" << value.x() << "," << value.y() << "," << value.z() << ")");
+}
+
+inline std::ostream& operator <<(std::ostream& os, const btQuaternion& value)
+{
+    return (os << "[" << value.getAxis() << "," << btDegrees(value.getAngle()) << "deg]");
+}
+
+inline std::ostream& operator <<(std::ostream& os, const btTransform& value)
+{
+    return (os << "{" << value.getOrigin() << "," << value.getRotation() << "}");
 }
 
 #endif

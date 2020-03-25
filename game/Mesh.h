@@ -45,6 +45,10 @@ namespace af3d
             const ResourceLoaderPtr& loader = ResourceLoaderPtr());
         ~Mesh();
 
+        static const AClass& staticKlass();
+
+        static AObjectPtr create(const APropertyValueMap& propVals);
+
         virtual ResourcePtr sharedThis() override { return shared_from_this(); }
 
         inline const AABB& aabb() const { return aabb_; }
@@ -58,6 +62,10 @@ namespace af3d
     };
 
     using MeshPtr = std::shared_ptr<Mesh>;
+
+    extern const APropertyTypeObject APropertyType_Mesh;
+
+    ACLASS_DECLARE(Mesh)
 }
 
 #endif

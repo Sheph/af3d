@@ -28,12 +28,21 @@
 
 namespace af3d
 {
-    Resource::Resource(const std::string& name,
+    ACLASS_DEFINE_BEGIN_ABSTRACT(Resource, AObject)
+    ACLASS_DEFINE_END(Resource)
+
+    Resource::Resource(const AClass& klass, const std::string& name,
         const ResourceLoaderPtr& loader)
-    : name_(name),
+    : AObject(klass),
       loader_(loader),
       state_(Unloaded)
     {
+        setName(name);
+    }
+
+    const AClass& Resource::staticKlass()
+    {
+        return AClass_Resource;
     }
 
     void Resource::invalidate()

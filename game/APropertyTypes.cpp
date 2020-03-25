@@ -39,4 +39,5 @@ namespace af3d
     const APropertyTypeVec4f APropertyType_Vec4f;
     const APropertyTypeColor APropertyType_ColorRGB{false};
     const APropertyTypeColor APropertyType_ColorRGBA{true};
+    const APropertyTypeTransform APropertyType_Transform;
 }

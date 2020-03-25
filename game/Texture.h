@@ -42,6 +42,10 @@ namespace af3d
             const ResourceLoaderPtr& loader = ResourceLoaderPtr());
         ~Texture();
 
+        static const AClass& staticKlass();
+
+        static AObjectPtr create(const APropertyValueMap& propVals);
+
         virtual ResourcePtr sharedThis() override { return shared_from_this(); }
 
         inline const HardwareTexturePtr& hwTex() const { return hwTex_; }
@@ -58,6 +62,8 @@ namespace af3d
     };
 
     using TexturePtr = std::shared_ptr<Texture>;
+
+    ACLASS_DECLARE(Texture)
 }
 
 #endif

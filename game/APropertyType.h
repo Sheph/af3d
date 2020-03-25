@@ -179,7 +179,7 @@ namespace af3d
     class APropertyTypeObject : public APropertyType
     {
     public:
-        explicit APropertyTypeObject(const AClass& klass);
+        APropertyTypeObject(const char* name, const AClass& klass);
 
         inline const AClass& klass() const { return klass_; }
 
@@ -187,6 +187,14 @@ namespace af3d
 
     private:
         const AClass& klass_;
+    };
+
+    class APropertyTypeTransform : public APropertyType
+    {
+    public:
+        APropertyTypeTransform();
+
+        void accept(APropertyTypeVisitor& visitor) const override;
     };
 }
 
