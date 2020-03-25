@@ -56,7 +56,7 @@ namespace af3d
 
     void AObject::propertiesSet(const APropertyValueMap& propVals)
     {
-        for (const auto& kv : propVals) {
+        for (const auto& kv : propVals.items()) {
             propertySet(kv.first, kv.second);
         }
     }

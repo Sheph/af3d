@@ -48,8 +48,8 @@ namespace af3d
         inline float radius() const { return radius_; }
         void setRadius(float value);
 
-        APropertyValue propertyRadiusGet() const { return radius(); }
-        void propertyRadiusSet(const APropertyValue& value) { setRadius(value.toFloat()); }
+        APropertyValue propertyRadiusGet(const std::string&) const { return radius(); }
+        void propertyRadiusSet(const std::string&, const APropertyValue& value) { setRadius(value.toFloat()); }
 
     private:
         void doSetupMaterial(const btVector3& eyePos, MaterialParams& params) const override;

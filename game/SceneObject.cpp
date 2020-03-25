@@ -103,6 +103,21 @@ namespace af3d
         return obj;
     }
 
+    AObjectPtr SceneObject::createWithParams(const AClass& klass, const APropertyValueMap& propVals, AClass::CreateFn fn)
+    {
+        APropertyValueMap params;
+        for (const auto& prop : klass.thisProperties()) {
+            params.set(prop.name(), propVals.get(prop.name()));
+        }
+        auto obj = fn(params);
+        if (!obj) {
+            return obj;
+        }
+        obj->propertiesSet(propVals);
+        obj->setKlass(klass);
+        return obj;
+    }
+
     void SceneObject::addComponent(const ComponentPtr& component)
     {
         btAssert(!component->parent());

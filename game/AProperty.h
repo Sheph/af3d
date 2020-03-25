@@ -27,7 +27,7 @@
 #define _APROPERTY_H_
 
 #include "APropertyTypes.h"
-#include "APropertyValue.h"
+#include "APropertyValueMap.h"
 
 namespace af3d
 {
@@ -42,7 +42,8 @@ namespace af3d
         General = 0,
         Position,
         Hierarchy,
-        Max = Position
+        Params,
+        Max = Params
     };
 
     class AProperty
@@ -80,8 +81,8 @@ namespace af3d
         std::uint32_t flags_;
     };
 
-    using APropertySetter = void (AObject::*)(const APropertyValue&);
-    using APropertyGetter = APropertyValue (AObject::*)() const;
+    using APropertySetter = void (AObject::*)(const std::string&, const APropertyValue&);
+    using APropertyGetter = APropertyValue (AObject::*)(const std::string&) const;
 
     using APropertyList = std::vector<AProperty>;
 

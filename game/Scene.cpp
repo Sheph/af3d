@@ -133,9 +133,7 @@ namespace af3d
 
     AObjectPtr Scene::create(const APropertyValueMap& propVals)
     {
-        auto obj = std::make_shared<Scene>("");
-        obj->propertiesSet(propVals);
-        return obj;
+        return AObjectPtr();
     }
 
     std::vector<AObjectPtr> Scene::getChildren() const

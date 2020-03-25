@@ -87,7 +87,7 @@ namespace af3d
             return APropertyValue();
         }
 
-        return (obj->*(it->second.getter))();
+        return (obj->*(it->second.getter))(key);
     }
 
     void AClass::propertySet(AObject* obj, const std::string& key, const APropertyValue& value) const
@@ -106,7 +106,7 @@ namespace af3d
             return;
         }
 
-        (obj->*(it->second.setter))(value);
+        (obj->*(it->second.setter))(key, value);
     }
 
     AObjectPtr AClass::create(const APropertyValueMap& propVals) const

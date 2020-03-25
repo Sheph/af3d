@@ -66,4 +66,29 @@ namespace af3d
 
         return obj;
     }
+
+    SceneObjectPtr SceneObjectFactory::createColoredBox(const btVector3& size, const Color& color)
+    {
+        auto obj = std::make_shared<SceneObject>();
+
+        return obj;
+    }
+
+    SCENEOBJECT_DEFINE_BEGIN(Dummy)
+    {
+        return sceneObjectFactory.createDummy();
+    }
+    SCENEOBJECT_DEFINE_PARAMS(Dummy)
+    SCENEOBJECT_DEFINE_END(Dummy)
+
+    SCENEOBJECT_DEFINE_BEGIN(ColoredBox)
+    {
+        return sceneObjectFactory.createColoredBox(
+            params.get("size").toVec3(),
+            params.get("color").toColor());
+    }
+    SCENEOBJECT_DEFINE_PARAMS(ColoredBox)
+    SCENEOBJECT_PARAM(ColoredBox, "size", "Box size", Vec3f, btVector3(1.0f, 2.0f, 3.0f))
+    SCENEOBJECT_PARAM(ColoredBox, "color", "Box color", ColorRGB, Color(1.0f, 1.0f, 1.0f, 1.0f))
+    SCENEOBJECT_DEFINE_END(ColoredBox)
 }

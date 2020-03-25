@@ -44,6 +44,8 @@ namespace af3d
 
         static AObjectPtr create(const APropertyValueMap& propVals);
 
+        static AObjectPtr createWithParams(const AClass& klass, const APropertyValueMap& propVals, AClass::CreateFn fn);
+
         inline std::uint32_t cookie() const { return cookie_; }
 
         void addComponent(const ComponentPtr& component);
@@ -224,6 +226,8 @@ namespace af3d
 
         bool collidesWith(btCollisionObject* other);
 
+        inline void setParams(const APropertyValueMap& value) { params_ = value; }
+
         /*
          * Internal, do not call.
          * @{
@@ -235,11 +239,13 @@ namespace af3d
          * @}
          */
 
-        APropertyValue propertyTransformGet() const { return transform(); }
-        void propertyTransformSet(const APropertyValue& value) { setTransform(value.toTransform()); }
+        APropertyValue propertyTransformGet(const std::string&) const { return transform(); }
+        void propertyTransformSet(const std::string&, const APropertyValue& value) { setTransform(value.toTransform()); }
 
-        APropertyValue propertyTypeGet() const { return static_cast<int>(type()); }
-        void propertyTypeSet(const APropertyValue& value) { setType(static_cast<SceneObjectType>(value.toInt())); }
+        APropertyValue propertyTypeGet(const std::string&) const { return static_cast<int>(type()); }
+        void propertyTypeSet(const std::string&, const APropertyValue& value) { setType(static_cast<SceneObjectType>(value.toInt())); }
+
+        APropertyValue propertyParamGet(const std::string& key) const { return params_.get(key); }
 
     private:
         enum class Flag
@@ -266,9 +272,27 @@ namespace af3d
         Flags flags_;
 
         bool physicsActive_;
+
+        APropertyValueMap params_;
     };
 
     ACLASS_DECLARE(SceneObject)
+
+    #define SCENEOBJECT_DEFINE_BEGIN(Name) \
+        extern const AClass AClass_SceneObject##Name; \
+        static SceneObjectPtr SceneObject##Name##create(const APropertyValueMap& params)
+
+    #define SCENEOBJECT_DEFINE_PARAMS(Name) \
+        static AObjectPtr SceneObject##Name##createWrapper(const APropertyValueMap& propVals) \
+        { \
+            return SceneObject::createWithParams(AClass_SceneObject##Name, propVals, (AClass::CreateFn)&SceneObject##Name##create); \
+        } \
+        const AClass AClass_SceneObject##Name{"SceneObject" #Name, AClass_SceneObject, &SceneObject##Name##createWrapper, {
+
+    #define SCENEOBJECT_PARAM(SName, Name, Tooltip, Type, Def) \
+        {Name, Tooltip, APropertyType_##Type, Def, APropertyCategory::Params, APropertyReadable, (APropertyGetter)&SceneObject::propertyParamGet, nullptr},
+
+    #define SCENEOBJECT_DEFINE_END(Name) }};
 }
 
 #endif

@@ -23,31 +23,38 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _SCENEOBJECTFACTORY_H_
-#define _SCENEOBJECTFACTORY_H_
+#ifndef _APROPERTY_VALUE_MAP_H_
+#define _APROPERTY_VALUE_MAP_H_
 
-#include "af3d/Types.h"
-#include "af3d/Single.h"
-#include "SceneObject.h"
+#include "APropertyValue.h"
+#include <unordered_map>
 
 namespace af3d
 {
-    class SceneObjectFactory : public Single<SceneObjectFactory>
+    class APropertyValueMap
     {
     public:
-        SceneObjectFactory() = default;
-        ~SceneObjectFactory() = default;
+        using Items = std::unordered_map<std::string, APropertyValue>;
 
-        bool init();
+        APropertyValueMap() = default;
+        ~APropertyValueMap() = default;
 
-        void shutdown();
+        void set(const std::string& key, const APropertyValue& value)
+        {
+            items_[key] = value;
+        }
 
-        SceneObjectPtr createDummy();
+        APropertyValue get(const std::string& key) const
+        {
+            auto it = items_.find(key);
+            return (it == items_.end()) ? APropertyValue() : it->second;
+        }
 
-        SceneObjectPtr createColoredBox(const btVector3& size, const Color& color);
+        inline const Items& items() const { return items_; }
+
+    private:
+        Items items_;
     };
-
-    extern SceneObjectFactory sceneObjectFactory;
 }
 
 #endif

@@ -55,8 +55,8 @@ namespace af3d
 
         virtual void render(RenderList& rl, void* const* parts, size_t numParts) = 0;
 
-        APropertyValue propertyVisibleGet() const { return visible(); }
-        void propertyVisibleSet(const APropertyValue& value) { setVisible(value.toBool()); }
+        APropertyValue propertyVisibleGet(const std::string&) const { return visible(); }
+        void propertyVisibleSet(const std::string&, const APropertyValue& value) { setVisible(value.toBool()); }
 
     private:
         bool renderAlways_;

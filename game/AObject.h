@@ -50,8 +50,8 @@ namespace af3d
 
         void propertiesSet(const APropertyValueMap& propVals);
 
-        APropertyValue propertyNameGet() const { return name(); }
-        void propertyNameSet(const APropertyValue& value) { setName(value.toString()); }
+        APropertyValue propertyNameGet(const std::string&) const { return name(); }
+        void propertyNameSet(const std::string&, const APropertyValue& value) { setName(value.toString()); }
 
     protected:
         explicit AObject(const AClass& klass);

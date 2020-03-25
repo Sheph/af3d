@@ -83,6 +83,7 @@ namespace af3d
         Vector3f toVec3f() const;
         btVector3 toVec3() const;
         Vector4f toVec4f() const;
+        inline Color toColor() const { return toVec4f(); }
         AObjectPtr toObject() const;
         btTransform toTransform() const;
         std::vector<APropertyValue> toArray() const;
@@ -125,8 +126,6 @@ namespace af3d
         btTransform xf_;
         std::vector<APropertyValue> arr_;
     };
-
-    using APropertyValueMap = std::unordered_map<std::string, APropertyValue>;
 }
 
 #endif
