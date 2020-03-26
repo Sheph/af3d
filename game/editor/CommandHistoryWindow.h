@@ -23,32 +23,39 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _EDITOR_COMMAND_ADDOBJECT_H_
-#define _EDITOR_COMMAND_ADDOBJECT_H_
+#ifndef _EDITOR_COMMANDHISTORYWINDOW_H_
+#define _EDITOR_COMMANDHISTORYWINDOW_H_
 
-#include "editor/Command.h"
-#include "AObject.h"
+#include "UIComponent.h"
 
 namespace af3d { namespace editor
 {
-    class CommandAddObject : public Command
+    class CommandHistoryWindow : public std::enable_shared_from_this<CommandHistoryWindow>,
+        public UIComponent
     {
     public:
-        CommandAddObject(Scene* scene,
-            const AClass& klass, const std::string& klassName,
-            const btTransform& xf);
-        ~CommandAddObject() = default;
+        CommandHistoryWindow();
+        ~CommandHistoryWindow() = default;
 
-        bool redo() override;
+        static const AClass& staticKlass();
 
-        bool undo() override;
+        static AObjectPtr create(const APropertyValueMap& propVals);
+
+        ComponentPtr sharedThis() override { return shared_from_this(); }
+
+        void update(float dt) override;
 
     private:
-        const AClass& klass_;
-        std::string klassName_;
-        btTransform xf_;
-        ACookie cookie_ = 0;
+        void onRegister() override;
+
+        void onUnregister() override;
+
+        bool show_ = true;
     };
-} }
+
+    using CommandHistoryWindowPtr = std::shared_ptr<CommandHistoryWindow>;
+}
+    ACLASS_NS_DECLARE(editor, CommandHistoryWindow)
+}
 
 #endif

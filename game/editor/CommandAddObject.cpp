@@ -33,8 +33,9 @@ namespace af3d { namespace editor
     CommandAddObject::CommandAddObject(Scene* scene,
         const AClass& klass, const std::string& klassName,
         const btTransform& xf)
-    : Command(scene, "Add \"" + klassName + "\" object"),
+    : Command(scene),
       klass_(klass),
+      klassName_(klassName),
       xf_(xf)
     {
     }
@@ -65,6 +66,7 @@ namespace af3d { namespace editor
             sObj->setCookie(cookie_);
         } else {
             cookie_ = sObj->cookie();
+            setDescription("Add \"" + klassName_ + "\" object");
         }
 
         scene()->addObject(sObj);

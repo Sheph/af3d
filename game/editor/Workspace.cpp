@@ -26,6 +26,7 @@
 #include "editor/Workspace.h"
 #include "editor/ActionMainPopup.h"
 #include "editor/ActionAddObject.h"
+#include "editor/CommandHistoryWindow.h"
 #include "Const.h"
 #include "InputManager.h"
 #include "AClassRegistry.h"
@@ -88,6 +89,8 @@ namespace editor {
 
     void Workspace::onRegister()
     {
+        auto w = std::make_shared<CommandHistoryWindow>();
+        parent()->addComponent(w);
     }
 
     void Workspace::onUnregister()

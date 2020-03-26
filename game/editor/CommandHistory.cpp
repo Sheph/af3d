@@ -24,6 +24,7 @@
  */
 
 #include "editor/CommandHistory.h"
+#include "Logger.h"
 
 namespace af3d { namespace editor
 {
@@ -32,6 +33,7 @@ namespace af3d { namespace editor
         if (!cmd->redo()) {
             return;
         }
+        LOG4CPLUS_DEBUG(logger(), "CommandHistory: add (" << pos_ + 1 << ") " << cmd->description());
         list_.erase(list_.begin() + pos_, list_.end());
         list_.push_back(cmd);
         ++pos_;
@@ -41,6 +43,7 @@ namespace af3d { namespace editor
     {
         while ((pos_ > 0) && (n-- > 0)) {
             --pos_;
+            LOG4CPLUS_DEBUG(logger(), "CommandHistory: undo (" << pos_ + 1 << ") " << list_[pos_]->description());
             if (!list_[pos_]->undo()) {
                 break;
             }
@@ -50,6 +53,7 @@ namespace af3d { namespace editor
     void CommandHistory::redo(int n)
     {
         while ((pos_ < static_cast<int>(list_.size())) && (n-- > 0)) {
+            LOG4CPLUS_DEBUG(logger(), "CommandHistory: redo (" << pos_ + 1 << ") " << list_[pos_]->description());
             if (!list_[pos_]->redo()) {
                 break;
             }

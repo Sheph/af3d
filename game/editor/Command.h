@@ -38,11 +38,11 @@ namespace editor
     class Command : boost::noncopyable
     {
     public:
-        Command(Scene* scene, const std::string& description)
-        : scene_(scene),
-          description_(description) {}
+        explicit Command(Scene* scene)
+        : scene_(scene) {}
         virtual ~Command() = default;
 
+        inline void setDescription(const std::string& value) { description_ = value; }
         inline const std::string& description() const { return description_; }
 
         virtual bool redo() = 0;

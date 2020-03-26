@@ -78,6 +78,7 @@ set(SOURCES
     editor/MainPopup.cpp
     editor/CommandAddObject.cpp
     editor/CommandHistory.cpp
+    editor/CommandHistoryWindow.cpp
 )
 
 include_directories(.)
