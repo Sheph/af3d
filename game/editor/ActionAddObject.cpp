@@ -23,24 +23,23 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _EDITOR_ACTION_ADD_OBJECT_H_
-#define _EDITOR_ACTION_ADD_OBJECT_H_
-
-#include "editor/Action.h"
+#include "editor/ActionAddObject.h"
 
 namespace af3d { namespace editor
 {
-    class ActionAddObject : public Action
+    ActionAddObject::ActionAddObject(Workspace* workspace, const AClass& klass)
+    : Action(workspace),
+      klass_(klass)
     {
-    public:
-        ActionAddObject(Workspace* workspace, const AClass& klass);
-        ~ActionAddObject() = default;
+        static const char* prefix = "SceneObject";
+        if (klass_.name().find(prefix) == 0) {
+            setText(klass_.name().substr(std::strlen(prefix)));
+        } else {
+            setText(klass_.name());
+        }
+    }
 
-        void trigger() override;
-
-    private:
-        const AClass& klass_;
-    };
+    void ActionAddObject::trigger()
+    {
+    }
 } }
-
-#endif

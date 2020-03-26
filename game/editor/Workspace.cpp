@@ -25,9 +25,13 @@
 
 #include "editor/Workspace.h"
 #include "editor/ActionMainPopup.h"
+#include "editor/ActionAddObject.h"
 #include "Const.h"
 #include "InputManager.h"
+#include "AClassRegistry.h"
+#include "SceneObject.h"
 #include "imgui.h"
+#include <map>
 
 namespace af3d {
     ACLASS_NS_DEFINE_BEGIN(editor, Workspace, UIComponent)
@@ -37,7 +41,20 @@ namespace editor {
     Workspace::Workspace()
     : UIComponent(AClass_editorWorkspace, zOrderEditor)
     {
-        actionMainPopup_.reset(new ActionMainPopup(this));
+        actionMainPopup_ = std::make_shared<ActionMainPopup>(this);
+
+        std::map<std::string, const AClass*> sortedObjKlasses;
+
+        for (const auto& kv : AClassRegistry::instance().map()) {
+            if (kv.second->super() == &AClass_SceneObject) {
+                sortedObjKlasses[kv.second->name()] = kv.second;
+            }
+        }
+
+        for (const auto& kv : sortedObjKlasses) {
+            actionAddObject_.push_back(
+                std::make_shared<ActionAddObject>(this, *kv.second));
+        }
     }
 
     const AClass& Workspace::staticKlass()
@@ -60,8 +77,8 @@ namespace editor {
             return;
         }
 
-        if (inputManager.keyboard().triggered(KI_M)) {
-            actionMainPopup().trigger();
+        if (inputManager.keyboard().triggered(KI_I)) {
+            actionMainPopup()->trigger();
         }
     }
 

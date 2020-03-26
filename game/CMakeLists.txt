@@ -74,6 +74,7 @@ set(SOURCES
     AClassRegistry.cpp
     editor/Workspace.cpp
     editor/ActionMainPopup.cpp
+    editor/ActionAddObject.cpp
     editor/MainPopup.cpp
 )
 

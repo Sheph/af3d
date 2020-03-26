@@ -27,10 +27,12 @@
 #define _EDITOR_WORKSPACE_H_
 
 #include "UIComponent.h"
-#include "editor/Action.h"
 
 namespace af3d { namespace editor
 {
+    class Action;
+    using ActionPtr = std::shared_ptr<Action>;
+
     class Workspace : public std::enable_shared_from_this<Workspace>,
         public UIComponent
     {
@@ -48,14 +50,17 @@ namespace af3d { namespace editor
 
         void render(RenderList& rl) override;
 
-        inline Action& actionMainPopup() { return *actionMainPopup_; }
+        inline const ActionPtr& actionMainPopup() { return actionMainPopup_; }
+
+        inline const std::vector<ActionPtr>& actionAddObject() { return actionAddObject_; }
 
     private:
         void onRegister() override;
 
         void onUnregister() override;
 
-        std::unique_ptr<Action> actionMainPopup_;
+        ActionPtr actionMainPopup_;
+        std::vector<ActionPtr> actionAddObject_;
     };
 
     using WorkspacePtr = std::shared_ptr<Workspace>;

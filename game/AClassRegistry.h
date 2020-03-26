@@ -34,9 +34,13 @@ namespace af3d
     class AClassRegistry : boost::noncopyable
     {
     public:
+        using Map = std::unordered_map<std::string, const AClass*>;
+
         ~AClassRegistry() = default;
 
         static AClassRegistry& instance();
+
+        inline const Map& map() const { return map_; }
 
         void dump();
 
@@ -49,7 +53,7 @@ namespace af3d
     private:
         AClassRegistry() = default;
 
-        std::unordered_map<std::string, const AClass*> map_;
+        Map map_;
     };
 }
 

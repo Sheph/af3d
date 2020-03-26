@@ -26,13 +26,16 @@
 #ifndef _EDITOR_ACTION_H_
 #define _EDITOR_ACTION_H_
 
+#include "editor/Workspace.h"
 #include "af3d/Types.h"
 #include <boost/noncopyable.hpp>
+#include <memory>
 
-namespace af3d { namespace editor
-{
-    class Workspace;
+namespace af3d {
+    class SceneObject;
+    class Scene;
 
+namespace editor {
     class Action : boost::noncopyable
     {
     public:
@@ -40,13 +43,19 @@ namespace af3d { namespace editor
         : workspace_(workspace) {}
         virtual ~Action() = default;
 
+        inline const std::string& text() { return text_; }
+        inline void setText(const std::string& value) { text_ = value; }
+
         virtual void trigger() = 0;
 
     protected:
         inline Workspace& workspace() { return *workspace_; }
+        inline SceneObject* parent() { return workspace_->parent(); }
+        inline Scene* scene() { return workspace_->scene(); }
 
     private:
         Workspace* workspace_;
+        std::string text_;
     };
 } }
 

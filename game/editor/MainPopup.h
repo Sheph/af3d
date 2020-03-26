@@ -46,6 +46,10 @@ namespace af3d { namespace editor
         void update(float dt) override;
 
     private:
+        void menuAdd();
+
+        void menuAddObject();
+
         void onRegister() override;
 
         void onUnregister() override;

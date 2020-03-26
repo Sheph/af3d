@@ -24,8 +24,10 @@
  */
 
 #include "editor/MainPopup.h"
+#include "editor/Action.h"
 #include "Const.h"
 #include "Logger.h"
+#include "Scene.h"
 #include "imgui.h"
 
 namespace af3d {
@@ -57,9 +59,33 @@ namespace editor {
             return;
         }
 
-        ImGui::MenuItem("Test1");
-        ImGui::MenuItem("Test2");
+        menuAdd();
+
         ImGui::EndPopup();
+    }
+
+    void MainPopup::menuAdd()
+    {
+        if (!ImGui::BeginMenu("Add")) {
+            return;
+        }
+
+        menuAddObject();
+
+        ImGui::EndMenu();
+    }
+
+    void MainPopup::menuAddObject()
+    {
+        if (!ImGui::BeginMenu("Object")) {
+            return;
+        }
+
+        for (const auto& action : scene()->workspace()->actionAddObject()) {
+            ImGui::MenuItem(action->text().c_str());
+        }
+
+        ImGui::EndMenu();
     }
 
     void MainPopup::onRegister()

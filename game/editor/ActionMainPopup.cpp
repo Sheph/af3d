@@ -25,7 +25,6 @@
 
 #include "editor/ActionMainPopup.h"
 #include "editor/MainPopup.h"
-#include "Workspace.h"
 #include "SceneObject.h"
 
 namespace af3d { namespace editor
@@ -37,11 +36,11 @@ namespace af3d { namespace editor
 
     void ActionMainPopup::trigger()
     {
-        auto popup = workspace().parent()->findComponent<MainPopup>();
+        auto popup = parent()->findComponent<MainPopup>();
         if (popup) {
             popup->removeFromParent();
         }
         popup = std::make_shared<MainPopup>();
-        workspace().parent()->addComponent(popup);
+        parent()->addComponent(popup);
     }
 } }
