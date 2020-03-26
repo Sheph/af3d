@@ -53,7 +53,7 @@ namespace af3d
 
         MaterialPtr getMaterial(const std::string& name);
 
-        MaterialPtr load2DMaterial(const std::string& texturePath, const SamplerParams& params);
+        MaterialPtr loadImmMaterial(const std::string& texturePath, const SamplerParams& params);
 
         MaterialPtr createMaterial(MaterialTypeName typeName, const std::string& name = "");
 

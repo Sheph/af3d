@@ -41,7 +41,7 @@ namespace af3d
     } shaders[MaterialTypeMax + 1] = {
         {"shaders/unlit.vert", "shaders/unlit.frag", false},
         {"shaders/basic.vert", "shaders/basic.frag", true},
-        {"shaders/2d.vert", "shaders/2d.frag", false}
+        {"shaders/imm.vert", "shaders/imm.frag", false}
     };
 
     MaterialManager materialManager;
@@ -140,9 +140,9 @@ namespace af3d
         return it->second;
     }
 
-    MaterialPtr MaterialManager::load2DMaterial(const std::string& texturePath, const SamplerParams& params)
+    MaterialPtr MaterialManager::loadImmMaterial(const std::string& texturePath, const SamplerParams& params)
     {
-        std::string matName = "_bmat2d/" + texturePath + "@" + params.toString();
+        std::string matName = "_bmatImm/" + texturePath + "@" + params.toString();
 
         auto it = cachedMaterials_.find(matName);
         if (it != cachedMaterials_.end()) {
@@ -151,7 +151,7 @@ namespace af3d
 
         auto tex = textureManager.loadTexture(texturePath);
 
-        auto mat = createMaterial(MaterialType2D, matName);
+        auto mat = createMaterial(MaterialTypeImm, matName);
 
         mat->setTextureBinding(SamplerName::Main, TextureBinding(tex, params));
         mat->setBlendingParams(BlendingParams(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));

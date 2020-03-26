@@ -35,7 +35,7 @@ namespace af3d
     ImGuiComponent::ImGuiComponent(int zOrder)
     : UIComponent(AClass_ImGuiComponent, zOrder)
     {
-        material_ = materialManager.createMaterial(MaterialType2D);
+        material_ = materialManager.createMaterial(MaterialTypeImm);
         material_->setBlendingParams(BlendingParams(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
         material_->setDepthTest(false);
     }
