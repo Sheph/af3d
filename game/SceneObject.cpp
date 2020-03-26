@@ -35,8 +35,6 @@ namespace af3d
     ACLASS_PROPERTY(SceneObject, Type, "type", "Scene object type", SceneObjectType, static_cast<int>(SceneObjectType::Other), General)
     ACLASS_DEFINE_END(SceneObject)
 
-    static std::uint32_t nextCookie = 0;
-
     static void insertComponent(std::vector<ComponentPtr>& components,
         const ComponentPtr& component)
     {
@@ -64,7 +62,6 @@ namespace af3d
 
     SceneObject::SceneObject()
     : SceneObjectManager(AClass_SceneObject),
-      cookie_(nextCookie++),
       type_(SceneObjectType::Other),
       bodyDef_(0.0f, nullptr, nullptr),
       body_(nullptr),

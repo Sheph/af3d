@@ -76,6 +76,8 @@ set(SOURCES
     editor/ActionMainPopup.cpp
     editor/ActionAddObject.cpp
     editor/MainPopup.cpp
+    editor/CommandAddObject.cpp
+    editor/CommandHistory.cpp
 )
 
 include_directories(.)

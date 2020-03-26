@@ -46,8 +46,6 @@ namespace af3d
 
         static AObjectPtr createWithParams(const AClass& klass, const APropertyValueMap& propVals, AClass::CreateFn fn);
 
-        inline std::uint32_t cookie() const { return cookie_; }
-
         void addComponent(const ComponentPtr& component);
 
         void removeComponent(const ComponentPtr& component);
@@ -257,8 +255,6 @@ namespace af3d
         };
 
         using Flags = EnumSet<Flag>;
-
-        std::uint32_t cookie_;
 
         SceneObjectType type_;
 

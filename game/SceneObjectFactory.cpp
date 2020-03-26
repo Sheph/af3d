@@ -24,6 +24,9 @@
  */
 
 #include "SceneObjectFactory.h"
+#include "MaterialManager.h"
+#include "MeshManager.h"
+#include "RenderMeshComponent.h"
 #include "Settings.h"
 #include "Utils.h"
 #include "Logger.h"
@@ -67,9 +70,23 @@ namespace af3d
         return obj;
     }
 
-    SceneObjectPtr SceneObjectFactory::createColoredBox(const btVector3& size, const Color& color)
+    SceneObjectPtr SceneObjectFactory::createColoredBox(const btVector3& size, const Color& color1, const Color& color2)
     {
+        auto mesh = meshManager.createBoxMesh(size,
+            materialManager.getMaterial(MaterialManager::materialUnlitDefault),
+            {
+                color2,
+                color1,
+                color2,
+                color1,
+                color1,
+                color2
+            });
+
         auto obj = std::make_shared<SceneObject>();
+        auto rc = std::make_shared<RenderMeshComponent>();
+        rc->setMesh(mesh);
+        obj->addComponent(rc);
 
         return obj;
     }
@@ -85,10 +102,12 @@ namespace af3d
     {
         return sceneObjectFactory.createColoredBox(
             params.get("size").toVec3(),
-            params.get("color").toColor());
+            params.get("color1").toColor(),
+            params.get("color2").toColor());
     }
     SCENEOBJECT_DEFINE_PARAMS(ColoredBox)
     SCENEOBJECT_PARAM(ColoredBox, "size", "Box size", Vec3f, btVector3(1.0f, 2.0f, 3.0f))
-    SCENEOBJECT_PARAM(ColoredBox, "color", "Box color", ColorRGB, Color(1.0f, 1.0f, 1.0f, 1.0f))
+    SCENEOBJECT_PARAM(ColoredBox, "color1", "Box color #1", ColorRGB, Color(1.0f, 0.0f, 0.0f, 1.0f))
+    SCENEOBJECT_PARAM(ColoredBox, "color2", "Box color #2", ColorRGB, Color(0.0f, 1.0f, 0.0f, 1.0f))
     SCENEOBJECT_DEFINE_END(ColoredBox)
 }

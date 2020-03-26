@@ -24,6 +24,7 @@
  */
 
 #include "AObject.h"
+#include <atomic>
 
 namespace af3d
 {
@@ -34,8 +35,11 @@ namespace af3d
     ACLASS_PROPERTY(AObject, Name, AProperty_Name, "Object name", String, "", General)
     ACLASS_DEFINE_END(AObject)
 
+    static std::atomic<ACookie> nextCookie{1};
+
     AObject::AObject(const AClass& klass)
-    : klass_(&klass)
+    : klass_(&klass),
+      cookie_(nextCookie++)
     {
     }
 

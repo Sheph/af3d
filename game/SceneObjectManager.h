@@ -86,6 +86,10 @@ namespace af3d
 
         std::vector<SceneObjectPtr> getObjects() const;
 
+        SceneObjectPtr getObjectByCookie(ACookie cookie) const;
+
+        SceneObjectPtr getObjectByCookieRecursive(ACookie cookie) const;
+
         inline SceneObjectManager* parent() { return parent_; }
         inline void setParent(SceneObjectManager* value) { parent_ = value; }
 

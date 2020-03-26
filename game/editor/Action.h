@@ -35,7 +35,8 @@ namespace af3d {
     class SceneObject;
     class Scene;
 
-namespace editor {
+namespace editor
+{
     class Action : boost::noncopyable
     {
     public:
@@ -43,7 +44,7 @@ namespace editor {
         : workspace_(workspace) {}
         virtual ~Action() = default;
 
-        inline const std::string& text() { return text_; }
+        inline const std::string& text() const { return text_; }
         inline void setText(const std::string& value) { text_ = value; }
 
         virtual void trigger() = 0;

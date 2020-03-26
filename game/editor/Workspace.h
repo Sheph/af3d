@@ -27,6 +27,7 @@
 #define _EDITOR_WORKSPACE_H_
 
 #include "UIComponent.h"
+#include "editor/CommandHistory.h"
 
 namespace af3d { namespace editor
 {
@@ -50,6 +51,8 @@ namespace af3d { namespace editor
 
         void render(RenderList& rl) override;
 
+        inline CommandHistory& cmdHistory() { return cmdHistory_; }
+
         inline const ActionPtr& actionMainPopup() { return actionMainPopup_; }
 
         inline const std::vector<ActionPtr>& actionAddObject() { return actionAddObject_; }
@@ -58,6 +61,8 @@ namespace af3d { namespace editor
         void onRegister() override;
 
         void onUnregister() override;
+
+        CommandHistory cmdHistory_;
 
         ActionPtr actionMainPopup_;
         std::vector<ActionPtr> actionAddObject_;

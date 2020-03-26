@@ -93,6 +93,13 @@ namespace af3d
         return !is.fail();
     }
 
+    btTransform toTransform(const btVector3& v)
+    {
+        btTransform xf = btTransform::getIdentity();
+        xf.setOrigin(v);
+        return xf;
+    }
+
     btMatrix3x3 makeLookBasis(const btVector3& dir, const btVector3& up)
     {
         auto vForward = btZeroNormalized(-dir);

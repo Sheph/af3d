@@ -82,7 +82,9 @@ namespace editor {
         }
 
         for (const auto& action : scene()->workspace()->actionAddObject()) {
-            ImGui::MenuItem(action->text().c_str());
+            if (ImGui::MenuItem(action->text().c_str())) {
+                action->trigger();
+            }
         }
 
         ImGui::EndMenu();

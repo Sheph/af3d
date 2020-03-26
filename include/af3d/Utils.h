@@ -101,6 +101,8 @@ namespace af3d
         return n;
     }
 
+    btTransform toTransform(const btVector3& v);
+
     btMatrix3x3 makeLookBasis(const btVector3& dir, const btVector3& up);
 
     btQuaternion makeLookRotation(const btVector3& dir, const btVector3& up);

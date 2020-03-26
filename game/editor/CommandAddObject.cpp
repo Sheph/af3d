@@ -23,30 +23,65 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "editor/ActionAddObject.h"
 #include "editor/CommandAddObject.h"
-#include "Scene.h"
+#include "Logger.h"
 #include "SceneObject.h"
-#include "af3d/Utils.h"
+#include "Scene.h"
 
 namespace af3d { namespace editor
 {
-    ActionAddObject::ActionAddObject(Workspace* workspace, const AClass& klass)
-    : Action(workspace),
-      klass_(klass)
+    CommandAddObject::CommandAddObject(Scene* scene,
+        const AClass& klass, const std::string& klassName,
+        const btTransform& xf)
+    : Command(scene, "Add \"" + klassName + "\" object"),
+      klass_(klass),
+      xf_(xf)
     {
-        static const char* prefix = "SceneObject";
-        if (klass_.name().find(prefix) == 0) {
-            setText(klass_.name().substr(std::strlen(prefix)));
-        } else {
-            setText(klass_.name());
-        }
     }
 
-    void ActionAddObject::trigger()
+    bool CommandAddObject::redo()
     {
-        workspace().cmdHistory().add(
-            std::make_shared<CommandAddObject>(scene(), klass_, text(),
-                scene()->camera()->transform() * toTransform(btVector3_forward * 5.0f)));
+        APropertyValueMap propVals;
+
+        for (const auto& param : klass_.thisProperties()) {
+            propVals.set(param.name(), param.def());
+        }
+
+        propVals.set(AProperty_WorldTransform, xf_);
+
+        auto obj = klass_.create(propVals);
+        if (!obj) {
+            LOG4CPLUS_ERROR(logger(), "redo: Cannot create class obj: " << description());
+            return false;
+        }
+
+        auto sObj = std::dynamic_pointer_cast<SceneObject>(obj);
+        if (!sObj) {
+            LOG4CPLUS_ERROR(logger(), "redo: Class obj not a scene object: " << description());
+            return false;
+        }
+
+        if (cookie_) {
+            sObj->setCookie(cookie_);
+        } else {
+            cookie_ = sObj->cookie();
+        }
+
+        scene()->addObject(sObj);
+
+        return true;
+    }
+
+    bool CommandAddObject::undo()
+    {
+        auto obj = scene()->getObjectByCookieRecursive(cookie_);
+        if (!obj) {
+            LOG4CPLUS_ERROR(logger(), "undo: Cannot find obj: " << description());
+            return false;
+        }
+
+        obj->removeFromParent();
+
+        return true;
     }
 } }

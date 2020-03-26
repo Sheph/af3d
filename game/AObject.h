@@ -30,6 +30,8 @@
 
 namespace af3d
 {
+    using ACookie = std::uint64_t;
+
     class AObject : boost::noncopyable
     {
     public:
@@ -41,6 +43,9 @@ namespace af3d
 
         // WARNING! Only call this if you're 100% sure what you're doing.
         inline void setKlass(const AClass& value) { klass_ = &value; }
+
+        inline ACookie cookie() const { return cookie_; }
+        inline void setCookie(ACookie value) { cookie_ = value; }
 
         inline const std::string& name() const { return name_; }
         inline void setName(const std::string& value) { name_ = value; }
@@ -59,6 +64,7 @@ namespace af3d
     private:
         const AClass* klass_;
 
+        ACookie cookie_;
         std::string name_;
     };
 
