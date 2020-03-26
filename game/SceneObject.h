@@ -44,7 +44,7 @@ namespace af3d
 
         static AObjectPtr create(const APropertyValueMap& propVals);
 
-        static AObjectPtr createWithParams(const AClass& klass, const APropertyValueMap& propVals, AClass::CreateFn fn);
+        static SceneObjectPtr createWithParams(const AClass& klass, const APropertyValueMap& propVals, AClass::CreateFn fn);
 
         void addComponent(const ComponentPtr& component);
 

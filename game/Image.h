@@ -23,58 +23,56 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MATERIAL_MANAGER_H_
-#define _MATERIAL_MANAGER_H_
+#ifndef _IMAGE_H_
+#define _IMAGE_H_
 
-#include "ResourceManager.h"
-#include "Material.h"
-#include "af3d/Single.h"
-#include <unordered_map>
-#include <unordered_set>
+#include "Texture.h"
 
 namespace af3d
 {
-    class MaterialManager : public ResourceManager,
-                            public Single<MaterialManager>
+    class Image
     {
     public:
-        MaterialManager() = default;
-        ~MaterialManager();
+        Image() = default;
+        Image(const TexturePtr& texture,
+            std::uint32_t x, std::uint32_t y,
+            std::uint32_t width, std::uint32_t height);
+        ~Image() = default;
 
-        bool init() override;
+        inline const TexturePtr& texture() const { return texture_; }
 
-        void shutdown() override;
+        inline const std::array<Vector2f, 6>& texCoords() const { return texCoords_; }
 
-        void reload() override;
+        inline float aspect() const { return aspect_; }
 
-        bool renderReload(HardwareContext& ctx) override;
+        typedef void (*unspecified_bool_type)();
+        static void unspecified_bool_true() {}
 
-        MaterialTypePtr getMaterialType(MaterialTypeName name);
+        operator unspecified_bool_type() const
+        {
+            return texture_ ? unspecified_bool_true : 0;
+        }
 
-        MaterialPtr getMaterial(const std::string& name);
+        bool operator!() const
+        {
+            return !texture_;
+        }
 
-        MaterialPtr loadImmMaterial(const TexturePtr& tex, const SamplerParams& params, bool depthTest);
+        inline std::uint32_t x() const { return x_; }
+        inline std::uint32_t y() const { return y_; }
 
-        MaterialPtr createMaterial(MaterialTypeName typeName, const std::string& name = "");
-
-        bool onMaterialClone(const MaterialPtr& material);
-
-        void onMaterialDestroy(Material* material);
-
-        static const std::string materialUnlitDefault;
+        inline std::uint32_t width() const { return width_; }
+        inline std::uint32_t height() const { return height_; }
 
     private:
-        using MaterialTypes = std::array<MaterialTypePtr, MaterialTypeMax + 1>;
-        using CachedMaterials = std::unordered_map<std::string, MaterialPtr>;
-        using ImmediateMaterials = std::unordered_set<Material*>;
-
-        bool first_ = true;
-        MaterialTypes materialTypes_;
-        CachedMaterials cachedMaterials_;
-        ImmediateMaterials immediateMaterials_;
+        TexturePtr texture_;
+        std::uint32_t x_ = 0;
+        std::uint32_t y_ = 0;
+        std::uint32_t width_ = 0;
+        std::uint32_t height_ = 0;
+        std::array<Vector2f, 6> texCoords_;
+        float aspect_ = 0.0f;
     };
-
-    extern MaterialManager materialManager;
 }
 
 #endif

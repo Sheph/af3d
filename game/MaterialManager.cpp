@@ -140,22 +140,22 @@ namespace af3d
         return it->second;
     }
 
-    MaterialPtr MaterialManager::loadImmMaterial(const std::string& texturePath, const SamplerParams& params)
+    MaterialPtr MaterialManager::loadImmMaterial(const TexturePtr& tex, const SamplerParams& params, bool depthTest)
     {
-        std::string matName = "_bmatImm/" + texturePath + "@" + params.toString();
+        runtime_assert(!tex->name().empty());
+
+        std::string matName = "_bmatImm/" + tex->name() + "@" + params.toString() + (depthTest ? "-d" : "");
 
         auto it = cachedMaterials_.find(matName);
         if (it != cachedMaterials_.end()) {
             return it->second;
         }
 
-        auto tex = textureManager.loadTexture(texturePath);
-
         auto mat = createMaterial(MaterialTypeImm, matName);
 
         mat->setTextureBinding(SamplerName::Main, TextureBinding(tex, params));
         mat->setBlendingParams(BlendingParams(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-        mat->setDepthTest(false);
+        mat->setDepthTest(depthTest);
 
         return mat;
     }

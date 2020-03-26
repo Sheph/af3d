@@ -72,6 +72,8 @@ set(SOURCES
     AClass.cpp
     AObject.cpp
     AClassRegistry.cpp
+    Image.cpp
+    ImageManager.cpp
     editor/Workspace.cpp
     editor/ActionMainPopup.cpp
     editor/ActionAddObject.cpp

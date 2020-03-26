@@ -100,13 +100,13 @@ namespace af3d
         return obj;
     }
 
-    AObjectPtr SceneObject::createWithParams(const AClass& klass, const APropertyValueMap& propVals, AClass::CreateFn fn)
+    SceneObjectPtr SceneObject::createWithParams(const AClass& klass, const APropertyValueMap& propVals, AClass::CreateFn fn)
     {
         APropertyValueMap params;
         for (const auto& prop : klass.thisProperties()) {
             params.set(prop.name(), propVals.get(prop.name()));
         }
-        auto obj = fn(params);
+        auto obj = std::static_pointer_cast<SceneObject>(fn(params));
         if (!obj) {
             return obj;
         }

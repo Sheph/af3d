@@ -23,58 +23,36 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MATERIAL_MANAGER_H_
-#define _MATERIAL_MANAGER_H_
+#ifndef _IMAGEMANAGER_H_
+#define _IMAGEMANAGER_H_
 
-#include "ResourceManager.h"
-#include "Material.h"
+#include "Drawable.h"
 #include "af3d/Single.h"
-#include <unordered_map>
-#include <unordered_set>
+#include "af3d/TPS.h"
 
 namespace af3d
 {
-    class MaterialManager : public ResourceManager,
-                            public Single<MaterialManager>
+    class ImageManager : public Single<ImageManager>
     {
     public:
-        MaterialManager() = default;
-        ~MaterialManager();
+        ImageManager() = default;
+        ~ImageManager() = default;
 
-        bool init() override;
+        bool init();
 
-        void shutdown() override;
+        void shutdown();
 
-        void reload() override;
+        Image getImage(const std::string& name);
 
-        bool renderReload(HardwareContext& ctx) override;
-
-        MaterialTypePtr getMaterialType(MaterialTypeName name);
-
-        MaterialPtr getMaterial(const std::string& name);
-
-        MaterialPtr loadImmMaterial(const TexturePtr& tex, const SamplerParams& params, bool depthTest);
-
-        MaterialPtr createMaterial(MaterialTypeName typeName, const std::string& name = "");
-
-        bool onMaterialClone(const MaterialPtr& material);
-
-        void onMaterialDestroy(Material* material);
-
-        static const std::string materialUnlitDefault;
+        DrawablePtr getDrawable(const std::string& name);
 
     private:
-        using MaterialTypes = std::array<MaterialTypePtr, MaterialTypeMax + 1>;
-        using CachedMaterials = std::unordered_map<std::string, MaterialPtr>;
-        using ImmediateMaterials = std::unordered_set<Material*>;
+        using TPSMap = std::unordered_map<std::string, TPSPtr>;
 
-        bool first_ = true;
-        MaterialTypes materialTypes_;
-        CachedMaterials cachedMaterials_;
-        ImmediateMaterials immediateMaterials_;
+        TPSMap tpsMap_;
     };
 
-    extern MaterialManager materialManager;
+    extern ImageManager imageManager;
 }
 
 #endif

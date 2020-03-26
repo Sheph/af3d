@@ -16,8 +16,9 @@ set(SOURCES
     FBXProperties70Builder.cpp
     FBXMaterialTemplateBuilder.cpp
     FBXTextureTemplateBuilder.cpp
+    TPS.cpp
 )
 
 add_library(af3dutil STATIC ${SOURCES})
 
-target_link_libraries(af3dutil log4cplus boost png)
+target_link_libraries(af3dutil log4cplus boost png jsoncpp)
