@@ -28,6 +28,7 @@
 
 #include "RenderComponentManager.h"
 #include "RenderList.h"
+#include "af3d/Ray.h"
 
 namespace af3d
 {
@@ -54,6 +55,8 @@ namespace af3d
         virtual void update(float dt) = 0;
 
         virtual void render(RenderList& rl, void* const* parts, size_t numParts) = 0;
+
+        virtual std::pair<AObjectPtr, float> testRay(const Frustum& frustum, const Ray& ray, void* part) = 0;
 
         APropertyValue propertyVisibleGet(const std::string&) const { return visible(); }
         void propertyVisibleSet(const std::string&, const APropertyValue& value) { setVisible(value.toBool()); }

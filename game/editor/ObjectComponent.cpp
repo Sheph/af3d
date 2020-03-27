@@ -63,6 +63,7 @@ namespace editor {
         markerRc_->setHeight(settings.editor.objMarkerSizeWorld);
         markerRc_->setViewportHeight((float)settings.editor.objMarkerSizePixels / settings.viewHeight);
         markerRc_->setColor(settings.editor.objMarkerColorInactive);
+        markerRc_->aflagsSet(AObjectMarkerObject);
         parent()->addComponent(markerRc_);
     }
 

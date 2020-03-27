@@ -92,6 +92,8 @@ namespace af3d
       timeScale_(1.0f),
       realDt_(0.0f)
     {
+        aflagsSet(AObjectEditable);
+
         respawnPoint_.setIdentity();
 
         setScene(this);
@@ -265,6 +267,10 @@ namespace af3d
                 inputProcessed = false;
             }
 
+            auto cc = camera_->findComponent<CameraComponent>();
+            cc->setViewport(AABB2i(Vector2i(settings.viewX, settings.viewY),
+                Vector2i(settings.viewX + settings.viewWidth, settings.viewY + settings.viewHeight)));
+
             impl_->phasedComponentManager_->preRender(dt);
 
             if (true) {
@@ -286,12 +292,16 @@ namespace af3d
             * it can run custom logic...
             */
             impl_->renderComponentManager_->update(dt);
-            impl_->renderComponentManager_->cull(camera_->findComponent<CameraComponent>());
+            impl_->renderComponentManager_->cull(cc);
         } else {
+            auto cc = camera_->findComponent<CameraComponent>();
+            cc->setViewport(AABB2i(Vector2i(settings.viewX, settings.viewY),
+                Vector2i(settings.viewX + settings.viewWidth, settings.viewY + settings.viewHeight)));
+
             impl_->uiComponentManager_->update(dt);
             if (forceUpdateRender || !paused_) {
                 impl_->renderComponentManager_->update(dt);
-                impl_->renderComponentManager_->cull(camera_->findComponent<CameraComponent>());
+                impl_->renderComponentManager_->cull(cc);
             }
         }
 
@@ -344,6 +354,11 @@ namespace af3d
     btVector3 Scene::gravity() const
     {
         return btVector3_zero;
+    }
+
+    void Scene::rayCastRender(const Frustum& frustum, const Ray& ray, const RayCastRenderFn& fn)
+    {
+        impl_->renderComponentManager_->rayCast(frustum, ray, fn);
     }
 
     void Scene::setRespawnPoint(const btTransform& value)

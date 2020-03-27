@@ -29,21 +29,57 @@
 
 namespace af3d
 {
-    RenderComponentManager::Collide::Collide(const Frustum& frustum, CullResultList& cullResults)
+    RenderComponentManager::CollideCull::CollideCull(const Frustum& frustum, CullResultList& cullResults)
     : frustum_(frustum),
       cullResults_(cullResults)
     {
     }
 
-    void RenderComponentManager::Collide::Process(const btDbvtNode* node)
+    void RenderComponentManager::CollideCull::Process(const btDbvtNode* node)
     {
         auto nd = (NodeData*)node->data;
         cullResults_[nd->component].push_back(nd->data);
     }
 
-    bool RenderComponentManager::Collide::Descent(const btDbvtNode* node)
+    bool RenderComponentManager::CollideCull::Descent(const btDbvtNode* node)
     {
         return frustum_.isVisible(AABB(node->volume.Mins(), node->volume.Maxs()));
+    }
+
+    RenderComponentManager::CollideRayCast::CollideRayCast(const Frustum& frustum, const Ray& ray, const RayCastRenderFn& fn)
+    : frustum_(frustum),
+      ray_(ray),
+      fn_(fn)
+    {
+    }
+
+    void RenderComponentManager::CollideRayCast::Process(const btDbvtNode* node)
+    {
+        auto nd = (NodeData*)node->data;
+        auto res = nd->component->testRay(frustum_, ray_, nd->data);
+        if (!res.first || (res.second >= maxT_)) {
+            return;
+        }
+        float newT = fn_(res.first, ray_.getAt(res.second), res.second);
+        if ((newT >= 0.0f) && (newT < maxT_)) {
+            maxT_ = newT;
+        }
+    }
+
+    bool RenderComponentManager::CollideRayCast::Descent(const btDbvtNode* node)
+    {
+        if (maxT_ <= 0.0f) {
+            return false;
+        }
+        AABB aabb(node->volume.Mins(), node->volume.Maxs());
+        if (aabb.contains(ray_.pos)) {
+            return true;
+        }
+        auto res = ray_.testAABB(aabb);
+        if (res.second >= maxT_) {
+            return false;
+        }
+        return res.first;
     }
 
     RenderComponentManager::~RenderComponentManager()
@@ -167,7 +203,7 @@ namespace af3d
 
     void RenderComponentManager::cull(const CameraComponentPtr& cc)
     {
-        Collide collide(cc->getFrustum(), cullResults_);
+        CollideCull collide(cc->getFrustum(), cullResults_);
 
         btDbvt::collideTU(tree_.m_root, collide);
         cc_ = cc.get();
@@ -185,11 +221,15 @@ namespace af3d
 
         auto rn = rl.compile();
 
-        AABB2i viewport(Vector2i(settings.viewX, settings.viewY),
-            Vector2i(settings.viewX + settings.viewWidth, settings.viewY + settings.viewHeight));
-
-        rn->setViewport(viewport);
+        rn->setViewport(cc_->viewport());
 
         return rn;
+    }
+
+    void RenderComponentManager::rayCast(const Frustum& frustum, const Ray& ray, const RayCastRenderFn& fn)
+    {
+        CollideRayCast collide(frustum, ray, fn);
+
+        btDbvt::collideTU(tree_.m_root, collide);
     }
 }

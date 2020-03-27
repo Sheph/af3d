@@ -84,6 +84,17 @@ namespace af3d
         }
     }
 
+    std::pair<AObjectPtr, float> LightComponent::testRay(const Frustum& frustum, const Ray& ray, void* part)
+    {
+        Light* light = static_cast<Light*>(part);
+        auto res = ray.testAABB(light->getWorldAABB());
+        if (res.first) {
+            return std::make_pair(light->sharedThis(), res.second);
+        } else {
+            return std::make_pair(AObjectPtr(), 0.0f);
+        }
+    }
+
     void LightComponent::debugDraw()
     {
     }

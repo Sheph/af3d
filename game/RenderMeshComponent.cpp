@@ -77,6 +77,16 @@ namespace af3d
         }
     }
 
+    std::pair<AObjectPtr, float> RenderMeshComponent::testRay(const Frustum& frustum, const Ray& ray, void* part)
+    {
+        auto res = ray.testAABB(prevAABB_);
+        if (res.first) {
+            return std::make_pair(sharedThis(), res.second);
+        } else {
+            return std::make_pair(AObjectPtr(), 0.0f);
+        }
+    }
+
     void RenderMeshComponent::debugDraw()
     {
     }

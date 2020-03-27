@@ -70,6 +70,7 @@ namespace af3d { namespace editor
             setDescription("Add \"" + klassName_ + "\" object");
         }
 
+        sObj->aflagsSet(AObjectEditable);
         sObj->addComponent(std::make_shared<ObjectComponent>());
 
         scene()->addObject(sObj);

@@ -48,6 +48,8 @@ namespace af3d
 
         void render(RenderList& rl, void* const* parts, size_t numParts) override;
 
+        std::pair<AObjectPtr, float> testRay(const Frustum& frustum, const Ray& ray, void* part) override;
+
         void debugDraw() override;
 
         inline const DrawablePtr& drawable() const { return drawable_; }
@@ -100,7 +102,7 @@ namespace af3d
 
         void onUnregister() override;
 
-        void updatePoints();
+        void updatePoints(const Vector2f& sz);
 
         AABB updateAABB();
 

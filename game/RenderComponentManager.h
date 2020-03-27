@@ -30,6 +30,7 @@
 #include "CameraComponent.h"
 #include "RenderNode.h"
 #include "VertexArrayWriter.h"
+#include "af3d/Ray.h"
 #include "bullet/BulletCollision/BroadphaseCollision/btDbvt.h"
 #include <unordered_set>
 #include <list>
@@ -37,6 +38,8 @@
 namespace af3d
 {
     struct RenderCookie {};
+
+    using RayCastRenderFn = std::function<float(const AObjectPtr&, const btVector3&, float)>;
 
     class RenderComponent;
     using RenderComponentPtr = std::shared_ptr<RenderComponent>;
@@ -76,6 +79,8 @@ namespace af3d
 
         RenderNodePtr render(VertexArrayWriter& defaultVa);
 
+        void rayCast(const Frustum& frustum, const Ray& ray, const RayCastRenderFn& fn);
+
     private:
         struct NodeData
         {
@@ -87,11 +92,11 @@ namespace af3d
         using NodeDataList = std::list<NodeData>;
         using CullResultList = std::unordered_map<RenderComponent*, std::vector<void*>>;
 
-        class Collide : public btDbvt::ICollide
+        class CollideCull : public btDbvt::ICollide
         {
         public:
-            Collide(const Frustum& frustum, CullResultList& cullResults);
-            ~Collide() = default;
+            CollideCull(const Frustum& frustum, CullResultList& cullResults);
+            ~CollideCull() = default;
 
             void Process(const btDbvtNode* node) override;
             bool Descent(const btDbvtNode* node) override;
@@ -99,6 +104,22 @@ namespace af3d
         private:
             const Frustum& frustum_;
             CullResultList& cullResults_;
+        };
+
+        class CollideRayCast : public btDbvt::ICollide
+        {
+        public:
+            CollideRayCast(const Frustum& frustum, const Ray& ray, const RayCastRenderFn& fn);
+            ~CollideRayCast() = default;
+
+            void Process(const btDbvtNode* node) override;
+            bool Descent(const btDbvtNode* node) override;
+
+        private:
+            const Frustum& frustum_;
+            const Ray& ray_;
+            const RayCastRenderFn& fn_;
+            float maxT_ = std::numeric_limits<float>::max();
         };
 
         std::unordered_set<RenderComponentPtr> components_;

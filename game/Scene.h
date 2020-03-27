@@ -77,6 +77,8 @@ namespace af3d
         void setGravity(const btVector3& value);
         btVector3 gravity() const;
 
+        void rayCastRender(const Frustum& frustum, const Ray& ray, const RayCastRenderFn& fn);
+
         inline const editor::WorkspacePtr& workspace() const { return workspace_; }
 
         inline const SceneObjectPtr& camera() const { return camera_; }

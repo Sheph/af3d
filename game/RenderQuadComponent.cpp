@@ -84,13 +84,12 @@ namespace af3d
             material_ = materialManager.loadImmMaterial(image.texture(), SamplerParams(), depthTest_);
         }
 
-        auto vRight = rl.frustum().transform().getBasis().getColumn(0);
-        auto vUp = rl.frustum().transform().getBasis().getColumn(1);
+        const auto& vRight = rl.frustum().transform().getBasis().getColumn(0);
+        const auto& vUp = rl.frustum().transform().getBasis().getColumn(1);
 
         if (viewportHeight_ > 0.0f) {
-            float scale = viewportHeight_ * rl.frustum().getExtents(worldCenter_).y();
-            vRight *= scale;
-            vUp *= scale;
+            float h = viewportHeight_ * rl.frustum().getExtents(worldCenter_).y();
+            updatePoints(Vector2f(h * size_.x() / size_.y(), h));
         }
 
         auto p0 = toVector3f(worldCenter_ + vRight * points_[0].x() + vUp * points_[0].y());
@@ -119,6 +118,23 @@ namespace af3d
         }
     }
 
+    std::pair<AObjectPtr, float> RenderQuadComponent::testRay(const Frustum& frustum, const Ray& ray, void* part)
+    {
+        Vector2f sz;
+        if (viewportHeight_ > 0.0f) {
+            float h = viewportHeight_ * frustum.getExtents(worldCenter_).y();
+            sz = Vector2f(h * size_.x() / size_.y(), h);
+        } else {
+            sz = size_;
+        }
+        auto res = ray.testSphere(Sphere(worldCenter_, btMax(sz.x(), sz.y()) / 2.0f));
+        if (res.first) {
+            return std::make_pair(sharedThis(), res.second);
+        } else {
+            return std::make_pair(AObjectPtr(), 0.0f);
+        }
+    }
+
     void RenderQuadComponent::debugDraw()
     {
     }
@@ -140,8 +156,7 @@ namespace af3d
     {
         if (angle_ != value) {
             angle_ = value;
-            dirty_ = true;
-            updatePoints();
+            updatePoints(size_);
         }
     }
 
@@ -150,7 +165,7 @@ namespace af3d
         if (size_ != value) {
             size_ = value;
             dirty_ = true;
-            updatePoints();
+            updatePoints(size_);
         }
     }
 
@@ -195,11 +210,7 @@ namespace af3d
 
     void RenderQuadComponent::setViewportHeight(float value)
     {
-        if (viewportHeight_ != value) {
-            viewportHeight_ = value;
-            dirty_ = true;
-            updatePoints();
-        }
+        viewportHeight_ = value;
     }
 
     void RenderQuadComponent::onRegister()
@@ -215,11 +226,9 @@ namespace af3d
         manager()->removeAABB(cookie_);
     }
 
-    void RenderQuadComponent::updatePoints()
+    void RenderQuadComponent::updatePoints(const Vector2f& sz)
     {
         btQuaternion rot(btVector3_back, angle_);
-
-        const Vector2f& sz = (viewportHeight_ > 0.0f) ? Vector2f_one : size_;
 
         points_[0] = quatRotate(rot, btVector3(-sz.x() / 2.0f, -sz.y() / 2.0f, 0.0f));
         points_[1] = quatRotate(rot, btVector3(sz.x() / 2.0f, -sz.y() / 2.0f, 0.0f));

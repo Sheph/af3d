@@ -32,6 +32,12 @@ namespace af3d
 {
     using ACookie = std::uint64_t;
 
+    enum AObjectFlags
+    {
+        AObjectEditable = 1 << 0,
+        AObjectMarkerObject = 1 << 1
+    };
+
     class AObject : boost::noncopyable
     {
     public:
@@ -50,6 +56,10 @@ namespace af3d
         inline const std::string& name() const { return name_; }
         inline void setName(const std::string& value) { name_ = value; }
 
+        inline std::uint32_t aflags() const { return aflags_; }
+        inline void aflagsSet(std::uint32_t value) { aflags_ |= value; }
+        inline void aflagsClear(std::uint32_t value) { aflags_ &= ~value; }
+
         APropertyValue propertyGet(const std::string& key) const;
         void propertySet(const std::string& key, const APropertyValue& value);
 
@@ -66,6 +76,7 @@ namespace af3d
 
         ACookie cookie_;
         std::string name_;
+        std::uint32_t aflags_ = 0;
     };
 
     extern const APropertyTypeObject APropertyType_AObject;

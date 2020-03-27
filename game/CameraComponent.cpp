@@ -26,7 +26,7 @@
 #include "CameraComponent.h"
 #include "SceneObject.h"
 #include "InputManager.h"
-#include "Settings.h"
+#include "Logger.h"
 
 namespace af3d
 {
@@ -89,7 +89,9 @@ namespace af3d
             return;
         }
 
-        auto diff = (inputManager.mouse().pos() - mousePrevPos_) / Vector2f(settings.viewHeight, settings.viewHeight);
+        auto sz = viewport_.upperBound - viewport_.lowerBound;
+
+        auto diff = (inputManager.mouse().pos() - mousePrevPos_) / Vector2f(sz.x(), sz.y());
 
         auto dir = quatRotate(btQuaternion(btVector3_up, btRadians(-diff.x() * 80.0f)), parent()->getForward());
         dir = quatRotate(btQuaternion(parent()->getRight(), btRadians(-diff.y() * 80.0f)), dir);
@@ -103,6 +105,42 @@ namespace af3d
     {
         frustum_.setTransform(parent()->transform() * xf_);
         return frustum_;
+    }
+
+    Vector2f CameraComponent::screenToViewport(const Vector2f& pt) const
+    {
+        auto sz = viewport_.upperBound - viewport_.lowerBound;
+
+        return Vector2f(pt.x() / sz.x(), (sz.y() - pt.y()) / sz.y());
+    }
+
+    Ray CameraComponent::screenPointToRay(const Vector2f& pt) const
+    {
+        return viewportPointToRay(screenToViewport(pt));
+    }
+
+    Ray CameraComponent::viewportPointToRay(const Vector2f& pt) const
+    {
+        float nx = (2.0f * pt.x()) - 1.0f;
+        float ny = (2.0f * pt.y()) - 1.0f;
+
+        Vector4f near(nx, ny, -1.0f, 1.0f);
+        // Use midPoint rather than far point to avoid issues with infinite projection.
+        Vector4f mid(nx, ny, 0.0f, 1.0f);
+
+        const auto& frustum = getFrustum();
+        auto invM = frustum.viewProjMat().inverse();
+
+        auto pos4 = invM * near;
+        auto target4 = invM * mid;
+
+        auto pos = toVector3(pos4 / pos4.w());
+        auto target = toVector3(target4 / target4.w());
+
+        auto dir = target - pos;
+        btZeroNormalize(dir);
+
+        return Ray(pos, dir);
     }
 
     void CameraComponent::onRegister()

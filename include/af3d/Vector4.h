@@ -434,6 +434,11 @@ namespace af3d
     {
         return Color(c.x() / 255.0f, c.y() / 255.0f, c.z() / 255.0f, c.w() / 255.0f);
     }
+
+    inline btVector3 toVector3(const Vector4f& v)
+    {
+        return btVector3(v.x(), v.y(), v.z());
+    }
 }
 
 template <class T>

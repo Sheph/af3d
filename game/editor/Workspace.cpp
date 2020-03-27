@@ -30,7 +30,10 @@
 #include "Const.h"
 #include "InputManager.h"
 #include "AClassRegistry.h"
+#include "Scene.h"
 #include "SceneObject.h"
+#include "CameraComponent.h"
+#include "Logger.h"
 #include "imgui.h"
 #include <map>
 
@@ -81,6 +84,15 @@ namespace editor {
         if (inputManager.keyboard().triggered(KI_I)) {
             actionMainPopup()->trigger();
         }
+
+        auto cc = scene()->camera()->findComponent<CameraComponent>();
+
+        auto ray = cc->screenPointToRay(inputManager.mouse().pos());
+
+        scene()->rayCastRender(cc->getFrustum(), ray, [](const AObjectPtr& r, const btVector3& pt, float dist) {
+            LOG4CPLUS_DEBUG(logger(), pt << ", " << dist);
+            return -1.0f;
+        });
     }
 
     void Workspace::render(RenderList& rl)

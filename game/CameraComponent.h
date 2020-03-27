@@ -30,6 +30,7 @@
 #include "RenderSettings.h"
 #include "af3d/Frustum.h"
 #include "af3d/AABB2.h"
+#include "af3d/Ray.h"
 
 namespace af3d
 {
@@ -75,6 +76,14 @@ namespace af3d
         const Frustum& getFrustum() const;
 
         inline RenderSettings& renderSettings() { return renderSettings_; }
+
+        Vector2f screenToViewport(const Vector2f& pt) const;
+
+        // pt is pixels, (0,0) - top-left, (w,h) - bottom-right
+        Ray screenPointToRay(const Vector2f& pt) const;
+
+        // pt is in range 0.0-1.0, (0,0) - bottom-left, (1,1) - top-right
+        Ray viewportPointToRay(const Vector2f& pt) const;
 
     private:
         void onRegister() override;
