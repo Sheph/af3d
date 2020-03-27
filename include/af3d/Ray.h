@@ -52,6 +52,8 @@ namespace af3d
 
         RayTestResult testSphere(const Sphere& s) const;
     };
+
+    extern const Ray Ray_empty;
 }
 
 #endif

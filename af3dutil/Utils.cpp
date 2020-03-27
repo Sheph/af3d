@@ -30,6 +30,8 @@
 #include "af3d/Vector4.h"
 #include "af3d/AABB.h"
 #include "af3d/AABB2.h"
+#include "af3d/Ray.h"
+#include "af3d/Sphere.h"
 #include <chrono>
 
 namespace af3d
@@ -62,6 +64,9 @@ namespace af3d
 
     const AABB2f AABB2f_empty(Vector2f_zero, Vector2f_zero);
     const AABB2i AABB2i_empty(Vector2i_zero, Vector2i_zero);
+
+    const Ray Ray_empty(btVector3_zero, btVector3_zero);
+    const Sphere Sphere_empty(btVector3_zero, 0.0f);
 
     static std::chrono::steady_clock::time_point startTime;
 

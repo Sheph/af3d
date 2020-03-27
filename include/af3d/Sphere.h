@@ -47,6 +47,8 @@ namespace af3d
             return radius <= 0.0f;
         }
     };
+
+    extern const Sphere Sphere_empty;
 }
 
 #endif

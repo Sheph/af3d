@@ -24,6 +24,7 @@
  */
 
 #include "af3d/Ray.h"
+#include "af3d/Vector3.h"
 
 namespace af3d
 {
@@ -35,7 +36,7 @@ namespace af3d
 
     bool Ray::empty() const
     {
-        return dir.isZero();
+        return dir == btVector3_zero;
     }
 
     btVector3 Ray::getAt(float t) const
