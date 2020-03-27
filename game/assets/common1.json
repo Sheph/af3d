@@ -2,11 +2,11 @@
 
 {
 	"filename": "marker1.png",
-	"frame": {"x":4,"y":4,"w":256,"h":256},
+	"frame": {"x":4,"y":4,"w":64,"h":64},
 	"rotated": false,
 	"trimmed": false,
-	"spriteSourceSize": {"x":0,"y":0,"w":256,"h":256},
-	"sourceSize": {"w":256,"h":256},
+	"spriteSourceSize": {"x":0,"y":0,"w":64,"h":64},
+	"sourceSize": {"w":64,"h":64},
 	"pivot": {"x":0.5,"y":0.5}
 }],
 "meta": {
@@ -14,8 +14,8 @@
 	"version": "1.0",
 	"image": "common1.png",
 	"format": "RGBA8888",
-	"size": {"w":266,"h":264},
+	"size": {"w":74,"h":72},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:7b10ae2e826f0845e27ec33207ff0b15:1475f0448018807b69a1452939472241:849a2d506a3dff356c1665b7dfafc6aa$"
+	"smartupdate": "$TexturePacker:SmartUpdate:9f108cc90198bfc41e3775532e652e25:01264a909f168a4fea1a26899dd49b6b:849a2d506a3dff356c1665b7dfafc6aa$"
 }
 }

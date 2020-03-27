@@ -57,16 +57,17 @@ namespace editor {
 
     void ObjectComponent::onRegister()
     {
-        iconRc_ = std::make_shared<RenderQuadComponent>();
-        iconRc_->setDrawable(imageManager.getDrawable("common1/marker1.png"));
-        iconRc_->setDepthTest(false);
-        iconRc_->setHeight(5.0f);
-        iconRc_->setViewportHeight(32.0f / settings.viewHeight);
-        parent()->addComponent(iconRc_);
+        markerRc_ = std::make_shared<RenderQuadComponent>();
+        markerRc_->setDrawable(imageManager.getDrawable("common1/marker1.png"));
+        markerRc_->setDepthTest(false);
+        markerRc_->setHeight(settings.editor.objMarkerSizeWorld);
+        markerRc_->setViewportHeight((float)settings.editor.objMarkerSizePixels / settings.viewHeight);
+        markerRc_->setColor(settings.editor.objMarkerColorInactive);
+        parent()->addComponent(markerRc_);
     }
 
     void ObjectComponent::onUnregister()
     {
-        iconRc_->removeFromParent();
+        markerRc_->removeFromParent();
     }
 } }

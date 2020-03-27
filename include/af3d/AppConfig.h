@@ -103,6 +103,8 @@ namespace af3d
          * value is in form "1.0, 0.5, 0.8, 1.0"
          */
         virtual Vector4f getVector4f(const std::string& key) const = 0;
+
+        inline Color getColor(const std::string& key) const { return getVector4f(key); }
     };
 
     using AppConfigPtr = std::shared_ptr<AppConfig>;

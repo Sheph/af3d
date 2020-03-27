@@ -100,7 +100,7 @@ namespace af3d
         impl_->renderComponentManager_->setScene(this);
         impl_->uiComponentManager_->setScene(this);
 
-        if (settings.editor) {
+        if (settings.editor.enabled) {
             workspaceObj_ = std::make_shared<SceneObject>();
             workspace_ = std::make_shared<editor::Workspace>();
             workspaceObj_->addComponent(workspace_);

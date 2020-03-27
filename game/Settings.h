@@ -36,6 +36,14 @@ namespace af3d
     class Settings : public Single<Settings>
     {
     public:
+        struct Editor
+        {
+            bool enabled;
+            float objMarkerSizeWorld;
+            int objMarkerSizePixels;
+            Color objMarkerColorInactive;
+        };
+
         Settings() = default;
         ~Settings() = default;
 
@@ -46,7 +54,6 @@ namespace af3d
 #ifdef _WIN32
         std::string assets;
 #endif
-        bool editor;
         std::uint32_t developer;
         std::uint32_t viewWidth;
         std::uint32_t viewHeight;
@@ -61,6 +68,7 @@ namespace af3d
         std::uint32_t viewX;
         std::uint32_t viewY;
         std::set<VideoMode> winVideoModes;
+        Editor editor;
     };
 
     extern Settings settings;

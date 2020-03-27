@@ -46,7 +46,6 @@ namespace af3d
 #ifdef _WIN32
         assets = appConfig->getString(".assets");
 #endif
-        editor = false;
         developer = appConfig->getInt(".developer");
         viewWidth = appConfig->getInt(".viewWidth");
         viewHeight = appConfig->getInt(".viewHeight");
@@ -79,5 +78,14 @@ namespace af3d
             Vector2f tmp = appConfig->getVector2f(std::string(".winVideoMode.") + key);
             winVideoModes.insert(VideoMode(tmp.x(), tmp.y()));
         }
+
+        /*
+         * editor.
+         */
+
+        editor.enabled = false;
+        editor.objMarkerSizeWorld = appConfig->getFloat("editor.objMarkerSizeWorld");
+        editor.objMarkerSizePixels = appConfig->getInt("editor.objMarkerSizePixels");
+        editor.objMarkerColorInactive = appConfig->getColor("editor.objMarkerColorInactive");
     }
 }

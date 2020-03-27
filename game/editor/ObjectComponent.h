@@ -51,7 +51,7 @@ namespace af3d { namespace editor
 
         void onUnregister() override;
 
-        RenderQuadComponentPtr iconRc_;
+        RenderQuadComponentPtr markerRc_;
     };
 
     using ObjectComponentPtr = std::shared_ptr<ObjectComponent>;
