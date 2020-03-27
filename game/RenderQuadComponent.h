@@ -78,7 +78,7 @@ namespace af3d
         void setDepthTest(bool value);
 
         inline float viewportHeight() const { return viewportHeight_; }
-        inline void setViewportHeight(float value) { viewportHeight_ = value; }
+        void setViewportHeight(float value);
 
         APropertyValue propertyPositionGet(const std::string&) const { return pos_; }
         void propertyPositionSet(const std::string&, const APropertyValue& value) { setPos(value.toVec3()); }

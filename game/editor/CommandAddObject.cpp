@@ -24,6 +24,7 @@
  */
 
 #include "editor/CommandAddObject.h"
+#include "editor/ObjectComponent.h"
 #include "Logger.h"
 #include "SceneObject.h"
 #include "Scene.h"
@@ -68,6 +69,8 @@ namespace af3d { namespace editor
             cookie_ = sObj->cookie();
             setDescription("Add \"" + klassName_ + "\" object");
         }
+
+        sObj->addComponent(std::make_shared<ObjectComponent>());
 
         scene()->addObject(sObj);
 

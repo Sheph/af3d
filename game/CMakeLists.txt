@@ -82,6 +82,7 @@ set(SOURCES
     editor/CommandAddObject.cpp
     editor/CommandHistory.cpp
     editor/CommandHistoryWindow.cpp
+    editor/ObjectComponent.cpp
 )
 
 include_directories(.)

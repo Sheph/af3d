@@ -36,6 +36,8 @@ namespace af3d
 {
     const Vector2f Vector2f_zero(0.0f, 0.0f);
     const Vector2i Vector2i_zero(0, 0);
+    const Vector2f Vector2f_one(1.0f, 1.0f);
+    const Vector2i Vector2i_one(1, 1);
 
     const Vector3f Vector3f_zero(0.0f, 0.0f, 0.0f);
     const Vector3i Vector3i_zero(0, 0, 0);

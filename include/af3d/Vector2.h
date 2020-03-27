@@ -365,6 +365,8 @@ namespace af3d
 
     extern const Vector2f Vector2f_zero;
     extern const Vector2i Vector2i_zero;
+    extern const Vector2f Vector2f_one;
+    extern const Vector2i Vector2i_one;
 
     inline bool btIsValid(const Vector2f& v)
     {

@@ -179,7 +179,7 @@
         </struct>
         <key>fileList</key>
         <array>
-            <filename>common1/test1.png</filename>
+            <filename>common1/marker1.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>

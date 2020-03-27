@@ -193,6 +193,15 @@ namespace af3d
         }
     }
 
+    void RenderQuadComponent::setViewportHeight(float value)
+    {
+        if (viewportHeight_ != value) {
+            viewportHeight_ = value;
+            dirty_ = true;
+            updatePoints();
+        }
+    }
+
     void RenderQuadComponent::onRegister()
     {
         prevParentXf_ = parent()->transform();
@@ -210,10 +219,12 @@ namespace af3d
     {
         btQuaternion rot(btVector3_back, angle_);
 
-        points_[0] = quatRotate(rot, btVector3(-size_.x() / 2.0f, -size_.y() / 2.0f, 0.0f));
-        points_[1] = quatRotate(rot, btVector3(size_.x() / 2.0f, -size_.y() / 2.0f, 0.0f));
-        points_[2] = quatRotate(rot, btVector3(size_.x() / 2.0f, size_.y() / 2.0f, 0.0f));
-        points_[3] = quatRotate(rot, btVector3(-size_.x() / 2.0f, size_.y() / 2.0f, 0.0f));
+        const Vector2f& sz = (viewportHeight_ > 0.0f) ? Vector2f_one : size_;
+
+        points_[0] = quatRotate(rot, btVector3(-sz.x() / 2.0f, -sz.y() / 2.0f, 0.0f));
+        points_[1] = quatRotate(rot, btVector3(sz.x() / 2.0f, -sz.y() / 2.0f, 0.0f));
+        points_[2] = quatRotate(rot, btVector3(sz.x() / 2.0f, sz.y() / 2.0f, 0.0f));
+        points_[3] = quatRotate(rot, btVector3(-sz.x() / 2.0f, sz.y() / 2.0f, 0.0f));
     }
 
     AABB RenderQuadComponent::updateAABB()
@@ -226,7 +237,8 @@ namespace af3d
 
         worldCenter_ = xf * pos_;
 
-        float mx = btMax(size_.x(), size_.y()) / 2.0f;
+        // Multiply by 1.5 in order to account for rotations, i.e. >= sqrt(2)
+        float mx = (btMax(size_.x(), size_.y()) / 2.0f) * 1.5f;
 
         auto msz = btVector3(mx, mx, mx);
 
