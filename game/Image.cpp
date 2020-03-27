@@ -52,14 +52,14 @@ namespace af3d
         aabb.upperBound.setX((xf + width + 0.5f) / texture->width());
         aabb.upperBound.setY(1.0f - (yf - 0.5f) / texture->height());
 
-        texCoords_[0][0] = texCoords_[3][0] = aabb.lowerBound.x();
-        texCoords_[0][1] = texCoords_[3][1] = aabb.lowerBound.y();
+        texCoords_[0][0] = aabb.lowerBound.x();
+        texCoords_[0][1] = aabb.lowerBound.y();
         texCoords_[1][0] = aabb.upperBound.x();
         texCoords_[1][1] = aabb.lowerBound.y();
-        texCoords_[2][0] = texCoords_[4][0] = aabb.upperBound.x();
-        texCoords_[2][1] = texCoords_[4][1] = aabb.upperBound.y();
-        texCoords_[5][0] = aabb.lowerBound.x();
-        texCoords_[5][1] = aabb.upperBound.y();
+        texCoords_[2][0] = aabb.upperBound.x();
+        texCoords_[2][1] = aabb.upperBound.y();
+        texCoords_[3][0] = aabb.lowerBound.x();
+        texCoords_[3][1] = aabb.upperBound.y();
 
         aspect_ = static_cast<float>(width) / height;
     }

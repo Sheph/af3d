@@ -27,6 +27,7 @@
 #define _AF3D_FRUSTUM_H_
 
 #include "af3d/Types.h"
+#include "af3d/Vector2.h"
 #include "af3d/Matrix4.h"
 #include "af3d/AABB.h"
 #include "af3d/Plane.h"
@@ -82,12 +83,16 @@ namespace af3d
         inline const btTransform& transform() const { return xf_; }
         void setTransform(const btTransform& value);
 
+        const Matrix4f& projMat() const;
         const Matrix4f& viewProjMat() const;
         const Planes& planes() const;
 
         inline const btPlane& plane(Plane p) const { return planes()[static_cast<int>(p)]; }
 
         bool isVisible(const AABB& aabb) const;
+
+        // How much world units are visible at 'worldPos'.
+        Vector2f getExtents(const btVector3& worldPos) const;
 
     private:
         void projUpdated();

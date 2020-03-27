@@ -44,7 +44,7 @@ namespace af3d
     public:
         RenderImmIndexed(const MaterialPtr& material,
             GLenum primitiveMode,
-            int zOrder,
+            float depthValue,
             const ScissorParams& scissorParams,
             RenderList& rl);
         ~RenderImmIndexed();
@@ -56,7 +56,7 @@ namespace af3d
     private:
         MaterialPtr material_;
         GLenum primitiveMode_;
-        int zOrder_;
+        float depthValue_;
         ScissorParams scissorParams_;
 
         RenderList& rl_;
@@ -69,7 +69,7 @@ namespace af3d
     public:
         RenderImm(const MaterialPtr& material,
             GLenum primitiveMode,
-            int zOrder,
+            float depthValue,
             const ScissorParams& scissorParams,
             RenderList& rl);
         ~RenderImm();
@@ -77,6 +77,11 @@ namespace af3d
         std::vector<VertexImm>& vertices();
 
         inline void addVertex(const btVector3& pos, const Vector2f& uv, const Color& color)
+        {
+            vertices().emplace_back(pos, uv, toPackedColor(color));
+        }
+
+        inline void addVertex(const Vector3f& pos, const Vector2f& uv, const Color& color)
         {
             vertices().emplace_back(pos, uv, toPackedColor(color));
         }
@@ -89,7 +94,7 @@ namespace af3d
     private:
         MaterialPtr material_;
         GLenum primitiveMode_;
-        int zOrder_;
+        float depthValue_;
         ScissorParams scissorParams_;
 
         RenderList& rl_;
@@ -102,6 +107,8 @@ namespace af3d
         RenderList(const Frustum& frustum, const RenderSettings& rs, VertexArrayWriter& defaultVa);
         ~RenderList() = default;
 
+        inline const Frustum& frustum() const { return frustum_; }
+
         void addGeometry(const Matrix4f& modelMat, const AABB& aabb, const MaterialPtr& material,
             const VertexArraySlice& vaSlice, GLenum primitiveMode, float depthValue = 0.0f, const ScissorParams& scissorParams = ScissorParams());
 
@@ -110,11 +117,11 @@ namespace af3d
 
         RenderImmIndexed addGeometryIndexed(const MaterialPtr& material,
             GLenum primitiveMode,
-            int zOrder = 0, const ScissorParams& scissorParams = ScissorParams());
+            float depthValue = 0.0f, const ScissorParams& scissorParams = ScissorParams());
 
         RenderImm addGeometry(const MaterialPtr& material,
             GLenum primitiveMode,
-            int zOrder = 0, const ScissorParams& scissorParams = ScissorParams());
+            float depthValue = 0.0f, const ScissorParams& scissorParams = ScissorParams());
 
         // Create immediate geometry by using default VAO, use only for small stuff like UI!
         VertexArraySlice createGeometry(const VertexImm* vertices, std::uint32_t numVertices,

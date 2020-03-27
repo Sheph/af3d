@@ -150,18 +150,14 @@ namespace af3d
     bool RenderNode::compareDepthTest(const RenderNode& other) const
     {
         if (depthTest_ != other.depthTest_) {
-            return (int)depthTest_ < (int)other.depthTest_;
+            return (int)depthTest_ > (int)other.depthTest_;
         }
         return depthFunc_ < other.depthFunc_;
     }
 
     bool RenderNode::compareDepth(const RenderNode& other) const
     {
-        if (btFabs(depth_ - other.depth_) < 0.00001f) {
-            return false;
-        } else {
-            return depth_ < other.depth_;
-        }
+        return depth_ < other.depth_;
     }
 
     bool RenderNode::compareCullFace(const RenderNode& other) const

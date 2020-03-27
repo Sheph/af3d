@@ -30,12 +30,12 @@ namespace af3d
 {
     RenderImmIndexed::RenderImmIndexed(const MaterialPtr& material,
         GLenum primitiveMode,
-        int zOrder,
+        float depthValue,
         const ScissorParams& scissorParams,
         RenderList& rl)
     : material_(material),
       primitiveMode_(primitiveMode),
-      zOrder_(zOrder),
+      depthValue_(depthValue),
       scissorParams_(scissorParams),
       rl_(rl),
       startVertices_(rl_.defaultVa_.data().vertices.size()),
@@ -49,7 +49,7 @@ namespace af3d
             startIndices_,
             rl_.defaultVa_.data().indices.size() - startIndices_,
             startVertices_);
-        rl_.addGeometry(material_, vaSlice, primitiveMode_, zOrder_, scissorParams_);
+        rl_.addGeometry(material_, vaSlice, primitiveMode_, depthValue_, scissorParams_);
     }
 
     std::vector<VertexImm>& RenderImmIndexed::vertices()
@@ -64,12 +64,12 @@ namespace af3d
 
     RenderImm::RenderImm(const MaterialPtr& material,
         GLenum primitiveMode,
-        int zOrder,
+        float depthValue,
         const ScissorParams& scissorParams,
         RenderList& rl)
     : material_(material),
       primitiveMode_(primitiveMode),
-      zOrder_(zOrder),
+      depthValue_(depthValue),
       scissorParams_(scissorParams),
       rl_(rl),
       startVertices_(rl_.defaultVa_.data().vertices.size())
@@ -82,7 +82,7 @@ namespace af3d
             startVertices_,
             rl_.defaultVa_.data().vertices.size() - startVertices_,
             0);
-        rl_.addGeometry(material_, vaSlice, primitiveMode_, zOrder_, scissorParams_);
+        rl_.addGeometry(material_, vaSlice, primitiveMode_, depthValue_, scissorParams_);
     }
 
     std::vector<VertexImm>& RenderImm::vertices()
@@ -111,16 +111,16 @@ namespace af3d
 
     RenderImmIndexed RenderList::addGeometryIndexed(const MaterialPtr& material,
         GLenum primitiveMode,
-        int zOrder, const ScissorParams& scissorParams)
+        float depthValue, const ScissorParams& scissorParams)
     {
-        return RenderImmIndexed(material, primitiveMode, zOrder, scissorParams, *this);
+        return RenderImmIndexed(material, primitiveMode, depthValue, scissorParams, *this);
     }
 
     RenderImm RenderList::addGeometry(const MaterialPtr& material,
         GLenum primitiveMode,
-        int zOrder, const ScissorParams& scissorParams)
+        float depthValue, const ScissorParams& scissorParams)
     {
-        return RenderImm(material, primitiveMode, zOrder, scissorParams, *this);
+        return RenderImm(material, primitiveMode, depthValue, scissorParams, *this);
     }
 
     VertexArraySlice RenderList::createGeometry(const VertexImm* vertices, std::uint32_t numVertices,

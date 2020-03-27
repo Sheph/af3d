@@ -74,6 +74,7 @@ set(SOURCES
     AClassRegistry.cpp
     Image.cpp
     ImageManager.cpp
+    RenderQuadComponent.cpp
     editor/Workspace.cpp
     editor/ActionMainPopup.cpp
     editor/ActionAddObject.cpp

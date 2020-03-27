@@ -92,6 +92,11 @@ namespace af3d
     #define AProperty_WorldTransform "world transform"
     #define AProperty_Scale "scale"
     #define AProperty_Children "children"
+    #define AProperty_Position "position"
+    #define AProperty_Angle "angle"
+    #define AProperty_Size "size"
+    #define AProperty_Width "width"
+    #define AProperty_Height "height"
 }
 
 inline std::ostream& operator <<(std::ostream& os, af3d::APropertyCategory cat)

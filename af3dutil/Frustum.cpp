@@ -92,6 +92,12 @@ namespace af3d
         }
     }
 
+    const Matrix4f& Frustum::projMat() const
+    {
+        updateViewProjMat();
+        return cachedProjMat_;
+    }
+
     const Matrix4f& Frustum::viewProjMat() const
     {
         updateViewProjMat();
@@ -202,5 +208,13 @@ namespace af3d
         }
 
         return true;
+    }
+
+    Vector2f Frustum::getExtents(const btVector3& worldPos) const
+    {
+        updateViewProjMat();
+        auto w = cachedViewProjMat_[3].dot(Vector4f(worldPos, 1.0f));
+        return Vector2f(2.0f * w / cachedProjMat_[0][0],
+            2.0f * w / cachedProjMat_[1][1]);
     }
 }

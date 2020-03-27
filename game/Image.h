@@ -41,7 +41,7 @@ namespace af3d
 
         inline const TexturePtr& texture() const { return texture_; }
 
-        inline const std::array<Vector2f, 6>& texCoords() const { return texCoords_; }
+        inline const std::array<Vector2f, 4>& texCoords() const { return texCoords_; }
 
         inline float aspect() const { return aspect_; }
 
@@ -70,7 +70,7 @@ namespace af3d
         std::uint32_t y_ = 0;
         std::uint32_t width_ = 0;
         std::uint32_t height_ = 0;
-        std::array<Vector2f, 6> texCoords_;
+        std::array<Vector2f, 4> texCoords_;
         float aspect_ = 0.0f;
     };
 }
