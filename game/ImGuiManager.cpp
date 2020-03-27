@@ -150,6 +150,7 @@ namespace af3d
 
         io.DisplaySize = ImVec2(settings.viewWidth, settings.viewHeight);
         io.DeltaTime = dt;
+        io.MouseDrawCursor = settings.imGui.drawCursor;
 
         ImGui::NewFrame();
     }

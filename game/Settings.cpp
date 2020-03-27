@@ -80,6 +80,12 @@ namespace af3d
         }
 
         /*
+         * imGui.
+         */
+
+        imGui.drawCursor = appConfig->getBool("ImGui.drawCursor");
+
+        /*
          * editor.
          */
 

@@ -36,6 +36,11 @@ namespace af3d
     class Settings : public Single<Settings>
     {
     public:
+        struct ImGui
+        {
+            bool drawCursor;
+        };
+
         struct Editor
         {
             bool enabled;
@@ -68,6 +73,7 @@ namespace af3d
         std::uint32_t viewX;
         std::uint32_t viewY;
         std::set<VideoMode> winVideoModes;
+        ImGui imGui;
         Editor editor;
     };
 
