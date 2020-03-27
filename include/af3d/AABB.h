@@ -38,7 +38,7 @@ namespace af3d
         btVector3 lowerBound;
         btVector3 upperBound;
 
-        AABB() {}
+        AABB() = default;
         AABB(const btVector3& lowerBound, const btVector3& upperBound)
         : lowerBound(lowerBound),
           upperBound(upperBound)
@@ -86,6 +86,11 @@ namespace af3d
             result = result && aabb.upperBound.y() <= upperBound.y();
             result = result && aabb.upperBound.z() <= upperBound.z();
             return result;
+        }
+
+        bool contains(const btVector3& pt) const
+        {
+            return TestPointAgainstAabb2(lowerBound, upperBound, pt);
         }
 
         bool overlaps(const AABB& aabb) const
