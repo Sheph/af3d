@@ -44,7 +44,7 @@ namespace af3d
     void Component::removeFromParent()
     {
         if (parent_) {
-            parent_->removeComponent(sharedThis());
+            parent_->removeComponent(std::static_pointer_cast<Component>(sharedThis()));
         }
     }
 

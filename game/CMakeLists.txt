@@ -76,15 +76,14 @@ set(SOURCES
     ImageManager.cpp
     RenderQuadComponent.cpp
     editor/Workspace.cpp
-    editor/ActionMainPopup.cpp
-    editor/ActionAddObject.cpp
     editor/MainPopup.cpp
     editor/CommandAddObject.cpp
+    editor/CommandSelect.cpp
     editor/CommandHistory.cpp
     editor/CommandHistoryWindow.cpp
     editor/ObjectComponent.cpp
-    editor/EditMode.cpp
-    editor/EditModeObject.cpp
+    editor/EditModeImpl.cpp
+    editor/EditModeObjectImpl.cpp
 )
 
 include_directories(.)

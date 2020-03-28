@@ -23,59 +23,27 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "editor/EditMode.h"
+#include "editor/EditModeImpl.h"
 #include "editor/Workspace.h"
-#include "Scene.h"
-#include "SceneObject.h"
-#include "CameraComponent.h"
-#include "InputManager.h"
-#include "imgui.h"
+#include "editor/CommandSelect.h"
 
 namespace af3d { namespace editor
 {
-    EditMode::EditMode(Workspace* workspace)
-    : workspace_(workspace)
+    EditModeImpl::EditModeImpl(Workspace* workspace, const std::string& name)
+    : workspace_(workspace),
+      name_(name)
     {
     }
 
-    void EditMode::enter()
+    bool EditModeImpl::active() const
     {
-        active_ = true;
+        return active_;
     }
 
-    void EditMode::update(float dt)
-    {
-        hovered_.clear();
-
-        ImGuiIO& io = ImGui::GetIO();
-
-        if (io.WantCaptureMouse) {
-            return;
-        }
-
-        auto cc = scene()->camera()->findComponent<CameraComponent>();
-
-        auto res = doHover(cc->getFrustum(), cc->screenPointToRay(inputManager.mouse().pos()));
-
-        if (res) {
-            hovered_.push_back(res);
-            if (inputManager.mouse().triggered(true)) {
-                selected_.clear();
-                selected_.push_back(res);
-            }
-        }
-    }
-
-    void EditMode::leave()
-    {
-        hovered_.clear();
-        active_ = false;
-    }
-
-    const EditMode::AList& EditMode::hovered()
+    const EditMode::AList& EditModeImpl::hovered() const
     {
         for (auto it = hovered_.begin(); it != hovered_.end();) {
-            if (doCheck(*it)) {
+            if (isAlive(*it)) {
                 ++it;
             } else {
                 hovered_.erase(it++);
@@ -84,10 +52,10 @@ namespace af3d { namespace editor
         return hovered_;
     }
 
-    const EditMode::AList& EditMode::selected()
+    const EditMode::AList& EditModeImpl::selected() const
     {
         for (auto it = selected_.begin(); it != selected_.end();) {
-            if (doCheck(*it)) {
+            if (isAlive(*it)) {
                 ++it;
             } else {
                 selected_.erase(it++);
@@ -96,33 +64,55 @@ namespace af3d { namespace editor
         return selected_;
     }
 
-    bool EditMode::isHovered(const AObjectPtr& obj)
+    bool EditModeImpl::isHovered(const AObjectPtr& obj) const
     {
         for (const auto& h : hovered_) {
              if (h == obj) {
-                 return doCheck(h);
+                 return isAlive(h);
              }
         }
         return false;
     }
 
-    bool EditMode::isSelected(const AObjectPtr& obj)
+    bool EditModeImpl::isSelected(const AObjectPtr& obj) const
     {
         for (const auto& s : selected_) {
              if (s == obj) {
-                 return doCheck(s);
+                 return isAlive(s);
              }
         }
         return false;
     }
 
-    Workspace& EditMode::workspace()
+    void EditModeImpl::select(AList&& objs)
     {
-        return *workspace_;
+        workspace_->cmdHistory().add(
+            std::make_shared<CommandSelect>(workspace_->scene(), this, std::move(objs)));
     }
 
-    Scene* EditMode::scene()
+    void EditModeImpl::enter()
     {
-        return workspace_->scene();
+        active_ = true;
+    }
+
+    void EditModeImpl::leave()
+    {
+        hovered_.clear();
+        active_ = false;
+    }
+
+    void EditModeImpl::setHovered(AList&& objs)
+    {
+        hovered_ = std::move(objs);
+    }
+
+    void EditModeImpl::setSelected(AList&& objs)
+    {
+        selected_.clear();
+        for (const auto& obj : objs) {
+            if (isValid(obj) && isAlive(obj)) {
+                selected_.push_back(obj);
+            }
+        }
     }
 } }

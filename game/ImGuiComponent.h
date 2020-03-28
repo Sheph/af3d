@@ -41,7 +41,7 @@ namespace af3d
 
         static AObjectPtr create(const APropertyValueMap& propVals);
 
-        ComponentPtr sharedThis() override { return shared_from_this(); }
+        AObjectPtr sharedThis() override { return shared_from_this(); }
 
         void render(RenderList& rl) override;
 

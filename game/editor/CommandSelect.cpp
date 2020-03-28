@@ -23,24 +23,61 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "editor/ActionMainPopup.h"
-#include "editor/MainPopup.h"
-#include "SceneObject.h"
+#include "editor/CommandSelect.h"
+#include "editor/EditModeImpl.h"
+#include "Logger.h"
 
 namespace af3d { namespace editor
 {
-    ActionMainPopup::ActionMainPopup(Workspace* workspace)
-    : Action(workspace)
+    CommandSelect::CommandSelect(Scene* scene, EditModeImpl* em,
+        const std::list<AObjectPtr>& objs)
+    : Command(scene),
+      em_(em)
     {
+        setDescription("Select/deselect " + em->name());
+
+        const auto& prev = em->selected();
+        for (const auto& obj : prev) {
+            prevCookies_.push_back(obj->cookie());
+        }
+        for (const auto& obj : objs) {
+            cookies_.push_back(obj->cookie());
+        }
     }
 
-    void ActionMainPopup::trigger()
+    bool CommandSelect::redo()
     {
-        auto popup = parent()->findComponent<MainPopup>();
-        if (popup) {
-            popup->removeFromParent();
+        EditMode::AList objs;
+
+        for (auto cookie : cookies_) {
+            auto obj = AObject::getByCookie(cookie);
+            if (!obj) {
+                LOG4CPLUS_ERROR(logger(), "redo: Cannot get obj by cookie: " << description());
+                return false;
+            }
+            objs.push_back(obj->sharedThis());
         }
-        popup = std::make_shared<MainPopup>();
-        parent()->addComponent(popup);
+
+        em_->setSelected(std::move(objs));
+
+        return true;
+    }
+
+    bool CommandSelect::undo()
+    {
+        EditMode::AList objs;
+
+        for (auto cookie : prevCookies_) {
+            auto obj = AObject::getByCookie(cookie);
+            if (!obj) {
+                LOG4CPLUS_ERROR(logger(), "undo: Cannot get obj by cookie: " << description());
+                return false;
+            }
+            objs.push_back(obj->sharedThis());
+        }
+
+        em_->setSelected(std::move(objs));
+
+        return true;
     }
 } }

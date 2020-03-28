@@ -59,7 +59,7 @@ namespace af3d
 
         State old = Unloaded;
         if (state_.compare_exchange_strong(old, Loading) || loader) {
-            ResourcePtr res = sharedThis();
+            ResourcePtr res = std::static_pointer_cast<Resource>(sharedThis());
             ResourceLoaderPtr l = loader;
             if (!l) {
                 l = loader_;

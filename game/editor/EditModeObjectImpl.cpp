@@ -23,30 +23,40 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "editor/ActionAddObject.h"
-#include "editor/CommandAddObject.h"
+#include "editor/EditModeObjectImpl.h"
 #include "Scene.h"
 #include "SceneObject.h"
-#include "af3d/Utils.h"
 
 namespace af3d { namespace editor
 {
-    ActionAddObject::ActionAddObject(Workspace* workspace, const AClass& klass)
-    : Action(workspace),
-      klass_(klass)
+    EditModeObjectImpl::EditModeObjectImpl(Workspace* workspace)
+    : EditModeImpl(workspace, "object")
     {
-        static const char* prefix = "SceneObject";
-        if (klass_.name().find(prefix) == 0) {
-            setText(klass_.name().substr(std::strlen(prefix)));
-        } else {
-            setText(klass_.name());
-        }
     }
 
-    void ActionAddObject::trigger()
+    AObjectPtr EditModeObjectImpl::rayCast(Scene* scene, const Frustum& frustum, const Ray& ray) const
     {
-        workspace().cmdHistory().add(
-            std::make_shared<CommandAddObject>(scene(), klass_, text(),
-                scene()->camera()->transform() * toTransform(btVector3_forward * 5.0f)));
+        SceneObjectPtr res;
+
+        scene->rayCastRender(frustum, ray, [&res](const RenderComponentPtr& r, const AObjectPtr&, const btVector3&, float dist) {
+            if ((r->aflags() & AObjectMarkerObject) == 0) {
+                return -1.0f;
+            }
+            res = r->parent()->shared_from_this();
+            return dist;
+        });
+
+        return res;
+    }
+
+    bool EditModeObjectImpl::isValid(const AObjectPtr& obj) const
+    {
+        return !!std::dynamic_pointer_cast<SceneObject>(obj);
+    }
+
+    bool EditModeObjectImpl::isAlive(const AObjectPtr& obj) const
+    {
+        auto sObj = std::static_pointer_cast<SceneObject>(obj);
+        return sObj->scene();
     }
 } }

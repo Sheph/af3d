@@ -23,23 +23,18 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _EDITOR_EDITMODEOBJECT_H_
-#define _EDITOR_EDITMODEOBJECT_H_
+#ifndef _EDITOR_EDITMODE_OBJECT_H_
+#define _EDITOR_EDITMODE_OBJECT_H_
 
 #include "editor/EditMode.h"
 
 namespace af3d { namespace editor
 {
-    class EditModeObject : public EditMode
+    class EditModeObject : public virtual EditMode
     {
     public:
-        explicit EditModeObject(Workspace* workspace);
+        EditModeObject() = default;
         ~EditModeObject() = default;
-
-    private:
-        AObjectPtr doHover(const Frustum& frustum, const Ray& ray) override;
-
-        bool doCheck(const AObjectPtr& obj) const override;
     };
 } }
 

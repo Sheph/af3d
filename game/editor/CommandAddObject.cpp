@@ -32,13 +32,13 @@
 namespace af3d { namespace editor
 {
     CommandAddObject::CommandAddObject(Scene* scene,
-        const AClass& klass, const std::string& klassName,
+        const AClass& klass, const std::string& kind,
         const btTransform& xf)
     : Command(scene),
       klass_(klass),
-      klassName_(klassName),
       xf_(xf)
     {
+        setDescription("Add \"" + kind + "\" object");
     }
 
     bool CommandAddObject::redo()
@@ -67,7 +67,6 @@ namespace af3d { namespace editor
             sObj->setCookie(cookie_);
         } else {
             cookie_ = sObj->cookie();
-            setDescription("Add \"" + klassName_ + "\" object");
         }
 
         sObj->aflagsSet(AObjectEditable);
@@ -80,13 +79,19 @@ namespace af3d { namespace editor
 
     bool CommandAddObject::undo()
     {
-        auto obj = scene()->getObjectByCookieRecursive(cookie_);
+        auto obj = AObject::getByCookie(cookie_);
         if (!obj) {
             LOG4CPLUS_ERROR(logger(), "undo: Cannot find obj: " << description());
             return false;
         }
 
-        obj->removeFromParent();
+        auto sObj = dynamic_cast<SceneObject*>(obj);
+        if (!sObj) {
+            LOG4CPLUS_ERROR(logger(), "undo: obj not a scene object: " << description());
+            return false;
+        }
+
+        sObj->removeFromParent();
 
         return true;
     }

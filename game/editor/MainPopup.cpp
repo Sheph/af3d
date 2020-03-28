@@ -24,7 +24,6 @@
  */
 
 #include "editor/MainPopup.h"
-#include "editor/Action.h"
 #include "Const.h"
 #include "Logger.h"
 #include "Scene.h"
@@ -81,9 +80,9 @@ namespace editor {
             return;
         }
 
-        for (const auto& action : scene()->workspace()->actionAddObject()) {
-            if (ImGui::MenuItem(action->text().c_str())) {
-                action->trigger();
+        for (const auto& kind : scene()->workspace()->objectKinds()) {
+            if (ImGui::MenuItem(kind.c_str())) {
+                scene()->workspace()->addObject(kind);
             }
         }
 

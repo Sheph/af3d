@@ -35,7 +35,7 @@ namespace af3d { namespace editor
     {
     public:
         CommandAddObject(Scene* scene,
-            const AClass& klass, const std::string& klassName,
+            const AClass& klass, const std::string& kind,
             const btTransform& xf);
         ~CommandAddObject() = default;
 
@@ -45,7 +45,6 @@ namespace af3d { namespace editor
 
     private:
         const AClass& klass_;
-        std::string klassName_;
         btTransform xf_;
         ACookie cookie_ = 0;
     };

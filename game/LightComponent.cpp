@@ -29,7 +29,6 @@
 namespace af3d
 {
     ACLASS_DEFINE_BEGIN(LightComponent, RenderComponent)
-    ACLASS_PROPERTY_RO(LightComponent, Children, AProperty_Children, "Children", ArrayLight, Hierarchy)
     ACLASS_DEFINE_END(LightComponent)
 
     LightComponent::LightComponent()
@@ -80,7 +79,7 @@ namespace af3d
     {
         for (size_t i = 0; i < numParts; ++i) {
             Light* light = static_cast<Light*>(parts[i]);
-            rl.addLight(light->sharedThis());
+            rl.addLight(std::static_pointer_cast<Light>(light->sharedThis()));
         }
     }
 

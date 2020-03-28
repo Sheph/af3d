@@ -28,13 +28,10 @@
 
 #include "UIComponent.h"
 #include "editor/CommandHistory.h"
-#include "editor/EditModeObject.h"
+#include "editor/EditModeObjectImpl.h"
 
 namespace af3d { namespace editor
 {
-    class Action;
-    using ActionPtr = std::shared_ptr<Action>;
-
     class Workspace : public std::enable_shared_from_this<Workspace>,
         public UIComponent
     {
@@ -46,35 +43,36 @@ namespace af3d { namespace editor
 
         static AObjectPtr create(const APropertyValueMap& propVals);
 
-        ComponentPtr sharedThis() override { return shared_from_this(); }
+        AObjectPtr sharedThis() override { return shared_from_this(); }
 
         void update(float dt) override;
 
         void render(RenderList& rl) override;
 
-        inline EditModeObject* emObject() { return emObject_.get(); }
+        inline const std::vector<std::string>& objectKinds() const { return objectKinds_; }
 
-        inline EditMode* em() { return em_; }
+        inline const EditModeObject* emObject() { return emObject_.get(); }
+
+        inline const EditMode* em() { return em_; }
 
         inline CommandHistory& cmdHistory() { return cmdHistory_; }
 
-        inline const ActionPtr& actionMainPopup() { return actionMainPopup_; }
+        void openMainPopup();
 
-        inline const std::vector<ActionPtr>& actionAddObject() { return actionAddObject_; }
+        void addObject(const std::string& kind);
 
     private:
         void onRegister() override;
 
         void onUnregister() override;
 
-        std::unique_ptr<EditModeObject> emObject_;
+        std::vector<std::string> objectKinds_;
 
-        EditMode* em_;
+        std::unique_ptr<EditModeObjectImpl> emObject_;
+
+        EditModeImpl* em_;
 
         CommandHistory cmdHistory_;
-
-        ActionPtr actionMainPopup_;
-        std::vector<ActionPtr> actionAddObject_;
     };
 
     using WorkspacePtr = std::shared_ptr<Workspace>;

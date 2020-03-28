@@ -42,9 +42,13 @@ namespace af3d
     class AObject : boost::noncopyable
     {
     public:
-        virtual ~AObject() = default;
+        virtual ~AObject();
 
         static const AClass& staticKlass();
+
+        static AObject* getByCookie(ACookie value);
+
+        virtual AObjectPtr sharedThis() = 0;
 
         inline const AClass& klass() const { return *klass_; }
 
@@ -52,7 +56,7 @@ namespace af3d
         inline void setKlass(const AClass& value) { klass_ = &value; }
 
         inline ACookie cookie() const { return cookie_; }
-        inline void setCookie(ACookie value) { cookie_ = value; }
+        void setCookie(ACookie value);
 
         inline const std::string& name() const { return name_; }
         inline void setName(const std::string& value) { name_ = value; }

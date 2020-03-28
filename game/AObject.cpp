@@ -24,6 +24,7 @@
  */
 
 #include "AObject.h"
+#include "af3d/Utils.h"
 #include <atomic>
 
 namespace af3d
@@ -37,15 +38,41 @@ namespace af3d
 
     static std::atomic<ACookie> nextCookie{1};
 
+    static std::mutex cookieToAObjMtx;
+    static std::unordered_map<ACookie, AObject*> cookieToAObj;
+
     AObject::AObject(const AClass& klass)
     : klass_(&klass),
       cookie_(nextCookie++)
     {
+        ScopedLock lock(cookieToAObjMtx);
+        cookieToAObj[cookie_] = this;
+    }
+
+    AObject::~AObject()
+    {
+        ScopedLock lock(cookieToAObjMtx);
+        cookieToAObj.erase(cookie_);
+    }
+
+    void AObject::setCookie(ACookie value)
+    {
+        ScopedLock lock(cookieToAObjMtx);
+        cookieToAObj.erase(cookie_);
+        cookie_ = value;
+        cookieToAObj[cookie_] = this;
     }
 
     const AClass& AObject::staticKlass()
     {
         return AClass_AObject;
+    }
+
+    AObject* AObject::getByCookie(ACookie value)
+    {
+        ScopedLock lock(cookieToAObjMtx);
+        auto it = cookieToAObj.find(value);
+        return (it == cookieToAObj.end()) ? nullptr : it->second;
     }
 
     APropertyValue AObject::propertyGet(const std::string& key) const

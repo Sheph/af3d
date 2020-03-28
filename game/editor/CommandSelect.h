@@ -23,35 +23,33 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "editor/EditModeObject.h"
-#include "Scene.h"
-#include "SceneObject.h"
+#ifndef _EDITOR_COMMAND_SELECT_H_
+#define _EDITOR_COMMAND_SELECT_H_
+
+#include "editor/Command.h"
+#include "AObject.h"
+#include <list>
 
 namespace af3d { namespace editor
 {
-    EditModeObject::EditModeObject(Workspace* workspace)
-    : EditMode(workspace)
+    class EditModeImpl;
+
+    class CommandSelect : public Command
     {
-    }
+    public:
+        CommandSelect(Scene* scene, EditModeImpl* em,
+            const std::list<AObjectPtr>& objs);
+        ~CommandSelect() = default;
 
-    AObjectPtr EditModeObject::doHover(const Frustum& frustum, const Ray& ray)
-    {
-        SceneObjectPtr res;
+        bool redo() override;
 
-        scene()->rayCastRender(frustum, ray, [&res](const RenderComponentPtr& r, const AObjectPtr&, const btVector3&, float dist) {
-            if ((r->aflags() & AObjectMarkerObject) == 0) {
-                return -1.0f;
-            }
-            res = r->parent()->shared_from_this();
-            return dist;
-        });
+        bool undo() override;
 
-        return res;
-    }
-
-    bool EditModeObject::doCheck(const AObjectPtr& obj) const
-    {
-        auto sObj = std::static_pointer_cast<SceneObject>(obj);
-        return sObj->scene();
-    }
+    private:
+        EditModeImpl* em_;
+        std::vector<ACookie> prevCookies_;
+        std::vector<ACookie> cookies_;
+    };
 } }
+
+#endif

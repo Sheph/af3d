@@ -30,7 +30,6 @@
 namespace af3d
 {
     ACLASS_DEFINE_BEGIN_ABSTRACT(SceneObjectManager, AObject)
-    ACLASS_PROPERTY_RO(SceneObjectManager, Children, AProperty_Children, "Children", ArrayAObject, Hierarchy)
     ACLASS_DEFINE_END(SceneObjectManager)
 
     const APropertyTypeEnumImpl<SceneObjectType> APropertyType_SceneObjectType{"SceneObjectType",
@@ -125,28 +124,6 @@ namespace af3d
         }
 
         return res;
-    }
-
-    SceneObjectPtr SceneObjectManager::getObjectByCookie(ACookie cookie) const
-    {
-        for (const auto& obj : objects_) {
-            if (obj->cookie() == cookie) {
-                return obj;
-            }
-        }
-        return SceneObjectPtr();
-    }
-
-    SceneObjectPtr SceneObjectManager::getObjectByCookieRecursive(ACookie cookie) const
-    {
-        for (const auto& obj : objects_) {
-            if (obj->cookie() == cookie) {
-                return obj;
-            } else if (auto res = obj->getObjectByCookieRecursive(cookie)) {
-                return res;
-            }
-        }
-        return SceneObjectPtr();
     }
 
     void SceneObjectManager::registerObject(const SceneObjectPtr& obj)

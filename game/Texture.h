@@ -46,7 +46,7 @@ namespace af3d
 
         static AObjectPtr create(const APropertyValueMap& propVals);
 
-        virtual ResourcePtr sharedThis() override { return shared_from_this(); }
+        virtual AObjectPtr sharedThis() override { return shared_from_this(); }
 
         inline const HardwareTexturePtr& hwTex() const { return hwTex_; }
 

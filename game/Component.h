@@ -49,8 +49,6 @@ namespace af3d
 
         static const AClass& staticKlass();
 
-        virtual ComponentPtr sharedThis() = 0;
-
         virtual ComponentManager* manager() = 0;
 
         virtual void debugDraw();

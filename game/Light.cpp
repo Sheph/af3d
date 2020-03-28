@@ -77,7 +77,7 @@ namespace af3d
     void Light::remove()
     {
         if (parent()) {
-            parent()->removeLight(sharedThis());
+            parent()->removeLight(std::static_pointer_cast<Light>(sharedThis()));
         }
     }
 

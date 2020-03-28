@@ -28,56 +28,32 @@
 
 #include "AObject.h"
 #include "af3d/Types.h"
-#include "af3d/Ray.h"
-#include "af3d/Frustum.h"
 #include <boost/noncopyable.hpp>
-#include <memory>
 #include <list>
 
-namespace af3d {
-    class Scene;
-
-namespace editor
+namespace af3d { namespace editor
 {
-    class Workspace;
-
     class EditMode : boost::noncopyable
     {
     public:
         using AList = std::list<AObjectPtr>;
 
-        explicit EditMode(Workspace* workspace);
+        EditMode() = default;
         virtual ~EditMode() = default;
 
-        void enter();
+        virtual const std::string& name() const = 0;
 
-        void update(float dt);
+        virtual bool active() const = 0;
 
-        void leave();
+        virtual const AList& hovered() const = 0;
 
-        inline bool active() const { return active_; }
+        virtual const AList& selected() const = 0;
 
-        const AList& hovered();
+        virtual bool isHovered(const AObjectPtr& obj) const = 0;
 
-        const AList& selected();
+        virtual bool isSelected(const AObjectPtr& obj) const = 0;
 
-        bool isHovered(const AObjectPtr& obj);
-
-        bool isSelected(const AObjectPtr& obj);
-
-    protected:
-        Workspace& workspace();
-        Scene* scene();
-
-    private:
-        virtual AObjectPtr doHover(const Frustum& frustum, const Ray& ray) = 0;
-
-        virtual bool doCheck(const AObjectPtr& obj) const = 0;
-
-        Workspace* workspace_;
-        bool active_ = false;
-        AList hovered_;
-        AList selected_;
+        virtual void select(AList&& objs) = 0;
     };
 } }
 

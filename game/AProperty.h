@@ -91,7 +91,6 @@ namespace af3d
     #define AProperty_LocalTransform "local transform"
     #define AProperty_WorldTransform "world transform"
     #define AProperty_Scale "scale"
-    #define AProperty_Children "children"
     #define AProperty_Position "position"
     #define AProperty_Angle "angle"
     #define AProperty_Size "size"

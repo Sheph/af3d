@@ -23,40 +23,26 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _EDITOR_ACTION_H_
-#define _EDITOR_ACTION_H_
+#ifndef _EDITOR_EDITMODE_OBJECT_IMPL_H_
+#define _EDITOR_EDITMODE_OBJECT_IMPL_H_
 
-#include "editor/Workspace.h"
-#include "af3d/Types.h"
-#include <boost/noncopyable.hpp>
-#include <memory>
+#include "editor/EditModeObject.h"
+#include "editor/EditModeImpl.h"
 
-namespace af3d {
-    class SceneObject;
-    class Scene;
-
-namespace editor
+namespace af3d { namespace editor
 {
-    class Action : boost::noncopyable
+    class EditModeObjectImpl : public EditModeImpl,
+        public EditModeObject
     {
     public:
-        explicit Action(Workspace* workspace)
-        : workspace_(workspace) {}
-        virtual ~Action() = default;
+        explicit EditModeObjectImpl(Workspace* workspace);
+        ~EditModeObjectImpl() = default;
 
-        inline const std::string& text() const { return text_; }
-        inline void setText(const std::string& value) { text_ = value; }
+        AObjectPtr rayCast(Scene* scene, const Frustum& frustum, const Ray& ray) const override;
 
-        virtual void trigger() = 0;
+        bool isValid(const AObjectPtr& obj) const override;
 
-    protected:
-        inline Workspace& workspace() { return *workspace_; }
-        inline SceneObject* parent() { return workspace_->parent(); }
-        inline Scene* scene() { return workspace_->scene(); }
-
-    private:
-        Workspace* workspace_;
-        std::string text_;
+        bool isAlive(const AObjectPtr& obj) const override;
     };
 } }
 

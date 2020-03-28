@@ -46,6 +46,8 @@ namespace af3d
 
         static SceneObjectPtr createWithParams(const AClass& klass, const APropertyValueMap& propVals, AClass::CreateFn fn);
 
+        AObjectPtr sharedThis() override { return shared_from_this(); }
+
         void addComponent(const ComponentPtr& component);
 
         void removeComponent(const ComponentPtr& component);
@@ -113,8 +115,6 @@ namespace af3d
         void removeFromParent();
 
         void removeFromParentRecursive();
-
-        std::vector<AObjectPtr> getChildren() const override;
 
         inline SceneObjectType type() const { return type_; }
         void setType(SceneObjectType value) { type_ = value; }

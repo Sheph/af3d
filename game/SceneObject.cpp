@@ -177,19 +177,6 @@ namespace af3d
         obj->removeFromParent();
     }
 
-    std::vector<AObjectPtr> SceneObject::getChildren() const
-    {
-        std::vector<AObjectPtr> res;
-        res.reserve(components_.size() + objects().size());
-        for (const auto& c : components_) {
-            res.push_back(c);
-        }
-        for (const auto& obj : objects()) {
-            res.push_back(obj);
-        }
-        return res;
-    }
-
     void SceneObject::setBody(btRigidBody* value)
     {
         btAssert(value);

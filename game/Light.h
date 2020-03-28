@@ -49,8 +49,6 @@ namespace af3d
 
         static const AClass& staticKlass();
 
-        virtual LightPtr sharedThis() = 0;
-
         inline LightComponent* parent() const { return parent_; }
         SceneObject* parentObject() const;
 

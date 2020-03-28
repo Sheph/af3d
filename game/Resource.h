@@ -65,8 +65,6 @@ namespace af3d
 
         static const AClass& staticKlass();
 
-        virtual ResourcePtr sharedThis() = 0;
-
         void invalidate();
 
         void load(const ResourceLoaderPtr& loader = ResourceLoaderPtr());

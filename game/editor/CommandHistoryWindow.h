@@ -41,7 +41,7 @@ namespace af3d { namespace editor
 
         static AObjectPtr create(const APropertyValueMap& propVals);
 
-        ComponentPtr sharedThis() override { return shared_from_this(); }
+        AObjectPtr sharedThis() override { return shared_from_this(); }
 
         void update(float dt) override;
 

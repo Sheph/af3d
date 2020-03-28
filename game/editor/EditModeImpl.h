@@ -23,23 +23,61 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _EDITOR_ACTION_ADD_OBJECT_H_
-#define _EDITOR_ACTION_ADD_OBJECT_H_
+#ifndef _EDITOR_EDITMODE_IMPL_H_
+#define _EDITOR_EDITMODE_IMPL_H_
 
-#include "editor/Action.h"
+#include "editor/EditMode.h"
+#include "af3d/Ray.h"
+#include "af3d/Frustum.h"
 
-namespace af3d { namespace editor
+namespace af3d {
+    class Scene;
+
+namespace editor
 {
-    class ActionAddObject : public Action
+    class Workspace;
+
+    class EditModeImpl : public virtual EditMode
     {
     public:
-        ActionAddObject(Workspace* workspace, const AClass& klass);
-        ~ActionAddObject() = default;
+        EditModeImpl(Workspace* workspace, const std::string& name);
+        ~EditModeImpl() = default;
 
-        void trigger() override;
+        const std::string& name() const override { return name_; }
+
+        bool active() const override;
+
+        const AList& hovered() const override;
+
+        const AList& selected() const override;
+
+        bool isHovered(const AObjectPtr& obj) const override;
+
+        bool isSelected(const AObjectPtr& obj) const override;
+
+        void select(AList&& objs) override;
+
+        void enter();
+
+        void leave();
+
+        void setHovered(AList&& objs);
+
+        void setSelected(AList&& objs);
+
+        virtual AObjectPtr rayCast(Scene* scene, const Frustum& frustum, const Ray& ray) const = 0;
+
+        virtual bool isValid(const AObjectPtr& obj) const = 0;
+
+        virtual bool isAlive(const AObjectPtr& obj) const = 0;
 
     private:
-        const AClass& klass_;
+        Workspace* workspace_;
+        std::string name_;
+
+        bool active_ = false;
+        mutable AList hovered_;
+        mutable AList selected_;
     };
 } }
 

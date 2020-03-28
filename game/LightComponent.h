@@ -44,7 +44,7 @@ namespace af3d
 
         static AObjectPtr create(const APropertyValueMap& propVals);
 
-        ComponentPtr sharedThis() override { return shared_from_this(); }
+        AObjectPtr sharedThis() override { return shared_from_this(); }
 
         void update(float dt) override;
 
@@ -72,16 +72,6 @@ namespace af3d
                 }
             }
             return std::shared_ptr<T>();
-        }
-
-        APropertyValue propertyChildrenGet() const
-        {
-            std::vector<APropertyValue> res;
-            res.reserve(lights_.size());
-            for (const auto& light : lights_) {
-                res.emplace_back(light);
-            }
-            return res;
         }
 
     private:

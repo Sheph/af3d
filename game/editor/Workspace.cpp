@@ -24,9 +24,9 @@
  */
 
 #include "editor/Workspace.h"
-#include "editor/ActionMainPopup.h"
-#include "editor/ActionAddObject.h"
+#include "editor/MainPopup.h"
 #include "editor/CommandHistoryWindow.h"
+#include "editor/CommandAddObject.h"
 #include "Const.h"
 #include "InputManager.h"
 #include "AClassRegistry.h"
@@ -44,23 +44,24 @@ namespace af3d {
 namespace editor {
     Workspace::Workspace()
     : UIComponent(AClass_editorWorkspace, zOrderEditor),
-      emObject_(new EditModeObject(this))
+      emObject_(new EditModeObjectImpl(this))
     {
+        static const char* prefix = "SceneObject";
+
         em_ = emObject_.get();
 
-        actionMainPopup_ = std::make_shared<ActionMainPopup>(this);
-
-        std::map<std::string, const AClass*> sortedObjKlasses;
+        std::set<std::string> sortedKinds;
 
         for (const auto& kv : AClassRegistry::instance().map()) {
             if (kv.second->super() == &AClass_SceneObject) {
-                sortedObjKlasses[kv.second->name()] = kv.second;
+                sortedKinds.insert(kv.second->name());
             }
         }
 
-        for (const auto& kv : sortedObjKlasses) {
-            actionAddObject_.push_back(
-                std::make_shared<ActionAddObject>(this, *kv.second));
+        for (const auto& k : sortedKinds) {
+            if (k.find(prefix) == 0) {
+                objectKinds_.push_back(k.substr(std::strlen(prefix)));
+            }
         }
     }
 
@@ -78,21 +79,56 @@ namespace editor {
 
     void Workspace::update(float dt)
     {
-        em_->update(dt);
-
         ImGuiIO& io = ImGui::GetIO();
+
+        em_->setHovered(EditMode::AList());
 
         if (io.WantCaptureMouse) {
             return;
         }
 
         if (inputManager.keyboard().triggered(KI_I)) {
-            actionMainPopup()->trigger();
+            openMainPopup();
+        }
+
+        auto cc = scene()->camera()->findComponent<CameraComponent>();
+
+        auto res = em_->rayCast(scene(), cc->getFrustum(), cc->screenPointToRay(inputManager.mouse().pos()));
+
+        if (res) {
+            em_->setHovered(EditMode::AList{res});
+            if (inputManager.mouse().triggered(true)) {
+                em_->select(EditMode::AList{res});
+            }
         }
     }
 
     void Workspace::render(RenderList& rl)
     {
+    }
+
+    void Workspace::openMainPopup()
+    {
+        auto popup = parent()->findComponent<MainPopup>();
+        if (popup) {
+            popup->removeFromParent();
+        }
+        popup = std::make_shared<MainPopup>();
+        parent()->addComponent(popup);
+    }
+
+    void Workspace::addObject(const std::string& kind)
+    {
+        auto klass = AClassRegistry::instance().classFind("SceneObject" + kind);
+
+        if (!klass || (klass->super() != &AClass_SceneObject)) {
+            LOG4CPLUS_WARN(logger(), "Cannot addObject, bad kind - " << kind);
+            return;
+        }
+
+        cmdHistory_.add(
+             std::make_shared<CommandAddObject>(scene(), *klass, kind,
+                 scene()->camera()->transform() * toTransform(btVector3_forward * 5.0f)));
     }
 
     void Workspace::onRegister()
