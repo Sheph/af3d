@@ -84,7 +84,7 @@ namespace editor {
 
         em_->setHovered(EditMode::AList());
 
-        if (io.WantCaptureMouse) {
+        if (io.WantCaptureMouse || io.WantCaptureKeyboard) {
             return;
         }
 

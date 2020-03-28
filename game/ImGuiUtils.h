@@ -55,9 +55,36 @@ namespace af3d { namespace ImGuiUtils
         void visitArray(const APropertyTypeArray& type) override;
 
     private:
+        struct Transform
+        {
+            Vector3f pos;
+            Vector3f euler;
+        };
+
+        union Pod
+        {
+            bool boolVal;
+            int intVal;
+            float floatVal;
+            Vector2f vec2fVal;
+            Vector3f vec3fVal;
+            Vector4f vec4fVal;
+            Transform xfVal;
+        };
+
         const APropertyType* type_ = nullptr;
         APropertyValue* curVal_ = nullptr;
+        bool curReadOnly_ = false;
+        bool curRet_ = false;
+
+        Pod podVal_;
+        std::string strVal_;
+        std::vector<APropertyEdit> arrayVal_;
     };
+
+    bool inputText(const char* label, std::string& str, ImGuiInputTextFlags flags = 0, ImGuiInputTextCallback callback = NULL, void* user_data = NULL);
+    bool inputTextMultiline(const char* label, std::string& str, const ImVec2& size = ImVec2(0, 0), ImGuiInputTextFlags flags = 0, ImGuiInputTextCallback callback = NULL, void* user_data = NULL);
+    bool inputTextWithHint(const char* label, const char* hint, std::string& str, ImGuiInputTextFlags flags = 0, ImGuiInputTextCallback callback = NULL, void* user_data = NULL);
 } }
 
 #endif

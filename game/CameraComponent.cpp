@@ -27,6 +27,7 @@
 #include "SceneObject.h"
 #include "InputManager.h"
 #include "Logger.h"
+#include "imgui.h"
 
 namespace af3d
 {
@@ -53,6 +54,12 @@ namespace af3d
 
     void CameraComponent::preRender(float dt)
     {
+        ImGuiIO& io = ImGui::GetIO();
+
+        if (io.WantCaptureMouse || io.WantCaptureKeyboard) {
+            return;
+        }
+
         float moveSpeed = 5.0f;
 
         if (inputManager.keyboard().pressed(KI_LSHIFT)) {

@@ -116,10 +116,14 @@ namespace editor {
 
                 ImGui::NextColumn();
 
+                ImGui::PushItemWidth(-1);
+
                 auto val = obj->propertyGet(entry.prop.name());
                 if (entry.edit.update(val, (entry.prop.flags() & APropertyWritable) == 0)) {
                     obj->propertySet(entry.prop.name(), val);
                 }
+
+                ImGui::PopItemWidth();
 
                 ImGui::NextColumn();
 

@@ -27,6 +27,13 @@
 
 namespace af3d { namespace ImGuiUtils
 {
+    struct InputTextCallback_UserData
+    {
+        std::string* Str;
+        ImGuiInputTextCallback ChainCallback;
+        void* ChainCallbackUserData;
+    };
+
     APropertyEdit::APropertyEdit(const APropertyType& type)
     : type_(&type)
     {
@@ -34,12 +41,11 @@ namespace af3d { namespace ImGuiUtils
 
     bool APropertyEdit::update(APropertyValue& val, bool readOnly)
     {
-        if (readOnly) {
-            ImGui::Text("(ro) %s", val.toString().c_str());
-        } else {
-            ImGui::Text("%s", val.toString().c_str());
-        }
-        return false;
+        curVal_ = &val;
+        curReadOnly_ = readOnly;
+        curRet_ = false;
+        type_->accept(*this);
+        return curRet_;
     }
 
     void APropertyEdit::visitBool(const APropertyTypeBool& type)
@@ -56,6 +62,18 @@ namespace af3d { namespace ImGuiUtils
 
     void APropertyEdit::visitString(const APropertyTypeString& type)
     {
+        ImGuiInputTextFlags flags = 0;
+
+        if (curReadOnly_) {
+            flags |= ImGuiInputTextFlags_ReadOnly;
+        }
+
+        strVal_ = curVal_->toString();
+
+        if (inputText("##str", strVal_, flags) && !curReadOnly_) {
+            curRet_ = true;
+            *curVal_ = APropertyValue(strVal_);
+        }
     }
 
     void APropertyEdit::visitVec2f(const APropertyTypeVec2f& type)
@@ -88,5 +106,59 @@ namespace af3d { namespace ImGuiUtils
 
     void APropertyEdit::visitArray(const APropertyTypeArray& type)
     {
+    }
+
+    static int inputTextCallback(ImGuiInputTextCallbackData* data)
+    {
+        InputTextCallback_UserData* user_data = (InputTextCallback_UserData*)data->UserData;
+        if (data->EventFlag == ImGuiInputTextFlags_CallbackResize) {
+            // Resize string callback
+            // If for some reason we refuse the new length (BufTextLen) and/or capacity (BufSize) we need to set them back to what we want.
+            std::string* str = user_data->Str;
+            IM_ASSERT(data->Buf == str->c_str());
+            str->resize(data->BufTextLen);
+            data->Buf = (char*)str->c_str();
+        } else if (user_data->ChainCallback) {
+            // Forward to user callback, if any
+            data->UserData = user_data->ChainCallbackUserData;
+            return user_data->ChainCallback(data);
+        }
+        return 0;
+    }
+
+    bool inputText(const char* label, std::string& str, ImGuiInputTextFlags flags, ImGuiInputTextCallback callback, void* user_data)
+    {
+        btAssert((flags & ImGuiInputTextFlags_CallbackResize) == 0);
+        flags |= ImGuiInputTextFlags_CallbackResize;
+
+        InputTextCallback_UserData cb_user_data;
+        cb_user_data.Str = &str;
+        cb_user_data.ChainCallback = callback;
+        cb_user_data.ChainCallbackUserData = user_data;
+        return ImGui::InputText(label, (char*)str.c_str(), str.capacity() + 1, flags, inputTextCallback, &cb_user_data);
+    }
+
+    bool inputTextMultiline(const char* label, std::string& str, const ImVec2& size, ImGuiInputTextFlags flags, ImGuiInputTextCallback callback, void* user_data)
+    {
+        btAssert((flags & ImGuiInputTextFlags_CallbackResize) == 0);
+        flags |= ImGuiInputTextFlags_CallbackResize;
+
+        InputTextCallback_UserData cb_user_data;
+        cb_user_data.Str = &str;
+        cb_user_data.ChainCallback = callback;
+        cb_user_data.ChainCallbackUserData = user_data;
+        return ImGui::InputTextMultiline(label, (char*)str.c_str(), str.capacity() + 1, size, flags, inputTextCallback, &cb_user_data);
+    }
+
+    bool inputTextWithHint(const char* label, const char* hint, std::string& str, ImGuiInputTextFlags flags, ImGuiInputTextCallback callback, void* user_data)
+    {
+        btAssert((flags & ImGuiInputTextFlags_CallbackResize) == 0);
+        flags |= ImGuiInputTextFlags_CallbackResize;
+
+        InputTextCallback_UserData cb_user_data;
+        cb_user_data.Str = &str;
+        cb_user_data.ChainCallback = callback;
+        cb_user_data.ChainCallbackUserData = user_data;
+        return ImGui::InputTextWithHint(label, hint, (char*)str.c_str(), str.capacity() + 1, flags, inputTextCallback, &cb_user_data);
     }
 } }
