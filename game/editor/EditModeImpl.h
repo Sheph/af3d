@@ -27,8 +27,6 @@
 #define _EDITOR_EDITMODE_IMPL_H_
 
 #include "editor/EditMode.h"
-#include "af3d/Ray.h"
-#include "af3d/Frustum.h"
 
 namespace af3d {
     class Scene;
@@ -65,11 +63,11 @@ namespace editor
 
         void setSelected(AList&& objs);
 
-        virtual AObjectPtr rayCast(Scene* scene, const Frustum& frustum, const Ray& ray) const = 0;
-
-        virtual bool isValid(const AObjectPtr& obj) const = 0;
-
-        virtual bool isAlive(const AObjectPtr& obj) const = 0;
+    protected:
+        inline Workspace& workspace() { return *workspace_; }
+        inline const Workspace& workspace() const { return *workspace_; }
+        Scene* scene();
+        const Scene* scene() const;
 
     private:
         Workspace* workspace_;

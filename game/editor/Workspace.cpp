@@ -93,7 +93,7 @@ namespace editor {
 
         auto cc = scene()->camera()->findComponent<CameraComponent>();
 
-        auto res = em_->rayCast(scene(), cc->getFrustum(), cc->screenPointToRay(inputManager.mouse().pos()));
+        auto res = em_->rayCast(cc->getFrustum(), cc->screenPointToRay(inputManager.mouse().pos()));
 
         if (res) {
             em_->setHovered(EditMode::AList{res});

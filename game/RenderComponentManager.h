@@ -79,7 +79,7 @@ namespace af3d
 
         RenderNodePtr render(VertexArrayWriter& defaultVa);
 
-        void rayCast(const Frustum& frustum, const Ray& ray, const RayCastRenderFn& fn);
+        void rayCast(const Frustum& frustum, const Ray& ray, const RayCastRenderFn& fn) const;
 
     private:
         struct NodeData

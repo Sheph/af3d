@@ -28,6 +28,8 @@
 
 #include "AObject.h"
 #include "af3d/Types.h"
+#include "af3d/Ray.h"
+#include "af3d/Frustum.h"
 #include <boost/noncopyable.hpp>
 #include <list>
 
@@ -54,6 +56,12 @@ namespace af3d { namespace editor
         virtual bool isSelected(const AObjectPtr& obj) const = 0;
 
         virtual void select(AList&& objs) = 0;
+
+        virtual AObjectPtr rayCast(const Frustum& frustum, const Ray& ray) const = 0;
+
+        virtual bool isValid(const AObjectPtr& obj) const = 0;
+
+        virtual bool isAlive(const AObjectPtr& obj) const = 0;
     };
 } }
 

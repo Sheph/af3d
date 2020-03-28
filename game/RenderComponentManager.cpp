@@ -226,7 +226,7 @@ namespace af3d
         return rn;
     }
 
-    void RenderComponentManager::rayCast(const Frustum& frustum, const Ray& ray, const RayCastRenderFn& fn)
+    void RenderComponentManager::rayCast(const Frustum& frustum, const Ray& ray, const RayCastRenderFn& fn) const
     {
         CollideRayCast collide(frustum, ray, fn);
 

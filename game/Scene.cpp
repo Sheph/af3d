@@ -346,7 +346,7 @@ namespace af3d
         return btVector3_zero;
     }
 
-    void Scene::rayCastRender(const Frustum& frustum, const Ray& ray, const RayCastRenderFn& fn)
+    void Scene::rayCastRender(const Frustum& frustum, const Ray& ray, const RayCastRenderFn& fn) const
     {
         impl_->renderComponentManager_->rayCast(frustum, ray, fn);
     }

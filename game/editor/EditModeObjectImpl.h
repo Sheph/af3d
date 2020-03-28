@@ -38,7 +38,7 @@ namespace af3d { namespace editor
         explicit EditModeObjectImpl(Workspace* workspace);
         ~EditModeObjectImpl() = default;
 
-        AObjectPtr rayCast(Scene* scene, const Frustum& frustum, const Ray& ray) const override;
+        AObjectPtr rayCast(const Frustum& frustum, const Ray& ray) const override;
 
         bool isValid(const AObjectPtr& obj) const override;
 

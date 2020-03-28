@@ -34,11 +34,11 @@ namespace af3d { namespace editor
     {
     }
 
-    AObjectPtr EditModeObjectImpl::rayCast(Scene* scene, const Frustum& frustum, const Ray& ray) const
+    AObjectPtr EditModeObjectImpl::rayCast(const Frustum& frustum, const Ray& ray) const
     {
         SceneObjectPtr res;
 
-        scene->rayCastRender(frustum, ray, [&res](const RenderComponentPtr& r, const AObjectPtr&, const btVector3&, float dist) {
+        scene()->rayCastRender(frustum, ray, [&res](const RenderComponentPtr& r, const AObjectPtr&, const btVector3&, float dist) {
             if ((r->aflags() & AObjectMarkerObject) == 0) {
                 return -1.0f;
             }

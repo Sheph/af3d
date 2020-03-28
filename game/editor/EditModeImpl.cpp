@@ -115,4 +115,14 @@ namespace af3d { namespace editor
             }
         }
     }
+
+    Scene* EditModeImpl::scene()
+    {
+        return workspace_->scene();
+    }
+
+    const Scene* EditModeImpl::scene() const
+    {
+        return workspace_->scene();
+    }
 } }
