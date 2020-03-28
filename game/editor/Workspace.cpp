@@ -28,6 +28,7 @@
 #include "editor/CommandHistoryWindow.h"
 #include "editor/PropertyEditor.h"
 #include "editor/CommandAddObject.h"
+#include "editor/CommandSetProperty.h"
 #include "Const.h"
 #include "InputManager.h"
 #include "AClassRegistry.h"
@@ -130,6 +131,13 @@ namespace editor {
         cmdHistory_.add(
              std::make_shared<CommandAddObject>(scene(), *klass, kind,
                  scene()->camera()->transform() * toTransform(btVector3_forward * 5.0f)));
+    }
+
+    void Workspace::setProperty(const AObjectPtr& obj,
+        const std::string& name, const APropertyValue& value)
+    {
+        cmdHistory_.add(
+            std::make_shared<CommandSetProperty>(scene(), obj, name, value));
     }
 
     void Workspace::onRegister()

@@ -82,6 +82,7 @@ set(SOURCES
     editor/CommandSelect.cpp
     editor/CommandHistory.cpp
     editor/CommandHistoryWindow.cpp
+    editor/CommandSetProperty.cpp
     editor/ObjectComponent.cpp
     editor/EditModeImpl.cpp
     editor/EditModeObjectImpl.cpp

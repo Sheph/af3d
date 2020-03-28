@@ -23,64 +23,32 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _EDITOR_WORKSPACE_H_
-#define _EDITOR_WORKSPACE_H_
+#ifndef _EDITOR_COMMAND_SETPROPERTY_H_
+#define _EDITOR_COMMAND_SETPROPERTY_H_
 
-#include "UIComponent.h"
-#include "editor/CommandHistory.h"
-#include "editor/EditModeObjectImpl.h"
+#include "editor/Command.h"
+#include "AObject.h"
 
 namespace af3d { namespace editor
 {
-    class Workspace : public std::enable_shared_from_this<Workspace>,
-        public UIComponent
+    class CommandSetProperty : public Command
     {
     public:
-        Workspace();
-        ~Workspace() = default;
+        CommandSetProperty(Scene* scene,
+            const AObjectPtr& obj,
+            const std::string& propName, const APropertyValue& propValue);
+        ~CommandSetProperty() = default;
 
-        static const AClass& staticKlass();
+        bool redo() override;
 
-        static AObjectPtr create(const APropertyValueMap& propVals);
-
-        AObjectPtr sharedThis() override { return shared_from_this(); }
-
-        void update(float dt) override;
-
-        void render(RenderList& rl) override;
-
-        inline const std::vector<std::string>& objectKinds() const { return objectKinds_; }
-
-        inline const EditModeObject* emObject() { return emObject_.get(); }
-
-        inline const EditMode* em() { return em_; }
-
-        inline CommandHistory& cmdHistory() { return cmdHistory_; }
-
-        void openMainPopup();
-
-        void addObject(const std::string& kind);
-
-        void setProperty(const AObjectPtr& obj,
-            const std::string& name, const APropertyValue& value);
+        bool undo() override;
 
     private:
-        void onRegister() override;
-
-        void onUnregister() override;
-
-        std::vector<std::string> objectKinds_;
-
-        std::unique_ptr<EditModeObjectImpl> emObject_;
-
-        EditModeImpl* em_;
-
-        CommandHistory cmdHistory_;
+        ACookie cookie_;
+        std::string name_;
+        APropertyValue prevValue_;
+        APropertyValue value_;
     };
-
-    using WorkspacePtr = std::shared_ptr<Workspace>;
-}
-    ACLASS_NS_DECLARE(editor, Workspace)
-}
+} }
 
 #endif

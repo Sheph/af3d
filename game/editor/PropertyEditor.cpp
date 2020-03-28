@@ -114,7 +114,7 @@ namespace editor {
 
                 auto val = obj->propertyGet(prop.name());
                 if (ImGuiUtils::APropertyEdit(prop.type(), val, (prop.flags() & APropertyWritable) == 0)) {
-                    obj->propertySet(prop.name(), val);
+                    scene()->workspace()->setProperty(obj, prop.name(), val);
                 }
 
                 ImGui::PopItemWidth();

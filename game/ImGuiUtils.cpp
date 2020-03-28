@@ -59,7 +59,7 @@ namespace af3d { namespace ImGuiUtils
 
         void visitString(const APropertyTypeString& type) override
         {
-            ImGuiInputTextFlags flags = 0;
+            ImGuiInputTextFlags flags = ImGuiInputTextFlags_EnterReturnsTrue;
 
             if (readOnly_) {
                 flags |= ImGuiInputTextFlags_ReadOnly;
