@@ -77,14 +77,9 @@ namespace editor {
 
         if (newCookie != cookie_) {
             cookie_ = newCookie;
-            entries_.clear();
+            properties_.clear();
             if (obj) {
-                auto propList = obj->klass().getProperties();
-                for (const auto& prop : propList) {
-                    entries_.emplace_back();
-                    entries_.back().prop = prop;
-                    entries_.back().edit = ImGuiUtils::APropertyEdit(prop.type());
-                }
+                properties_ = obj->klass().getProperties();
             }
         }
 
@@ -103,28 +98,26 @@ namespace editor {
         if (obj) {
             ImGui::PushID(std::to_string(newCookie).c_str());
 
-            for (auto& entry : entries_) {
-                ImGui::PushID(entry.prop.name().c_str());
+            for (const auto& prop : properties_) {
+                ImGui::PushID(prop.name().c_str());
 
                 ImGui::Separator();
-                ImGui::Text("%s", entry.prop.name().c_str());
+                ImGui::Text("%s", prop.name().c_str());
                 if (ImGui::IsItemHovered()) {
                     ImGui::BeginTooltip();
-                    ImGui::Text("%s", entry.prop.tooltip().c_str());
+                    ImGui::Text("%s", prop.tooltip().c_str());
                     ImGui::EndTooltip();
                 }
 
                 ImGui::NextColumn();
-
                 ImGui::PushItemWidth(-1);
 
-                auto val = obj->propertyGet(entry.prop.name());
-                if (entry.edit.update(val, (entry.prop.flags() & APropertyWritable) == 0)) {
-                    obj->propertySet(entry.prop.name(), val);
+                auto val = obj->propertyGet(prop.name());
+                if (ImGuiUtils::APropertyEdit(prop.type(), val, (prop.flags() & APropertyWritable) == 0)) {
+                    obj->propertySet(prop.name(), val);
                 }
 
                 ImGui::PopItemWidth();
-
                 ImGui::NextColumn();
 
                 ImGui::PopID();

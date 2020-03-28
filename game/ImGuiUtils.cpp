@@ -34,78 +34,90 @@ namespace af3d { namespace ImGuiUtils
         void* ChainCallbackUserData;
     };
 
-    APropertyEdit::APropertyEdit(const APropertyType& type)
-    : type_(&type)
+    class PropertyEditVisitor : public APropertyTypeVisitor
     {
-    }
-
-    bool APropertyEdit::update(APropertyValue& val, bool readOnly)
-    {
-        curVal_ = &val;
-        curReadOnly_ = readOnly;
-        curRet_ = false;
-        type_->accept(*this);
-        return curRet_;
-    }
-
-    void APropertyEdit::visitBool(const APropertyTypeBool& type)
-    {
-    }
-
-    void APropertyEdit::visitInt(const APropertyTypeInt& type)
-    {
-    }
-
-    void APropertyEdit::visitFloat(const APropertyTypeFloat& type)
-    {
-    }
-
-    void APropertyEdit::visitString(const APropertyTypeString& type)
-    {
-        ImGuiInputTextFlags flags = 0;
-
-        if (curReadOnly_) {
-            flags |= ImGuiInputTextFlags_ReadOnly;
+    public:
+        PropertyEditVisitor(APropertyValue& value, bool readOnly)
+        : value_(value),
+          readOnly_(readOnly)
+        {
         }
 
-        strVal_ = curVal_->toString();
+        ~PropertyEditVisitor() = default;
 
-        if (inputText("##str", strVal_, flags) && !curReadOnly_) {
-            curRet_ = true;
-            *curVal_ = APropertyValue(strVal_);
+        void visitBool(const APropertyTypeBool& type) override
+        {
         }
-    }
 
-    void APropertyEdit::visitVec2f(const APropertyTypeVec2f& type)
-    {
-    }
+        void visitInt(const APropertyTypeInt& type) override
+        {
+        }
 
-    void APropertyEdit::visitVec3f(const APropertyTypeVec3f& type)
-    {
-    }
+        void visitFloat(const APropertyTypeFloat& type) override
+        {
+        }
 
-    void APropertyEdit::visitVec4f(const APropertyTypeVec4f& type)
-    {
-    }
+        void visitString(const APropertyTypeString& type) override
+        {
+            ImGuiInputTextFlags flags = 0;
 
-    void APropertyEdit::visitColor(const APropertyTypeColor& type)
-    {
-    }
+            if (readOnly_) {
+                flags |= ImGuiInputTextFlags_ReadOnly;
+            }
 
-    void APropertyEdit::visitEnum(const APropertyTypeEnum& type)
-    {
-    }
+            std::string val = value_.toString();
 
-    void APropertyEdit::visitObject(const APropertyTypeObject& type)
-    {
-    }
+            if (inputText("##str", val, flags) && !readOnly_) {
+                ret_ = true;
+                value_ = APropertyValue(val);
+            }
+        }
 
-    void APropertyEdit::visitTransform(const APropertyTypeTransform& type)
-    {
-    }
+        void visitVec2f(const APropertyTypeVec2f& type) override
+        {
+        }
 
-    void APropertyEdit::visitArray(const APropertyTypeArray& type)
+        void visitVec3f(const APropertyTypeVec3f& type) override
+        {
+        }
+
+        void visitVec4f(const APropertyTypeVec4f& type) override
+        {
+        }
+
+        void visitColor(const APropertyTypeColor& type) override
+        {
+        }
+
+        void visitEnum(const APropertyTypeEnum& type) override
+        {
+        }
+
+        void visitObject(const APropertyTypeObject& type) override
+        {
+        }
+
+        void visitTransform(const APropertyTypeTransform& type) override
+        {
+        }
+
+        void visitArray(const APropertyTypeArray& type) override
+        {
+        }
+
+        inline bool ret() const { return ret_; }
+
+    private:
+        APropertyValue& value_;
+        bool readOnly_ = false;
+        bool ret_ = false;
+    };
+
+    bool APropertyEdit(const APropertyType& type, APropertyValue& val, bool readOnly)
     {
+        PropertyEditVisitor visitor(val, readOnly);
+        type.accept(visitor);
+        return visitor.ret();
     }
 
     static int inputTextCallback(ImGuiInputTextCallbackData* data)

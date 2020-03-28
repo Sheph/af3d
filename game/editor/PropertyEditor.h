@@ -47,14 +47,6 @@ namespace af3d { namespace editor
         void update(float dt) override;
 
     private:
-        struct Entry
-        {
-            Entry() = default;
-
-            AProperty prop;
-            ImGuiUtils::APropertyEdit edit;
-        };
-
         void onRegister() override;
 
         void onUnregister() override;
@@ -62,7 +54,7 @@ namespace af3d { namespace editor
         bool show_ = true;
 
         ACookie cookie_ = 0;
-        std::vector<Entry> entries_;
+        APropertyList properties_;
     };
 
     using PropertyEditorPtr = std::shared_ptr<PropertyEditor>;
