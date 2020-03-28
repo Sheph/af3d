@@ -43,8 +43,11 @@ namespace af3d {
 
 namespace editor {
     Workspace::Workspace()
-    : UIComponent(AClass_editorWorkspace, zOrderEditor)
+    : UIComponent(AClass_editorWorkspace, zOrderEditor),
+      emObject_(new EditModeObject(this))
     {
+        em_ = emObject_.get();
+
         actionMainPopup_ = std::make_shared<ActionMainPopup>(this);
 
         std::map<std::string, const AClass*> sortedObjKlasses;
@@ -75,6 +78,8 @@ namespace editor {
 
     void Workspace::update(float dt)
     {
+        em_->update(dt);
+
         ImGuiIO& io = ImGui::GetIO();
 
         if (io.WantCaptureMouse) {
@@ -84,15 +89,6 @@ namespace editor {
         if (inputManager.keyboard().triggered(KI_I)) {
             actionMainPopup()->trigger();
         }
-
-        auto cc = scene()->camera()->findComponent<CameraComponent>();
-
-        auto ray = cc->screenPointToRay(inputManager.mouse().pos());
-
-        scene()->rayCastRender(cc->getFrustum(), ray, [](const AObjectPtr& r, const btVector3& pt, float dist) {
-            LOG4CPLUS_DEBUG(logger(), pt << ", " << dist);
-            return -1.0f;
-        });
     }
 
     void Workspace::render(RenderList& rl)
@@ -103,9 +99,15 @@ namespace editor {
     {
         auto w = std::make_shared<CommandHistoryWindow>();
         parent()->addComponent(w);
+
+        em_->enter();
     }
 
     void Workspace::onUnregister()
     {
+        em_->leave();
+
+        emObject_.reset();
+        em_ = nullptr;
     }
 } }

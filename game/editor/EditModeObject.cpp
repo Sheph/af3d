@@ -23,62 +23,35 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _EDITOR_EDITMODE_H_
-#define _EDITOR_EDITMODE_H_
+#include "editor/EditModeObject.h"
+#include "Scene.h"
+#include "SceneObject.h"
 
-#include "AObject.h"
-#include "af3d/Types.h"
-#include "af3d/Ray.h"
-#include "af3d/Frustum.h"
-#include <boost/noncopyable.hpp>
-#include <memory>
-#include <list>
-
-namespace af3d {
-    class Scene;
-
-namespace editor
+namespace af3d { namespace editor
 {
-    class Workspace;
-
-    class EditMode : boost::noncopyable
+    EditModeObject::EditModeObject(Workspace* workspace)
+    : EditMode(workspace)
     {
-    public:
-        using AList = std::list<AObjectPtr>;
+    }
 
-        explicit EditMode(Workspace* workspace);
-        virtual ~EditMode() = default;
+    AObjectPtr EditModeObject::doHover(const Frustum& frustum, const Ray& ray)
+    {
+        SceneObjectPtr res;
 
-        void enter();
+        scene()->rayCastRender(frustum, ray, [&res](const RenderComponentPtr& r, const AObjectPtr&, const btVector3&, float dist) {
+            if ((r->aflags() & AObjectMarkerObject) == 0) {
+                return -1.0f;
+            }
+            res = r->parent()->shared_from_this();
+            return dist;
+        });
 
-        void update(float dt);
+        return res;
+    }
 
-        void leave();
-
-        inline bool active() const { return active_; }
-
-        const AList& hovered();
-
-        const AList& selected();
-
-        bool isHovered(const AObjectPtr& obj);
-
-        bool isSelected(const AObjectPtr& obj);
-
-    protected:
-        Workspace& workspace();
-        Scene* scene();
-
-    private:
-        virtual AObjectPtr doHover(const Frustum& frustum, const Ray& ray) = 0;
-
-        virtual bool doCheck(const AObjectPtr& obj) const = 0;
-
-        Workspace* workspace_;
-        bool active_ = false;
-        AList hovered_;
-        AList selected_;
-    };
+    bool EditModeObject::doCheck(const AObjectPtr& obj) const
+    {
+        auto sObj = std::static_pointer_cast<SceneObject>(obj);
+        return sObj->scene();
+    }
 } }
-
-#endif

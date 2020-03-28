@@ -60,7 +60,7 @@ namespace af3d
         if (!res.first || (res.second >= maxT_)) {
             return;
         }
-        float newT = fn_(res.first, ray_.getAt(res.second), res.second);
+        float newT = fn_(std::static_pointer_cast<RenderComponent>(nd->component->sharedThis()), res.first, ray_.getAt(res.second), res.second);
         if ((newT >= 0.0f) && (newT < maxT_)) {
             maxT_ = newT;
         }

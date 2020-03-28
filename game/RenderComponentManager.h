@@ -39,10 +39,10 @@ namespace af3d
 {
     struct RenderCookie {};
 
-    using RayCastRenderFn = std::function<float(const AObjectPtr&, const btVector3&, float)>;
-
     class RenderComponent;
     using RenderComponentPtr = std::shared_ptr<RenderComponent>;
+
+    using RayCastRenderFn = std::function<float(const RenderComponentPtr&, const AObjectPtr&, const btVector3&, float)>;
 
     class RenderComponentManager : public ComponentManager
     {

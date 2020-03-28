@@ -93,5 +93,7 @@ namespace af3d
         editor.objMarkerSizeWorld = appConfig->getFloat("editor.objMarkerSizeWorld");
         editor.objMarkerSizePixels = appConfig->getInt("editor.objMarkerSizePixels");
         editor.objMarkerColorInactive = appConfig->getColor("editor.objMarkerColorInactive");
+        editor.objMarkerColorHovered = appConfig->getColor("editor.objMarkerColorHovered");
+        editor.objMarkerColorSelected = appConfig->getColor("editor.objMarkerColorSelected");
     }
 }

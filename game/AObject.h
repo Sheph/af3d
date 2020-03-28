@@ -35,7 +35,8 @@ namespace af3d
     enum AObjectFlags
     {
         AObjectEditable = 1 << 0,
-        AObjectMarkerObject = 1 << 1
+        AObjectMarkerObject = 1 << 1,
+        AObjectMarkerLight = 1 << 2
     };
 
     class AObject : boost::noncopyable

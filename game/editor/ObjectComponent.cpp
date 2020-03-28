@@ -53,6 +53,19 @@ namespace editor {
 
     void ObjectComponent::preRender(float dt)
     {
+        auto emObject = scene()->workspace()->emObject();
+
+        markerRc_->setVisible(emObject->active());
+
+        if (emObject->active()) {
+            if (emObject->isSelected(parent()->shared_from_this())) {
+                markerRc_->setColor(settings.editor.objMarkerColorSelected);
+            } else if (emObject->isHovered(parent()->shared_from_this())) {
+                markerRc_->setColor(settings.editor.objMarkerColorHovered);
+            } else {
+                markerRc_->setColor(settings.editor.objMarkerColorInactive);
+            }
+        }
     }
 
     void ObjectComponent::onRegister()

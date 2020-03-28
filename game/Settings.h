@@ -47,6 +47,8 @@ namespace af3d
             float objMarkerSizeWorld;
             int objMarkerSizePixels;
             Color objMarkerColorInactive;
+            Color objMarkerColorHovered;
+            Color objMarkerColorSelected;
         };
 
         Settings() = default;

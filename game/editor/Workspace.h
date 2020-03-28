@@ -28,6 +28,7 @@
 
 #include "UIComponent.h"
 #include "editor/CommandHistory.h"
+#include "editor/EditModeObject.h"
 
 namespace af3d { namespace editor
 {
@@ -51,6 +52,10 @@ namespace af3d { namespace editor
 
         void render(RenderList& rl) override;
 
+        inline EditModeObject* emObject() { return emObject_.get(); }
+
+        inline EditMode* em() { return em_; }
+
         inline CommandHistory& cmdHistory() { return cmdHistory_; }
 
         inline const ActionPtr& actionMainPopup() { return actionMainPopup_; }
@@ -61,6 +66,10 @@ namespace af3d { namespace editor
         void onRegister() override;
 
         void onUnregister() override;
+
+        std::unique_ptr<EditModeObject> emObject_;
+
+        EditMode* em_;
 
         CommandHistory cmdHistory_;
 
