@@ -105,19 +105,17 @@ namespace editor {
                 ImGui::Text("%s", prop.name().c_str());
                 if (ImGui::IsItemHovered()) {
                     ImGui::BeginTooltip();
-                    ImGui::Text("%s", prop.tooltip().c_str());
+                    ImGui::Text("%s (%s)", prop.tooltip().c_str(), prop.type().name());
                     ImGui::EndTooltip();
                 }
 
                 ImGui::NextColumn();
-                ImGui::PushItemWidth(-1);
 
                 auto val = obj->propertyGet(prop.name());
                 if (ImGuiUtils::APropertyEdit(prop.type(), val, (prop.flags() & APropertyWritable) == 0)) {
                     scene()->workspace()->setProperty(obj, prop.name(), val);
                 }
 
-                ImGui::PopItemWidth();
                 ImGui::NextColumn();
 
                 ImGui::PopID();

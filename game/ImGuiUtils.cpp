@@ -67,7 +67,7 @@ namespace af3d { namespace ImGuiUtils
 
             std::string val = value_.toString();
 
-            if (inputText("##str", val, flags) && !readOnly_) {
+            if (inputText("##val", val, flags) && !readOnly_) {
                 ret_ = true;
                 value_ = APropertyValue(val);
             }
@@ -79,6 +79,18 @@ namespace af3d { namespace ImGuiUtils
 
         void visitVec3f(const APropertyTypeVec3f& type) override
         {
+            ImGuiInputTextFlags flags = ImGuiInputTextFlags_EnterReturnsTrue;
+
+            if (readOnly_) {
+                flags |= ImGuiInputTextFlags_ReadOnly;
+            }
+
+            Vector3f v = value_.toVec3f();
+
+            if (ImGui::InputFloat3("##val", &v.v[0], "%.3f", flags) && !readOnly_) {
+                ret_ = true;
+                value_ = APropertyValue(v);
+            }
         }
 
         void visitVec4f(const APropertyTypeVec4f& type) override
@@ -87,10 +99,38 @@ namespace af3d { namespace ImGuiUtils
 
         void visitColor(const APropertyTypeColor& type) override
         {
+            ImGuiColorEditFlags flags = 0;
+
+            Color c = value_.toColor();
+
+            bool ch;
+            if (type.hasAlpha()) {
+                ch = ImGui::ColorEdit4("##val", &c.v[0], flags);
+            } else {
+                ch = ImGui::ColorEdit3("##val", &c.v[0], flags);
+            }
+
+            if (ch && !readOnly_) {
+                ret_ = true;
+                value_ = APropertyValue(c);
+            }
         }
 
         void visitEnum(const APropertyTypeEnum& type) override
         {
+            std::vector<const char*> items;
+            items.reserve(type.enumerators().size());
+
+            for (const auto& str : type.enumerators()) {
+                items.push_back(str.data());
+            }
+
+            int cur = value_.toInt();
+
+            if (ImGui::Combo("##val", &cur, &items[0], items.size()) && !readOnly_) {
+                ret_ = true;
+                value_ = APropertyValue(cur);
+            }
         }
 
         void visitObject(const APropertyTypeObject& type) override
@@ -99,6 +139,33 @@ namespace af3d { namespace ImGuiUtils
 
         void visitTransform(const APropertyTypeTransform& type) override
         {
+            ImGuiInputTextFlags flags = ImGuiInputTextFlags_EnterReturnsTrue;
+
+            if (readOnly_) {
+                flags |= ImGuiInputTextFlags_ReadOnly;
+            }
+
+            btTransform xf = value_.toTransform();
+
+            btVector3 origin = xf.getOrigin();
+            btVector3 euler;
+            xf.getBasis().getEulerZYX(euler[2], euler[1], euler[0]);
+
+            euler[0] = btDegrees(euler[0]);
+            euler[1] = btDegrees(euler[1]);
+            euler[2] = btDegrees(euler[2]);
+
+            bool ch1 = ImGui::InputFloat3("origin", &origin.m_floats[0], "%.3f", flags);
+            bool ch2 = ImGui::InputFloat3("euler", &euler.m_floats[0], "%.3f°", flags);
+            if ((ch1 || ch2) && !readOnly_) {
+                ret_ = true;
+                xf.setOrigin(origin);
+                euler[0] = btRadians(euler[0]);
+                euler[1] = btRadians(euler[1]);
+                euler[2] = btRadians(euler[2]);
+                xf.getBasis().setEulerZYX(euler[0], euler[1], euler[2]);
+                value_ = APropertyValue(xf);
+            }
         }
 
         void visitArray(const APropertyTypeArray& type) override
