@@ -23,51 +23,70 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _EDITOR_PROPERTYEDITOR_H_
-#define _EDITOR_PROPERTYEDITOR_H_
-
-#include "UIComponent.h"
 #include "ImGuiUtils.h"
 
-namespace af3d { namespace editor
+namespace af3d { namespace ImGuiUtils
 {
-    class PropertyEditor : public std::enable_shared_from_this<PropertyEditor>,
-        public UIComponent
+    APropertyEdit::APropertyEdit(const APropertyType& type)
+    : type_(&type)
     {
-    public:
-        PropertyEditor();
-        ~PropertyEditor() = default;
+    }
 
-        static const AClass& staticKlass();
+    bool APropertyEdit::update(APropertyValue& val, bool readOnly)
+    {
+        if (readOnly) {
+            ImGui::Text("(ro) %s", val.toString().c_str());
+        } else {
+            ImGui::Text("%s", val.toString().c_str());
+        }
+        return false;
+    }
 
-        static AObjectPtr create(const APropertyValueMap& propVals);
+    void APropertyEdit::visitBool(const APropertyTypeBool& type)
+    {
+    }
 
-        AObjectPtr sharedThis() override { return shared_from_this(); }
+    void APropertyEdit::visitInt(const APropertyTypeInt& type)
+    {
+    }
 
-        void update(float dt) override;
+    void APropertyEdit::visitFloat(const APropertyTypeFloat& type)
+    {
+    }
 
-    private:
-        struct Entry
-        {
-            Entry() = default;
+    void APropertyEdit::visitString(const APropertyTypeString& type)
+    {
+    }
 
-            AProperty prop;
-            ImGuiUtils::APropertyEdit edit;
-        };
+    void APropertyEdit::visitVec2f(const APropertyTypeVec2f& type)
+    {
+    }
 
-        void onRegister() override;
+    void APropertyEdit::visitVec3f(const APropertyTypeVec3f& type)
+    {
+    }
 
-        void onUnregister() override;
+    void APropertyEdit::visitVec4f(const APropertyTypeVec4f& type)
+    {
+    }
 
-        bool show_ = true;
+    void APropertyEdit::visitColor(const APropertyTypeColor& type)
+    {
+    }
 
-        ACookie cookie_ = 0;
-        std::vector<Entry> entries_;
-    };
+    void APropertyEdit::visitEnum(const APropertyTypeEnum& type)
+    {
+    }
 
-    using PropertyEditorPtr = std::shared_ptr<PropertyEditor>;
-}
-    ACLASS_NS_DECLARE(editor, PropertyEditor)
-}
+    void APropertyEdit::visitObject(const APropertyTypeObject& type)
+    {
+    }
 
-#endif
+    void APropertyEdit::visitTransform(const APropertyTypeTransform& type)
+    {
+    }
+
+    void APropertyEdit::visitArray(const APropertyTypeArray& type)
+    {
+    }
+} }

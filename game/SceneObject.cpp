@@ -112,6 +112,7 @@ namespace af3d
         }
         obj->propertiesSet(propVals);
         obj->setKlass(klass);
+        obj->setParams(params);
         return obj;
     }
 

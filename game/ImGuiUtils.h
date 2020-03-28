@@ -23,51 +23,41 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _EDITOR_PROPERTYEDITOR_H_
-#define _EDITOR_PROPERTYEDITOR_H_
+#ifndef _IMGUIUTILS_H_
+#define _IMGUIUTILS_H_
 
-#include "UIComponent.h"
-#include "ImGuiUtils.h"
+#include "Utils.h"
+#include "AProperty.h"
+#include "imgui.h"
 
-namespace af3d { namespace editor
+namespace af3d { namespace ImGuiUtils
 {
-    class PropertyEditor : public std::enable_shared_from_this<PropertyEditor>,
-        public UIComponent
+    class APropertyEdit : public APropertyTypeVisitor
     {
     public:
-        PropertyEditor();
-        ~PropertyEditor() = default;
+        APropertyEdit() = default;
+        explicit APropertyEdit(const APropertyType& type);
+        ~APropertyEdit() = default;
 
-        static const AClass& staticKlass();
+        bool update(APropertyValue& val, bool readOnly);
 
-        static AObjectPtr create(const APropertyValueMap& propVals);
-
-        AObjectPtr sharedThis() override { return shared_from_this(); }
-
-        void update(float dt) override;
+        void visitBool(const APropertyTypeBool& type) override;
+        void visitInt(const APropertyTypeInt& type) override;
+        void visitFloat(const APropertyTypeFloat& type) override;
+        void visitString(const APropertyTypeString& type) override;
+        void visitVec2f(const APropertyTypeVec2f& type) override;
+        void visitVec3f(const APropertyTypeVec3f& type) override;
+        void visitVec4f(const APropertyTypeVec4f& type) override;
+        void visitColor(const APropertyTypeColor& type) override;
+        void visitEnum(const APropertyTypeEnum& type) override;
+        void visitObject(const APropertyTypeObject& type) override;
+        void visitTransform(const APropertyTypeTransform& type) override;
+        void visitArray(const APropertyTypeArray& type) override;
 
     private:
-        struct Entry
-        {
-            Entry() = default;
-
-            AProperty prop;
-            ImGuiUtils::APropertyEdit edit;
-        };
-
-        void onRegister() override;
-
-        void onUnregister() override;
-
-        bool show_ = true;
-
-        ACookie cookie_ = 0;
-        std::vector<Entry> entries_;
+        const APropertyType* type_ = nullptr;
+        APropertyValue* curVal_ = nullptr;
     };
-
-    using PropertyEditorPtr = std::shared_ptr<PropertyEditor>;
-}
-    ACLASS_NS_DECLARE(editor, PropertyEditor)
-}
+} }
 
 #endif

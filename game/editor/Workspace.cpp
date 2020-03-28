@@ -26,6 +26,7 @@
 #include "editor/Workspace.h"
 #include "editor/MainPopup.h"
 #include "editor/CommandHistoryWindow.h"
+#include "editor/PropertyEditor.h"
 #include "editor/CommandAddObject.h"
 #include "Const.h"
 #include "InputManager.h"
@@ -35,7 +36,7 @@
 #include "CameraComponent.h"
 #include "Logger.h"
 #include "imgui.h"
-#include <map>
+#include <set>
 
 namespace af3d {
     ACLASS_NS_DEFINE_BEGIN(editor, Workspace, UIComponent)
@@ -135,6 +136,9 @@ namespace editor {
     {
         auto w = std::make_shared<CommandHistoryWindow>();
         parent()->addComponent(w);
+
+        auto w2 = std::make_shared<PropertyEditor>();
+        parent()->addComponent(w2);
 
         em_->enter();
     }

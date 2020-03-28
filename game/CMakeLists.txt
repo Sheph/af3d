@@ -65,6 +65,7 @@ set(SOURCES
     UIComponentManager.cpp
     ImGuiManager.cpp
     ImGuiComponent.cpp
+    ImGuiUtils.cpp
     VertexArrayWriter.cpp
     APropertyType.cpp
     APropertyTypes.cpp
@@ -84,6 +85,7 @@ set(SOURCES
     editor/ObjectComponent.cpp
     editor/EditModeImpl.cpp
     editor/EditModeObjectImpl.cpp
+    editor/PropertyEditor.cpp
 )
 
 include_directories(.)
