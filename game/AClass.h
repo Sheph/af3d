@@ -79,6 +79,8 @@ namespace af3d
 
         const AClass* super() const;
 
+        bool isSubClassOf(const AClass& value) const;
+
         inline const APropertyList& thisProperties() const { return properties_; }
 
         APropertyList getProperties() const;

@@ -61,6 +61,17 @@ namespace af3d
         return (&super_ == &AClass_Null) ? nullptr : &super_;
     }
 
+    bool AClass::isSubClassOf(const AClass& value) const
+    {
+        if (&super_ == this) {
+            return false;
+        } else if (&value == this) {
+            return true;
+        } else {
+            return super_.isSubClassOf(value);
+        }
+    }
+
     APropertyList AClass::getProperties() const
     {
         if (&super_ == this) {

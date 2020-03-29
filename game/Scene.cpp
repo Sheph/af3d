@@ -175,11 +175,11 @@ namespace af3d
 
     void Scene::registerComponent(const ComponentPtr& component)
     {
-        if (std::dynamic_pointer_cast<PhasedComponent>(component)) {
+        if (aobjectCast<PhasedComponent>(component)) {
             impl_->phasedComponentManager_->addComponent(component);
-        } else if (std::dynamic_pointer_cast<RenderComponent>(component)) {
+        } else if (aobjectCast<RenderComponent>(component)) {
             impl_->renderComponentManager_->addComponent(component);
-        } else if (std::dynamic_pointer_cast<UIComponent>(component)) {
+        } else if (aobjectCast<UIComponent>(component)) {
             impl_->uiComponentManager_->addComponent(component);
         } else {
             runtime_assert(false);

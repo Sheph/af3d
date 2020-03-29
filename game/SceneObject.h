@@ -58,7 +58,7 @@ namespace af3d
         inline std::shared_ptr<T> findComponent() const
         {
             for (const auto& c : components_) {
-                const auto& ct = std::dynamic_pointer_cast<T>(c);
+                const auto& ct = aobjectCast<T>(c);
                 if (ct) {
                     return ct;
                 }
@@ -70,7 +70,7 @@ namespace af3d
         std::shared_ptr<T> findComponentByName(const std::string& name) const
         {
             for (const auto& c : components_) {
-                const auto& ct = std::dynamic_pointer_cast<T>(c);
+                const auto& ct = aobjectCast<T>(c);
                 if (ct && (ct->name() == name)) {
                     return ct;
                 }
@@ -84,7 +84,7 @@ namespace af3d
             std::vector<std::shared_ptr<T>> res;
 
             for (const auto& c : components_) {
-                const auto& ct = std::dynamic_pointer_cast<T>(c);
+                const auto& ct = aobjectCast<T>(c);
                 if (ct && (ct->name() == name)) {
                     res.push_back(ct);
                 }
@@ -99,7 +99,7 @@ namespace af3d
             std::vector<std::shared_ptr<T>> res;
 
             for (const auto& c : components_) {
-                const auto& ct = std::dynamic_pointer_cast<T>(c);
+                const auto& ct = aobjectCast<T>(c);
                 if (ct) {
                     res.push_back(ct);
                 }

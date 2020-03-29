@@ -66,7 +66,7 @@ namespace af3d
         std::shared_ptr<T> getLight(const std::string& name) const
         {
             for (const auto& tmp : lights_) {
-                const auto& light = std::dynamic_pointer_cast<T>(tmp);
+                const auto& light = aobjectCast<T>(tmp);
                 if (light && (light->name() == name)) {
                     return light;
                 }

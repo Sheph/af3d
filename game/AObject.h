@@ -55,6 +55,8 @@ namespace af3d
         // WARNING! Only call this if you're 100% sure what you're doing.
         inline void setKlass(const AClass& value) { klass_ = &value; }
 
+        bool isSubClassOf(const AClass& value) const;
+
         inline ACookie cookie() const { return cookie_; }
         void setCookie(ACookie value);
 
@@ -88,6 +90,31 @@ namespace af3d
     extern const APropertyTypeArray APropertyType_ArrayAObject;
 
     ACLASS_DECLARE(AObject)
+
+    template <class T>
+    inline T* aobjectPointerCast(AObject* obj)
+    {
+        return (obj && obj->isSubClassOf(T::staticKlass())) ?
+            static_cast<T*>(obj) : nullptr;
+    }
+
+    template <class T>
+    inline std::shared_ptr<T> aobjectCast(const AObjectPtr& obj)
+    {
+        return (obj && obj->isSubClassOf(T::staticKlass())) ?
+            std::static_pointer_cast<T>(obj) : std::shared_ptr<T>();
+    }
+
+    template <class T>
+    std::shared_ptr<T> APropertyValue::toObject() const
+    {
+        switch (type_) {
+        case Object:
+            return aobjectCast<T>(obj_);
+        default:
+            return std::shared_ptr<T>();
+        }
+    }
 }
 
 #endif

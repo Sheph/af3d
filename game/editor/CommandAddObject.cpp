@@ -57,7 +57,7 @@ namespace af3d { namespace editor
             return false;
         }
 
-        auto sObj = std::dynamic_pointer_cast<SceneObject>(obj);
+        auto sObj = aobjectCast<SceneObject>(obj);
         if (!sObj) {
             LOG4CPLUS_ERROR(logger(), "redo: Class obj not a scene object: " << description());
             return false;
@@ -85,7 +85,7 @@ namespace af3d { namespace editor
             return false;
         }
 
-        auto sObj = dynamic_cast<SceneObject*>(obj);
+        auto sObj = aobjectPointerCast<SceneObject>(obj);
         if (!sObj) {
             LOG4CPLUS_ERROR(logger(), "undo: obj not a scene object: " << description());
             return false;

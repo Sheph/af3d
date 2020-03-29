@@ -75,6 +75,11 @@ namespace af3d
         return (it == cookieToAObj.end()) ? nullptr : it->second;
     }
 
+    bool AObject::isSubClassOf(const AClass& value) const
+    {
+        return klass_->isSubClassOf(value);
+    }
+
     APropertyValue AObject::propertyGet(const std::string& key) const
     {
         return klass_->propertyGet(this, key);

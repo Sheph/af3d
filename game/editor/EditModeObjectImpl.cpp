@@ -51,7 +51,7 @@ namespace af3d { namespace editor
 
     bool EditModeObjectImpl::isValid(const AObjectPtr& obj) const
     {
-        return !!std::dynamic_pointer_cast<SceneObject>(obj);
+        return !!aobjectCast<SceneObject>(obj);
     }
 
     bool EditModeObjectImpl::isAlive(const AObjectPtr& obj) const

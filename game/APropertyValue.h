@@ -89,15 +89,7 @@ namespace af3d
         std::vector<APropertyValue> toArray() const;
 
         template <class T>
-        std::shared_ptr<T> toObject() const
-        {
-            switch (type_) {
-            case Object:
-                return std::dynamic_pointer_cast<T>(obj_);
-            default:
-                return std::shared_ptr<T>();
-            }
-        }
+        std::shared_ptr<T> toObject() const;
 
         bool operator<(const APropertyValue& rhs) const;
         bool operator==(const APropertyValue& rhs) const;
