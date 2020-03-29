@@ -68,6 +68,8 @@ namespace af3d { namespace editor
         void setProperty(const AObjectPtr& obj,
             const std::string& name, const APropertyValue& value);
 
+        void addMesh();
+
     private:
         void onRegister() override;
 

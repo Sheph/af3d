@@ -23,45 +23,33 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _EDITOR_MAINPOPUP_H_
-#define _EDITOR_MAINPOPUP_H_
+#ifndef _EDITOR_COMMAND_ADDCOMPONENT_H_
+#define _EDITOR_COMMAND_ADDCOMPONENT_H_
 
-#include "UIComponent.h"
+#include "editor/Command.h"
+#include "AObject.h"
 
 namespace af3d { namespace editor
 {
-    class Workspace;
-
-    class MainPopup : public std::enable_shared_from_this<MainPopup>,
-        public UIComponent
+    class CommandAddComponent : public Command
     {
     public:
-        MainPopup();
-        ~MainPopup() = default;
+        CommandAddComponent(Scene* scene,
+            const AObjectPtr& parent,
+            const AClass& klass, const std::string& kind,
+            const APropertyValueMap& initVals = APropertyValueMap());
+        ~CommandAddComponent() = default;
 
-        static const AClass& staticKlass();
+        bool redo() override;
 
-        static AObjectPtr create(const APropertyValueMap& propVals);
-
-        AObjectPtr sharedThis() override { return shared_from_this(); }
-
-        void update(float dt) override;
+        bool undo() override;
 
     private:
-        void menuAdd();
-
-        void menuAddObject();
-
-        void onRegister() override;
-
-        void onUnregister() override;
-
-        Workspace* w_ = nullptr;
+        ACookie parentCookie_;
+        const AClass& klass_;
+        APropertyValueMap initVals_;
+        ACookie cookie_ = 0;
     };
-
-    using MainPopupPtr = std::shared_ptr<MainPopup>;
-}
-    ACLASS_NS_DECLARE(editor, MainPopup)
-}
+} }
 
 #endif

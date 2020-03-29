@@ -68,8 +68,22 @@ namespace af3d
         APropertyValue propertyLocalTransformGet(const std::string&) const { return transform(); }
         void propertyLocalTransformSet(const std::string&, const APropertyValue& value) { setTransform(value.toTransform()); }
 
-        APropertyValue propertyWorldTransformGet(const std::string&) const { return parent()->transform() * transform(); }
-        void propertyWorldTransformSet(const std::string&, const APropertyValue& value) { setTransform(parent()->transform().inverse() * value.toTransform()); }
+        APropertyValue propertyWorldTransformGet(const std::string&) const
+        {
+            if (parent()) {
+                return parent()->transform() * transform();
+            } else {
+                return transform();
+            }
+        }
+        void propertyWorldTransformSet(const std::string&, const APropertyValue& value)
+        {
+            if (parent()) {
+                setTransform(parent()->transform().inverse() * value.toTransform());
+            } else {
+                setTransform(value.toTransform());
+            }
+        }
 
         APropertyValue propertyScaleGet(const std::string&) const { return scale(); }
         void propertyScaleSet(const std::string&, const APropertyValue& value) { setScale(value.toVec3()); }

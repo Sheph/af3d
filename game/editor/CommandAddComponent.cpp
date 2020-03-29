@@ -23,75 +23,87 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "editor/CommandAddObject.h"
-#include "editor/ObjectComponent.h"
+#include "editor/CommandAddComponent.h"
 #include "Logger.h"
 #include "SceneObject.h"
-#include "Scene.h"
 
 namespace af3d { namespace editor
 {
-    CommandAddObject::CommandAddObject(Scene* scene,
+    CommandAddComponent::CommandAddComponent(Scene* scene,
+        const AObjectPtr& parent,
         const AClass& klass, const std::string& kind,
-        const btTransform& xf)
+        const APropertyValueMap& initVals)
     : Command(scene),
+      parentCookie_(parent->cookie()),
       klass_(klass),
-      xf_(xf)
+      initVals_(initVals)
     {
-        setDescription("Add \"" + kind + "\" object");
+        setDescription("Add " + kind);
     }
 
-    bool CommandAddObject::redo()
+    bool CommandAddComponent::redo()
     {
-        APropertyValueMap propVals;
-
-        for (const auto& param : klass_.thisProperties()) {
-            propVals.set(param.name(), param.def());
+        auto parentObj = AObject::getByCookie(parentCookie_);
+        if (!parentObj) {
+            LOG4CPLUS_ERROR(logger(), "redo: Cannot get parent obj by cookie: " << description());
+            return false;
         }
 
-        propVals.set(AProperty_WorldTransform, xf_);
+        auto parentSObj = aobjectCast<SceneObject>(parentObj);
+        if (!parentSObj) {
+            LOG4CPLUS_ERROR(logger(), "redo: Parent obj not a scene object: " << description());
+            return false;
+        }
 
-        auto obj = klass_.create(propVals);
-        if (!obj) {
+        APropertyValueMap propVals;
+
+        auto props = klass_.getProperties();
+        for (const auto& prop : props) {
+            propVals.set(prop.name(), prop.def());
+        }
+        for (const auto& kv : initVals_.items()) {
+            propVals.set(kv.first, kv.second);
+        }
+
+        auto aobj = klass_.create(propVals);
+        if (!aobj) {
             LOG4CPLUS_ERROR(logger(), "redo: Cannot create class obj: " << description());
             return false;
         }
 
-        auto sObj = aobjectCast<SceneObject>(obj);
-        if (!sObj) {
-            LOG4CPLUS_ERROR(logger(), "redo: Class obj not a scene object: " << description());
+        auto c = aobjectCast<Component>(aobj);
+        if (!c) {
+            LOG4CPLUS_ERROR(logger(), "redo: Class obj not a component: " << description());
             return false;
         }
 
         if (cookie_) {
-            sObj->setCookie(cookie_);
+            c->setCookie(cookie_);
         } else {
-            cookie_ = sObj->cookie();
+            cookie_ = c->cookie();
         }
 
-        sObj->aflagsSet(AObjectEditable);
-        sObj->addComponent(std::make_shared<ObjectComponent>());
-
-        scene()->addObject(sObj);
+        c->aflagsSet(AObjectEditable);
+        parentSObj->addComponent(c);
 
         return true;
     }
 
-    bool CommandAddObject::undo()
+    bool CommandAddComponent::undo()
     {
-        auto obj = AObject::getByCookie(cookie_);
-        if (!obj) {
+        auto aobj = AObject::getByCookie(cookie_);
+        if (!aobj) {
             LOG4CPLUS_ERROR(logger(), "undo: Cannot find obj: " << description());
             return false;
         }
 
-        auto sObj = aobjectCast<SceneObject>(obj);
-        if (!sObj) {
-            LOG4CPLUS_ERROR(logger(), "undo: obj not a scene object: " << description());
+        auto c = aobjectCast<Component>(aobj);
+        if (!c) {
+            LOG4CPLUS_ERROR(logger(), "undo: obj not a component: " << description());
             return false;
         }
 
-        sObj->removeFromParent();
+        c->removeFromParent();
 
         return true;
     }

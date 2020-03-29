@@ -28,6 +28,7 @@
 #include "editor/CommandHistoryWindow.h"
 #include "editor/PropertyEditor.h"
 #include "editor/CommandAddObject.h"
+#include "editor/CommandAddComponent.h"
 #include "editor/CommandSetProperty.h"
 #include "Const.h"
 #include "InputManager.h"
@@ -35,6 +36,8 @@
 #include "Scene.h"
 #include "SceneObject.h"
 #include "CameraComponent.h"
+#include "RenderMeshComponent.h"
+#include "MeshManager.h"
 #include "Logger.h"
 #include "imgui.h"
 #include <set>
@@ -158,6 +161,23 @@ namespace editor {
     {
         cmdHistory_.add(
             std::make_shared<CommandSetProperty>(scene(), obj, name, value));
+    }
+
+    void Workspace::addMesh()
+    {
+        if (emObject_->selected().empty()) {
+            LOG4CPLUS_WARN(logger(), "Cannot addMesh, no object is selected");
+            return;
+        }
+
+        APropertyValueMap initVals;
+        initVals.set("mesh", APropertyValue(meshManager.loadMesh("muro.fbx")));
+        initVals.set(AProperty_Scale, btVector3(0.02f, 0.02f, 0.02f));
+
+        cmdHistory_.add(
+            std::make_shared<CommandAddComponent>(scene(),
+                emObject_->selected().back(),
+                RenderMeshComponent::staticKlass(), "Mesh", initVals));
     }
 
     void Workspace::onRegister()

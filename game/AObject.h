@@ -92,7 +92,7 @@ namespace af3d
     ACLASS_DECLARE(AObject)
 
     template <class T>
-    inline T* aobjectPointerCast(AObject* obj)
+    inline T* aobjectCast(AObject* obj)
     {
         return (obj && obj->isSubClassOf(T::staticKlass())) ?
             static_cast<T*>(obj) : nullptr;

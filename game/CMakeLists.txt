@@ -79,6 +79,7 @@ set(SOURCES
     editor/Workspace.cpp
     editor/MainPopup.cpp
     editor/CommandAddObject.cpp
+    editor/CommandAddComponent.cpp
     editor/CommandSelect.cpp
     editor/CommandHistory.cpp
     editor/CommandHistoryWindow.cpp

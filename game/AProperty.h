@@ -34,7 +34,9 @@ namespace af3d
     enum APropertyFlags
     {
         APropertyReadable = 1 << 0,
-        APropertyWritable = 1 << 1
+        APropertyWritable = 1 << 1,
+        APropertyEditable = 1 << 2,
+        APropertyTransient = 1 << 3
     };
 
     enum class APropertyCategory
