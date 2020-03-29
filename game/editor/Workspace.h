@@ -59,6 +59,10 @@ namespace af3d { namespace editor
 
         void openMainPopup();
 
+        void openCommandHistory();
+
+        void openPropertyEditor();
+
         void addObject(const std::string& kind);
 
         void setProperty(const AObjectPtr& obj,

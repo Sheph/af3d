@@ -119,6 +119,26 @@ namespace editor {
         parent()->addComponent(popup);
     }
 
+    void Workspace::openCommandHistory()
+    {
+        auto w = parent()->findComponent<CommandHistoryWindow>();
+        if (w) {
+            w->removeFromParent();
+        }
+        w = std::make_shared<CommandHistoryWindow>();
+        parent()->addComponent(w);
+    }
+
+    void Workspace::openPropertyEditor()
+    {
+        auto w = parent()->findComponent<PropertyEditor>();
+        if (w) {
+            w->removeFromParent();
+        }
+        w = std::make_shared<PropertyEditor>();
+        parent()->addComponent(w);
+    }
+
     void Workspace::addObject(const std::string& kind)
     {
         auto klass = AClassRegistry::instance().classFind("SceneObject" + kind);
@@ -142,13 +162,10 @@ namespace editor {
 
     void Workspace::onRegister()
     {
-        auto w = std::make_shared<CommandHistoryWindow>();
-        parent()->addComponent(w);
-
-        auto w2 = std::make_shared<PropertyEditor>();
-        parent()->addComponent(w2);
-
         em_->enter();
+
+        openCommandHistory();
+        openPropertyEditor();
     }
 
     void Workspace::onUnregister()
