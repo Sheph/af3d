@@ -31,11 +31,13 @@ namespace af3d
     RenderImmIndexed::RenderImmIndexed(const MaterialPtr& material,
         GLenum primitiveMode,
         float depthValue,
+        const boost::optional<GLenum>& cullFaceMode,
         const ScissorParams& scissorParams,
         RenderList& rl)
     : material_(material),
       primitiveMode_(primitiveMode),
       depthValue_(depthValue),
+      cullFaceMode_(cullFaceMode),
       scissorParams_(scissorParams),
       rl_(rl),
       startVertices_(rl_.defaultVa_.data().vertices.size()),
@@ -49,7 +51,7 @@ namespace af3d
             startIndices_,
             rl_.defaultVa_.data().indices.size() - startIndices_,
             startVertices_);
-        rl_.addGeometry(material_, vaSlice, primitiveMode_, depthValue_, scissorParams_);
+        rl_.addGeometry(material_, vaSlice, primitiveMode_, depthValue_, cullFaceMode_, scissorParams_);
     }
 
     std::vector<VertexImm>& RenderImmIndexed::vertices()
@@ -65,11 +67,13 @@ namespace af3d
     RenderImm::RenderImm(const MaterialPtr& material,
         GLenum primitiveMode,
         float depthValue,
+        const boost::optional<GLenum>& cullFaceMode,
         const ScissorParams& scissorParams,
         RenderList& rl)
     : material_(material),
       primitiveMode_(primitiveMode),
       depthValue_(depthValue),
+      cullFaceMode_(cullFaceMode),
       scissorParams_(scissorParams),
       rl_(rl),
       startVertices_(rl_.defaultVa_.data().vertices.size())
@@ -82,7 +86,7 @@ namespace af3d
             startVertices_,
             rl_.defaultVa_.data().vertices.size() - startVertices_,
             0);
-        rl_.addGeometry(material_, vaSlice, primitiveMode_, depthValue_, scissorParams_);
+        rl_.addGeometry(material_, vaSlice, primitiveMode_, depthValue_, cullFaceMode_, scissorParams_);
     }
 
     std::vector<VertexImm>& RenderImm::vertices()
@@ -90,37 +94,42 @@ namespace af3d
         return rl_.defaultVa_.data().vertices;
     }
 
-    RenderList::RenderList(const Frustum& frustum, const RenderSettings& rs, VertexArrayWriter& defaultVa)
-    : frustum_(frustum),
+    RenderList::RenderList(const AABB2i& viewport, const Frustum& frustum,
+        const RenderSettings& rs, VertexArrayWriter& defaultVa)
+    : viewport_(viewport),
+      frustum_(frustum),
       rs_(rs),
       defaultVa_(defaultVa)
     {
     }
 
     void RenderList::addGeometry(const Matrix4f& modelMat, const AABB& aabb, const MaterialPtr& material,
-        const VertexArraySlice& vaSlice, GLenum primitiveMode, float depthValue, const ScissorParams& scissorParams)
+        const VertexArraySlice& vaSlice, GLenum primitiveMode, float depthValue, const boost::optional<GLenum>& cullFaceMode,
+        const ScissorParams& scissorParams)
     {
-        geomList_.emplace_back(modelMat, aabb, material, vaSlice, primitiveMode, depthValue, scissorParams);
+        geomList_.emplace_back(modelMat, aabb, material, vaSlice, primitiveMode, depthValue, cullFaceMode, scissorParams);
     }
 
     void RenderList::addGeometry(const MaterialPtr& material,
-        const VertexArraySlice& vaSlice, GLenum primitiveMode, float depthValue, const ScissorParams& scissorParams)
+        const VertexArraySlice& vaSlice, GLenum primitiveMode, float depthValue,
+        const boost::optional<GLenum>& cullFaceMode,
+        const ScissorParams& scissorParams)
     {
-        geomList_.emplace_back(material, vaSlice, primitiveMode, depthValue, scissorParams);
+        geomList_.emplace_back(material, vaSlice, primitiveMode, depthValue, cullFaceMode, scissorParams);
     }
 
     RenderImmIndexed RenderList::addGeometryIndexed(const MaterialPtr& material,
         GLenum primitiveMode,
-        float depthValue, const ScissorParams& scissorParams)
+        float depthValue, const boost::optional<GLenum>& cullFaceMode, const ScissorParams& scissorParams)
     {
-        return RenderImmIndexed(material, primitiveMode, depthValue, scissorParams, *this);
+        return RenderImmIndexed(material, primitiveMode, depthValue, cullFaceMode, scissorParams, *this);
     }
 
     RenderImm RenderList::addGeometry(const MaterialPtr& material,
         GLenum primitiveMode,
-        float depthValue, const ScissorParams& scissorParams)
+        float depthValue, const boost::optional<GLenum>& cullFaceMode, const ScissorParams& scissorParams)
     {
-        return RenderImm(material, primitiveMode, depthValue, scissorParams, *this);
+        return RenderImm(material, primitiveMode, depthValue, cullFaceMode, scissorParams, *this);
     }
 
     VertexArraySlice RenderList::createGeometry(const VertexImm* vertices, std::uint32_t numVertices,
@@ -153,23 +162,15 @@ namespace af3d
 
     RenderNodePtr RenderList::compile() const
     {
-        const Matrix4f& viewProjMat = frustum_.viewProjMat();
-        auto rn = std::make_shared<RenderNode>(rs_.clearMask(), rs_.clearColor());
+        auto rn = std::make_shared<RenderNode>(viewport_, rs_.clearMask(), rs_.clearColor());
         RenderNode tmpNode;
         for (const auto& geom : geomList_) {
             auto& params = rn->add(std::move(tmpNode), 0, geom.material,
-                GL_LESS, geom.depthValue, rs_.cullFaceMode(), geom.material->blendingParams(),
+                GL_LEQUAL, geom.depthValue, (geom.cullFaceMode ? *geom.cullFaceMode : rs_.cullFaceMode()),
+                geom.material->blendingParams(),
                 geom.vaSlice, geom.primitiveMode, geom.scissorParams);
+            setAutoParams(geom, params);
             const auto& activeUniforms = geom.material->type()->prog()->activeUniforms();
-            if (activeUniforms.count(UniformName::ViewProjMatrix) > 0) {
-                params.setUniform(UniformName::ViewProjMatrix, viewProjMat);
-            }
-            if (activeUniforms.count(UniformName::ModelViewProjMatrix) > 0) {
-                params.setUniform(UniformName::ModelViewProjMatrix, viewProjMat * geom.modelMat);
-            }
-            if (activeUniforms.count(UniformName::ModelMatrix) > 0) {
-                params.setUniform(UniformName::ModelMatrix, geom.modelMat);
-            }
             if (activeUniforms.count(UniformName::LightPos) > 0) {
                 params.setUniform(UniformName::LightPos, Vector4f_zero);
             }
@@ -189,23 +190,37 @@ namespace af3d
                     continue;
                 }
                 auto& params = rn->add(std::move(tmpNode), pass, geom.material,
-                    GL_EQUAL, geom.depthValue, rs_.cullFaceMode(), lightBp,
-                    geom.vaSlice, geom.primitiveMode, geom.scissorParams);
-                const auto& activeUniforms = geom.material->type()->prog()->activeUniforms();
-                if (activeUniforms.count(UniformName::ViewProjMatrix) > 0) {
-                    params.setUniform(UniformName::ViewProjMatrix, viewProjMat);
-                }
-                if (activeUniforms.count(UniformName::ModelViewProjMatrix) > 0) {
-                    params.setUniform(UniformName::ModelViewProjMatrix, viewProjMat * geom.modelMat);
-                }
-                if (activeUniforms.count(UniformName::ModelMatrix) > 0) {
-                    params.setUniform(UniformName::ModelMatrix, geom.modelMat);
-                }
+                    GL_EQUAL, geom.depthValue, (geom.cullFaceMode ? *geom.cullFaceMode : rs_.cullFaceMode()),
+                    lightBp, geom.vaSlice, geom.primitiveMode, geom.scissorParams);
+                setAutoParams(geom, params);
                 light->setupMaterial(frustum_.transform().getOrigin(), params);
             }
             ++pass;
         }
 
         return rn;
+    }
+
+    void RenderList::setAutoParams(const Geometry& geom, MaterialParams& params) const
+    {
+        const Matrix4f& viewProjMat = frustum_.viewProjMat();
+
+        const auto& activeUniforms = geom.material->type()->prog()->activeUniforms();
+
+        if (activeUniforms.count(UniformName::ViewProjMatrix) > 0) {
+            params.setUniform(UniformName::ViewProjMatrix, viewProjMat);
+        }
+        if (activeUniforms.count(UniformName::ModelViewProjMatrix) > 0) {
+            params.setUniform(UniformName::ModelViewProjMatrix, viewProjMat * geom.modelMat);
+        }
+        if (activeUniforms.count(UniformName::ModelMatrix) > 0) {
+            params.setUniform(UniformName::ModelMatrix, geom.modelMat);
+        }
+        if (activeUniforms.count(UniformName::EyePos) > 0) {
+            params.setUniform(UniformName::EyePos, frustum_.transform().getOrigin());
+        }
+        if (activeUniforms.count(UniformName::ViewportSize) > 0) {
+            params.setUniform(UniformName::ViewportSize, Vector2f::fromVector2i(viewport_.getSize()));
+        }
     }
 }

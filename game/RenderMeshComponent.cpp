@@ -24,6 +24,7 @@
  */
 
 #include "RenderMeshComponent.h"
+#include "MaterialManager.h"
 #include "Scene.h"
 
 namespace af3d
@@ -72,18 +73,22 @@ namespace af3d
 
     void RenderMeshComponent::render(RenderList& rl, void* const* parts, size_t numParts)
     {
+        auto modelMat = Matrix4f(parent()->transform() * xf_).scaled(scale_);
+
+        render(rl, modelMat, MaterialPtr());
+
         auto w = scene()->workspace();
         if (w) {
             auto em = w->emVisual();
             if (em->active()) {
-                if (em->isHovered(shared_from_this())) {
+                if (em->isSelected(shared_from_this())) {
+                    render(rl, modelMat, materialManager.matOutlineSelected());
+                } else if (em->isHovered(shared_from_this())) {
+                    render(rl, modelMat, materialManager.matOutlineHovered());
+                } else {
+                    render(rl, modelMat, materialManager.matOutlineInactive());
                 }
             }
-        }
-
-        auto modelMat = Matrix4f(parent()->transform() * xf_).scaled(scale_);
-        for (const auto& subMesh : mesh_->subMeshes()) {
-            rl.addGeometry(modelMat, prevAABB_, subMesh->material(), subMesh->vaSlice(), GL_TRIANGLES);
         }
     }
 
@@ -134,5 +139,20 @@ namespace af3d
     AABB RenderMeshComponent::calcAABB() const
     {
         return mesh_->aabb().scaled(scale_).getTransformed(parent()->transform() * xf_);
+    }
+
+    void RenderMeshComponent::render(RenderList& rl, const Matrix4f& modelMat, const MaterialPtr& material)
+    {
+        for (const auto& subMesh : mesh_->subMeshes()) {
+            if (material) {
+                rl.addGeometry(modelMat, prevAABB_,
+                    material, subMesh->vaSlice(),
+                    GL_TRIANGLES, 0.0f, GL_FRONT);
+            } else {
+                rl.addGeometry(modelMat, prevAABB_,
+                    subMesh->material(), subMesh->vaSlice(),
+                    GL_TRIANGLES);
+            }
+        }
     }
 }

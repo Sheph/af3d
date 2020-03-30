@@ -95,6 +95,8 @@ namespace af3d
 
         AABB calcAABB() const;
 
+        void render(RenderList& rl, const Matrix4f& modelMat, const MaterialPtr& material);
+
         MeshPtr mesh_;
         btTransform xf_ = btTransform::getIdentity();
         btVector3 scale_ = btVector3_one;

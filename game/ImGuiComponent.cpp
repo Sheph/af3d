@@ -122,7 +122,7 @@ namespace af3d
 
                         rl.addGeometry(mat, vaSlice.subSlice(pcmd->IdxOffset,
                             pcmd->ElemCount, pcmd->VtxOffset),
-                            GL_TRIANGLES, depthValue, scissorParams);
+                            GL_TRIANGLES, depthValue, boost::optional<GLenum>(), scissorParams);
                     }
                 }
             }

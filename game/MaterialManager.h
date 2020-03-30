@@ -61,17 +61,24 @@ namespace af3d
 
         void onMaterialDestroy(Material* material);
 
-        static const std::string materialUnlitDefault;
+        inline const MaterialPtr& matUnlitDefault() const { return matUnlitDefault_; }
+        inline const MaterialPtr& matOutlineInactive() const { return matOutlineInactive_; }
+        inline const MaterialPtr& matOutlineHovered() const { return matOutlineHovered_; }
+        inline const MaterialPtr& matOutlineSelected() const { return matOutlineSelected_; }
 
     private:
         using MaterialTypes = std::array<MaterialTypePtr, MaterialTypeMax + 1>;
         using CachedMaterials = std::unordered_map<std::string, MaterialPtr>;
         using ImmediateMaterials = std::unordered_set<Material*>;
 
-        bool first_ = true;
         MaterialTypes materialTypes_;
         CachedMaterials cachedMaterials_;
         ImmediateMaterials immediateMaterials_;
+
+        MaterialPtr matUnlitDefault_;
+        MaterialPtr matOutlineInactive_;
+        MaterialPtr matOutlineHovered_;
+        MaterialPtr matOutlineSelected_;
     };
 
     extern MaterialManager materialManager;

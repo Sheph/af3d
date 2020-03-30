@@ -95,5 +95,8 @@ namespace af3d
         editor.objMarkerColorInactive = appConfig->getColor("editor.objMarkerColorInactive");
         editor.objMarkerColorHovered = appConfig->getColor("editor.objMarkerColorHovered");
         editor.objMarkerColorSelected = appConfig->getColor("editor.objMarkerColorSelected");
+        editor.outlineColorInactive = appConfig->getColor("editor.outlineColorInactive");
+        editor.outlineColorHovered = appConfig->getColor("editor.outlineColorHovered");
+        editor.outlineColorSelected = appConfig->getColor("editor.outlineColorSelected");
     }
 }

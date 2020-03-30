@@ -49,6 +49,9 @@ namespace af3d
             Color objMarkerColorInactive;
             Color objMarkerColorHovered;
             Color objMarkerColorSelected;
+            Color outlineColorInactive;
+            Color outlineColorHovered;
+            Color outlineColorSelected;
         };
 
         Settings() = default;

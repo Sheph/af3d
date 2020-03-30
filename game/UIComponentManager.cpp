@@ -96,6 +96,9 @@ namespace af3d
 
     RenderNodePtr UIComponentManager::render(VertexArrayWriter& defaultVa)
     {
+        AABB2i viewport(Vector2i(settings.viewX, settings.viewY),
+                Vector2i(settings.viewX + settings.viewWidth, settings.viewY + settings.viewHeight));
+
         Frustum frustum;
 
         frustum.setProjectionType(ProjectionType::Orthographic);
@@ -112,7 +115,7 @@ namespace af3d
         rs.setClearMask(0);
         rs.setCullFaceMode(0);
 
-        RenderList rl(frustum, rs, defaultVa);
+        RenderList rl(viewport, frustum, rs, defaultVa);
 
         for (const auto& c : components_) {
             if (c->visible()) {
@@ -120,13 +123,6 @@ namespace af3d
             }
         }
 
-        auto rn = rl.compile();
-
-        AABB2i viewport(Vector2i(settings.viewX, settings.viewY),
-            Vector2i(settings.viewX + settings.viewWidth, settings.viewY + settings.viewHeight));
-
-        rn->setViewport(viewport);
-
-        return rn;
+        return rl.compile();
     }
 }

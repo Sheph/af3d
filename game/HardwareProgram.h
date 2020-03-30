@@ -51,8 +51,9 @@ namespace af3d
         LightPos, // LightPos = vec4(x,y,z,lightType)
         LightColor, // LightColor = vec3(r,g,b)
         LightDir, // length = distance
+        ViewportSize,
         FirstAuto = ViewProjMatrix,
-        MaxAuto = LightDir,
+        MaxAuto = ViewportSize,
         MainColor, // Light only!
         SpecularColor, // Light only!
         Shininess, // Light only!

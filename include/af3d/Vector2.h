@@ -45,6 +45,16 @@ namespace af3d
             v[1] = _y;
         }
 
+        static Vector2<T> fromVector2i(const Vector2<int>& other)
+        {
+            return Vector2<T>(other.x(), other.y());
+        }
+
+        static Vector2<T> fromVector2f(const Vector2<float>& other)
+        {
+            return Vector2<T>(other.x(), other.y());
+        }
+
         Vector2<T>& operator+=(const Vector2<T>& other)
         {
             v[0] += other.v[0];

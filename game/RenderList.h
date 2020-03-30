@@ -45,6 +45,7 @@ namespace af3d
         RenderImmIndexed(const MaterialPtr& material,
             GLenum primitiveMode,
             float depthValue,
+            const boost::optional<GLenum>& cullFaceMode,
             const ScissorParams& scissorParams,
             RenderList& rl);
         ~RenderImmIndexed();
@@ -57,6 +58,7 @@ namespace af3d
         MaterialPtr material_;
         GLenum primitiveMode_;
         float depthValue_;
+        boost::optional<GLenum> cullFaceMode_;
         ScissorParams scissorParams_;
 
         RenderList& rl_;
@@ -70,6 +72,7 @@ namespace af3d
         RenderImm(const MaterialPtr& material,
             GLenum primitiveMode,
             float depthValue,
+            const boost::optional<GLenum>& cullFaceMode,
             const ScissorParams& scissorParams,
             RenderList& rl);
         ~RenderImm();
@@ -95,6 +98,7 @@ namespace af3d
         MaterialPtr material_;
         GLenum primitiveMode_;
         float depthValue_;
+        boost::optional<GLenum> cullFaceMode_;
         ScissorParams scissorParams_;
 
         RenderList& rl_;
@@ -104,24 +108,31 @@ namespace af3d
     class RenderList : boost::noncopyable
     {
     public:
-        RenderList(const Frustum& frustum, const RenderSettings& rs, VertexArrayWriter& defaultVa);
+        RenderList(const AABB2i& viewport, const Frustum& frustum,
+            const RenderSettings& rs, VertexArrayWriter& defaultVa);
         ~RenderList() = default;
 
         inline const Frustum& frustum() const { return frustum_; }
 
         void addGeometry(const Matrix4f& modelMat, const AABB& aabb, const MaterialPtr& material,
-            const VertexArraySlice& vaSlice, GLenum primitiveMode, float depthValue = 0.0f, const ScissorParams& scissorParams = ScissorParams());
+            const VertexArraySlice& vaSlice, GLenum primitiveMode,
+            float depthValue = 0.0f, const boost::optional<GLenum>& cullFaceMode = boost::optional<GLenum>(),
+            const ScissorParams& scissorParams = ScissorParams());
 
         void addGeometry(const MaterialPtr& material,
-            const VertexArraySlice& vaSlice, GLenum primitiveMode, float depthValue = 0.0f, const ScissorParams& scissorParams = ScissorParams());
+            const VertexArraySlice& vaSlice, GLenum primitiveMode,
+            float depthValue = 0.0f, const boost::optional<GLenum>& cullFaceMode = boost::optional<GLenum>(),
+            const ScissorParams& scissorParams = ScissorParams());
 
         RenderImmIndexed addGeometryIndexed(const MaterialPtr& material,
             GLenum primitiveMode,
-            float depthValue = 0.0f, const ScissorParams& scissorParams = ScissorParams());
+            float depthValue = 0.0f, const boost::optional<GLenum>& cullFaceMode = boost::optional<GLenum>(),
+            const ScissorParams& scissorParams = ScissorParams());
 
         RenderImm addGeometry(const MaterialPtr& material,
             GLenum primitiveMode,
-            float depthValue = 0.0f, const ScissorParams& scissorParams = ScissorParams());
+            float depthValue = 0.0f, const boost::optional<GLenum>& cullFaceMode = boost::optional<GLenum>(),
+            const ScissorParams& scissorParams = ScissorParams());
 
         // Create immediate geometry by using default VAO, use only for small stuff like UI!
         VertexArraySlice createGeometry(const VertexImm* vertices, std::uint32_t numVertices,
@@ -142,11 +153,13 @@ namespace af3d
                 const VertexArraySlice& vaSlice,
                 GLenum primitiveMode,
                 float depthValue,
+                const boost::optional<GLenum>& cullFaceMode,
                 const ScissorParams& scissorParams)
             : material(material),
               vaSlice(vaSlice),
               primitiveMode(primitiveMode),
               depthValue(depthValue),
+              cullFaceMode(cullFaceMode),
               scissorParams(scissorParams)
             {
             }
@@ -156,6 +169,7 @@ namespace af3d
                 const VertexArraySlice& vaSlice,
                 GLenum primitiveMode,
                 float depthValue,
+                const boost::optional<GLenum>& cullFaceMode,
                 const ScissorParams& scissorParams)
             : modelMat(modelMat),
               aabb(aabb),
@@ -163,6 +177,7 @@ namespace af3d
               vaSlice(vaSlice),
               primitiveMode(primitiveMode),
               depthValue(depthValue),
+              cullFaceMode(cullFaceMode),
               scissorParams(scissorParams)
             {
             }
@@ -173,12 +188,16 @@ namespace af3d
             VertexArraySlice vaSlice;
             GLenum primitiveMode;
             float depthValue;
+            boost::optional<GLenum> cullFaceMode;
             ScissorParams scissorParams;
         };
+
+        void setAutoParams(const Geometry& geom, MaterialParams& params) const;
 
         using GeometryList = std::vector<Geometry>;
         using LightList = std::vector<LightPtr>;
 
+        AABB2i viewport_;
         const Frustum& frustum_;
         const RenderSettings& rs_;
         VertexArrayWriter& defaultVa_;

@@ -41,8 +41,9 @@ namespace af3d
         MaterialTypeUnlit = 0, // Unlit shader. pos(3d), color(4d) and one texture(2d)
         MaterialTypeBasic,     // Basic lit shader.
         MaterialTypeImm,       // Immediate draw shader. pos(3d), color(4d) and one texture(2d)
+        MaterialTypeOutline,   // Selection outline.
         MaterialTypeFirst = MaterialTypeUnlit,
-        MaterialTypeMax = MaterialTypeImm
+        MaterialTypeMax = MaterialTypeOutline
     };
 
     class MaterialType : boost::noncopyable

@@ -415,6 +415,7 @@ static bool OGLPreInit()
     GL_GET_PROC(VertexAttribPointer, glVertexAttribPointer);
     GL_GET_PROC(DrawArrays, glDrawArrays);
     GL_GET_PROC(Uniform1fv, glUniform1fv);
+    GL_GET_PROC(Uniform2fv, glUniform2fv);
     GL_GET_PROC(Uniform3fv, glUniform3fv);
     GL_GET_PROC(Uniform4fv, glUniform4fv);
     GL_GET_PROC(Enable, glEnable);

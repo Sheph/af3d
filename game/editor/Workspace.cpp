@@ -246,7 +246,7 @@ namespace editor {
         }, [this]() {
             APropertyValueMap initVals;
             initVals.set("mesh", APropertyValue(meshManager.loadMesh("muro.fbx")));
-            initVals.set(AProperty_Scale, btVector3(0.02f, 0.02f, 0.02f));
+            initVals.set(AProperty_Scale, btVector3(0.01f, 0.01f, 0.01f));
 
             cmdHistory_.add(
                 std::make_shared<CommandAddComponent>(scene(),

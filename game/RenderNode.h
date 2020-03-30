@@ -56,12 +56,11 @@ namespace af3d
     class RenderNode
     {
     public:
-        RenderNode(GLenum clearMask, const Color& clearColor);
+        RenderNode(const AABB2i& viewport, GLenum clearMask, const Color& clearColor);
         RenderNode() = default;
         ~RenderNode() = default;
 
         inline const AABB2i& viewport() const { btAssert(type_ == Type::Root); return viewport_; }
-        inline void setViewport(const AABB2i& value) { btAssert(type_ == Type::Root); viewport_ = value; }
 
         // Returns empty material auto params, these should be filled in by the caller.
         MaterialParams& add(RenderNode&& tmpNode, int pass, const MaterialPtr& material,

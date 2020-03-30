@@ -51,6 +51,11 @@ namespace af3d
             return d.x() <= 0.0f || d.y() <= 0.0f || d.z() <= 0.0f;
         }
 
+        btVector3 getSize() const
+        {
+            return upperBound - lowerBound;
+        }
+
         // Get the center of the AABB.
         btVector3 getCenter() const
         {

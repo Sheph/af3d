@@ -28,12 +28,11 @@
 #include "TextureManager.h"
 #include "Logger.h"
 #include "Platform.h"
+#include "Settings.h"
 #include "af3d/Assert.h"
 
 namespace af3d
 {
-    const std::string MaterialManager::materialUnlitDefault = "_builtin_unlitDefault";
-
     static const struct {
         const char* vert;
         const char* frag;
@@ -41,7 +40,8 @@ namespace af3d
     } shaders[MaterialTypeMax + 1] = {
         {"shaders/unlit.vert", "shaders/unlit.frag", false},
         {"shaders/basic.vert", "shaders/basic.frag", true},
-        {"shaders/imm.vert", "shaders/imm.frag", false}
+        {"shaders/imm.vert", "shaders/imm.frag", false},
+        {"shaders/outline.vert", "shaders/outline.frag", false}
     };
 
     MaterialManager materialManager;
@@ -69,6 +69,10 @@ namespace af3d
     void MaterialManager::shutdown()
     {
         LOG4CPLUS_DEBUG(logger(), "materialManager: shutdown...");
+        matUnlitDefault_.reset();
+        matOutlineInactive_.reset();
+        matOutlineHovered_.reset();
+        matOutlineSelected_.reset();
         runtime_assert(immediateMaterials_.empty());
         cachedMaterials_.clear();
         for (int i = MaterialTypeFirst; i <= MaterialTypeMax; ++i) {
@@ -118,9 +122,17 @@ namespace af3d
             mat->setDefaultUniform(UniformName::Shininess, 1.0f);
         }
 
-        if (first_) {
-            first_ = false;
-            createMaterial(MaterialTypeUnlit, materialUnlitDefault);
+        if (!matUnlitDefault_) {
+            matUnlitDefault_ = createMaterial(MaterialTypeUnlit);
+
+            matOutlineInactive_ = createMaterial(MaterialTypeOutline);
+            matOutlineInactive_->params().setUniform(UniformName::MainColor, settings.editor.outlineColorInactive);
+
+            matOutlineHovered_ = createMaterial(MaterialTypeOutline);
+            matOutlineHovered_->params().setUniform(UniformName::MainColor, settings.editor.outlineColorHovered);
+
+            matOutlineSelected_ = createMaterial(MaterialTypeOutline);
+            matOutlineSelected_->params().setUniform(UniformName::MainColor, settings.editor.outlineColorSelected);
         }
 
         return true;

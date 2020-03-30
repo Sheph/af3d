@@ -211,7 +211,7 @@ namespace af3d
 
     RenderNodePtr RenderComponentManager::render(VertexArrayWriter& defaultVa)
     {
-        RenderList rl(cc_->getFrustum(), cc_->renderSettings(), defaultVa);
+        RenderList rl(cc_->viewport(), cc_->getFrustum(), cc_->renderSettings(), defaultVa);
 
         for (const auto& kv : cullResults_) {
             if (kv.first->visible()) {
@@ -219,11 +219,7 @@ namespace af3d
             }
         }
 
-        auto rn = rl.compile();
-
-        rn->setViewport(cc_->viewport());
-
-        return rn;
+        return rl.compile();
     }
 
     void RenderComponentManager::rayCast(const Frustum& frustum, const Ray& ray, const RayCastRenderFn& fn) const

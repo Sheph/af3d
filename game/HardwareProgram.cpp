@@ -58,6 +58,7 @@ namespace af3d
         {"lightPos", UniformName::LightPos},
         {"lightColor", UniformName::LightColor},
         {"lightDir", UniformName::LightDir},
+        {"viewportSize", UniformName::ViewportSize},
         {"mainColor", UniformName::MainColor},
         {"specularColor", UniformName::SpecularColor},
         {"shininess", UniformName::Shininess}

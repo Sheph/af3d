@@ -75,7 +75,7 @@ namespace af3d
     SceneObjectPtr SceneObjectFactory::createColoredBox(const btVector3& size, const Color& color1, const Color& color2)
     {
         auto mesh = meshManager.createBoxMesh(size,
-            materialManager.getMaterial(MaterialManager::materialUnlitDefault),
+            materialManager.matUnlitDefault(),
             {
                 color2,
                 color1,

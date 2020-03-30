@@ -46,6 +46,11 @@ namespace af3d
         {
         }
 
+        Vector2<T> getSize() const
+        {
+            return upperBound - lowerBound;
+        }
+
         // Get the center of the AABB.
         Vector2<T> getCenter() const
         {

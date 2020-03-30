@@ -29,9 +29,9 @@
 
 namespace af3d
 {
-    RenderNode::RenderNode(GLenum clearMask, const Color& clearColor)
+    RenderNode::RenderNode(const AABB2i& viewport, GLenum clearMask, const Color& clearColor)
     : type_(Type::Root),
-      viewport_(AABB2i_empty),
+      viewport_(viewport),
       clearMask_(clearMask),
       clearColor_(clearColor),
       numDraws_(0)
