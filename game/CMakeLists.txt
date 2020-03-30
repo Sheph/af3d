@@ -76,6 +76,7 @@ set(SOURCES
     Image.cpp
     ImageManager.cpp
     RenderQuadComponent.cpp
+    editor/Action.cpp
     editor/Workspace.cpp
     editor/MainPopup.cpp
     editor/CommandAddObject.cpp

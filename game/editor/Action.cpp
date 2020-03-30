@@ -23,55 +23,49 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "editor/MainPopup.h"
-#include "Const.h"
-#include "Logger.h"
-#include "Scene.h"
-#include "imgui.h"
+#include "Action.h"
+#include "ImGuiUtils.h"
 
-namespace af3d {
-    ACLASS_NS_DEFINE_BEGIN(editor, MainPopup, UIComponent)
-    ACLASS_NS_DEFINE_END(editor, MainPopup)
-
-namespace editor {
-    MainPopup::MainPopup()
-    : UIComponent(AClass_editorMainPopup, zOrderEditor)
+namespace af3d { namespace editor
+{
+    Action::Action(const std::string& text, const StateFn& stateFn, const TriggerFn& triggerFn, const Image& icon)
+    : text_(text),
+      icon_(icon),
+      stateFn_(stateFn),
+      triggerFn_(triggerFn)
     {
     }
 
-    const AClass& MainPopup::staticKlass()
+    void Action::trigger()
     {
-        return AClass_editorMainPopup;
-    }
-
-    AObjectPtr MainPopup::create(const APropertyValueMap& propVals)
-    {
-        auto obj = std::make_shared<MainPopup>();
-        obj->propertiesSet(propVals);
-        return obj;
-    }
-
-    void MainPopup::update(float dt)
-    {
-        if (!ImGui::BeginPopup("MainPopup")) {
-            removeFromParent();
-            return;
+        auto s = state();
+        if (s.enabled && !s.checked) {
+            triggerFn_();
         }
-
-        scene()->workspace()->actionOpMenu().trigger();
-
-        ImGui::EndPopup();
     }
 
-    void MainPopup::onRegister()
+    void Action::doMenu()
     {
-        LOG4CPLUS_DEBUG(logger(), "MainPopup open");
-        ImGui::OpenPopup("MainPopup");
-        update(0);
+        auto s = state();
+        if (ImGui::BeginMenu(text_.c_str(), s.enabled && !s.checked)) {
+            trigger();
+            ImGui::EndMenu();
+        }
     }
 
-    void MainPopup::onUnregister()
+    void Action::doMenuItem()
     {
-        LOG4CPLUS_DEBUG(logger(), "MainPopup closed");
+        auto s = state();
+        if (ImGui::MenuItem(text_.c_str(), nullptr, false, s.enabled && !s.checked)) {
+            trigger();
+        }
+    }
+
+    void Action::doButton(float size)
+    {
+        auto s = state();
+        if (ImGuiUtils::imageButtonTooltip(text_.c_str(), icon(), size, text_.c_str(), s.enabled, s.checked)) {
+            trigger();
+        }
     }
 } }

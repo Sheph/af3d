@@ -23,55 +23,53 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "editor/MainPopup.h"
-#include "Const.h"
-#include "Logger.h"
-#include "Scene.h"
-#include "imgui.h"
+#ifndef _EDITOR_ACTION_H_
+#define _EDITOR_ACTION_H_
 
-namespace af3d {
-    ACLASS_NS_DEFINE_BEGIN(editor, MainPopup, UIComponent)
-    ACLASS_NS_DEFINE_END(editor, MainPopup)
+#include "Image.h"
+#include "af3d/Types.h"
 
-namespace editor {
-    MainPopup::MainPopup()
-    : UIComponent(AClass_editorMainPopup, zOrderEditor)
+namespace af3d { namespace editor
+{
+    class Action
     {
-    }
+    public:
+        struct State
+        {
+            State() = default;
+            explicit State(bool enabled, bool checked = false)
+            : enabled(enabled), checked(checked) {}
 
-    const AClass& MainPopup::staticKlass()
-    {
-        return AClass_editorMainPopup;
-    }
+            bool enabled = false;
+            bool checked = false;
+        };
 
-    AObjectPtr MainPopup::create(const APropertyValueMap& propVals)
-    {
-        auto obj = std::make_shared<MainPopup>();
-        obj->propertiesSet(propVals);
-        return obj;
-    }
+        using StateFn = std::function<State()>;
+        using TriggerFn = std::function<void()>;
 
-    void MainPopup::update(float dt)
-    {
-        if (!ImGui::BeginPopup("MainPopup")) {
-            removeFromParent();
-            return;
-        }
+        Action() = default;
+        Action(const std::string& text, const StateFn& stateFn, const TriggerFn& triggerFn, const Image& icon = Image());
+        ~Action() = default;
 
-        scene()->workspace()->actionOpMenu().trigger();
+        inline const std::string& text() const { return text_; }
+        inline const Image& icon() const { return icon_; }
+        inline State state() const { return stateFn_(); }
 
-        ImGui::EndPopup();
-    }
+        void trigger();
 
-    void MainPopup::onRegister()
-    {
-        LOG4CPLUS_DEBUG(logger(), "MainPopup open");
-        ImGui::OpenPopup("MainPopup");
-        update(0);
-    }
+        void doMenu();
 
-    void MainPopup::onUnregister()
-    {
-        LOG4CPLUS_DEBUG(logger(), "MainPopup closed");
-    }
+        void doMenuItem();
+
+        void doButton(float size);
+
+    private:
+        std::string text_;
+        Image icon_;
+
+        StateFn stateFn_;
+        TriggerFn triggerFn_;
+    };
 } }
+
+#endif

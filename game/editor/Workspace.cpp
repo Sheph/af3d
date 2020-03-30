@@ -71,15 +71,7 @@ namespace editor {
             }
         }
 
-        imgSceneNew_ = imageManager.getImage("common1/scene_new.png");
-        imgSceneOpen_ = imageManager.getImage("common1/scene_open.png");
-        imgSceneSave_ = imageManager.getImage("common1/scene_save.png");
-        imgModeScene_ = imageManager.getImage("common1/mode_scene.png");
-        imgModeObject_ = imageManager.getImage("common1/mode_object.png");
-        imgModeVisual_ = imageManager.getImage("common1/mode_visual.png");
-        imgModeLight_ = imageManager.getImage("common1/mode_light.png");
-        imgUndo_ = imageManager.getImage("common1/undo.png");
-        imgRedo_ = imageManager.getImage("common1/redo.png");
+        setupActions();
     }
 
     const AClass& Workspace::staticKlass()
@@ -108,7 +100,7 @@ namespace editor {
         }
 
         if (inputManager.keyboard().triggered(KI_I)) {
-            openMainPopup();
+            actionMainPopup().trigger();
         }
 
         auto cc = scene()->camera()->findComponent<CameraComponent>();
@@ -125,73 +117,6 @@ namespace editor {
 
     void Workspace::render(RenderList& rl)
     {
-    }
-
-    void Workspace::actionMenu()
-    {
-        actionMenuAdd();
-    }
-
-    void Workspace::actionMenuAdd()
-    {
-        if (!ImGui::BeginMenu("Add")) {
-            return;
-        }
-
-        actionMenuAddObject();
-
-        bool objSelected = !emObject_->selected().empty();
-
-        if (ImGui::MenuItem("Mesh", nullptr, false, objSelected)) {
-            addMesh();
-        }
-
-        ImGui::EndMenu();
-    }
-
-    void Workspace::actionMenuAddObject()
-    {
-        if (!ImGui::BeginMenu("Object")) {
-            return;
-        }
-
-        for (const auto& kind : objectKinds()) {
-            if (ImGui::MenuItem(kind.c_str())) {
-                addObject(kind);
-            }
-        }
-
-        ImGui::EndMenu();
-    }
-
-    void Workspace::openMainPopup()
-    {
-        auto popup = parent()->findComponent<MainPopup>();
-        if (popup) {
-            popup->removeFromParent();
-        }
-        popup = std::make_shared<MainPopup>();
-        parent()->addComponent(popup);
-    }
-
-    void Workspace::openCommandHistory()
-    {
-        auto w = parent()->findComponent<CommandHistoryWindow>();
-        if (w) {
-            w->removeFromParent();
-        }
-        w = std::make_shared<CommandHistoryWindow>();
-        parent()->addComponent(w);
-    }
-
-    void Workspace::openPropertyEditor()
-    {
-        auto w = parent()->findComponent<PropertyEditor>();
-        if (w) {
-            w->removeFromParent();
-        }
-        w = std::make_shared<PropertyEditor>();
-        parent()->addComponent(w);
     }
 
     void Workspace::addObject(const std::string& kind)
@@ -215,29 +140,12 @@ namespace editor {
             std::make_shared<CommandSetProperty>(scene(), obj, name, value));
     }
 
-    void Workspace::addMesh()
-    {
-        if (emObject_->selected().empty()) {
-            LOG4CPLUS_WARN(logger(), "Cannot addMesh, no object is selected");
-            return;
-        }
-
-        APropertyValueMap initVals;
-        initVals.set("mesh", APropertyValue(meshManager.loadMesh("muro.fbx")));
-        initVals.set(AProperty_Scale, btVector3(0.02f, 0.02f, 0.02f));
-
-        cmdHistory_.add(
-            std::make_shared<CommandAddComponent>(scene(),
-                emObject_->selected().back(),
-                RenderMeshComponent::staticKlass(), "Mesh", initVals));
-    }
-
     void Workspace::onRegister()
     {
         em_->enter();
 
-        openCommandHistory();
-        openPropertyEditor();
+        actionCommandHistory().trigger();
+        actionPropertyEditor().trigger();
     }
 
     void Workspace::onUnregister()
@@ -246,6 +154,113 @@ namespace editor {
 
         emObject_.reset();
         em_ = nullptr;
+    }
+
+    void Workspace::setupActions()
+    {
+        actionSceneNew_ = Action("New scene", []() {
+            return Action::State(false);
+        }, []() {
+        }, imageManager.getImage("common1/scene_new.png"));
+
+        actionSceneOpen_ = Action("Open scene", []() {
+            return Action::State(false);
+        }, []() {
+        }, imageManager.getImage("common1/scene_open.png"));
+
+        actionSceneSave_ = Action("Save scene", []() {
+            return Action::State(false);
+        }, []() {
+        }, imageManager.getImage("common1/scene_save.png"));
+
+        actionModeScene_ = Action("Edit scene settings", []() {
+            return Action::State(false);
+        }, []() {
+        }, imageManager.getImage("common1/mode_scene.png"));
+
+        actionModeObject_ = Action("Edit objects", []() {
+            return Action::State(true, true);
+        }, []() {
+        }, imageManager.getImage("common1/mode_object.png"));
+
+        actionModeVisual_ = Action("Edit visuals", []() {
+            return Action::State(false);
+        }, []() {
+        }, imageManager.getImage("common1/mode_visual.png"));
+
+        actionModeLight_ = Action("Edit lights", []() {
+            return Action::State(false);
+        }, []() {
+        }, imageManager.getImage("common1/mode_light.png"));
+
+        actionUndo_ = Action("Undo", [this]() {
+            return Action::State(cmdHistory_.pos() > 0);
+        }, [this]() {
+            cmdHistory_.undo(1);
+        }, imageManager.getImage("common1/undo.png"));
+
+        actionRedo_ = Action("Redo", [this]() {
+            return Action::State(cmdHistory_.pos() < static_cast<int>(cmdHistory_.list().size()));
+        }, [this]() {
+            cmdHistory_.redo(1);
+        }, imageManager.getImage("common1/redo.png"));
+
+        actionOpMenu_ = Action("", []() {
+            return Action::State(true);
+        }, [this]() {
+            actionOpMenuAdd_.doMenu();
+        });
+
+        actionOpMenuAdd_ = Action("Add", []() {
+            return Action::State(true);
+        }, [this]() {
+            actionOpMenuAddObject_.doMenu();
+            actionOpMenuAddMesh_.doMenuItem();
+        });
+
+        actionOpMenuAddObject_ = Action("Object", []() {
+            return Action::State(true);
+        }, [this]() {
+            for (const auto& kind : objectKinds()) {
+                if (ImGui::MenuItem(kind.c_str())) {
+                    addObject(kind);
+                }
+            }
+        });
+
+        actionOpMenuAddMesh_ = Action("Mesh", [this]() {
+            return Action::State(!emObject_->selected().empty());
+        }, [this]() {
+            APropertyValueMap initVals;
+            initVals.set("mesh", APropertyValue(meshManager.loadMesh("muro.fbx")));
+            initVals.set(AProperty_Scale, btVector3(0.02f, 0.02f, 0.02f));
+
+            cmdHistory_.add(
+                std::make_shared<CommandAddComponent>(scene(),
+                    emObject_->selected().back(),
+                    RenderMeshComponent::staticKlass(), "Mesh", initVals));
+        });
+
+        actionMainPopup_ = Action("", [this]() {
+            return Action::State(!parent()->findComponent<MainPopup>());
+        }, [this]() {
+            auto popup = std::make_shared<MainPopup>();
+            parent()->addComponent(popup);
+        });
+
+        actionCommandHistory_ = Action("Command History", [this]() {
+            return Action::State(!parent()->findComponent<CommandHistoryWindow>());
+        }, [this]() {
+            auto w = std::make_shared<CommandHistoryWindow>();
+            parent()->addComponent(w);
+        });
+
+        actionPropertyEditor_ = Action("Properties", [this]() {
+            return Action::State(!parent()->findComponent<PropertyEditor>());
+        }, [this]() {
+            auto w = std::make_shared<PropertyEditor>();
+            parent()->addComponent(w);
+        });
     }
 
     float Workspace::mainMenu()
@@ -279,9 +294,9 @@ namespace editor {
     void Workspace::mainMenuContents()
     {
         if (ImGui::BeginMenu("File")) {
-            ImGui::MenuItem("New scene", nullptr, false, false);
-            ImGui::MenuItem("Open scene", nullptr, false, false);
-            ImGui::MenuItem("Save scene", nullptr, false, false);
+            actionSceneNew().doMenuItem();
+            actionSceneOpen().doMenuItem();
+            actionSceneSave().doMenuItem();
             ImGui::Separator();
             if (ImGui::MenuItem("Exit")) {
                 scene()->setQuit(true);
@@ -289,15 +304,20 @@ namespace editor {
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Edit")) {
-            ImGui::MenuItem("Edit objects");
-            ImGui::MenuItem("Edit visuals");
-            ImGui::MenuItem("Edit lights");
-            ImGui::MenuItem("Edit scene settings");
+            actionModeObject().doMenuItem();
+            actionModeVisual().doMenuItem();
+            actionModeLight().doMenuItem();
+            actionModeScene().doMenuItem();
             ImGui::Separator();
-            ImGui::MenuItem("Undo");
-            ImGui::MenuItem("Redo", nullptr, false, false);
+            actionUndo().doMenuItem();
+            actionRedo().doMenuItem();
             ImGui::Separator();
-            actionMenu();
+            actionOpMenu_.trigger();
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("Window")) {
+            actionCommandHistory().doMenuItem();
+            actionPropertyEditor().doMenuItem();
             ImGui::EndMenu();
         }
     }
@@ -333,28 +353,27 @@ namespace editor {
 
     void Workspace::mainToolbarContents()
     {
-        toolbarButton("sceneNew", imgSceneNew_, "New scene", false);
-        toolbarButton("sceneOpen", imgSceneOpen_, "Open scene", false);
-        toolbarButton("sceneSave", imgSceneSave_, "Save scene", false);
+        toolbarButton(actionSceneNew());
+        toolbarButton(actionSceneOpen());
+        toolbarButton(actionSceneSave());
 
         toolbarSep();
 
-        toolbarButton("modeObject", imgModeObject_, "Edit objects", true, true);
-        toolbarButton("modeVisual", imgModeVisual_, "Edit visuals");
-        toolbarButton("modeLight", imgModeLight_, "Edit lights", false);
-        toolbarButton("modeScene", imgModeScene_, "Edit scene settings", false);
+        toolbarButton(actionModeObject());
+        toolbarButton(actionModeVisual());
+        toolbarButton(actionModeLight());
+        toolbarButton(actionModeScene());
 
         toolbarSep();
 
-        toolbarButton("undo", imgUndo_, "Undo");
-        toolbarButton("redo", imgRedo_, "Redo");
+        toolbarButton(actionUndo());
+        toolbarButton(actionRedo());
     }
 
-    bool Workspace::toolbarButton(const char* id, const Image& image, const char* tooltip, bool enabled, bool checked)
+    void Workspace::toolbarButton(Action& action)
     {
-        bool res = ImGuiUtils::imageButtonTooltip(id, image, 28.0f, tooltip, enabled, checked);
+        action.doButton(28.0f);
         ImGui::SameLine();
-        return res;
     }
 
     void Workspace::toolbarSep()

@@ -29,7 +29,7 @@
 #include "editor/CommandHistory.h"
 #include "editor/EditModeObjectImpl.h"
 #include "UIComponent.h"
-#include "Image.h"
+#include "Action.h"
 
 namespace af3d { namespace editor
 {
@@ -58,29 +58,36 @@ namespace af3d { namespace editor
 
         inline CommandHistory& cmdHistory() { return cmdHistory_; }
 
-        void actionMenu();
+        inline Action& actionSceneNew() { return actionSceneNew_; }
+        inline Action& actionSceneOpen() { return actionSceneOpen_; }
+        inline Action& actionSceneSave() { return actionSceneSave_; }
+        inline Action& actionModeScene() { return actionModeScene_; }
+        inline Action& actionModeObject() { return actionModeObject_; }
+        inline Action& actionModeVisual() { return actionModeVisual_; }
+        inline Action& actionModeLight() { return actionModeLight_; }
+        inline Action& actionUndo() { return actionUndo_; }
+        inline Action& actionRedo() { return actionRedo_; }
 
-        void actionMenuAdd();
+        inline Action& actionOpMenu() { return actionOpMenu_; }
+        inline Action& actionOpMenuAdd() { return actionOpMenuAdd_; }
+        inline Action& actionOpMenuAddObject() { return actionOpMenuAddObject_; }
+        inline Action& actionOpMenuAddMesh() { return actionOpMenuAddMesh_; }
 
-        void actionMenuAddObject();
-
-        void openMainPopup();
-
-        void openCommandHistory();
-
-        void openPropertyEditor();
+        inline Action& actionMainPopup() { return actionMainPopup_; }
+        inline Action& actionCommandHistory() { return actionCommandHistory_; }
+        inline Action& actionPropertyEditor() { return actionPropertyEditor_; }
 
         void addObject(const std::string& kind);
 
         void setProperty(const AObjectPtr& obj,
             const std::string& name, const APropertyValue& value);
 
-        void addMesh();
-
     private:
         void onRegister() override;
 
         void onUnregister() override;
+
+        void setupActions();
 
         float mainMenu();
 
@@ -90,7 +97,7 @@ namespace af3d { namespace editor
 
         void mainToolbarContents();
 
-        static bool toolbarButton(const char* id, const Image& image, const char* tooltip, bool enabled = true, bool checked = false);
+        static void toolbarButton(Action& action);
 
         static void toolbarSep();
 
@@ -102,15 +109,24 @@ namespace af3d { namespace editor
 
         CommandHistory cmdHistory_;
 
-        Image imgSceneNew_;
-        Image imgSceneOpen_;
-        Image imgSceneSave_;
-        Image imgModeScene_;
-        Image imgModeObject_;
-        Image imgModeVisual_;
-        Image imgModeLight_;
-        Image imgUndo_;
-        Image imgRedo_;
+        Action actionSceneNew_;
+        Action actionSceneOpen_;
+        Action actionSceneSave_;
+        Action actionModeScene_;
+        Action actionModeObject_;
+        Action actionModeVisual_;
+        Action actionModeLight_;
+        Action actionUndo_;
+        Action actionRedo_;
+
+        Action actionOpMenu_;
+        Action actionOpMenuAdd_;
+        Action actionOpMenuAddObject_;
+        Action actionOpMenuAddMesh_;
+
+        Action actionMainPopup_;
+        Action actionCommandHistory_;
+        Action actionPropertyEditor_;
     };
 
     using WorkspacePtr = std::shared_ptr<Workspace>;
