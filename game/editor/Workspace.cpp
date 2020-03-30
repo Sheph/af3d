@@ -242,16 +242,25 @@ namespace editor {
     void Workspace::mainMenuContents()
     {
         if (ImGui::BeginMenu("File")) {
-            ImGui::MenuItem("Exit");
+            ImGui::MenuItem("New scene", nullptr, false, false);
+            ImGui::MenuItem("Open scene", nullptr, false, false);
+            ImGui::MenuItem("Save scene", nullptr, false, false);
+            ImGui::Separator();
+            if (ImGui::MenuItem("Exit")) {
+                scene()->setQuit(true);
+            }
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Edit")) {
-            ImGui::MenuItem("Undo", "CTRL+Z");
-            ImGui::MenuItem("Redo", "CTRL+Y", false, false);
-            ImGui::Separator();
-            ImGui::MenuItem("Cut", "CTRL+X");
-            ImGui::MenuItem("Copy", "CTRL+C");
-            ImGui::MenuItem("Paste", "CTRL+V");
+            ImGui::MenuItem("Undo");
+            ImGui::MenuItem("Redo", nullptr, false, false);
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("Scene")) {
+            ImGui::MenuItem("Edit objects");
+            ImGui::MenuItem("Edit visuals");
+            ImGui::MenuItem("Edit lights");
+            ImGui::MenuItem("Edit scene settings");
             ImGui::EndMenu();
         }
     }
@@ -293,10 +302,10 @@ namespace editor {
 
         toolbarSep();
 
-        toolbarButton("modeObject", imgModeObject_, "Objects edit mode", true, true);
-        toolbarButton("modeVisual", imgModeVisual_, "Visuals edit mode");
-        toolbarButton("modeLight", imgModeLight_, "Lights edit mode", false);
-        toolbarButton("modeScene", imgModeScene_, "Scene edit mode", false);
+        toolbarButton("modeObject", imgModeObject_, "Edit objects", true, true);
+        toolbarButton("modeVisual", imgModeVisual_, "Edit visuals");
+        toolbarButton("modeLight", imgModeLight_, "Edit lights", false);
+        toolbarButton("modeScene", imgModeScene_, "Edit scene settings", false);
 
         toolbarSep();
 
