@@ -142,6 +142,7 @@ namespace af3d { namespace ImGuiUtils
 
         void visitObject(const APropertyTypeObject& type) override
         {
+            ImGui::Button("...");
         }
 
         void visitTransform(const APropertyTypeTransform& type) override
