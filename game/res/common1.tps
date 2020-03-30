@@ -180,6 +180,15 @@
         <key>fileList</key>
         <array>
             <filename>common1/marker1.png</filename>
+            <filename>common1/mode_light.png</filename>
+            <filename>common1/mode_object.png</filename>
+            <filename>common1/mode_scene.png</filename>
+            <filename>common1/mode_visual.png</filename>
+            <filename>common1/redo.png</filename>
+            <filename>common1/scene_new.png</filename>
+            <filename>common1/scene_open.png</filename>
+            <filename>common1/scene_save.png</filename>
+            <filename>common1/undo.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>

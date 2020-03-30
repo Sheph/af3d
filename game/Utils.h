@@ -27,10 +27,12 @@
 #define _UTILS_H_
 
 #include "af3d/Types.h"
+#include "af3d/Vector2.h"
 #include "af3d/Vector4.h"
 #include "af3d/Utils.h"
 #include "assimp/Importer.hpp"
 #include "assimp/scene.h"
+#include "imgui.h"
 #include <memory>
 
 namespace af3d
@@ -49,6 +51,16 @@ namespace af3d
     inline Color fromAssimp(const aiColor4D& c)
     {
         return Color(c.r, c.g, c.b, c.a);
+    }
+
+    inline Vector2f fromImVec2(const ImVec2& v)
+    {
+        return Vector2f(v.x, v.y);
+    }
+
+    inline ImVec2 toImVec2(const Vector2f& v)
+    {
+        return ImVec2(v.x(), v.y());
     }
 }
 

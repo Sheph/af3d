@@ -26,9 +26,10 @@
 #ifndef _EDITOR_WORKSPACE_H_
 #define _EDITOR_WORKSPACE_H_
 
-#include "UIComponent.h"
 #include "editor/CommandHistory.h"
 #include "editor/EditModeObjectImpl.h"
+#include "UIComponent.h"
+#include "Image.h"
 
 namespace af3d { namespace editor
 {
@@ -75,6 +76,18 @@ namespace af3d { namespace editor
 
         void onUnregister() override;
 
+        float mainMenu();
+
+        void mainMenuContents();
+
+        void mainToolbar(float offsetY);
+
+        void mainToolbarContents();
+
+        static bool toolbarButton(const char* id, const Image& image, const char* tooltip, bool enabled = true, bool checked = false);
+
+        static void toolbarSep();
+
         std::vector<std::string> objectKinds_;
 
         std::unique_ptr<EditModeObjectImpl> emObject_;
@@ -82,6 +95,16 @@ namespace af3d { namespace editor
         EditModeImpl* em_;
 
         CommandHistory cmdHistory_;
+
+        Image imgSceneNew_;
+        Image imgSceneOpen_;
+        Image imgSceneSave_;
+        Image imgModeScene_;
+        Image imgModeObject_;
+        Image imgModeVisual_;
+        Image imgModeLight_;
+        Image imgUndo_;
+        Image imgRedo_;
     };
 
     using WorkspacePtr = std::shared_ptr<Workspace>;

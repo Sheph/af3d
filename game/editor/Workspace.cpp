@@ -38,6 +38,8 @@
 #include "CameraComponent.h"
 #include "RenderMeshComponent.h"
 #include "MeshManager.h"
+#include "ImageManager.h"
+#include "ImGuiManager.h"
 #include "Logger.h"
 #include "imgui.h"
 #include <set>
@@ -68,6 +70,16 @@ namespace editor {
                 objectKinds_.push_back(k.substr(std::strlen(prefix)));
             }
         }
+
+        imgSceneNew_ = imageManager.getImage("common1/scene_new.png");
+        imgSceneOpen_ = imageManager.getImage("common1/scene_open.png");
+        imgSceneSave_ = imageManager.getImage("common1/scene_save.png");
+        imgModeScene_ = imageManager.getImage("common1/mode_scene.png");
+        imgModeObject_ = imageManager.getImage("common1/mode_object.png");
+        imgModeVisual_ = imageManager.getImage("common1/mode_visual.png");
+        imgModeLight_ = imageManager.getImage("common1/mode_light.png");
+        imgUndo_ = imageManager.getImage("common1/undo.png");
+        imgRedo_ = imageManager.getImage("common1/redo.png");
     }
 
     const AClass& Workspace::staticKlass()
@@ -84,6 +96,9 @@ namespace editor {
 
     void Workspace::update(float dt)
     {
+        float mainMenuH = mainMenu();
+        mainToolbar(mainMenuH);
+
         ImGuiIO& io = ImGui::GetIO();
 
         em_->setHovered(EditMode::AList());
@@ -194,5 +209,114 @@ namespace editor {
 
         emObject_.reset();
         em_ = nullptr;
+    }
+
+    float Workspace::mainMenu()
+    {
+        const ImGuiStyle& style = ImGui::GetStyle();
+
+        auto c1 = style.Colors[ImGuiCol_WindowBg];
+        auto c2 = style.Colors[ImGuiCol_MenuBarBg];
+        c2.w = c1.w;
+
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+        ImGui::PushStyleColor(ImGuiCol_MenuBarBg, c2);
+
+        float h = 0.0f;
+
+        ImGui::SetNextWindowBgAlpha(0.0f);
+        if (ImGui::BeginMainMenuBar()) {
+            mainMenuContents();
+
+            h = ImGui::GetWindowHeight();
+
+            ImGui::EndMainMenuBar();
+        }
+
+        ImGui::PopStyleVar();
+        ImGui::PopStyleColor();
+
+        return h;
+    }
+
+    void Workspace::mainMenuContents()
+    {
+        if (ImGui::BeginMenu("File")) {
+            ImGui::MenuItem("Exit");
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("Edit")) {
+            ImGui::MenuItem("Undo", "CTRL+Z");
+            ImGui::MenuItem("Redo", "CTRL+Y", false, false);
+            ImGui::Separator();
+            ImGui::MenuItem("Cut", "CTRL+X");
+            ImGui::MenuItem("Copy", "CTRL+C");
+            ImGui::MenuItem("Paste", "CTRL+V");
+            ImGui::EndMenu();
+        }
+    }
+
+    void Workspace::mainToolbar(float offsetY)
+    {
+        ImGuiIO& io = ImGui::GetIO();
+
+        ImGui::SetNextWindowPos(ImVec2(0, offsetY));
+        ImGui::SetNextWindowSizeConstraints(ImVec2(io.DisplaySize.x, -1), ImVec2(io.DisplaySize.x, -1));
+
+        ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoTitleBar |
+            ImGuiWindowFlags_NoResize |
+            ImGuiWindowFlags_NoMove |
+            ImGuiWindowFlags_NoScrollbar |
+            ImGuiWindowFlags_NoSavedSettings;
+
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(5, 5));
+
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(5, 5));
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(0, 0));
+        ImGui::Begin("MainToolbar", nullptr, windowFlags);
+        ImGui::PopStyleVar(4);
+
+        mainToolbarContents();
+
+        ImGui::End();
+
+        ImGui::PopStyleVar();
+    }
+
+    void Workspace::mainToolbarContents()
+    {
+        toolbarButton("sceneNew", imgSceneNew_, "New scene", false);
+        toolbarButton("sceneOpen", imgSceneOpen_, "Open scene", false);
+        toolbarButton("sceneSave", imgSceneSave_, "Save scene", false);
+
+        toolbarSep();
+
+        toolbarButton("modeObject", imgModeObject_, "Objects edit mode", true, true);
+        toolbarButton("modeVisual", imgModeVisual_, "Visuals edit mode");
+        toolbarButton("modeLight", imgModeLight_, "Lights edit mode", false);
+        toolbarButton("modeScene", imgModeScene_, "Scene edit mode", false);
+
+        toolbarSep();
+
+        toolbarButton("undo", imgUndo_, "Undo");
+        toolbarButton("redo", imgRedo_, "Redo");
+    }
+
+    bool Workspace::toolbarButton(const char* id, const Image& image, const char* tooltip, bool enabled, bool checked)
+    {
+        bool res = ImGuiUtils::imageButtonTooltip(id, image, 28.0f, tooltip, enabled, checked);
+        ImGui::SameLine();
+        return res;
+    }
+
+    void Workspace::toolbarSep()
+    {
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 8));
+        ImGui::AlignTextToFramePadding();
+        ImGui::Text("|");
+        ImGui::PopStyleVar();
+        ImGui::SameLine();
     }
 } }

@@ -24,6 +24,7 @@
  */
 
 #include "ImGuiUtils.h"
+#include "ImGuiManager.h"
 
 namespace af3d { namespace ImGuiUtils
 {
@@ -239,5 +240,53 @@ namespace af3d { namespace ImGuiUtils
         cb_user_data.ChainCallback = callback;
         cb_user_data.ChainCallbackUserData = user_data;
         return ImGui::InputTextWithHint(label, hint, (char*)str.c_str(), str.capacity() + 1, flags, inputTextCallback, &cb_user_data);
+    }
+
+    bool imageButton(const char* id, const Image& image, float size, bool enabled, bool checked)
+    {
+        const ImGuiStyle& style = ImGui::GetStyle();
+
+        auto aabb = image.texCoordsAABBFlipped();
+
+        bool needPop = false;
+
+        ImGui::PushID(id);
+        if (checked) {
+            if (enabled) {
+                ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_ButtonActive]);
+                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::GetStyle().Colors[ImGuiCol_ButtonActive]);
+                ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImGui::GetStyle().Colors[ImGuiCol_ButtonActive]);
+            } else {
+                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.8f, 0.8f, 0.8f, 1.0f));
+                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.8f, 0.8f, 0.8f, 1.0f));
+                ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.8f, 0.8f, 0.8f, 1.0f));
+            }
+            needPop = true;
+        } else if (!enabled) {
+            ImGui::PushStyleColor(ImGuiCol_Button, style.Colors[ImGuiCol_TextDisabled]);
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, style.Colors[ImGuiCol_TextDisabled]);
+            ImGui::PushStyleColor(ImGuiCol_ButtonActive, style.Colors[ImGuiCol_TextDisabled]);
+            needPop = true;
+        }
+        bool res = ImGui::ImageButton(imGuiManager.toTextureId(image.texture()), ImVec2(size, size),
+            toImVec2(aabb.upperBound), toImVec2(aabb.lowerBound), 2,
+            style.Colors[ImGuiCol_WindowBg],
+            (enabled ? ImVec4(1.0f, 1.0f, 1.0f, 1.0f) : style.Colors[ImGuiCol_TextDisabled]));
+        if (needPop) {
+            ImGui::PopStyleColor(3);
+        }
+        ImGui::PopID();
+        return res;
+    }
+
+    bool imageButtonTooltip(const char* id, const Image& image, float size, const char* tooltip, bool enabled, bool checked)
+    {
+        bool res = imageButton(id, image, size, enabled, checked);
+        if (ImGui::IsItemHovered()) {
+            ImGui::BeginTooltip();
+            ImGui::Text("%s", tooltip);
+            ImGui::EndTooltip();
+        }
+        return res;
     }
 } }

@@ -27,6 +27,7 @@
 #define _IMAGE_H_
 
 #include "Texture.h"
+#include "af3d/AABB2.h"
 
 namespace af3d
 {
@@ -42,6 +43,9 @@ namespace af3d
         inline const TexturePtr& texture() const { return texture_; }
 
         inline const std::array<Vector2f, 4>& texCoords() const { return texCoords_; }
+
+        AABB2f texCoordsAABB() const;
+        AABB2f texCoordsAABBFlipped() const;
 
         inline float aspect() const { return aspect_; }
 

@@ -24,7 +24,6 @@
  */
 
 #include "Image.h"
-#include "af3d/AABB2.h"
 
 namespace af3d
 {
@@ -62,5 +61,15 @@ namespace af3d
         texCoords_[3][1] = aabb.upperBound.y();
 
         aspect_ = static_cast<float>(width) / height;
+    }
+
+    AABB2f Image::texCoordsAABB() const
+    {
+        return AABB2f(texCoords_[0], texCoords_[2]);
+    }
+
+    AABB2f Image::texCoordsAABBFlipped() const
+    {
+        return AABB2f(texCoords_[1], texCoords_[3]);
     }
 }

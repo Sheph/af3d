@@ -65,6 +65,8 @@ namespace af3d
             return;
         }
 
+        float depthValue = zOrder();
+
         MaterialPtr mat;
         ImTextureID lastTexId;
 
@@ -106,6 +108,11 @@ namespace af3d
                         scissorParams.height = clipRect.w - clipRect.y;
 
                         if (!mat || lastTexId != pcmd->TextureId) {
+                            if (mat) {
+                                // FIXME: dirty hack to make different materials render one by one.
+                                // Will fix this once different render list compilers are in place.
+                                depthValue += 1.0f;
+                            }
                             mat = material_->clone();
                             mat->setTextureBinding(SamplerName::Main,
                                 TextureBinding(imGuiManager.fromTextureId(pcmd->TextureId)));
@@ -115,7 +122,7 @@ namespace af3d
 
                         rl.addGeometry(mat, vaSlice.subSlice(pcmd->IdxOffset,
                             pcmd->ElemCount, pcmd->VtxOffset),
-                            GL_TRIANGLES, zOrder(), scissorParams);
+                            GL_TRIANGLES, depthValue, scissorParams);
                     }
                 }
             }
