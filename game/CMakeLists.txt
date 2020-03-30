@@ -88,6 +88,7 @@ set(SOURCES
     editor/ObjectComponent.cpp
     editor/EditModeImpl.cpp
     editor/EditModeObjectImpl.cpp
+    editor/EditModeVisualImpl.cpp
     editor/PropertyEditor.cpp
 )
 

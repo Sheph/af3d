@@ -28,6 +28,7 @@
 
 #include "editor/CommandHistory.h"
 #include "editor/EditModeObjectImpl.h"
+#include "editor/EditModeVisualImpl.h"
 #include "UIComponent.h"
 #include "Action.h"
 
@@ -52,9 +53,10 @@ namespace af3d { namespace editor
 
         inline const std::vector<std::string>& objectKinds() const { return objectKinds_; }
 
-        inline const EditModeObject* emObject() { return emObject_.get(); }
+        inline EditModeObject* emObject() { return emObject_.get(); }
+        inline EditModeVisual* emVisual() { return emVisual_.get(); }
 
-        inline const EditMode* em() { return em_; }
+        inline EditMode* em() { return em_; }
 
         inline CommandHistory& cmdHistory() { return cmdHistory_; }
 
@@ -82,6 +84,8 @@ namespace af3d { namespace editor
         void setProperty(const AObjectPtr& obj,
             const std::string& name, const APropertyValue& value);
 
+        void setEditMode(EditModeImpl* value);
+
     private:
         void onRegister() override;
 
@@ -104,6 +108,7 @@ namespace af3d { namespace editor
         std::vector<std::string> objectKinds_;
 
         std::unique_ptr<EditModeObjectImpl> emObject_;
+        std::unique_ptr<EditModeVisualImpl> emVisual_;
 
         EditModeImpl* em_;
 

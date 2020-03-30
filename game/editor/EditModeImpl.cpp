@@ -40,6 +40,11 @@ namespace af3d { namespace editor
         return active_;
     }
 
+    void EditModeImpl::activate()
+    {
+        workspace_->setEditMode(this);
+    }
+
     const EditMode::AList& EditModeImpl::hovered() const
     {
         for (auto it = hovered_.begin(); it != hovered_.end();) {

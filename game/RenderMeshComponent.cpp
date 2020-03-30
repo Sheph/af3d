@@ -24,6 +24,7 @@
  */
 
 #include "RenderMeshComponent.h"
+#include "Scene.h"
 
 namespace af3d
 {
@@ -71,6 +72,15 @@ namespace af3d
 
     void RenderMeshComponent::render(RenderList& rl, void* const* parts, size_t numParts)
     {
+        auto w = scene()->workspace();
+        if (w) {
+            auto em = w->emVisual();
+            if (em->active()) {
+                if (em->isHovered(shared_from_this())) {
+                }
+            }
+        }
+
         auto modelMat = Matrix4f(parent()->transform() * xf_).scaled(scale_);
         for (const auto& subMesh : mesh_->subMeshes()) {
             rl.addGeometry(modelMat, prevAABB_, subMesh->material(), subMesh->vaSlice(), GL_TRIANGLES);

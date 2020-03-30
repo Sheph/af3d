@@ -23,62 +23,41 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _EDITOR_EDITMODE_IMPL_H_
-#define _EDITOR_EDITMODE_IMPL_H_
+#include "editor/EditModeVisualImpl.h"
+#include "Scene.h"
+#include "SceneObject.h"
 
-#include "editor/EditMode.h"
-
-namespace af3d {
-    class Scene;
-
-namespace editor
+namespace af3d { namespace editor
 {
-    class Workspace;
-
-    class EditModeImpl : public virtual EditMode
+    EditModeVisualImpl::EditModeVisualImpl(Workspace* workspace)
+    : EditModeImpl(workspace, "visual")
     {
-    public:
-        EditModeImpl(Workspace* workspace, const std::string& name);
-        ~EditModeImpl() = default;
+    }
 
-        const std::string& name() const override { return name_; }
+    AObjectPtr EditModeVisualImpl::rayCast(const Frustum& frustum, const Ray& ray) const
+    {
+        RenderComponentPtr res;
 
-        bool active() const override;
+        scene()->rayCastRender(frustum, ray, [&res](const RenderComponentPtr& r, const AObjectPtr&, const btVector3&, float dist) {
+            if ((r->aflags() & AObjectEditable) == 0) {
+                return -1.0f;
+            }
+            res = r;
+            return dist;
+        });
 
-        void activate() override;
+        return res;
+    }
 
-        const AList& hovered() const override;
+    bool EditModeVisualImpl::isValid(const AObjectPtr& obj) const
+    {
+        auto r = aobjectCast<RenderComponent>(obj);
+        return r && ((r->aflags() & AObjectEditable) != 0);
+    }
 
-        const AList& selected() const override;
-
-        bool isHovered(const AObjectPtr& obj) const override;
-
-        bool isSelected(const AObjectPtr& obj) const override;
-
-        void select(AList&& objs) override;
-
-        void enter();
-
-        void leave();
-
-        void setHovered(AList&& objs);
-
-        void setSelected(AList&& objs);
-
-    protected:
-        inline Workspace& workspace() { return *workspace_; }
-        inline const Workspace& workspace() const { return *workspace_; }
-        Scene* scene();
-        const Scene* scene() const;
-
-    private:
-        Workspace* workspace_;
-        std::string name_;
-
-        bool active_ = false;
-        mutable AList hovered_;
-        mutable AList selected_;
-    };
+    bool EditModeVisualImpl::isAlive(const AObjectPtr& obj) const
+    {
+        auto r = std::static_pointer_cast<RenderComponent>(obj);
+        return r->parent();
+    }
 } }
-
-#endif

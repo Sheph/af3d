@@ -51,7 +51,8 @@ namespace af3d {
 namespace editor {
     Workspace::Workspace()
     : UIComponent(AClass_editorWorkspace, zOrderEditor),
-      emObject_(new EditModeObjectImpl(this))
+      emObject_(new EditModeObjectImpl(this)),
+      emVisual_(new EditModeVisualImpl(this))
     {
         static const char* prefix = "SceneObject";
 
@@ -140,6 +141,16 @@ namespace editor {
             std::make_shared<CommandSetProperty>(scene(), obj, name, value));
     }
 
+    void Workspace::setEditMode(EditModeImpl* value)
+    {
+        if (value->active()) {
+            return;
+        }
+        em_->leave();
+        em_ = value;
+        em_->enter();
+    }
+
     void Workspace::onRegister()
     {
         em_->enter();
@@ -178,14 +189,16 @@ namespace editor {
         }, []() {
         }, imageManager.getImage("common1/mode_scene.png"));
 
-        actionModeObject_ = Action("Edit objects", []() {
-            return Action::State(true, true);
-        }, []() {
+        actionModeObject_ = Action("Edit objects", [this]() {
+            return Action::State(true, emObject_->active());
+        }, [this]() {
+            emObject_->activate();
         }, imageManager.getImage("common1/mode_object.png"));
 
-        actionModeVisual_ = Action("Edit visuals", []() {
-            return Action::State(false);
-        }, []() {
+        actionModeVisual_ = Action("Edit visuals", [this]() {
+            return Action::State(true, emVisual_->active());
+        }, [this]() {
+            emVisual_->activate();
         }, imageManager.getImage("common1/mode_visual.png"));
 
         actionModeLight_ = Action("Edit lights", []() {

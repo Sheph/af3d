@@ -47,6 +47,8 @@ namespace af3d { namespace editor
 
         virtual bool active() const = 0;
 
+        virtual void activate() = 0;
+
         virtual const AList& hovered() const = 0;
 
         virtual const AList& selected() const = 0;
