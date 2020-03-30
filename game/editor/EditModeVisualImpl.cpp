@@ -34,6 +34,24 @@ namespace af3d { namespace editor
     {
     }
 
+    EditModeVisual::TList EditModeVisualImpl::hoveredTyped() const
+    {
+        TList res;
+        for (const auto& obj : hovered()) {
+            res.push_back(std::static_pointer_cast<RenderComponent>(obj));
+        }
+        return res;
+    }
+
+    EditModeVisual::TList EditModeVisualImpl::selectedTyped() const
+    {
+        TList res;
+        for (const auto& obj : selected()) {
+            res.push_back(std::static_pointer_cast<RenderComponent>(obj));
+        }
+        return res;
+    }
+
     AObjectPtr EditModeVisualImpl::rayCast(const Frustum& frustum, const Ray& ray) const
     {
         RenderComponentPtr res;

@@ -55,13 +55,38 @@ namespace editor {
     {
         auto emObject = scene()->workspace()->emObject();
 
-        markerRc_->setVisible(emObject->active());
+        bool showMarker = emObject->active();
 
-        if (emObject->active()) {
-            if (emObject->isSelected(parent()->shared_from_this())) {
-                markerRc_->setColor(settings.editor.objMarkerColorSelected);
-            } else if (emObject->isHovered(parent()->shared_from_this())) {
-                markerRc_->setColor(settings.editor.objMarkerColorHovered);
+        if (!showMarker) {
+            auto selected = scene()->workspace()->emVisual()->selectedTyped();
+            for (const auto& rc : selected) {
+                if (rc->parent() == parent()) {
+                    showMarker = true;
+                    break;
+                }
+            }
+            if (!showMarker) {
+                auto hovered = scene()->workspace()->emVisual()->hoveredTyped();
+                for (const auto& rc : hovered) {
+                    if (rc->parent() == parent()) {
+                        showMarker = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        markerRc_->setVisible(showMarker);
+
+        if (showMarker) {
+            if (emObject->active()) {
+                if (emObject->isSelected(parent()->shared_from_this())) {
+                    markerRc_->setColor(settings.editor.objMarkerColorSelected);
+                } else if (emObject->isHovered(parent()->shared_from_this())) {
+                    markerRc_->setColor(settings.editor.objMarkerColorHovered);
+                } else {
+                    markerRc_->setColor(settings.editor.objMarkerColorInactive);
+                }
             } else {
                 markerRc_->setColor(settings.editor.objMarkerColorInactive);
             }
@@ -77,6 +102,7 @@ namespace editor {
         markerRc_->setViewportHeight((float)settings.editor.objMarkerSizePixels / settings.viewHeight);
         markerRc_->setColor(settings.editor.objMarkerColorInactive);
         markerRc_->aflagsSet(AObjectMarkerObject);
+        markerRc_->setVisible(false);
         parent()->addComponent(markerRc_);
     }
 

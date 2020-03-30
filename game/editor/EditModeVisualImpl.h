@@ -38,6 +38,10 @@ namespace af3d { namespace editor
         explicit EditModeVisualImpl(Workspace* workspace);
         ~EditModeVisualImpl() = default;
 
+        TList hoveredTyped() const override;
+
+        TList selectedTyped() const override;
+
         AObjectPtr rayCast(const Frustum& frustum, const Ray& ray) const override;
 
         bool isValid(const AObjectPtr& obj) const override;

@@ -27,14 +27,21 @@
 #define _EDITOR_EDITMODE_VISUAL_H_
 
 #include "editor/EditMode.h"
+#include <RenderComponent.h>
 
 namespace af3d { namespace editor
 {
     class EditModeVisual : public virtual EditMode
     {
     public:
+        using TList = std::list<RenderComponentPtr>;
+
         EditModeVisual() = default;
         ~EditModeVisual() = default;
+
+        virtual TList hoveredTyped() const = 0;
+
+        virtual TList selectedTyped() const = 0;
     };
 } }
 
