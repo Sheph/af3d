@@ -58,46 +58,13 @@ namespace editor {
             return;
         }
 
-        menuAdd();
+        scene()->workspace()->actionMenu();
 
         ImGui::EndPopup();
     }
 
-    void MainPopup::menuAdd()
-    {
-        if (!ImGui::BeginMenu("Add")) {
-            return;
-        }
-
-        menuAddObject();
-
-        bool objSelected = !w_->emObject()->selected().empty();
-
-        if (ImGui::MenuItem("Mesh", nullptr, false, objSelected)) {
-            w_->addMesh();
-        }
-
-        ImGui::EndMenu();
-    }
-
-    void MainPopup::menuAddObject()
-    {
-        if (!ImGui::BeginMenu("Object")) {
-            return;
-        }
-
-        for (const auto& kind : w_->objectKinds()) {
-            if (ImGui::MenuItem(kind.c_str())) {
-                w_->addObject(kind);
-            }
-        }
-
-        ImGui::EndMenu();
-    }
-
     void MainPopup::onRegister()
     {
-        w_ = scene()->workspace().get();
         LOG4CPLUS_DEBUG(logger(), "MainPopup open");
         ImGui::OpenPopup("MainPopup");
         update(0);
@@ -105,7 +72,6 @@ namespace editor {
 
     void MainPopup::onUnregister()
     {
-        w_ = nullptr;
         LOG4CPLUS_DEBUG(logger(), "MainPopup closed");
     }
 } }

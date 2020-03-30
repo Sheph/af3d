@@ -58,6 +58,12 @@ namespace af3d { namespace editor
 
         inline CommandHistory& cmdHistory() { return cmdHistory_; }
 
+        void actionMenu();
+
+        void actionMenuAdd();
+
+        void actionMenuAddObject();
+
         void openMainPopup();
 
         void openCommandHistory();

@@ -127,6 +127,43 @@ namespace editor {
     {
     }
 
+    void Workspace::actionMenu()
+    {
+        actionMenuAdd();
+    }
+
+    void Workspace::actionMenuAdd()
+    {
+        if (!ImGui::BeginMenu("Add")) {
+            return;
+        }
+
+        actionMenuAddObject();
+
+        bool objSelected = !emObject_->selected().empty();
+
+        if (ImGui::MenuItem("Mesh", nullptr, false, objSelected)) {
+            addMesh();
+        }
+
+        ImGui::EndMenu();
+    }
+
+    void Workspace::actionMenuAddObject()
+    {
+        if (!ImGui::BeginMenu("Object")) {
+            return;
+        }
+
+        for (const auto& kind : objectKinds()) {
+            if (ImGui::MenuItem(kind.c_str())) {
+                addObject(kind);
+            }
+        }
+
+        ImGui::EndMenu();
+    }
+
     void Workspace::openMainPopup()
     {
         auto popup = parent()->findComponent<MainPopup>();
@@ -252,15 +289,15 @@ namespace editor {
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Edit")) {
-            ImGui::MenuItem("Undo");
-            ImGui::MenuItem("Redo", nullptr, false, false);
-            ImGui::EndMenu();
-        }
-        if (ImGui::BeginMenu("Scene")) {
             ImGui::MenuItem("Edit objects");
             ImGui::MenuItem("Edit visuals");
             ImGui::MenuItem("Edit lights");
             ImGui::MenuItem("Edit scene settings");
+            ImGui::Separator();
+            ImGui::MenuItem("Undo");
+            ImGui::MenuItem("Redo", nullptr, false, false);
+            ImGui::Separator();
+            actionMenu();
             ImGui::EndMenu();
         }
     }

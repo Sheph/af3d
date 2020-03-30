@@ -30,8 +30,6 @@
 
 namespace af3d { namespace editor
 {
-    class Workspace;
-
     class MainPopup : public std::enable_shared_from_this<MainPopup>,
         public UIComponent
     {
@@ -48,15 +46,9 @@ namespace af3d { namespace editor
         void update(float dt) override;
 
     private:
-        void menuAdd();
-
-        void menuAddObject();
-
         void onRegister() override;
 
         void onUnregister() override;
-
-        Workspace* w_ = nullptr;
     };
 
     using MainPopupPtr = std::shared_ptr<MainPopup>;
