@@ -48,6 +48,12 @@ namespace af3d { namespace ImGuiUtils
 
         void visitBool(const APropertyTypeBool& type) override
         {
+            bool val = value_.toBool();
+
+            if (ImGui::Checkbox("##val", &val) && !readOnly_) {
+                ret_ = true;
+                value_ = APropertyValue(val);
+            }
         }
 
         void visitInt(const APropertyTypeInt& type) override
