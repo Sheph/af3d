@@ -51,10 +51,22 @@ namespace af3d
         ImGui::SetNextWindowSize(ImVec2(550, 350), ImGuiCond_FirstUseEver);
         ImGui::Begin(name, &isOpen);
 
+        // Window case, this might be top-level window, so call GetID from within
+        // the window.
         auto id = ImGui::GetID("");
+        auto res = beginImpl(id, root, path, filters, isOpen);
+        if (!res) {
+            ImGui::End();
+        }
+        return res;
+    }
+
+    ImGuiFileDialog* ImGuiFileDialog::beginImpl(ImGuiID id, const std::string& root, const std::string& path, const char* filters, bool isOpen)
+    {
         auto it = dialogs_.find(id);
         if (it == dialogs_.end()) {
-            it = dialogs_.emplace(id, std::unique_ptr<ImGuiFileDialog>(new ImGuiFileDialog(id))).first;
+            it = dialogs_.emplace(id,
+                std::unique_ptr<ImGuiFileDialog>(new ImGuiFileDialog(id))).first;
         }
 
         if (!isOpen) {
@@ -65,7 +77,6 @@ namespace af3d
         if (it->second->beginImpl(root, path, filters)) {
             return it->second.get();
         } else {
-            ImGui::End();
             return nullptr;
         }
     }
@@ -74,6 +85,41 @@ namespace af3d
         const std::string& path, const char* filters)
     {
         return begin(name, platform->assetsPath(), path, filters);
+    }
+
+    ImGuiFileDialog* ImGuiFileDialog::beginModal(const char* name,
+        const std::string& root,
+        const std::string& path, const char* filters)
+    {
+        bool isOpen = true;
+
+        if (!ImGui::IsPopupOpen(name)) {
+            // Handle not opened case separately.
+            runtime_assert(!ImGui::BeginPopupModal(name, &isOpen));
+            return nullptr;
+        }
+
+        // Modal popup case, call GetID before, imgui may close it later...
+        auto id = ImGui::GetID(name);
+
+        ImGui::SetNextWindowSize(ImVec2(550, 350), ImGuiCond_FirstUseEver);
+        bool isOpen2 = ImGui::BeginPopupModal(name, &isOpen);
+
+        auto res = beginImpl(id, root, path, filters, isOpen2);
+        if (!res) {
+            runtime_assert(isOpen2);
+            ImGui::EndPopup();
+        } else if (!isOpen2) {
+            // Popup already closed by imgui.
+            res->skipEnd_ = true;
+        }
+        return res;
+    }
+
+    ImGuiFileDialog* ImGuiFileDialog::beginAssetsModal(const char* name,
+        const std::string& path, const char* filters)
+    {
+        return beginModal(name, platform->assetsPath(), path, filters);
     }
 
     void ImGuiFileDialog::setup(const std::string& root, const std::string& path, const char* filters)
@@ -381,7 +427,18 @@ namespace af3d
 
     void ImGuiFileDialog::end()
     {
-        ImGui::End();
+        if (!skipEnd_) {
+            ImGui::End();
+        }
+        dialogs_.erase(id_); // Basically "delete this"
+    }
+
+    void ImGuiFileDialog::endModal()
+    {
+        if (!skipEnd_) {
+            ImGui::CloseCurrentPopup();
+            ImGui::EndPopup();
+        }
         dialogs_.erase(id_); // Basically "delete this"
     }
 }

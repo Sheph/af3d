@@ -44,11 +44,19 @@ namespace af3d
         static ImGuiFileDialog* beginAssets(const char* name,
             const std::string& path = ".", const char* filters = nullptr);
 
+        static ImGuiFileDialog* beginModal(const char* name,
+            const std::string& root = ".",
+            const std::string& path = ".", const char* filters = nullptr);
+
+        static ImGuiFileDialog* beginAssetsModal(const char* name,
+            const std::string& path = ".", const char* filters = nullptr);
+
         inline bool ok() const { return ok_; }
         inline const std::string& fileName() const { return fileName_; }
         std::string filePath() const;
 
         void end();
+        void endModal();
 
     private:
         struct FileInfo
@@ -72,6 +80,8 @@ namespace af3d
             std::unordered_set<std::string> exts;
         };
 
+        static ImGuiFileDialog* beginImpl(ImGuiID id, const std::string& root, const std::string& path, const char* filters, bool isOpen);
+
         explicit ImGuiFileDialog(ImGuiID id);
 
         void setup(const std::string& root, const std::string& path, const char* filters);
@@ -83,6 +93,7 @@ namespace af3d
         static std::unordered_map<ImGuiID, std::unique_ptr<ImGuiFileDialog>> dialogs_;
 
         bool init_ = true;
+        bool skipEnd_ = false;
 
         ImGuiID id_;
 
