@@ -28,7 +28,7 @@
 namespace af3d
 {
     ACLASS_DEFINE_BEGIN(PointLight, Light)
-    ACLASS_PROPERTY(PointLight, Radius, "radius", "Radius", Float, 1.0f, Position)
+    ACLASS_PROPERTY(PointLight, Radius, "radius", "Radius", Float, 1.0f, Position, APropertyEditable)
     ACLASS_DEFINE_END(PointLight)
 
     PointLight::PointLight()

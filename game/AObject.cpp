@@ -33,7 +33,7 @@ namespace af3d
     const APropertyTypeArray APropertyType_ArrayAObject{"ArrayAObject", APropertyType_AObject};
 
     ACLASS_DEFINE_BEGIN_ABSTRACT(AObject, Null)
-    ACLASS_PROPERTY(AObject, Name, AProperty_Name, "Object name", String, "", General)
+    ACLASS_PROPERTY(AObject, Name, AProperty_Name, "Object name", String, "", General, APropertyEditable)
     ACLASS_DEFINE_END(AObject)
 
     static std::atomic<ACookie> nextCookie{1};

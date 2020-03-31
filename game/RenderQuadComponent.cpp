@@ -30,11 +30,11 @@
 namespace af3d
 {
     ACLASS_DEFINE_BEGIN(RenderQuadComponent, RenderComponent)
-    ACLASS_PROPERTY(RenderQuadComponent, Position, AProperty_Position, "Position", Vec3f, btVector3(0.0f, 0.0f, 0.0f), Position)
-    ACLASS_PROPERTY(RenderQuadComponent, Angle, AProperty_Angle, "Angle", Float, 0.0f, Position)
-    ACLASS_PROPERTY(RenderQuadComponent, Size, AProperty_Size, "Size", Vec2f, Vector2f(0.0f, 0.0f), Position)
-    ACLASS_PROPERTY(RenderQuadComponent, Width, AProperty_Width, "Width", Float, 0.0f, Position)
-    ACLASS_PROPERTY(RenderQuadComponent, Height, AProperty_Height, "Height", Float, 0.0f, Position)
+    ACLASS_PROPERTY(RenderQuadComponent, Position, AProperty_Position, "Position", Vec3f, btVector3(0.0f, 0.0f, 0.0f), Position, APropertyEditable)
+    ACLASS_PROPERTY(RenderQuadComponent, Angle, AProperty_Angle, "Angle", Float, 0.0f, Position, APropertyEditable)
+    ACLASS_PROPERTY(RenderQuadComponent, Size, AProperty_Size, "Size", Vec2f, Vector2f(0.0f, 0.0f), Position, APropertyEditable)
+    ACLASS_PROPERTY(RenderQuadComponent, Width, AProperty_Width, "Width", Float, 0.0f, Position, APropertyEditable|APropertyTransient)
+    ACLASS_PROPERTY(RenderQuadComponent, Height, AProperty_Height, "Height", Float, 0.0f, Position, APropertyEditable|APropertyTransient)
     ACLASS_DEFINE_END(RenderQuadComponent)
 
     RenderQuadComponent::RenderQuadComponent()

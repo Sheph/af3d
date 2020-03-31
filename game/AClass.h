@@ -114,11 +114,11 @@ namespace af3d
     #define ACLASS_NS_DEFINE_BEGIN(NS, Name, Super) \
         const AClass AClass_##NS##Name{#NS "::" #Name, AClass_##Super, &NS::Name::create, {
 
-    #define ACLASS_PROPERTY(ClassName, Member, Name, Tooltip, Type, Def, Category) \
-        {Name, Tooltip, APropertyType_##Type, Def, APropertyCategory::Category, APropertyReadable|APropertyWritable, (APropertyGetter)&ClassName::property##Member##Get, (APropertySetter)&ClassName::property##Member##Set},
+    #define ACLASS_PROPERTY(ClassName, Member, Name, Tooltip, Type, Def, Category, Flags) \
+        {Name, Tooltip, APropertyType_##Type, Def, APropertyCategory::Category, APropertyReadable|APropertyWritable|Flags, (APropertyGetter)&ClassName::property##Member##Get, (APropertySetter)&ClassName::property##Member##Set},
 
-    #define ACLASS_PROPERTY_RO(ClassName, Member, Name, Tooltip, Type, Category) \
-        {Name, Tooltip, APropertyType_##Type, APropertyValue(), APropertyCategory::Category, APropertyReadable, (APropertyGetter)&ClassName::property##Member##Get, nullptr},
+    #define ACLASS_PROPERTY_RO(ClassName, Member, Name, Tooltip, Type, Category, Flags) \
+        {Name, Tooltip, APropertyType_##Type, APropertyValue(), APropertyCategory::Category, APropertyReadable|Flags, (APropertyGetter)&ClassName::property##Member##Get, nullptr},
 
     #define ACLASS_DEFINE_END(Name) }};
 

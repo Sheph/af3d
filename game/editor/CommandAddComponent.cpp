@@ -59,7 +59,9 @@ namespace af3d { namespace editor
 
         auto props = klass_.getProperties();
         for (const auto& prop : props) {
-            propVals.set(prop.name(), prop.def());
+            if ((prop.flags() & APropertyTransient) == 0) {
+                propVals.set(prop.name(), prop.def());
+            }
         }
         for (const auto& kv : initVals_.items()) {
             propVals.set(kv.first, kv.second);

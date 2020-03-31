@@ -99,6 +99,10 @@ namespace editor {
             ImGui::PushID(std::to_string(newCookie).c_str());
 
             for (const auto& prop : properties_) {
+                if ((prop.flags() & APropertyEditable) == 0) {
+                    continue;
+                }
+
                 ImGui::PushID(prop.name().c_str());
 
                 ImGui::Separator();

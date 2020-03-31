@@ -45,8 +45,11 @@ namespace af3d { namespace editor
     {
         APropertyValueMap propVals;
 
-        for (const auto& param : klass_.thisProperties()) {
-            propVals.set(param.name(), param.def());
+        auto props = klass_.getProperties();
+        for (const auto& prop : props) {
+            if ((prop.flags() & APropertyTransient) == 0) {
+                propVals.set(prop.name(), prop.def());
+            }
         }
 
         propVals.set(AProperty_WorldTransform, xf_);

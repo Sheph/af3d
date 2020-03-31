@@ -30,10 +30,10 @@
 namespace af3d
 {
     ACLASS_DEFINE_BEGIN(RenderMeshComponent, RenderComponent)
-    ACLASS_PROPERTY(RenderMeshComponent, Mesh, "mesh", "Mesh", Mesh, APropertyValue(MeshPtr()), General)
-    ACLASS_PROPERTY(RenderMeshComponent, LocalTransform, AProperty_LocalTransform, "Local transform", Transform, btTransform::getIdentity(), Position)
-    ACLASS_PROPERTY(RenderMeshComponent, WorldTransform, AProperty_WorldTransform, "World transform", Transform, btTransform::getIdentity(), Position)
-    ACLASS_PROPERTY(RenderMeshComponent, Scale, AProperty_Scale, "Mesh scale", Vec3f, btVector3(1.0f, 1.0f, 1.0f), Position)
+    ACLASS_PROPERTY(RenderMeshComponent, Mesh, "mesh", "Mesh", Mesh, APropertyValue(MeshPtr()), General, APropertyEditable)
+    ACLASS_PROPERTY(RenderMeshComponent, LocalTransform, AProperty_LocalTransform, "Local transform", Transform, btTransform::getIdentity(), Position, APropertyEditable)
+    ACLASS_PROPERTY(RenderMeshComponent, WorldTransform, AProperty_WorldTransform, "World transform", Transform, btTransform::getIdentity(), Position, APropertyEditable|APropertyTransient)
+    ACLASS_PROPERTY(RenderMeshComponent, Scale, AProperty_Scale, "Mesh scale", Vec3f, btVector3(1.0f, 1.0f, 1.0f), Position, APropertyEditable)
     ACLASS_DEFINE_END(RenderMeshComponent)
 
     RenderMeshComponent::RenderMeshComponent()

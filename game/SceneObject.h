@@ -284,10 +284,10 @@ namespace af3d
             return SceneObject::createWithParams(AClass_SceneObject##Name, propVals, (AClass::CreateFn)&SceneObject##Name##create); \
         } \
         const AClass AClass_SceneObject##Name{"SceneObject" #Name, AClass_SceneObject, &SceneObject##Name##createWrapper, { \
-        ACLASS_PROPERTY_RO(SceneObject, Type, "type", "Scene object type", SceneObjectType, General)
+        ACLASS_PROPERTY_RO(SceneObject, Type, "type", "Scene object type", SceneObjectType, General, APropertyEditable|APropertyTransient)
 
     #define SCENEOBJECT_PARAM(SName, Name, Tooltip, Type, Def) \
-        {Name, Tooltip, APropertyType_##Type, Def, APropertyCategory::Params, APropertyReadable, (APropertyGetter)&SceneObject::propertyParamGet, nullptr},
+        {Name, Tooltip, APropertyType_##Type, Def, APropertyCategory::Params, APropertyReadable|APropertyEditable, (APropertyGetter)&SceneObject::propertyParamGet, nullptr},
 
     #define SCENEOBJECT_DEFINE_END(Name) }};
 }
