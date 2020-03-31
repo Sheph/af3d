@@ -113,7 +113,6 @@ namespace af3d
 
         RenderSettings rs;
         rs.setClearMask(0);
-        rs.setCullFaceMode(0);
 
         RenderList rl(viewport, frustum, rs, defaultVa);
 

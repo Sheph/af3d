@@ -144,15 +144,9 @@ namespace af3d
     void RenderMeshComponent::render(RenderList& rl, const Matrix4f& modelMat, const MaterialPtr& material)
     {
         for (const auto& subMesh : mesh_->subMeshes()) {
-            if (material) {
-                rl.addGeometry(modelMat, prevAABB_,
-                    material, subMesh->vaSlice(),
-                    GL_TRIANGLES, 0.0f, GL_FRONT);
-            } else {
-                rl.addGeometry(modelMat, prevAABB_,
-                    subMesh->material(), subMesh->vaSlice(),
-                    GL_TRIANGLES);
-            }
+            rl.addGeometry(modelMat, prevAABB_,
+                (material ? material : subMesh->material()), subMesh->vaSlice(),
+                GL_TRIANGLES);
         }
     }
 }

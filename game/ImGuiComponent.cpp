@@ -38,6 +38,7 @@ namespace af3d
         material_ = materialManager.createMaterial(MaterialTypeImm);
         material_->setBlendingParams(BlendingParams(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
         material_->setDepthTest(false);
+        material_->setCullFaceMode(0);
     }
 
     const AClass& ImGuiComponent::staticKlass()
@@ -122,7 +123,7 @@ namespace af3d
 
                         rl.addGeometry(mat, vaSlice.subSlice(pcmd->IdxOffset,
                             pcmd->ElemCount, pcmd->VtxOffset),
-                            GL_TRIANGLES, depthValue, boost::optional<GLenum>(), scissorParams);
+                            GL_TRIANGLES, depthValue, scissorParams);
                     }
                 }
             }

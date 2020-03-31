@@ -75,6 +75,11 @@ namespace af3d
                         mat->params().setUniform(UniformName::Shininess, val * val2);
                     }
                 }
+                int twoSided = 0;
+                mx = 1;
+                if ((aiGetMaterialIntegerArray(matData, AI_MATKEY_TWOSIDED, &twoSided, &mx) == aiReturn_SUCCESS) && twoSided) {
+                    mat->setCullFaceMode(0);
+                }
             }
             mats[i] = mat;
         }

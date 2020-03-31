@@ -31,13 +31,11 @@ namespace af3d
     RenderImmIndexed::RenderImmIndexed(const MaterialPtr& material,
         GLenum primitiveMode,
         float depthValue,
-        const boost::optional<GLenum>& cullFaceMode,
         const ScissorParams& scissorParams,
         RenderList& rl)
     : material_(material),
       primitiveMode_(primitiveMode),
       depthValue_(depthValue),
-      cullFaceMode_(cullFaceMode),
       scissorParams_(scissorParams),
       rl_(rl),
       startVertices_(rl_.defaultVa_.data().vertices.size()),
@@ -51,7 +49,7 @@ namespace af3d
             startIndices_,
             rl_.defaultVa_.data().indices.size() - startIndices_,
             startVertices_);
-        rl_.addGeometry(material_, vaSlice, primitiveMode_, depthValue_, cullFaceMode_, scissorParams_);
+        rl_.addGeometry(material_, vaSlice, primitiveMode_, depthValue_, scissorParams_);
     }
 
     std::vector<VertexImm>& RenderImmIndexed::vertices()
@@ -67,13 +65,11 @@ namespace af3d
     RenderImm::RenderImm(const MaterialPtr& material,
         GLenum primitiveMode,
         float depthValue,
-        const boost::optional<GLenum>& cullFaceMode,
         const ScissorParams& scissorParams,
         RenderList& rl)
     : material_(material),
       primitiveMode_(primitiveMode),
       depthValue_(depthValue),
-      cullFaceMode_(cullFaceMode),
       scissorParams_(scissorParams),
       rl_(rl),
       startVertices_(rl_.defaultVa_.data().vertices.size())
@@ -86,7 +82,7 @@ namespace af3d
             startVertices_,
             rl_.defaultVa_.data().vertices.size() - startVertices_,
             0);
-        rl_.addGeometry(material_, vaSlice, primitiveMode_, depthValue_, cullFaceMode_, scissorParams_);
+        rl_.addGeometry(material_, vaSlice, primitiveMode_, depthValue_, scissorParams_);
     }
 
     std::vector<VertexImm>& RenderImm::vertices()
@@ -104,32 +100,31 @@ namespace af3d
     }
 
     void RenderList::addGeometry(const Matrix4f& modelMat, const AABB& aabb, const MaterialPtr& material,
-        const VertexArraySlice& vaSlice, GLenum primitiveMode, float depthValue, const boost::optional<GLenum>& cullFaceMode,
+        const VertexArraySlice& vaSlice, GLenum primitiveMode, float depthValue,
         const ScissorParams& scissorParams)
     {
-        geomList_.emplace_back(modelMat, aabb, material, vaSlice, primitiveMode, depthValue, cullFaceMode, scissorParams);
+        geomList_.emplace_back(modelMat, aabb, material, vaSlice, primitiveMode, depthValue, scissorParams);
     }
 
     void RenderList::addGeometry(const MaterialPtr& material,
         const VertexArraySlice& vaSlice, GLenum primitiveMode, float depthValue,
-        const boost::optional<GLenum>& cullFaceMode,
         const ScissorParams& scissorParams)
     {
-        geomList_.emplace_back(material, vaSlice, primitiveMode, depthValue, cullFaceMode, scissorParams);
+        geomList_.emplace_back(material, vaSlice, primitiveMode, depthValue, scissorParams);
     }
 
     RenderImmIndexed RenderList::addGeometryIndexed(const MaterialPtr& material,
         GLenum primitiveMode,
-        float depthValue, const boost::optional<GLenum>& cullFaceMode, const ScissorParams& scissorParams)
+        float depthValue, const ScissorParams& scissorParams)
     {
-        return RenderImmIndexed(material, primitiveMode, depthValue, cullFaceMode, scissorParams, *this);
+        return RenderImmIndexed(material, primitiveMode, depthValue, scissorParams, *this);
     }
 
     RenderImm RenderList::addGeometry(const MaterialPtr& material,
         GLenum primitiveMode,
-        float depthValue, const boost::optional<GLenum>& cullFaceMode, const ScissorParams& scissorParams)
+        float depthValue, const ScissorParams& scissorParams)
     {
-        return RenderImm(material, primitiveMode, depthValue, cullFaceMode, scissorParams, *this);
+        return RenderImm(material, primitiveMode, depthValue, scissorParams, *this);
     }
 
     VertexArraySlice RenderList::createGeometry(const VertexImm* vertices, std::uint32_t numVertices,
@@ -166,7 +161,7 @@ namespace af3d
         RenderNode tmpNode;
         for (const auto& geom : geomList_) {
             auto& params = rn->add(std::move(tmpNode), 0, geom.material,
-                GL_LEQUAL, geom.depthValue, (geom.cullFaceMode ? *geom.cullFaceMode : rs_.cullFaceMode()),
+                GL_LEQUAL, geom.depthValue,
                 geom.material->blendingParams(),
                 geom.vaSlice, geom.primitiveMode, geom.scissorParams);
             setAutoParams(geom, params);
@@ -190,7 +185,7 @@ namespace af3d
                     continue;
                 }
                 auto& params = rn->add(std::move(tmpNode), pass, geom.material,
-                    GL_EQUAL, geom.depthValue, (geom.cullFaceMode ? *geom.cullFaceMode : rs_.cullFaceMode()),
+                    GL_EQUAL, geom.depthValue,
                     lightBp, geom.vaSlice, geom.primitiveMode, geom.scissorParams);
                 setAutoParams(geom, params);
                 light->setupMaterial(frustum_.transform().getOrigin(), params);

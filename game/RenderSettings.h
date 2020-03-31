@@ -47,14 +47,10 @@ namespace af3d
         inline const Color& ambientColor() const { return ambientColor_; }
         inline void setAmbientColor(const Color& value) { ambientColor_ = value; }
 
-        inline GLenum cullFaceMode() const { return cullFaceMode_; }
-        inline void setCullFaceMode(GLenum value) { cullFaceMode_ = value; }
-
     private:
         GLenum clearMask_ = GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT;
         Color clearColor_ = Color(0.0f, 0.0f, 0.4f, 1.0f);
         Color ambientColor_ = Color(0.2f, 0.2f, 0.2f, 1.0f);
-        GLenum cullFaceMode_ = GL_BACK;
     };
 }
 

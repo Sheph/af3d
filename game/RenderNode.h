@@ -64,7 +64,7 @@ namespace af3d
 
         // Returns empty material auto params, these should be filled in by the caller.
         MaterialParams& add(RenderNode&& tmpNode, int pass, const MaterialPtr& material,
-            GLenum depthFunc, float depthValue, GLenum cullFaceMode, const BlendingParams& blendingParams,
+            GLenum depthFunc, float depthValue, const BlendingParams& blendingParams,
             const VertexArraySlice& vaSlice, GLenum primitiveMode,
             const ScissorParams& scissorParams);
 

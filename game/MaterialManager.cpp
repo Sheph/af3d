@@ -127,12 +127,15 @@ namespace af3d
 
             matOutlineInactive_ = createMaterial(MaterialTypeOutline);
             matOutlineInactive_->params().setUniform(UniformName::MainColor, settings.editor.outlineColorInactive);
+            matOutlineInactive_->setCullFaceMode(GL_FRONT);
 
             matOutlineHovered_ = createMaterial(MaterialTypeOutline);
             matOutlineHovered_->params().setUniform(UniformName::MainColor, settings.editor.outlineColorHovered);
+            matOutlineHovered_->setCullFaceMode(GL_FRONT);
 
             matOutlineSelected_ = createMaterial(MaterialTypeOutline);
             matOutlineSelected_->params().setUniform(UniformName::MainColor, settings.editor.outlineColorSelected);
+            matOutlineSelected_->setCullFaceMode(GL_FRONT);
         }
 
         return true;

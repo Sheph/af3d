@@ -206,6 +206,9 @@ namespace af3d
         bool depthTest() const;
         void setDepthTest(bool value);
 
+        GLenum cullFaceMode() const;
+        void setCullFaceMode(GLenum value);
+
     private:
         MaterialManager* mgr_;
         MaterialTypePtr type_;
@@ -213,6 +216,7 @@ namespace af3d
         MaterialParams params_;
         BlendingParams blendingParams_;
         bool depthTest_ = true;
+        GLenum cullFaceMode_ = GL_BACK;
     };
 
     ACLASS_DECLARE(Material)

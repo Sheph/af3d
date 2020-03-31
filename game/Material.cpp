@@ -212,6 +212,7 @@ namespace af3d
         cloned->params_ = params_;
         cloned->blendingParams_ = blendingParams_;
         cloned->depthTest_ = depthTest_;
+        cloned->cullFaceMode_ = cullFaceMode_;
         if (!mgr_->onMaterialClone(cloned)) {
             return MaterialPtr();
         }
@@ -251,5 +252,15 @@ namespace af3d
     void Material::setDepthTest(bool value)
     {
         depthTest_ = value;
+    }
+
+    GLenum Material::cullFaceMode() const
+    {
+        return cullFaceMode_;
+    }
+
+    void Material::setCullFaceMode(GLenum value)
+    {
+        cullFaceMode_ = value;
     }
 }
