@@ -93,6 +93,8 @@ namespace af3d
         inline bool vsyncSupported() const { return vsyncSupported_; }
         inline void setVSyncSupported(bool value) { vsyncSupported_ = value; }
 
+        virtual const std::string& assetsPath() const = 0;
+
         virtual std::streambuf* openFile(const std::string& fileName) = 0;
 
         virtual bool changeVideoMode(bool fullscreen, int videoMode, int msaaMode, bool vsync, bool trilinearFilter) = 0;

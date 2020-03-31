@@ -1,6 +1,16 @@
 set(SOURCES
     system/error_code.cpp
     thread/future.cpp
+    filesystem/codecvt_error_category.cpp
+    filesystem/utf8_codecvt_facet.cpp
+    filesystem/portability.cpp
+    filesystem/unique_path.cpp
+    filesystem/path_traits.cpp
+    filesystem/exception.cpp
+    filesystem/operations.cpp
+    filesystem/windows_file_codecvt.cpp
+    filesystem/path.cpp
+    filesystem/directory.cpp
 )
 
 set(SOURCES ${SOURCES}

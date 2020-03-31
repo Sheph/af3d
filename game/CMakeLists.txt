@@ -66,6 +66,7 @@ set(SOURCES
     ImGuiManager.cpp
     ImGuiComponent.cpp
     ImGuiUtils.cpp
+    ImGuiFileDialog.cpp
     VertexArrayWriter.cpp
     APropertyType.cpp
     APropertyTypes.cpp

@@ -40,6 +40,8 @@ namespace af3d
 
         void shutdown();
 
+        virtual const std::string& assetsPath() const override { return assetsPath_; }
+
         virtual std::streambuf* openFile(const std::string& fileName) override;
 
         virtual bool changeVideoMode(bool fullscreen, int videoMode, int msaaMode, bool vsync, bool trilinearFilter) override;
