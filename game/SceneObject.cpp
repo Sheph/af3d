@@ -104,7 +104,9 @@ namespace af3d
     {
         APropertyValueMap params;
         for (const auto& prop : klass.thisProperties()) {
-            params.set(prop.name(), propVals.get(prop.name()));
+            if (prop.category() == APropertyCategory::Params) {
+                params.set(prop.name(), propVals.get(prop.name()));
+            }
         }
         auto obj = std::static_pointer_cast<SceneObject>(fn(params));
         if (!obj) {

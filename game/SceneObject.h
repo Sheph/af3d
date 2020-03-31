@@ -278,12 +278,13 @@ namespace af3d
         extern const AClass AClass_SceneObject##Name; \
         static SceneObjectPtr SceneObject##Name##create(const APropertyValueMap& params)
 
-    #define SCENEOBJECT_DEFINE_PARAMS(Name) \
+    #define SCENEOBJECT_DEFINE_PROPS(Name) \
         static AObjectPtr SceneObject##Name##createWrapper(const APropertyValueMap& propVals) \
         { \
             return SceneObject::createWithParams(AClass_SceneObject##Name, propVals, (AClass::CreateFn)&SceneObject##Name##create); \
         } \
-        const AClass AClass_SceneObject##Name{"SceneObject" #Name, AClass_SceneObject, &SceneObject##Name##createWrapper, {
+        const AClass AClass_SceneObject##Name{"SceneObject" #Name, AClass_SceneObject, &SceneObject##Name##createWrapper, { \
+        ACLASS_PROPERTY_RO(SceneObject, Type, "type", "Scene object type", SceneObjectType, General)
 
     #define SCENEOBJECT_PARAM(SName, Name, Tooltip, Type, Def) \
         {Name, Tooltip, APropertyType_##Type, Def, APropertyCategory::Params, APropertyReadable, (APropertyGetter)&SceneObject::propertyParamGet, nullptr},

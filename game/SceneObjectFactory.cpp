@@ -97,7 +97,7 @@ namespace af3d
     {
         return sceneObjectFactory.createDummy();
     }
-    SCENEOBJECT_DEFINE_PARAMS(Dummy)
+    SCENEOBJECT_DEFINE_PROPS(Dummy)
     SCENEOBJECT_DEFINE_END(Dummy)
 
     SCENEOBJECT_DEFINE_BEGIN(ColoredBox)
@@ -107,7 +107,7 @@ namespace af3d
             params.get("color1").toColor(),
             params.get("color2").toColor());
     }
-    SCENEOBJECT_DEFINE_PARAMS(ColoredBox)
+    SCENEOBJECT_DEFINE_PROPS(ColoredBox)
     SCENEOBJECT_PARAM(ColoredBox, "size", "Box size", Vec3f, btVector3(1.0f, 2.0f, 3.0f))
     SCENEOBJECT_PARAM(ColoredBox, "color1", "Box color #1", ColorRGB, Color(1.0f, 0.0f, 0.0f, 1.0f))
     SCENEOBJECT_PARAM(ColoredBox, "color2", "Box color #2", ColorRGB, Color(0.0f, 1.0f, 0.0f, 1.0f))

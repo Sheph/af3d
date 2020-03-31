@@ -78,7 +78,21 @@ namespace af3d
             return properties_;
         } else {
             auto superProps = super_.getProperties();
-            superProps.insert(superProps.end(), properties_.begin(), properties_.end());
+            size_t n = superProps.size();
+            for (const auto& p : properties_) {
+                AProperty* foundP = nullptr;
+                for (size_t i = 0; i < n; ++i) {
+                    if (p.name() == superProps[i].name()) {
+                        foundP = &superProps[i];
+                        break;
+                    }
+                }
+                if (foundP) {
+                    *foundP = p;
+                } else {
+                    superProps.push_back(p);
+                }
+            }
             return superProps;
         }
     }
