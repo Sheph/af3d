@@ -25,6 +25,8 @@
 
 #include "ImGuiUtils.h"
 #include "ImGuiManager.h"
+#include "ImGuiFileDialog.h"
+#include "MeshManager.h"
 
 namespace af3d { namespace ImGuiUtils
 {
@@ -142,7 +144,34 @@ namespace af3d { namespace ImGuiUtils
 
         void visitObject(const APropertyTypeObject& type) override
         {
-            ImGui::Button("...");
+            auto res = aobjectCast<Resource>(value_.toObject());
+            std::string assetPath;
+            if (res && !res->assetPath().empty()) {
+                assetPath = res->assetPath();
+            }
+
+            bool clicked = ImGui::Button("...");
+
+            if (type.klass().isSubClassOf(AClass_Mesh)) {
+                if (clicked) {
+                    ImGui::OpenPopup("Open model");
+                }
+                if (auto dlg = ImGuiFileDialog::beginAssetsModal("Open model", assetPath, "Model files,.fbx;All files")) {
+                    if (dlg->ok() && !dlg->fileName().empty()) {
+                        auto mesh = meshManager.loadMesh(dlg->filePath());
+                        if (mesh) {
+                            ret_ = true;
+                            value_ = APropertyValue(mesh);
+                        }
+                    }
+                    dlg->endModal();
+                }
+            }
+
+            if (!assetPath.empty()) {
+                ImGui::SameLine();
+                ImGui::Text("%s", assetPath.c_str());
+            }
         }
 
         void visitTransform(const APropertyTypeTransform& type) override

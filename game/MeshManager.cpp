@@ -91,7 +91,9 @@ namespace af3d
         AABB aabb;
         std::vector<SubMeshPtr> subMeshes;
 
-        runtime_assert(loader->init(importer_, aabb, subMeshes));
+        if (!loader->init(importer_, aabb, subMeshes)) {
+            return MeshPtr();
+        }
 
         auto mesh = std::make_shared<Mesh>(this, path, aabb, subMeshes, loader);
         mesh->load();

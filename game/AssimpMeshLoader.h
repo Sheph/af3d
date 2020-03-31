@@ -40,6 +40,8 @@ namespace af3d
 
         bool init(Assimp::Importer& importer, AABB& aabb, std::vector<SubMeshPtr>& subMeshes);
 
+        const std::string& assetName() const override { return path_; }
+
         void load(Resource& res, HardwareContext& ctx) override;
 
     private:

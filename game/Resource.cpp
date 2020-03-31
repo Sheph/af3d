@@ -71,6 +71,15 @@ namespace af3d
         }
     }
 
+    const std::string& Resource::assetPath() const
+    {
+        if (loader_) {
+            return loader_->assetName();
+        } else {
+            return string_empty;
+        }
+    }
+
     void Resource::doInvalidate()
     {
     }

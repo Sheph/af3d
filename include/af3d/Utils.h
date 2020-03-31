@@ -34,6 +34,8 @@
 
 namespace af3d
 {
+    extern const std::string string_empty;
+
     using ScopedLock = std::lock_guard<std::mutex>;
     using ScopedLockA = std::unique_lock<std::mutex>;
 

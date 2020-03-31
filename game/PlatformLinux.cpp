@@ -26,6 +26,7 @@
 #include "PlatformLinux.h"
 #include "Logger.h"
 #include "af3d/Utils.h"
+#include <boost/algorithm/string.hpp>
 #include <fstream>
 #include <sys/stat.h>
 #include <errno.h>
@@ -49,7 +50,9 @@ namespace af3d
     {
         std::filebuf* buf = new std::filebuf();
 
-        if (!buf->open((assetsPath_ + "/" + fileName).c_str(), std::ios::in | std::ios::binary)) {
+        auto fn = boost::replace_all_copy(fileName, "\\", "/");
+
+        if (!buf->open((assetsPath_ + "/" + fn).c_str(), std::ios::in | std::ios::binary)) {
             delete buf;
             buf = nullptr;
         }
