@@ -43,7 +43,6 @@ namespace af3d
     {
         General = 0,
         Position,
-        Hierarchy,
         Params,
         Max = Params
     };
