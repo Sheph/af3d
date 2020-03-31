@@ -93,12 +93,12 @@ namespace af3d
         return obj;
     }
 
-    SCENEOBJECT_DEFINE_BEGIN(Dummy)
+    /*SCENEOBJECT_DEFINE_BEGIN(Dummy)
     {
         return sceneObjectFactory.createDummy();
     }
     SCENEOBJECT_DEFINE_PROPS(Dummy)
-    SCENEOBJECT_DEFINE_END(Dummy)
+    SCENEOBJECT_DEFINE_END(Dummy)*/
 
     SCENEOBJECT_DEFINE_BEGIN(ColoredBox)
     {

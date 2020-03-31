@@ -66,6 +66,8 @@ namespace editor {
             }
         }
 
+        objectKinds_.push_back("Empty");
+
         for (const auto& k : sortedKinds) {
             if (k.find(prefix) == 0) {
                 objectKinds_.push_back(k.substr(std::strlen(prefix)));
@@ -122,9 +124,15 @@ namespace editor {
 
     void Workspace::addObject(const std::string& kind)
     {
-        auto klass = AClassRegistry::instance().classFind("SceneObject" + kind);
+        std::string actualKind;
 
-        if (!klass || (klass->super() != &AClass_SceneObject)) {
+        if (kind != "Empty") {
+            actualKind = kind;
+        }
+
+        auto klass = AClassRegistry::instance().classFind("SceneObject" + actualKind);
+
+        if (!klass || ((klass->super() != &AClass_SceneObject) && !actualKind.empty())) {
             LOG4CPLUS_WARN(logger(), "Cannot addObject, bad kind - " << kind);
             return;
         }
