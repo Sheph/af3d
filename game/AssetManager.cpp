@@ -99,7 +99,7 @@ namespace af3d
         return std::make_shared<Drawable>(getImage(name));
     }
 
-    SceneAssetPtr AssetManager::getSceneAsset(const std::string& name)
+    SceneAssetPtr AssetManager::getSceneAsset(const std::string& name, bool editor)
     {
         log4cplus::NDCContextCreator ndc(name);
 
@@ -129,7 +129,7 @@ namespace af3d
 
         AJsonSerializerDefault defS;
 
-        AJsonReader reader(defS);
+        AJsonReader reader(defS, editor);
         auto res = reader.read(it->second);
 
         if (res.size() != 1) {

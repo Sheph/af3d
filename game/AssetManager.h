@@ -48,7 +48,7 @@ namespace af3d
 
         DrawablePtr getDrawable(const std::string& name);
 
-        SceneAssetPtr getSceneAsset(const std::string& name);
+        SceneAssetPtr getSceneAsset(const std::string& name, bool editor = false);
 
     private:
         using TPSMap = std::unordered_map<std::string, TPSPtr>;

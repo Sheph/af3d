@@ -45,7 +45,7 @@ namespace af3d
 
     bool Level::init()
     {
-        SceneAssetPtr asset = assetManager.getSceneAsset(scene_->assetPath());
+        SceneAssetPtr asset = assetManager.getSceneAsset(scene_->assetPath(), !!scene_->workspace());
 
         if (asset) {
             for (const auto& obj : asset->objects()) {

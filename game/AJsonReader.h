@@ -27,26 +27,34 @@
 #define _AJSONREADER_H_
 
 #include "AJsonSerializer.h"
+#include <boost/optional.hpp>
 #include <unordered_set>
+#include <list>
 
 namespace af3d
 {
     class AJsonReader : boost::noncopyable
     {
     public:
-        explicit AJsonReader(AJsonSerializer& serializer);
+        AJsonReader(AJsonSerializer& serializer, bool editor);
         ~AJsonReader() = default;
 
         inline AJsonSerializer& serializer() { return serializer_; }
 
         std::vector<AObjectPtr> read(const Json::Value& jsonValue);
 
-        AObjectPtr getObject(std::uint32_t id);
+        boost::optional<AObjectPtr> getObject(std::uint32_t id, bool nested);
 
     private:
         struct DelayedProperty
         {
-            const AProperty* prop = nullptr;
+            DelayedProperty(const AProperty& prop, std::unordered_set<std::uint32_t>& otherDeps)
+            : prop(prop)
+            {
+                deps.swap(otherDeps);
+            }
+
+            AProperty prop;
             std::unordered_set<std::uint32_t> deps;
         };
 
@@ -58,17 +66,18 @@ namespace af3d
 
             const Json::Value& jsonValue;
             const AClass& klass;
-            AObjectPtr obj;
+            boost::optional<AObjectPtr> obj;
             bool reading = false;
             bool referred = false;
 
             std::unordered_set<std::uint32_t> objectsToNotify;
-            std::vector<DelayedProperty> delayedProps;
+            std::list<DelayedProperty> delayedProps;
         };
 
         using ObjectStateMap = std::unordered_map<std::uint32_t, ObjectState>;
 
         AJsonSerializer& serializer_;
+        bool editor_ = false;
 
         ObjectStateMap objectStateMap_;
     };
