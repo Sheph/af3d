@@ -175,6 +175,7 @@ namespace editor {
         em_->leave();
 
         emObject_.reset();
+        emVisual_.reset();
         em_ = nullptr;
     }
 
