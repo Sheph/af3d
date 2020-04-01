@@ -47,8 +47,10 @@ namespace af3d
 
         using TimerFn = std::function<void(float)>;
 
-        explicit Scene(const std::string& scriptPath);
+        explicit Scene(const std::string& assetPath);
         ~Scene();
+
+        inline const std::string& assetPath() const { return assetPath_; }
 
         static const AClass& staticKlass();
 
@@ -104,9 +106,9 @@ namespace af3d
         inline int checkpoint() const { return checkpoint_; }
         inline void setCheckpoint(int value) { checkpoint_ = value; }
 
-        void setNextLevel(const std::string& scriptPath);
+        void setNextLevel(const std::string& assetPath);
         void restartLevel();
-        bool getNextLevel(std::string& scriptPath);
+        bool getNextLevel(std::string& assetPath);
 
         inline void setTimeScale(float value) { timeScale_ = value; }
         inline float timeScale() const { return timeScale_; }
@@ -140,7 +142,8 @@ namespace af3d
         bool cutscene_;
         bool quit_;
 
-        std::string nextScriptPath_;
+        std::string assetPath_;
+        std::string nextAssetPath_;
 
         bool firstUpdate_;
         int checkpoint_;

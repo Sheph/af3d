@@ -79,7 +79,7 @@ namespace af3d
         TimerMap::const_iterator timerIt_;
     };
 
-    Scene::Scene(const std::string& scriptPath)
+    Scene::Scene(const std::string& assetPath)
     : SceneObjectManager(AClass_Scene),
       impl_(new Impl(this)),
       inputMode_(InputMode::Game),
@@ -87,6 +87,7 @@ namespace af3d
       paused_(false),
       cutscene_(false),
       quit_(false),
+      assetPath_(assetPath),
       firstUpdate_(true),
       checkpoint_(0),
       timeScale_(1.0f),
@@ -364,22 +365,22 @@ namespace af3d
         updateInputMode();
     }
 
-    void Scene::setNextLevel(const std::string& scriptPath)
+    void Scene::setNextLevel(const std::string& assetPath)
     {
-        nextScriptPath_ = scriptPath;
+        nextAssetPath_ = assetPath;
     }
 
     void Scene::restartLevel()
     {
     }
 
-    bool Scene::getNextLevel(std::string& scriptPath)
+    bool Scene::getNextLevel(std::string& assetPath)
     {
-        if (nextScriptPath_.empty()) {
+        if (nextAssetPath_.empty()) {
             return false;
         }
 
-        scriptPath = nextScriptPath_;
+        assetPath = nextAssetPath_;
 
         return true;
     }

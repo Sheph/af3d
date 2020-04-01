@@ -47,7 +47,7 @@ namespace af3d
 
         for (std::uint32_t i = 0; i < jsonValue.size(); ++i) {
             const auto& jv = jsonValue[i];
-            if (!jv["id"].isUInt()) {
+            if (!jv["id"].isInt()) {
                 LOG4CPLUS_ERROR(logger(), "Bad \"id\" field, skipping");
                 continue;
             }

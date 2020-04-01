@@ -1,0 +1,57 @@
+[
+   {
+      "children" : [ 2, 3 ],
+      "class" : "SceneAsset",
+      "id" : 1,
+      "name" : ""
+   },
+   {
+      "children" : [ 4 ],
+      "class" : "SceneObjectColoredBox",
+      "color1" : [ 1.0, 0.0, 0.0, 1.0 ],
+      "color2" : [ 0.0, 1.0, 0.0, 1.0 ],
+      "id" : 2,
+      "name" : "t2",
+      "size" : [ 1.0, 2.0, 3.0 ],
+      "world transform" : [
+         1.831785202026367,
+         -0.1338806599378586,
+         -0.6930651664733887,
+         -0.01938671246170998,
+         0.02181116491556168,
+         0.0004230269405525178,
+         0.9995740056037903
+      ]
+   },
+   {
+      "children" : [ 5 ],
+      "class" : "SceneObject",
+      "id" : 3,
+      "name" : "t1",
+      "type" : 0,
+      "world transform" : [ 0.0, 0.0, -5.0, 0.0, 0.0, 0.0, 1.0 ]
+   },
+   {
+      "class" : "RenderMeshComponent",
+      "id" : 4,
+      "local transform" : [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0 ],
+      "mesh" : 6,
+      "name" : "",
+      "scale" : [ 0.009999999776482582, 0.009999999776482582, 0.009999999776482582 ],
+      "visible" : true
+   },
+   {
+      "class" : "RenderMeshComponent",
+      "id" : 5,
+      "local transform" : [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0 ],
+      "mesh" : 6,
+      "name" : "",
+      "scale" : [ 0.009999999776482582, 0.009999999776482582, 0.009999999776482582 ],
+      "visible" : true
+   },
+   {
+      "class" : "Mesh",
+      "id" : 6,
+      "name" : "muro.fbx"
+   }
+]

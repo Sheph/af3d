@@ -41,7 +41,7 @@ namespace af3d
         Game();
         ~Game();
 
-        bool init(const std::string& startScript = "start.lua");
+        bool init(const std::string& startAsset);
 
         bool renderReload(HardwareContext& ctx);
 
@@ -78,7 +78,7 @@ namespace af3d
         void gamepadRelease(GamepadButton button);
 
     private:
-        bool loadLevel(const std::string& scriptPath);
+        bool loadLevel(const std::string& assetPath);
 
         bool setupVideo(const AppConfig& userConfig);
 

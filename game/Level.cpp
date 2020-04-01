@@ -24,12 +24,14 @@
  */
 
 #include "Level.h"
+#include "AssetManager.h"
+#include "Settings.h"
 
 namespace af3d
 {
-    Level::Level(const std::string& scriptPath,
+    Level::Level(const std::string& assetPath,
         int checkpoint)
-    : scene_(new Scene(scriptPath))
+    : scene_(new Scene(assetPath))
     {
         scene_->setCheckpoint(checkpoint);
     }
@@ -43,6 +45,16 @@ namespace af3d
 
     bool Level::init()
     {
+        SceneAssetPtr asset = assetManager.getSceneAsset(scene_->assetPath());
+
+        if (asset) {
+            for (const auto& obj : asset->objects()) {
+                scene_->addObject(obj);
+            }
+        } else if (!settings.editor.enabled) {
+            return false;
+        }
+
         scene_->prepare();
 
         return true;

@@ -133,7 +133,13 @@ namespace af3d
         auto res = reader.read(it->second);
 
         if (res.size() != 1) {
-            LOG4CPLUS_ERROR(logger(), "Multiple scenes in a single file ?");
+            if (!it->second.isNull()) {
+                if (res.empty()) {
+                    LOG4CPLUS_ERROR(logger(), "No objects inside ?");
+                } else {
+                    LOG4CPLUS_ERROR(logger(), "Multiple scenes in a single file ?");
+                }
+            }
             return SceneAssetPtr();
         }
 

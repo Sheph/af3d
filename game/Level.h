@@ -34,7 +34,7 @@ namespace af3d
     class Level : boost::noncopyable
     {
     public:
-        explicit Level(const std::string& scriptPath,
+        explicit Level(const std::string& assetPath,
             int checkpoint = 0);
         ~Level();
 

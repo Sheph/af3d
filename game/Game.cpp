@@ -53,7 +53,7 @@ namespace af3d
     {
     }
 
-    bool Game::init(const std::string& startScript)
+    bool Game::init(const std::string& startAsset)
     {
         AClassRegistry::instance().dump();
 
@@ -162,7 +162,7 @@ namespace af3d
             return false;
         }
 
-        return loadLevel(startScript);
+        return loadLevel(startAsset);
     }
 
     bool Game::renderReload(HardwareContext& ctx)
@@ -196,7 +196,7 @@ namespace af3d
 
     bool Game::update()
     {
-        static std::string scriptPath;
+        static std::string assetPath;
 
         std::uint64_t timeUs = getTimeUs();
         std::uint32_t deltaUs;
@@ -241,8 +241,8 @@ namespace af3d
             return false;
         }
 
-        if (level_->scene()->getNextLevel(scriptPath)) {
-            if (!loadLevel(scriptPath)) {
+        if (level_->scene()->getNextLevel(assetPath)) {
+            if (!loadLevel(assetPath)) {
                 return false;
             }
         }
@@ -343,7 +343,7 @@ namespace af3d
     {
     }
 
-    bool Game::loadLevel(const std::string& scriptPath)
+    bool Game::loadLevel(const std::string& assetPath)
     {
         int cp = 0;
 
@@ -353,9 +353,9 @@ namespace af3d
 
         level_.reset();
 
-        LOG4CPLUS_INFO(logger(), "loading level (\"" << scriptPath << "\")...");
+        LOG4CPLUS_INFO(logger(), "loading level (\"" << assetPath << "\")...");
 
-        LevelPtr level = std::make_shared<Level>(scriptPath, cp);
+        LevelPtr level = std::make_shared<Level>(assetPath, cp);
 
         if (!level->init()) {
             return false;
