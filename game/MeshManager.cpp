@@ -96,6 +96,7 @@ namespace af3d
         }
 
         auto mesh = std::make_shared<Mesh>(this, path, aabb, subMeshes, loader);
+        mesh->aflagsSet(AObjectEditable);
         mesh->load();
         cachedMeshes_.emplace(path, mesh);
         return mesh;

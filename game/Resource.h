@@ -42,8 +42,6 @@ namespace af3d
         ResourceLoader() = default;
         virtual ~ResourceLoader() = default;
 
-        virtual const std::string& assetName() const { return string_empty; }
-
         virtual void load(Resource& res, HardwareContext& ctx) = 0;
     };
 
@@ -73,8 +71,6 @@ namespace af3d
         void load(const ResourceLoaderPtr& loader = ResourceLoaderPtr());
 
         inline const ResourceLoaderPtr& loader() const { return loader_; }
-
-        const std::string& assetPath() const;
 
         inline bool valid() const { return state_ != Unloaded; }
 

@@ -75,8 +75,6 @@ namespace af3d
                 is_.reset();
             }
 
-            const std::string& assetName() const override { return path_; }
-
         private:
             bool initImpl()
             {

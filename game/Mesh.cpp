@@ -57,6 +57,7 @@ namespace af3d
 
     AObjectPtr Mesh::create(const APropertyValueMap& propVals)
     {
-        return MeshPtr();
+        auto name = propVals.get("name").toString();
+        return meshManager.loadMesh(name);
     }
 }

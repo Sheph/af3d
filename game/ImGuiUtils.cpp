@@ -146,8 +146,8 @@ namespace af3d { namespace ImGuiUtils
         {
             auto res = aobjectCast<Resource>(value_.toObject());
             std::string assetPath;
-            if (res && !res->assetPath().empty()) {
-                assetPath = res->assetPath();
+            if (res && !res->name().empty()) {
+                assetPath = res->name();
             }
 
             bool clicked = ImGui::Button("...");
