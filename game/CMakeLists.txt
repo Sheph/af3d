@@ -77,6 +77,8 @@ set(SOURCES
     Image.cpp
     ImageManager.cpp
     RenderQuadComponent.cpp
+    AJsonReader.cpp
+    AJsonWriter.cpp
     editor/Action.cpp
     editor/Workspace.cpp
     editor/MainPopup.cpp
