@@ -42,6 +42,7 @@
 #include "ImGuiManager.h"
 #include "AJsonWriter.h"
 #include "Logger.h"
+#include "Platform.h"
 #include "imgui.h"
 #include <set>
 #include <fstream>
@@ -196,7 +197,7 @@ namespace editor {
             AJsonSerializerDefault defS;
             AJsonWriter writer(val, defS);
             writer.write(scene()->sharedThis());
-            std::ofstream os("testWrite.json",
+            std::ofstream os(platform->assetsPath() + "/" + scene()->assetPath(),
                 std::ios_base::binary | std::ios_base::out | std::ios_base::trunc);
             os << Json::StyledWriter().write(val);
         }, assetManager.getImage("common1/scene_save.png"));
