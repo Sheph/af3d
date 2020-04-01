@@ -23,31 +23,34 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "ImageManager.h"
+#include "AssetManager.h"
 #include "TextureManager.h"
 #include "Logger.h"
 #include "Platform.h"
+#include "AJsonReader.h"
+#include <log4cplus/ndc.h>
 
 namespace af3d
 {
-    ImageManager imageManager;
+    AssetManager assetManager;
 
     template <>
-    Single<ImageManager>* Single<ImageManager>::single = NULL;
+    Single<AssetManager>* Single<AssetManager>::single = NULL;
 
-    bool ImageManager::init()
+    bool AssetManager::init()
     {
-        LOG4CPLUS_DEBUG(logger(), "imageManager: init...");
+        LOG4CPLUS_DEBUG(logger(), "assetManager: init...");
         return true;
     }
 
-    void ImageManager::shutdown()
+    void AssetManager::shutdown()
     {
-        LOG4CPLUS_DEBUG(logger(), "imageManager: shutdown...");
+        LOG4CPLUS_DEBUG(logger(), "assetManager: shutdown...");
         tpsMap_.clear();
+        sceneAssetMap_.clear();
     }
 
-    Image ImageManager::getImage(const std::string& name)
+    Image AssetManager::getImage(const std::string& name)
     {
         std::string::size_type pos = name.find('/');
 
@@ -91,8 +94,54 @@ namespace af3d
         }
     }
 
-    DrawablePtr ImageManager::getDrawable(const std::string& name)
+    DrawablePtr AssetManager::getDrawable(const std::string& name)
     {
         return std::make_shared<Drawable>(getImage(name));
+    }
+
+    SceneAssetPtr AssetManager::getSceneAsset(const std::string& name)
+    {
+        log4cplus::NDCContextCreator ndc(name);
+
+        auto it = sceneAssetMap_.find(name);
+
+        if (it == sceneAssetMap_.end()) {
+            Json::Value jsonValue;
+
+            PlatformIFStream is(name);
+
+            if (is) {
+                std::string jsonStr;
+                if (readStream(is, jsonStr)) {
+                    Json::Reader reader;
+                    if (!reader.parse(jsonStr, jsonValue)) {
+                        LOG4CPLUS_ERROR(logger(), "Failed to parse JSON: " << reader.getFormattedErrorMessages());
+                    }
+                } else {
+                    LOG4CPLUS_ERROR(logger(), "Error reading file");
+                }
+            } else {
+                LOG4CPLUS_ERROR(logger(), "Cannot open file");
+            }
+
+            it = sceneAssetMap_.emplace(name, jsonValue).first;
+        }
+
+        AJsonSerializerDefault defS;
+
+        AJsonReader reader(defS);
+        auto res = reader.read(it->second);
+
+        if (res.size() != 1) {
+            LOG4CPLUS_ERROR(logger(), "Multiple scenes in a single file ?");
+            return SceneAssetPtr();
+        }
+
+        auto asset = aobjectCast<SceneAsset>(res.back());
+        if (!asset) {
+            LOG4CPLUS_ERROR(logger(), "Not a scene asset");
+        }
+
+        return asset;
     }
 }

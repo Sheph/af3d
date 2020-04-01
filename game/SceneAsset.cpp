@@ -23,36 +23,28 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _IMAGEMANAGER_H_
-#define _IMAGEMANAGER_H_
-
-#include "Drawable.h"
-#include "af3d/Single.h"
-#include "af3d/TPS.h"
+#include "SceneAsset.h"
 
 namespace af3d
 {
-    class ImageManager : public Single<ImageManager>
+    ACLASS_DEFINE_BEGIN(SceneAsset, AObject)
+    ACLASS_PROPERTY(SceneAsset, Children, AProperty_Children, "Children", ArrayAObject, std::vector<APropertyValue>{}, Hierarchy, 0)
+    ACLASS_DEFINE_END(SceneAsset)
+
+    SceneAsset::SceneAsset()
+    : AObject(AClass_SceneAsset)
     {
-    public:
-        ImageManager() = default;
-        ~ImageManager() = default;
+    }
 
-        bool init();
+    const AClass& SceneAsset::staticKlass()
+    {
+        return AClass_SceneAsset;
+    }
 
-        void shutdown();
-
-        Image getImage(const std::string& name);
-
-        DrawablePtr getDrawable(const std::string& name);
-
-    private:
-        using TPSMap = std::unordered_map<std::string, TPSPtr>;
-
-        TPSMap tpsMap_;
-    };
-
-    extern ImageManager imageManager;
+    AObjectPtr SceneAsset::create(const APropertyValueMap& propVals)
+    {
+        auto obj = std::make_shared<SceneAsset>();
+        obj->propertiesSet(propVals);
+        return obj;
+    }
 }
-
-#endif

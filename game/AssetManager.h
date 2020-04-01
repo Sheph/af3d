@@ -23,55 +23,42 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _AJSONREADER_H_
-#define _AJSONREADER_H_
+#ifndef _ASSETMANAGER_H_
+#define _ASSETMANAGER_H_
 
-#include "AJsonSerializer.h"
-#include <unordered_set>
+#include "Drawable.h"
+#include "SceneAsset.h"
+#include "af3d/Single.h"
+#include "af3d/TPS.h"
+#include "json/json.h"
 
 namespace af3d
 {
-    class AJsonReader : boost::noncopyable
+    class AssetManager : public Single<AssetManager>
     {
     public:
-        explicit AJsonReader(AJsonSerializer& serializer);
-        ~AJsonReader() = default;
+        AssetManager() = default;
+        ~AssetManager() = default;
 
-        inline AJsonSerializer& serializer() { return serializer_; }
+        bool init();
 
-        std::vector<AObjectPtr> read(const Json::Value& jsonValue);
+        void shutdown();
 
-        AObjectPtr getObject(std::uint32_t id);
+        Image getImage(const std::string& name);
+
+        DrawablePtr getDrawable(const std::string& name);
+
+        SceneAssetPtr getSceneAsset(const std::string& name);
 
     private:
-        struct DelayedProperty
-        {
-            const AProperty* prop = nullptr;
-            std::unordered_set<std::uint32_t> deps;
-        };
+        using TPSMap = std::unordered_map<std::string, TPSPtr>;
+        using SceneAssetMap = std::unordered_map<std::string, Json::Value>;
 
-        struct ObjectState
-        {
-            ObjectState(const Json::Value& jsonValue, const AClass& klass)
-            : jsonValue(jsonValue),
-              klass(klass) {}
-
-            const Json::Value& jsonValue;
-            const AClass& klass;
-            AObjectPtr obj;
-            bool reading = false;
-            bool referred = false;
-
-            std::unordered_set<std::uint32_t> objectsToNotify;
-            std::vector<DelayedProperty> delayedProps;
-        };
-
-        using ObjectStateMap = std::unordered_map<std::uint32_t, ObjectState>;
-
-        AJsonSerializer& serializer_;
-
-        ObjectStateMap objectStateMap_;
+        TPSMap tpsMap_;
+        SceneAssetMap sceneAssetMap_;
     };
+
+    extern AssetManager assetManager;
 }
 
 #endif

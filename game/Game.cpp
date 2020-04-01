@@ -35,7 +35,7 @@
 #include "MaterialManager.h"
 #include "MeshManager.h"
 #include "ImGuiManager.h"
-#include "ImageManager.h"
+#include "AssetManager.h"
 #include "AClassRegistry.h"
 #include "af3d/Utils.h"
 #include "af3d/StreamAppConfig.h"
@@ -154,7 +154,7 @@ namespace af3d
             setupAudio(*userConfig);
         }
 
-        if (!imageManager.init()) {
+        if (!assetManager.init()) {
             return false;
         }
 
@@ -273,7 +273,7 @@ namespace af3d
 
         sceneObjectFactory.shutdown();
 
-        imageManager.shutdown();
+        assetManager.shutdown();
 
         imGuiManager.shutdown();
 

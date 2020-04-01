@@ -24,18 +24,59 @@
  */
 
 #include "AJsonReader.h"
+#include "AClassRegistry.h"
+#include "Logger.h"
 
 namespace af3d
 {
-    AJsonReader::AJsonReader(const Json::Value& jsonValue, AJsonSerializer& serializer)
-    : jsonValue_(jsonValue),
-      serializer_(serializer)
+    AJsonReader::AJsonReader(AJsonSerializer& serializer)
+    : serializer_(serializer)
     {
-        runtime_assert(jsonValue.isArray());
     }
 
-    std::vector<AObjectPtr> AJsonReader::read()
+    std::vector<AObjectPtr> AJsonReader::read(const Json::Value& jsonValue)
     {
+        std::vector<AObjectPtr> res;
+
+        objectStateMap_.clear();
+
+        if (!jsonValue.isArray()) {
+            LOG4CPLUS_ERROR(logger(), "Root Json value is not an array");
+            return res;
+        }
+
+        for (std::uint32_t i = 0; i < jsonValue.size(); ++i) {
+            const auto& jv = jsonValue[i];
+            if (!jv["id"].isUInt()) {
+                LOG4CPLUS_ERROR(logger(), "Bad \"id\" field, skipping");
+                continue;
+            }
+            std::uint32_t id = jv["id"].asUInt();
+
+            if (!jv["class"].isString()) {
+                LOG4CPLUS_ERROR(logger(), "Bad \"class\" field, skipping");
+                continue;
+            }
+            std::string klassName = jv["class"].asString();
+
+            const AClass* klass = AClassRegistry::instance().classFind(klassName);
+            if (!klass) {
+                LOG4CPLUS_ERROR(logger(), "Unknown class \"" << klassName << "\", skipping");
+                continue;
+            }
+
+            objectStateMap_.emplace(id, ObjectState(jv, *klass));
+        }
+
+        for (const auto& kv : objectStateMap_) {
+            getObject(kv.first);
+        }
+
         return std::vector<AObjectPtr>();
+    }
+
+    AObjectPtr AJsonReader::getObject(std::uint32_t id)
+    {
+        return AObjectPtr();
     }
 }

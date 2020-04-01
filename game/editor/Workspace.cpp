@@ -38,7 +38,7 @@
 #include "CameraComponent.h"
 #include "RenderMeshComponent.h"
 #include "MeshManager.h"
-#include "ImageManager.h"
+#include "AssetManager.h"
 #include "ImGuiManager.h"
 #include "AJsonWriter.h"
 #include "Logger.h"
@@ -182,12 +182,12 @@ namespace editor {
         actionSceneNew_ = Action("New scene", []() {
             return Action::State(false);
         }, []() {
-        }, imageManager.getImage("common1/scene_new.png"));
+        }, assetManager.getImage("common1/scene_new.png"));
 
         actionSceneOpen_ = Action("Open scene", []() {
             return Action::State(false);
         }, []() {
-        }, imageManager.getImage("common1/scene_open.png"));
+        }, assetManager.getImage("common1/scene_open.png"));
 
         actionSceneSave_ = Action("Save scene", []() {
             return Action::State(true);
@@ -199,41 +199,41 @@ namespace editor {
             std::ofstream os("testWrite.json",
                 std::ios_base::binary | std::ios_base::out | std::ios_base::trunc);
             os << Json::StyledWriter().write(val);
-        }, imageManager.getImage("common1/scene_save.png"));
+        }, assetManager.getImage("common1/scene_save.png"));
 
         actionModeScene_ = Action("Edit scene settings", []() {
             return Action::State(false);
         }, []() {
-        }, imageManager.getImage("common1/mode_scene.png"));
+        }, assetManager.getImage("common1/mode_scene.png"));
 
         actionModeObject_ = Action("Edit objects", [this]() {
             return Action::State(true, emObject_->active());
         }, [this]() {
             emObject_->activate();
-        }, imageManager.getImage("common1/mode_object.png"));
+        }, assetManager.getImage("common1/mode_object.png"));
 
         actionModeVisual_ = Action("Edit visuals", [this]() {
             return Action::State(true, emVisual_->active());
         }, [this]() {
             emVisual_->activate();
-        }, imageManager.getImage("common1/mode_visual.png"));
+        }, assetManager.getImage("common1/mode_visual.png"));
 
         actionModeLight_ = Action("Edit lights", []() {
             return Action::State(false);
         }, []() {
-        }, imageManager.getImage("common1/mode_light.png"));
+        }, assetManager.getImage("common1/mode_light.png"));
 
         actionUndo_ = Action("Undo", [this]() {
             return Action::State(cmdHistory_.pos() > 0);
         }, [this]() {
             cmdHistory_.undo(1);
-        }, imageManager.getImage("common1/undo.png"));
+        }, assetManager.getImage("common1/undo.png"));
 
         actionRedo_ = Action("Redo", [this]() {
             return Action::State(cmdHistory_.pos() < static_cast<int>(cmdHistory_.list().size()));
         }, [this]() {
             cmdHistory_.redo(1);
-        }, imageManager.getImage("common1/redo.png"));
+        }, assetManager.getImage("common1/redo.png"));
 
         actionOpMenu_ = Action("", []() {
             return Action::State(true);

@@ -75,10 +75,11 @@ set(SOURCES
     AObject.cpp
     AClassRegistry.cpp
     Image.cpp
-    ImageManager.cpp
+    AssetManager.cpp
     RenderQuadComponent.cpp
     AJsonReader.cpp
     AJsonWriter.cpp
+    SceneAsset.cpp
     editor/Action.cpp
     editor/Workspace.cpp
     editor/MainPopup.cpp

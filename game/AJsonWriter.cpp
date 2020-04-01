@@ -167,7 +167,7 @@ namespace af3d
 
             auto& value = jsonValue_.append(Json::objectValue);
             value["id"] = registerObject(nextObj);
-            value["class"] = nextObj->klass().name();
+            value["class"] = (nextObj->klass().name() == "Scene") ? "SceneAsset" : nextObj->klass().name();
             auto props = nextObj->klass().getProperties();
             for (const auto& prop : props) {
                 if ((prop.flags() & APropertyTransient) == 0) {

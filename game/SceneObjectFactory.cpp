@@ -26,7 +26,7 @@
 #include "SceneObjectFactory.h"
 #include "MaterialManager.h"
 #include "MeshManager.h"
-#include "ImageManager.h"
+#include "AssetManager.h"
 #include "RenderMeshComponent.h"
 #include "RenderQuadComponent.h"
 #include "Settings.h"

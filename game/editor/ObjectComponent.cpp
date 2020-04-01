@@ -26,7 +26,7 @@
 #include "editor/ObjectComponent.h"
 #include "Scene.h"
 #include "SceneObject.h"
-#include "ImageManager.h"
+#include "AssetManager.h"
 #include "Settings.h"
 
 namespace af3d {
@@ -96,7 +96,7 @@ namespace editor {
     void ObjectComponent::onRegister()
     {
         markerRc_ = std::make_shared<RenderQuadComponent>();
-        markerRc_->setDrawable(imageManager.getDrawable("common1/marker1.png"));
+        markerRc_->setDrawable(assetManager.getDrawable("common1/marker1.png"));
         markerRc_->setDepthTest(false);
         markerRc_->setHeight(settings.editor.objMarkerSizeWorld);
         markerRc_->setViewportHeight((float)settings.editor.objMarkerSizePixels / settings.viewHeight);
