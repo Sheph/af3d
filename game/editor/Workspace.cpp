@@ -40,9 +40,11 @@
 #include "MeshManager.h"
 #include "ImageManager.h"
 #include "ImGuiManager.h"
+#include "AJsonWriter.h"
 #include "Logger.h"
 #include "imgui.h"
 #include <set>
+#include <fstream>
 
 namespace af3d {
     ACLASS_NS_DEFINE_BEGIN(editor, Workspace, UIComponent)
@@ -188,8 +190,15 @@ namespace editor {
         }, imageManager.getImage("common1/scene_open.png"));
 
         actionSceneSave_ = Action("Save scene", []() {
-            return Action::State(false);
-        }, []() {
+            return Action::State(true);
+        }, [this]() {
+            Json::Value val(Json::arrayValue);
+            AJsonSerializerDefault defS;
+            AJsonWriter writer(val, defS);
+            writer.write(scene()->sharedThis());
+            std::ofstream os("testWrite.json",
+                std::ios_base::binary | std::ios_base::out | std::ios_base::trunc);
+            os << Json::StyledWriter().write(val);
         }, imageManager.getImage("common1/scene_save.png"));
 
         actionModeScene_ = Action("Edit scene settings", []() {

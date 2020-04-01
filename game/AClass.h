@@ -115,7 +115,7 @@ namespace af3d
         const AClass AClass_##NS##Name{#NS "::" #Name, AClass_##Super, &NS::Name::create, {
 
     #define ACLASS_PROPERTY(ClassName, Member, Name, Tooltip, Type, Def, Category, Flags) \
-        {Name, Tooltip, APropertyType_##Type, Def, APropertyCategory::Category, APropertyReadable|APropertyWritable|Flags, (APropertyGetter)&ClassName::property##Member##Get, (APropertySetter)&ClassName::property##Member##Set},
+        {Name, Tooltip, APropertyType_##Type, APropertyValue(Def), APropertyCategory::Category, APropertyReadable|APropertyWritable|Flags, (APropertyGetter)&ClassName::property##Member##Get, (APropertySetter)&ClassName::property##Member##Set},
 
     #define ACLASS_PROPERTY_RO(ClassName, Member, Name, Tooltip, Type, Category, Flags) \
         {Name, Tooltip, APropertyType_##Type, APropertyValue(), APropertyCategory::Category, APropertyReadable|Flags, (APropertyGetter)&ClassName::property##Member##Get, nullptr},

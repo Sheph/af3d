@@ -27,6 +27,7 @@
 #include "Scene.h"
 #include "Utils.h"
 #include "Settings.h"
+#include "Logger.h"
 
 namespace af3d
 {
@@ -1077,6 +1078,47 @@ namespace af3d
 
         for (const auto& c : tmpComponents) {
             scene()->thawComponent(c);
+        }
+    }
+
+    std::vector<AObjectPtr> SceneObject::getChildren() const
+    {
+        std::vector<AObjectPtr> res;
+        res.reserve(components_.size() + objects().size());
+        for (const auto& c : components_) {
+            if ((c->aflags() & AObjectEditable) != 0) {
+                res.push_back(c);
+            }
+        }
+        for (const auto& obj : objects()) {
+            if ((obj->aflags() & AObjectEditable) != 0) {
+                res.push_back(obj);
+            }
+        }
+        return res;
+    }
+
+    void SceneObject::setChildren(const std::vector<AObjectPtr>& value)
+    {
+        auto objs = objects();
+        for (const auto& obj : objs) {
+            if ((obj->aflags() & AObjectEditable) != 0) {
+                obj->removeFromParent();
+            }
+        }
+        for (const auto& c : components_) {
+            if ((c->aflags() & AObjectEditable) != 0) {
+                c->removeFromParent();
+            }
+        }
+        for (const auto& obj : value) {
+            if (auto sObj = aobjectCast<SceneObject>(obj)) {
+                addObject(sObj);
+            } else if (auto c = aobjectCast<Component>(obj)) {
+                addComponent(c);
+            } else {
+                LOG4CPLUS_ERROR(logger(), "Bad child object \"" << obj->name() << "\", class - \"" << obj->klass().name() << "\"");
+            }
         }
     }
 }

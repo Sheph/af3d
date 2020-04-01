@@ -27,6 +27,7 @@
 #define _AJSONWRITER_H_
 
 #include "AJsonSerializer.h"
+#include <list>
 
 namespace af3d
 {
@@ -36,11 +37,21 @@ namespace af3d
         AJsonWriter(Json::Value& jsonValue, AJsonSerializer& serializer);
         ~AJsonWriter() = default;
 
+        inline AJsonSerializer& serializer() { return serializer_; }
+
         void write(const AObjectPtr& obj);
 
+        std::uint32_t registerObject(const AObjectPtr& obj);
+
     private:
+        using ObjectMap = std::unordered_map<AObjectPtr, std::uint32_t>;
+
         Json::Value& jsonValue_;
         AJsonSerializer& serializer_;
+
+        std::uint32_t nextId_ = 1;
+        ObjectMap objectMap_;
+        std::list<AObjectPtr> objectsToProcess_;
     };
 }
 

@@ -29,6 +29,7 @@
 namespace af3d
 {
     ACLASS_DEFINE_BEGIN(LightComponent, RenderComponent)
+    ACLASS_PROPERTY(LightComponent, Children, AProperty_Children, "Children", ArrayAObject, std::vector<APropertyValue>{}, Hierarchy, 0)
     ACLASS_DEFINE_END(LightComponent)
 
     LightComponent::LightComponent()

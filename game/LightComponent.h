@@ -28,6 +28,7 @@
 
 #include "RenderComponent.h"
 #include "Light.h"
+#include "Logger.h"
 
 namespace af3d
 {
@@ -72,6 +73,36 @@ namespace af3d
                 }
             }
             return std::shared_ptr<T>();
+        }
+
+        APropertyValue propertyChildrenGet(const std::string&) const
+        {
+            std::vector<APropertyValue> res;
+            res.reserve(lights_.size());
+            for (const auto& light : lights_) {
+                if ((light->aflags() & AObjectEditable) != 0) {
+                    res.emplace_back(light);
+                }
+            }
+            return res;
+        }
+        void propertyChildrenSet(const std::string&, const APropertyValue& value)
+        {
+            auto ls = lights();
+            for (const auto& light : ls) {
+                if ((light->aflags() & AObjectEditable) != 0) {
+                    light->remove();
+                }
+            }
+            auto arr = value.toArray();
+            for (const auto& v : arr) {
+                auto obj = v.toObject();
+                if (auto sLight = aobjectCast<Light>(obj)) {
+                    addLight(sLight);
+                } else {
+                    LOG4CPLUS_ERROR(logger(), "Bad child object \"" << obj->name() << "\", class - \"" << obj->klass().name() << "\"");
+                }
+            }
         }
 
     private:

@@ -31,6 +31,7 @@
 #include <mutex>
 #include <unordered_map>
 #include <unordered_set>
+#include <memory>
 
 namespace af3d
 {
@@ -48,6 +49,17 @@ namespace af3d
                 static_cast<typename std::underlying_type<T>::type>(elem));
         }
     };
+
+    struct NullDeleter
+    {
+        void operator()(const void*) const {}
+    };
+
+    template <class T>
+    std::shared_ptr<T> makeSharedNullDeleter(T* ptr)
+    {
+        return std::shared_ptr<T>(ptr, NullDeleter());
+    }
 
     template <class KeyT, class ValueT>
     using EnumUnorderedMap = std::unordered_map<KeyT, ValueT, EnumHash<KeyT>>;

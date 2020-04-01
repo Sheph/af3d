@@ -42,6 +42,7 @@ namespace af3d
     enum class APropertyCategory
     {
         General = 0,
+        Hierarchy,
         Position,
         Params,
         Max = Params
@@ -87,6 +88,7 @@ namespace af3d
 
     using APropertyList = std::vector<AProperty>;
 
+    #define AProperty_Children "children"
     #define AProperty_Name "name"
     #define AProperty_Visible "visible"
     #define AProperty_LocalTransform "local transform"

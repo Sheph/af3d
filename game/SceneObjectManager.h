@@ -92,10 +92,34 @@ namespace af3d
         inline Scene* scene() { return scene_; }
         inline void setScene(Scene* value) { scene_ = value; }
 
+        APropertyValue propertyChildrenGet(const std::string&) const
+        {
+            std::vector<APropertyValue> res;
+            auto children = getChildren();
+            res.reserve(children.size());
+            for (const auto& c : children) {
+                res.emplace_back(c);
+            }
+            return res;
+        }
+        void propertyChildrenSet(const std::string&, const APropertyValue& value)
+        {
+            std::vector<AObjectPtr> res;
+            auto children = value.toArray();
+            res.reserve(children.size());
+            for (const auto& c : children) {
+                res.emplace_back(c.toObject());
+            }
+            setChildren(res);
+        }
+
     private:
         void registerObject(const SceneObjectPtr& obj);
 
         void unregisterObject(const SceneObjectPtr& obj);
+
+        virtual std::vector<AObjectPtr> getChildren() const = 0;
+        virtual void setChildren(const std::vector<AObjectPtr>& value) = 0;
 
         SceneObjectManager* parent_ = nullptr;
 

@@ -256,6 +256,10 @@ namespace af3d
 
         using Flags = EnumSet<Flag>;
 
+        std::vector<AObjectPtr> getChildren() const override;
+
+        void setChildren(const std::vector<AObjectPtr>& value) override;
+
         SceneObjectType type_;
 
         btRigidBody::btRigidBodyConstructionInfo bodyDef_;
@@ -287,7 +291,7 @@ namespace af3d
         ACLASS_PROPERTY_RO(SceneObject, Type, "type", "Scene object type", SceneObjectType, General, APropertyEditable|APropertyTransient)
 
     #define SCENEOBJECT_PARAM(SName, Name, Tooltip, Type, Def) \
-        {Name, Tooltip, APropertyType_##Type, Def, APropertyCategory::Params, APropertyReadable|APropertyEditable, (APropertyGetter)&SceneObject::propertyParamGet, nullptr},
+        {Name, Tooltip, APropertyType_##Type, APropertyValue(Def), APropertyCategory::Params, APropertyReadable|APropertyEditable, (APropertyGetter)&SceneObject::propertyParamGet, nullptr},
 
     #define SCENEOBJECT_DEFINE_END(Name) }};
 }

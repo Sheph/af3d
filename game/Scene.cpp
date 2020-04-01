@@ -456,4 +456,34 @@ namespace af3d
 
         tmp.clear();
     }
+
+    std::vector<AObjectPtr> Scene::getChildren() const
+    {
+        std::vector<AObjectPtr> res;
+        res.reserve(objects().size());
+        for (const auto& obj : objects()) {
+            if ((obj->aflags() & AObjectEditable) != 0) {
+                res.push_back(obj);
+            }
+        }
+        return res;
+    }
+
+    void Scene::setChildren(const std::vector<AObjectPtr>& value)
+    {
+        auto objs = objects();
+        for (const auto& obj : objs) {
+            if ((obj->aflags() & AObjectEditable) != 0) {
+                obj->removeFromParent();
+            }
+        }
+        for (const auto& obj : value) {
+            auto sObj = aobjectCast<SceneObject>(obj);
+            if (sObj) {
+                addObject(sObj);
+            } else {
+                LOG4CPLUS_ERROR(logger(), "Bad child object \"" << obj->name() << "\", class - \"" << obj->klass().name() << "\"");
+            }
+        }
+    }
 }

@@ -54,7 +54,7 @@ namespace af3d
 
         static AObjectPtr create(const APropertyValueMap& propVals);
 
-        AObjectPtr sharedThis() override { btAssert(false); return AObjectPtr(); }
+        AObjectPtr sharedThis() override { return makeSharedNullDeleter(this); }
 
         void prepare();
 
@@ -117,6 +117,10 @@ namespace af3d
         void freezeThawObjects(const AABB& aabb);
 
         void updateInputMode();
+
+        std::vector<AObjectPtr> getChildren() const override;
+
+        void setChildren(const std::vector<AObjectPtr>& value) override;
 
         class Impl;
         std::unique_ptr<Impl> impl_;
