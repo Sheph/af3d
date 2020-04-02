@@ -48,6 +48,16 @@ namespace af3d { namespace editor
         void update(float dt) override;
 
     private:
+        struct PropInfo
+        {
+            explicit PropInfo(const AProperty& prop)
+            : prop(prop) {}
+
+            AProperty prop;
+            APropertyValue initialVal;
+            APropertyValue val;
+        };
+
         void onRegister() override;
 
         void onUnregister() override;
@@ -55,7 +65,7 @@ namespace af3d { namespace editor
         bool show_ = true;
 
         AWeakObject wobj_;
-        APropertyList properties_;
+        std::vector<PropInfo> properties_;
     };
 
     using PropertyEditorPtr = std::shared_ptr<PropertyEditor>;

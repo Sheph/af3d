@@ -80,7 +80,10 @@ namespace editor {
             wobj_ = newWobj;
             properties_.clear();
             if (obj) {
-                properties_ = obj->klass().getProperties();
+                auto props = obj->klass().getProperties();
+                for (const auto& prop : props) {
+                    properties_.emplace_back(prop);
+                }
             }
         }
 
@@ -101,28 +104,32 @@ namespace editor {
         if (obj) {
             ImGui::PushID(std::to_string(wobj_.cookie()).c_str());
 
-            for (const auto& prop : properties_) {
-                if ((prop.flags() & APropertyEditable) == 0) {
+            for (auto& pi : properties_) {
+                if ((pi.prop.flags() & APropertyEditable) == 0) {
                     continue;
                 }
 
-                ImGui::PushID(prop.name().c_str());
+                ImGui::PushID(pi.prop.name().c_str());
 
                 ImGui::Separator();
-                ImGui::Text("%s", prop.name().c_str());
+                ImGui::Text("%s", pi.prop.name().c_str());
                 if (ImGui::IsItemHovered()) {
                     ImGui::BeginTooltip();
-                    ImGui::Text("%s (%s)", prop.tooltip().c_str(), prop.type().name());
+                    ImGui::Text("%s (%s)", pi.prop.tooltip().c_str(), pi.prop.type().name());
                     ImGui::EndTooltip();
                 }
 
                 ImGui::NextColumn();
 
-                bool isParam = (prop.category() == APropertyCategory::Params);
+                bool isParam = (pi.prop.category() == APropertyCategory::Params);
 
-                auto val = obj->propertyGet(prop.name());
-                if (ImGuiUtils::APropertyEdit(prop.type(), val, !isParam && (prop.flags() & APropertyWritable) == 0) && !wasSet) {
-                    scene()->workspace()->setProperty(obj, prop.name(), val, isParam);
+                auto val = obj->propertyGet(pi.prop.name());
+                if (val != pi.initialVal) {
+                    pi.initialVal = pi.val = val;
+                }
+                if (ImGuiUtils::APropertyEdit(pi.prop.type(), pi.val, !isParam && (pi.prop.flags() & APropertyWritable) == 0) &&
+                    !wasSet && (pi.val != pi.initialVal)) {
+                    scene()->workspace()->setProperty(obj, pi.prop.name(), pi.val, isParam);
                     wasSet = true;
                 }
 

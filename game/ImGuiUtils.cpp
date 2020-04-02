@@ -112,15 +112,14 @@ namespace af3d { namespace ImGuiUtils
 
             Color c = value_.toColor();
 
-            bool ch;
             if (type.hasAlpha()) {
-                ch = ImGui::ColorEdit4("##val", &c.v[0], flags);
+                ImGui::ColorEdit4("##val", &c.v[0], flags);
             } else {
-                ch = ImGui::ColorEdit3("##val", &c.v[0], flags);
+                ImGui::ColorEdit3("##val", &c.v[0], flags);
             }
 
-            if (ch && !readOnly_) {
-                ret_ = true;
+            if (!readOnly_) {
+                ret_ = !ImGui::IsMouseDown(ImGuiMouseButton_Left);
                 value_ = APropertyValue(c);
             }
         }
