@@ -45,6 +45,7 @@ namespace af3d { namespace editor
             --pos_;
             LOG4CPLUS_DEBUG(logger(), "CommandHistory: undo (" << pos_ + 1 << ") " << list_[pos_]->description());
             if (!list_[pos_]->undo()) {
+                ++pos_;
                 break;
             }
         }

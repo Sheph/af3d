@@ -28,6 +28,7 @@
 
 #include "editor/Command.h"
 #include "AObject.h"
+#include "json/json.h"
 
 namespace af3d { namespace editor
 {
@@ -42,9 +43,15 @@ namespace af3d { namespace editor
         bool undo() override;
 
     private:
-        ACookie cookie_ = 0;
+        void writeJson(const AObjectPtr& obj);
+
+        void redoNested();
+
+        bool first_ = true;
+        AWeakObject parentWobj_;
+        AWeakObject wobj_;
         Json::Value data_;
-        std::vector<CommandSetProperty> props_;
+        std::vector<CommandPtr> nested_;
     };
 } }
 

@@ -93,6 +93,16 @@ namespace af3d
         bool operator<(const APropertyValue& rhs) const;
         bool operator==(const APropertyValue& rhs) const;
 
+        // Does this value somehow uses 'obj' (weak and non-weak).
+        bool uses(const AObjectPtr& obj) const;
+        // Convert all used non-weak objs to weak.
+        void convertToWeak();
+        // Convert all used weak objs to non-weak.
+        void convertFromWeak();
+
+        // Cut out all references to 'obj' (weak and non-weak).
+        bool cut(const AObjectPtr& obj);
+
     private:
         union Pod
         {

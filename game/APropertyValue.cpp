@@ -24,7 +24,9 @@
  */
 
 #include "APropertyValue.h"
+#include "AObject.h"
 #include <sstream>
+#include <algorithm>
 
 namespace af3d
 {
@@ -383,5 +385,94 @@ namespace af3d
             btAssert(false);
             return false;
         }
+    }
+
+    bool APropertyValue::uses(const AObjectPtr& obj) const
+    {
+        switch (type_) {
+        case Object:
+            return obj_ == obj;
+        case WeakObject:
+            return wobj_.cookie() == obj->cookie();
+        case Array:
+            for (const auto& e : arr_) {
+                if (e.uses(obj)) {
+                    return true;
+                }
+            }
+            return false;
+        default:
+            return false;
+        }
+    }
+
+    void APropertyValue::convertToWeak()
+    {
+        switch (type_) {
+        case Object:
+            type_ = WeakObject;
+            wobj_ = AWeakObject(obj_);
+            obj_.reset();
+            break;
+        case Array:
+            for (auto& e : arr_) {
+                e.convertToWeak();
+            }
+            break;
+        default:
+            break;
+        }
+    }
+
+    void APropertyValue::convertFromWeak()
+    {
+        switch (type_) {
+        case Object:
+            // If object was re-created, then re-assign it.
+            obj_ = AWeakObject(obj_).lock();
+            break;
+        case WeakObject:
+            type_ = Object;
+            obj_ = wobj_.lock();
+            wobj_.reset();
+            break;
+        case Array:
+            for (auto& e : arr_) {
+                e.convertFromWeak();
+            }
+            break;
+        default:
+            break;
+        }
+    }
+
+    bool APropertyValue::cut(const AObjectPtr& obj)
+    {
+        switch (type_) {
+        case Object:
+            if (obj_ == obj) {
+                obj_.reset();
+                return true;
+            }
+            break;
+        case WeakObject:
+            if (wobj_.cookie() == obj->cookie()) {
+                wobj_.reset();
+                return true;
+            }
+            break;
+        case Array: {
+            bool res = false;
+            arr_.erase(std::remove_if(arr_.begin(), arr_.end(), [obj, &res](APropertyValue& v) {
+                bool r = v.cut(obj);
+                res |= r;
+                return r && (v.type() != Array);
+            }), arr_.end());
+            return res;
+        }
+        default:
+            break;
+        }
+        return false;
     }
 }

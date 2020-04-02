@@ -48,6 +48,8 @@ namespace af3d { namespace editor
             return false;
         }
 
+        value_.convertFromWeak();
+
         obj->propertySet(name_, value_);
 
         return true;
@@ -60,6 +62,8 @@ namespace af3d { namespace editor
             LOG4CPLUS_ERROR(logger(), "undo: Cannot get obj by cookie: " << description());
             return false;
         }
+
+        prevValue_.convertFromWeak();
 
         obj->propertySet(name_, prevValue_);
 

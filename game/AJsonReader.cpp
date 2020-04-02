@@ -174,7 +174,7 @@ namespace af3d
                 value_ = APropertyValue(obj);
                 return;
             }
-            if (!jsonValue_.isInt()) {
+            if (!jsonValue_.isInt() && !jsonValue_.isUInt()) {
                 LOG4CPLUS_ERROR(logger(), "Object id not an int");
                 value_ = APropertyValue(AObjectPtr());
                 return;
@@ -259,7 +259,7 @@ namespace af3d
 
         for (std::uint32_t i = 0; i < jsonValue.size(); ++i) {
             const auto& jv = jsonValue[i];
-            if (!jv["id"].isInt()) {
+            if (!jv["id"].isInt() && !jv["id"].isUInt()) {
                 LOG4CPLUS_ERROR(logger(), "Bad \"id\" field, skipping");
                 continue;
             }

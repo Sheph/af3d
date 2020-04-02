@@ -55,7 +55,7 @@ namespace af3d { namespace editor
         if (!value.isArray() || (value.size() != 1) || (!value[0].isInt() && !value[0].isUInt())) {
             return AObjectPtr();
         }
-        std::uint64_t cookie = value.asUInt64();
+        std::uint64_t cookie = value[0].asUInt64();
         auto obj = AObject::getByCookie(cookie);
         if (obj) {
             return obj->sharedThis();

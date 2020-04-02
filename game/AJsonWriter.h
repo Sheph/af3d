@@ -34,18 +34,20 @@ namespace af3d
     class AJsonWriter : boost::noncopyable
     {
     public:
+        using ObjectMap = std::unordered_map<AObjectPtr, std::uint32_t>;
+
         AJsonWriter(Json::Value& jsonValue, AJsonSerializer& serializer, bool withCookie = false);
         ~AJsonWriter() = default;
 
         inline AJsonSerializer& serializer() { return serializer_; }
+
+        inline const ObjectMap& objectMap() const { return objectMap_; }
 
         void write(const AObjectPtr& obj);
 
         std::uint32_t registerObject(const AObjectPtr& obj);
 
     private:
-        using ObjectMap = std::unordered_map<AObjectPtr, std::uint32_t>;
-
         Json::Value& jsonValue_;
         AJsonSerializer& serializer_;
         bool withCookie_ = false;

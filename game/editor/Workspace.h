@@ -86,6 +86,8 @@ namespace af3d { namespace editor
 
         void setEditMode(EditModeImpl* value);
 
+        void deleteObject(const AObjectPtr& obj);
+
     private:
         void onRegister() override;
 

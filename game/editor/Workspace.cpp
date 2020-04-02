@@ -30,6 +30,7 @@
 #include "editor/CommandAddObject.h"
 #include "editor/CommandAddComponent.h"
 #include "editor/CommandSetProperty.h"
+#include "editor/CommandDelete.h"
 #include "Const.h"
 #include "InputManager.h"
 #include "AClassRegistry.h"
@@ -107,6 +108,11 @@ namespace editor {
 
         if (inputManager.keyboard().triggered(KI_I)) {
             actionMainPopup().trigger();
+        } else if (inputManager.keyboard().triggered(KI_DELETE)) {
+            auto sel = em_->selected();
+            for (const auto& wobj : sel) {
+                deleteObject(wobj.lock());
+            }
         }
 
         auto cc = scene()->camera()->findComponent<CameraComponent>();
@@ -160,6 +166,12 @@ namespace editor {
         em_->leave();
         em_ = value;
         em_->enter();
+    }
+
+    void Workspace::deleteObject(const AObjectPtr& obj)
+    {
+        cmdHistory_.add(
+            std::make_shared<CommandDelete>(scene(), obj));
     }
 
     void Workspace::onRegister()
