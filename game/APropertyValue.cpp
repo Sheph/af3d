@@ -87,6 +87,12 @@ namespace af3d
     {
     }
 
+    APropertyValue::APropertyValue(const AWeakObject& val)
+    : type_(WeakObject),
+      wobj_(val)
+    {
+    }
+
     APropertyValue::APropertyValue(const btTransform& val)
     : type_(Transform),
       xf_(val)
@@ -164,6 +170,11 @@ namespace af3d
         case Object: {
             std::ostringstream os;
             os << "<" << obj_.get() << ">";
+            return os.str();
+        }
+        case WeakObject: {
+            std::ostringstream os;
+            os << "<<" << wobj_.cookie() << ">>";
             return os.str();
         }
         case Transform: {
@@ -250,8 +261,22 @@ namespace af3d
         switch (type_) {
         case Object:
             return obj_;
+        case WeakObject:
+            return wobj_.lock();
         default:
             return AObjectPtr();
+        }
+    }
+
+    AWeakObject APropertyValue::toWeakObject() const
+    {
+        switch (type_) {
+        case Object:
+            return AWeakObject(obj_);
+        case WeakObject:
+            return wobj_;
+        default:
+            return AWeakObject();
         }
     }
 
@@ -297,6 +322,8 @@ namespace af3d
             return pod_.vec4fVal < rhs.pod_.vec4fVal;
         case Object:
             return obj_ < rhs.obj_;
+        case WeakObject:
+            return wobj_.cookie() < rhs.wobj_.cookie();
         case Transform:
             btAssert(false);
             return false;
@@ -338,6 +365,8 @@ namespace af3d
             return pod_.vec4fVal == rhs.pod_.vec4fVal;
         case Object:
             return obj_ == rhs.obj_;
+        case WeakObject:
+            return wobj_ == rhs.wobj_;
         case Transform:
             return xf_ == rhs.xf_;
         case Array:

@@ -26,19 +26,15 @@
 #ifndef _APROPERTY_VALUE_H_
 #define _APROPERTY_VALUE_H_
 
-#include "af3d/Types.h"
+#include "AWeakObject.h"
 #include "af3d/Vector2.h"
 #include "af3d/Vector3.h"
 #include "af3d/Vector4.h"
 #include <boost/operators.hpp>
-#include <memory>
 #include <unordered_map>
 
 namespace af3d
 {
-    class AObject;
-    using AObjectPtr = std::shared_ptr<AObject>;
-
     class APropertyValue : public boost::totally_ordered<APropertyValue>
     {
     public:
@@ -52,6 +48,7 @@ namespace af3d
             Vec3f,
             Vec4f,
             Object,
+            WeakObject,
             Transform,
             Array
         };
@@ -66,6 +63,7 @@ namespace af3d
         APropertyValue(const btVector3& val);
         APropertyValue(const Vector4f& val);
         APropertyValue(const AObjectPtr& val);
+        APropertyValue(const AWeakObject& val);
         APropertyValue(const btTransform& val);
         APropertyValue(const std::vector<APropertyValue>& val);
 
@@ -85,6 +83,7 @@ namespace af3d
         Vector4f toVec4f() const;
         inline Color toColor() const { return toVec4f(); }
         AObjectPtr toObject() const;
+        AWeakObject toWeakObject() const;
         btTransform toTransform() const;
         std::vector<APropertyValue> toArray() const;
 
@@ -115,6 +114,7 @@ namespace af3d
         Pod pod_;
         std::string str_;
         AObjectPtr obj_;
+        AWeakObject wobj_;
         btTransform xf_;
         std::vector<APropertyValue> arr_;
     };

@@ -30,8 +30,6 @@
 
 namespace af3d
 {
-    using ACookie = std::uint64_t;
-
     enum AObjectFlags
     {
         AObjectEditable = 1 << 0,
@@ -106,11 +104,19 @@ namespace af3d
     }
 
     template <class T>
+    inline std::shared_ptr<T> aweakObjectCast(const AWeakObject& weakObj)
+    {
+        return aobjectCast<T>(weakObj.lock());
+    }
+
+    template <class T>
     std::shared_ptr<T> APropertyValue::toObject() const
     {
         switch (type_) {
         case Object:
             return aobjectCast<T>(obj_);
+        case WeakObject:
+            return aweakObjectCast<T>(wobj_);
         default:
             return std::shared_ptr<T>();
         }

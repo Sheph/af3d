@@ -27,7 +27,7 @@
 #define _EDITOR_COMMAND_SETPROPERTY_H_
 
 #include "editor/Command.h"
-#include "AWeakObject.h"
+#include "AObject.h"
 
 namespace af3d { namespace editor
 {

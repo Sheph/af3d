@@ -24,6 +24,7 @@
  */
 
 #include "AWeakObject.h"
+#include "AObject.h"
 
 namespace af3d
 {

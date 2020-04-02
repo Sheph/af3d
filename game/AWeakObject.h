@@ -26,10 +26,16 @@
 #ifndef _AWEAKOBJECT_H_
 #define _AWEAKOBJECT_H_
 
-#include "AObject.h"
+#include "af3d/Types.h"
+#include <memory>
 
 namespace af3d
 {
+    using ACookie = std::uint64_t;
+
+    class AObject;
+    using AObjectPtr = std::shared_ptr<AObject>;
+
     class AWeakObject
     {
     public:
@@ -58,14 +64,6 @@ namespace af3d
     private:
         ACookie cookie_ = 0;
     };
-
-    template <class T>
-    inline std::shared_ptr<T> aweakObjectCast(const AWeakObject& weakObj)
-    {
-        auto obj = weakObj.lock();
-        return (obj && obj->isSubClassOf(T::staticKlass())) ?
-            std::static_pointer_cast<T>(obj) : std::shared_ptr<T>();
-    }
 }
 
 #endif
