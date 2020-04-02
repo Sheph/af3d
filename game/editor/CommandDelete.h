@@ -43,7 +43,7 @@ namespace af3d { namespace editor
         bool undo() override;
 
     private:
-        void writeJson(const AObjectPtr& obj);
+        void preDelete(const AObjectPtr& obj);
 
         void redoNested();
 

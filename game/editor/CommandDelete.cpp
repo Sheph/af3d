@@ -24,8 +24,10 @@
  */
 
 #include "editor/CommandDelete.h"
+#include "editor/CommandSelect.h"
 #include "editor/JsonSerializer.h"
 #include "SceneObject.h"
+#include "Scene.h"
 #include "Logger.h"
 #include "AJsonWriter.h"
 #include "AJsonReader.h"
@@ -53,7 +55,7 @@ namespace af3d { namespace editor
                 return false;
             }
             setDescription("Delete object");
-            writeJson(obj);
+            preDelete(obj);
             parentWobj_ = AWeakObject(sceneObj->parent()->sharedThis());
             sceneObj->removeFromParent();
         } else if (auto c = aobjectCast<Component>(obj)) {
@@ -62,7 +64,7 @@ namespace af3d { namespace editor
                 return false;
             }
             setDescription("Delete component");
-            writeJson(obj);
+            preDelete(obj);
             parentWobj_ = AWeakObject(c->parent()->sharedThis());
             c->removeFromParent();
         } else if (auto l = aobjectCast<Light>(obj)) {
@@ -71,7 +73,7 @@ namespace af3d { namespace editor
                 return false;
             }
             setDescription("Delete light");
-            writeJson(obj);
+            preDelete(obj);
             parentWobj_ = AWeakObject(l->parent()->sharedThis());
             l->remove();
         }
@@ -136,12 +138,14 @@ namespace af3d { namespace editor
             return false;
         }
 
-        // TODO: undo nested
+        for (const auto& c : nested_) {
+            c->undo();
+        }
 
         return true;
     }
 
-    void CommandDelete::writeJson(const AObjectPtr& obj)
+    void CommandDelete::preDelete(const AObjectPtr& obj)
     {
         if (!first_) {
             return;
@@ -151,10 +155,35 @@ namespace af3d { namespace editor
 
         AJsonWriter writer(data_, ser, true);
         writer.write(obj);
+
+        const auto& ems = scene()->workspace()->ems();
+        for (auto em : ems) {
+            std::list<AObjectPtr> objs;
+            const auto& sel = em->selected();
+            bool needSelect = false;
+            for (const auto& wobj : sel) {
+                auto sObj = wobj.lock();
+                if (sObj != obj) {
+                    objs.push_back(sObj);
+                } else {
+                    needSelect = true;
+                }
+            }
+            if (needSelect) {
+                nested_.push_back(std::make_shared<CommandSelect>(scene(), reinterpret_cast<EditModeImpl*>(em), objs));
+            }
+        }
     }
 
     void CommandDelete::redoNested()
     {
-        // TODO: fill/redo nested
+        if (first_) {
+            // TODO: fill nested_ with CommandSetProperty that set/unset dependent
+            // props.
+        }
+
+        for (const auto& c : nested_) {
+            c->redo();
+        }
     }
 } }

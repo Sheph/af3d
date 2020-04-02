@@ -60,6 +60,9 @@ namespace editor {
     {
         static const char* prefix = "SceneObject";
 
+        ems_.push_back(emObject_.get());
+        ems_.push_back(emVisual_.get());
+
         em_ = emObject_.get();
 
         std::set<std::string> sortedKinds;

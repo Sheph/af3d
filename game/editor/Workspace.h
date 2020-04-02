@@ -58,6 +58,8 @@ namespace af3d { namespace editor
 
         inline EditMode* em() { return em_; }
 
+        inline const std::vector<EditMode*>& ems() { return ems_; }
+
         inline CommandHistory& cmdHistory() { return cmdHistory_; }
 
         inline Action& actionSceneNew() { return actionSceneNew_; }
@@ -111,6 +113,8 @@ namespace af3d { namespace editor
 
         std::unique_ptr<EditModeObjectImpl> emObject_;
         std::unique_ptr<EditModeVisualImpl> emVisual_;
+
+        std::vector<EditMode*> ems_;
 
         EditModeImpl* em_;
 
