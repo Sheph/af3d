@@ -28,6 +28,7 @@
 #include "Logger.h"
 #include "Platform.h"
 #include "AJsonReader.h"
+#include "Settings.h"
 #include <log4cplus/ndc.h>
 
 namespace af3d
@@ -127,25 +128,33 @@ namespace af3d
             it = sceneAssetMap_.emplace(name, jsonValue).first;
         }
 
-        AJsonSerializerDefault defS;
+        SceneAssetPtr asset;
 
-        AJsonReader reader(defS, editor);
-        auto res = reader.read(it->second);
+        {
+            AJsonSerializerDefault defS;
 
-        if (res.size() != 1) {
-            if (!it->second.isNull()) {
-                if (res.empty()) {
-                    LOG4CPLUS_ERROR(logger(), "No objects inside ?");
-                } else {
-                    LOG4CPLUS_ERROR(logger(), "Multiple scenes in a single file ?");
+            AJsonReader reader(defS, editor);
+            auto res = reader.read(it->second);
+
+            if (res.size() != 1) {
+                if (!it->second.isNull()) {
+                    if (res.empty()) {
+                        LOG4CPLUS_ERROR(logger(), "No objects inside ?");
+                    } else {
+                        LOG4CPLUS_ERROR(logger(), "Multiple scenes in a single file ?");
+                    }
+                }
+            } else {
+                asset = aobjectCast<SceneAsset>(res.back());
+                if (!asset) {
+                    LOG4CPLUS_ERROR(logger(), "Not a scene asset");
                 }
             }
-            return SceneAssetPtr();
         }
 
-        auto asset = aobjectCast<SceneAsset>(res.back());
-        if (!asset) {
-            LOG4CPLUS_ERROR(logger(), "Not a scene asset");
+        if (settings.editor.enabled) {
+            // Don't cache scenes in editor.
+            sceneAssetMap_.erase(it);
         }
 
         return asset;

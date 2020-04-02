@@ -41,6 +41,7 @@
 #include "MeshManager.h"
 #include "AssetManager.h"
 #include "ImGuiManager.h"
+#include "ImGuiFileDialog.h"
 #include "AJsonWriter.h"
 #include "Logger.h"
 #include "Platform.h"
@@ -100,6 +101,30 @@ namespace editor {
     {
         float mainMenuH = mainMenu();
         mainToolbar(mainMenuH);
+
+        if (needNewSceneDlg_) {
+            needNewSceneDlg_ = false;
+            ImGui::OpenPopup("New scene");
+        }
+
+        if (needOpenSceneDlg_) {
+            needOpenSceneDlg_ = false;
+            ImGui::OpenPopup("Open scene");
+        }
+
+        if (auto dlg = ImGuiFileDialog::beginAssetsModal("New scene", "noname.af3", "Scene files,.af3;All files")) {
+            if (dlg->ok() && !dlg->fileName().empty()) {
+                scene()->setNextLevel(dlg->filePath());
+            }
+            dlg->endModal();
+        }
+
+        if (auto dlg = ImGuiFileDialog::beginAssetsModal("Open scene", "", "Scene files,.af3;All files")) {
+            if (dlg->ok() && !dlg->fileName().empty()) {
+                scene()->setNextLevel(dlg->filePath());
+            }
+            dlg->endModal();
+        }
 
         ImGuiIO& io = ImGui::GetIO();
 
@@ -197,17 +222,19 @@ namespace editor {
     void Workspace::setupActions()
     {
         actionSceneNew_ = Action("New scene", []() {
-            return Action::State(false);
-        }, []() {
+            return Action::State(true);
+        }, [this]() {
+            needNewSceneDlg_ = true;
         }, assetManager.getImage("common1/scene_new.png"));
 
         actionSceneOpen_ = Action("Open scene", []() {
-            return Action::State(false);
-        }, []() {
+            return Action::State(true);
+        }, [this]() {
+            needOpenSceneDlg_ = true;
         }, assetManager.getImage("common1/scene_open.png"));
 
-        actionSceneSave_ = Action("Save scene", []() {
-            return Action::State(true);
+        actionSceneSave_ = Action("Save scene", [this]() {
+            return Action::State(cmdHistory_.dirty());
         }, [this]() {
             Json::Value val(Json::arrayValue);
             AJsonSerializerDefault defS;
@@ -216,6 +243,7 @@ namespace editor {
             std::ofstream os(platform->assetsPath() + "/" + scene()->assetPath(),
                 std::ios_base::binary | std::ios_base::out | std::ios_base::trunc);
             os << Json::StyledWriter().write(val);
+            cmdHistory_.resetDirty();
         }, assetManager.getImage("common1/scene_save.png"));
 
         actionModeScene_ = Action("Edit scene settings", []() {
@@ -326,6 +354,9 @@ namespace editor {
         ImGui::SetNextWindowBgAlpha(0.0f);
         if (ImGui::BeginMainMenuBar()) {
             mainMenuContents();
+
+            ImGui::SameLine();
+            ImGui::Text("| %s%s", scene()->assetPath().c_str(), (actionSceneSave().state().enabled ? "*" : ""));
 
             h = ImGui::GetWindowHeight();
 

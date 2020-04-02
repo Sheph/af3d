@@ -37,6 +37,7 @@ namespace af3d { namespace editor
         list_.erase(list_.begin() + pos_, list_.end());
         list_.push_back(cmd);
         ++pos_;
+        dirty_ = true;
     }
 
     void CommandHistory::undo(int n)
@@ -48,6 +49,7 @@ namespace af3d { namespace editor
                 ++pos_;
                 break;
             }
+            dirty_ = true;
         }
     }
 
@@ -58,6 +60,7 @@ namespace af3d { namespace editor
             if (!list_[pos_]->redo()) {
                 break;
             }
+            dirty_ = true;
             ++pos_;
         }
     }

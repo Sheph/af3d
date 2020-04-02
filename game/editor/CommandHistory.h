@@ -41,6 +41,9 @@ namespace af3d { namespace editor
         inline const List& list() const { return list_; }
         inline int pos() const { return pos_; }
 
+        inline bool dirty() const { return dirty_; }
+        inline void resetDirty() { dirty_ = false; }
+
         void add(const CommandPtr& cmd);
 
         void undo(int n = 1);
@@ -50,6 +53,7 @@ namespace af3d { namespace editor
     private:
         List list_;
         int pos_ = 0;
+        bool dirty_ = false;
     };
 } }
 

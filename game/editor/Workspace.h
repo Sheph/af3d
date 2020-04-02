@@ -138,6 +138,9 @@ namespace af3d { namespace editor
         Action actionMainPopup_;
         Action actionCommandHistory_;
         Action actionPropertyEditor_;
+
+        bool needNewSceneDlg_ = false;
+        bool needOpenSceneDlg_ = false;
     };
 
     using WorkspacePtr = std::shared_ptr<Workspace>;
