@@ -24,18 +24,22 @@
  */
 
 #include "editor/CommandSetProperty.h"
+#include "editor/CommandDelete.h"
+#include "SceneObject.h"
 #include "Logger.h"
 
 namespace af3d { namespace editor
 {
     CommandSetProperty::CommandSetProperty(Scene* scene,
         const AObjectPtr& obj,
-        const std::string& propName, const APropertyValue& propValue)
+        const std::string& propName, const APropertyValue& propValue,
+        bool isParam)
     : Command(scene),
       wobj_(obj),
       name_(propName),
       prevValue_(obj->propertyGet(propName)),
-      value_(propValue)
+      value_(propValue),
+      isParam_(isParam)
     {
         setDescription("Set \"" + propName + "\" property");
     }
@@ -48,9 +52,7 @@ namespace af3d { namespace editor
             return false;
         }
 
-        value_.convertFromWeak();
-
-        obj->propertySet(name_, value_);
+        setValue(obj, value_);
 
         return true;
     }
@@ -63,10 +65,31 @@ namespace af3d { namespace editor
             return false;
         }
 
-        prevValue_.convertFromWeak();
-
-        obj->propertySet(name_, prevValue_);
+        setValue(obj, prevValue_);
 
         return true;
+    }
+
+    void CommandSetProperty::setValue(const AObjectPtr& obj, APropertyValue& value)
+    {
+        value.convertFromWeak();
+
+        if (isParam_) {
+            auto sObj = aobjectCast<SceneObject>(obj);
+            if (sObj) {
+                auto origPvm = sObj->params();
+                auto pvm = origPvm;
+                pvm.set(name_, value);
+                sObj->setParams(pvm);
+                auto cmd = std::make_shared<CommandDelete>(scene(), obj);
+                if (cmd->redo()) {
+                    cmd->undo();
+                } else {
+                    sObj->setParams(origPvm);
+                }
+            }
+        } else {
+            obj->propertySet(name_, value);
+        }
     }
 } }

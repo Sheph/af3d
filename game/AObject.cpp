@@ -52,7 +52,10 @@ namespace af3d
     AObject::~AObject()
     {
         ScopedLock lock(cookieToAObjMtx);
-        cookieToAObj.erase(cookie_);
+        auto it = cookieToAObj.find(cookie_);
+        if ((it != cookieToAObj.end()) && (it->second == this)) {
+            cookieToAObj.erase(it);
+        }
     }
 
     void AObject::setCookie(ACookie value)

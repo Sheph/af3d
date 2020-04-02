@@ -36,7 +36,8 @@ namespace af3d { namespace editor
     public:
         CommandSetProperty(Scene* scene,
             const AObjectPtr& obj,
-            const std::string& propName, const APropertyValue& propValue);
+            const std::string& propName, const APropertyValue& propValue,
+            bool isParam);
         ~CommandSetProperty() = default;
 
         bool redo() override;
@@ -44,10 +45,13 @@ namespace af3d { namespace editor
         bool undo() override;
 
     private:
+        void setValue(const AObjectPtr& obj, APropertyValue& value);
+
         AWeakObject wobj_;
         std::string name_;
         APropertyValue prevValue_;
         APropertyValue value_;
+        bool isParam_ = false;
     };
 } }
 

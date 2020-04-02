@@ -28,6 +28,7 @@
 #include "Logger.h"
 #include "Scene.h"
 #include "Settings.h"
+#include "SceneObject.h"
 #include "imgui.h"
 
 namespace af3d {
@@ -95,6 +96,8 @@ namespace editor {
         ImGui::TextColored(style.Colors[ImGuiCol_HeaderActive], "Property"); ImGui::NextColumn();
         ImGui::TextColored(style.Colors[ImGuiCol_HeaderActive], "Value"); ImGui::NextColumn();
 
+        bool wasSet = false;
+
         if (obj) {
             ImGui::PushID(std::to_string(wobj_.cookie()).c_str());
 
@@ -115,9 +118,12 @@ namespace editor {
 
                 ImGui::NextColumn();
 
+                bool isParam = (prop.category() == APropertyCategory::Params);
+
                 auto val = obj->propertyGet(prop.name());
-                if (ImGuiUtils::APropertyEdit(prop.type(), val, (prop.flags() & APropertyWritable) == 0)) {
-                    scene()->workspace()->setProperty(obj, prop.name(), val);
+                if (ImGuiUtils::APropertyEdit(prop.type(), val, !isParam && (prop.flags() & APropertyWritable) == 0) && !wasSet) {
+                    scene()->workspace()->setProperty(obj, prop.name(), val, isParam);
+                    wasSet = true;
                 }
 
                 ImGui::NextColumn();

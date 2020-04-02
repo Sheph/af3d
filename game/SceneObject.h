@@ -224,6 +224,7 @@ namespace af3d
 
         bool collidesWith(btCollisionObject* other);
 
+        inline const APropertyValueMap& params() const { return params_; }
         inline void setParams(const APropertyValueMap& value) { params_ = value; }
 
         /*

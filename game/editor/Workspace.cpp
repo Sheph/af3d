@@ -155,10 +155,10 @@ namespace editor {
     }
 
     void Workspace::setProperty(const AObjectPtr& obj,
-        const std::string& name, const APropertyValue& value)
+        const std::string& name, const APropertyValue& value, bool isParam)
     {
         cmdHistory_.add(
-            std::make_shared<CommandSetProperty>(scene(), obj, name, value));
+            std::make_shared<CommandSetProperty>(scene(), obj, name, value, isParam));
     }
 
     void Workspace::setEditMode(EditModeImpl* value)
