@@ -89,11 +89,13 @@ set(SOURCES
     editor/CommandHistory.cpp
     editor/CommandHistoryWindow.cpp
     editor/CommandSetProperty.cpp
+    editor/CommandDelete.cpp
     editor/ObjectComponent.cpp
     editor/EditModeImpl.cpp
     editor/EditModeObjectImpl.cpp
     editor/EditModeVisualImpl.cpp
     editor/PropertyEditor.cpp
+    editor/JsonSerializer.cpp
 )
 
 include_directories(.)
