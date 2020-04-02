@@ -38,45 +38,23 @@ namespace af3d { namespace editor
 
         const auto& prev = em->selected();
         for (const auto& obj : prev) {
-            prevCookies_.push_back(obj->cookie());
+            prevWobjs_.emplace_back(obj);
         }
         for (const auto& obj : objs) {
-            cookies_.push_back(obj->cookie());
+            wobjs_.emplace_back(obj);
         }
     }
 
     bool CommandSelect::redo()
     {
-        EditMode::AList objs;
-
-        for (auto cookie : cookies_) {
-            auto obj = AObject::getByCookie(cookie);
-            if (!obj) {
-                LOG4CPLUS_ERROR(logger(), "redo: Cannot get obj by cookie: " << description());
-                return false;
-            }
-            objs.push_back(obj->sharedThis());
-        }
-
-        em_->setSelected(std::move(objs));
+        em_->setSelected(wobjs_);
 
         return true;
     }
 
     bool CommandSelect::undo()
     {
-        EditMode::AList objs;
-
-        for (auto cookie : prevCookies_) {
-            auto obj = AObject::getByCookie(cookie);
-            if (!obj) {
-                LOG4CPLUS_ERROR(logger(), "undo: Cannot get obj by cookie: " << description());
-                return false;
-            }
-            objs.push_back(obj->sharedThis());
-        }
-
-        em_->setSelected(std::move(objs));
+        em_->setSelected(prevWobjs_);
 
         return true;
     }

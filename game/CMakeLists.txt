@@ -73,6 +73,7 @@ set(SOURCES
     APropertyValue.cpp
     AClass.cpp
     AObject.cpp
+    AWeakObject.cpp
     AClassRegistry.cpp
     Image.cpp
     AssetManager.cpp

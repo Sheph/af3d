@@ -23,33 +23,23 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _EDITOR_COMMAND_SELECT_H_
-#define _EDITOR_COMMAND_SELECT_H_
-
-#include "editor/Command.h"
 #include "AWeakObject.h"
-#include <list>
 
-namespace af3d { namespace editor
+namespace af3d
 {
-    class EditModeImpl;
-
-    class CommandSelect : public Command
+    AWeakObject::AWeakObject(const AObjectPtr& obj)
     {
-    public:
-        CommandSelect(Scene* scene, EditModeImpl* em,
-            const std::list<AObjectPtr>& objs);
-        ~CommandSelect() = default;
+        reset(obj);
+    }
 
-        bool redo() override;
+    AObjectPtr AWeakObject::lock() const
+    {
+        auto obj = AObject::getByCookie(cookie_);
+        return obj ? obj->sharedThis() : AObjectPtr();
+    }
 
-        bool undo() override;
-
-    private:
-        EditModeImpl* em_;
-        std::list<AWeakObject> prevWobjs_;
-        std::list<AWeakObject> wobjs_;
-    };
-} }
-
-#endif
+    void AWeakObject::reset(const AObjectPtr& obj)
+    {
+        cookie_ = obj ? obj->cookie() : 0;
+    }
+}

@@ -26,7 +26,7 @@
 #ifndef _EDITOR_EDITMODE_H_
 #define _EDITOR_EDITMODE_H_
 
-#include "AObject.h"
+#include "AWeakObject.h"
 #include "af3d/Types.h"
 #include "af3d/Ray.h"
 #include "af3d/Frustum.h"
@@ -38,7 +38,7 @@ namespace af3d { namespace editor
     class EditMode : boost::noncopyable
     {
     public:
-        using AList = std::list<AObjectPtr>;
+        using AWeakList = std::list<AWeakObject>;
 
         EditMode() = default;
         virtual ~EditMode() = default;
@@ -49,15 +49,15 @@ namespace af3d { namespace editor
 
         virtual void activate() = 0;
 
-        virtual const AList& hovered() const = 0;
+        virtual const AWeakList& hovered() const = 0;
 
-        virtual const AList& selected() const = 0;
+        virtual const AWeakList& selected() const = 0;
 
         virtual bool isHovered(const AObjectPtr& obj) const = 0;
 
         virtual bool isSelected(const AObjectPtr& obj) const = 0;
 
-        virtual void select(AList&& objs) = 0;
+        virtual void select(std::list<AObjectPtr>&& objs) = 0;
 
         virtual AObjectPtr rayCast(const Frustum& frustum, const Ray& ray) const = 0;
 

@@ -57,6 +57,7 @@ namespace af3d
 
     void AObject::setCookie(ACookie value)
     {
+        runtime_assert(value > 0);
         ScopedLock lock(cookieToAObjMtx);
         cookieToAObj.erase(cookie_);
         cookie_ = value;

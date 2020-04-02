@@ -27,7 +27,7 @@
 #define _EDITOR_COMMAND_ADDOBJECT_H_
 
 #include "editor/Command.h"
-#include "AObject.h"
+#include "AWeakObject.h"
 
 namespace af3d { namespace editor
 {
@@ -46,7 +46,7 @@ namespace af3d { namespace editor
     private:
         const AClass& klass_;
         btTransform xf_;
-        ACookie cookie_ = 0;
+        AWeakObject wobj_;
     };
 } }
 

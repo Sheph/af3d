@@ -34,7 +34,7 @@ namespace af3d { namespace editor
         const AClass& klass, const std::string& kind,
         const APropertyValueMap& initVals)
     : Command(scene),
-      parentCookie_(parent->cookie()),
+      parentWobj_(parent),
       klass_(klass),
       initVals_(initVals)
     {
@@ -43,7 +43,7 @@ namespace af3d { namespace editor
 
     bool CommandAddComponent::redo()
     {
-        auto parentObj = AObject::getByCookie(parentCookie_);
+        auto parentObj = parentWobj_.lock();
         if (!parentObj) {
             LOG4CPLUS_ERROR(logger(), "redo: Cannot get parent obj by cookie: " << description());
             return false;
@@ -79,10 +79,10 @@ namespace af3d { namespace editor
             return false;
         }
 
-        if (cookie_) {
-            c->setCookie(cookie_);
+        if (!wobj_.empty()) {
+            c->setCookie(wobj_.cookie());
         } else {
-            cookie_ = c->cookie();
+            wobj_.reset(c);
         }
 
         c->aflagsSet(AObjectEditable);
@@ -93,7 +93,7 @@ namespace af3d { namespace editor
 
     bool CommandAddComponent::undo()
     {
-        auto aobj = AObject::getByCookie(cookie_);
+        auto aobj = wobj_.lock();
         if (!aobj) {
             LOG4CPLUS_ERROR(logger(), "undo: Cannot find obj: " << description());
             return false;

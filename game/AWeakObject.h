@@ -23,33 +23,49 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _EDITOR_COMMAND_SELECT_H_
-#define _EDITOR_COMMAND_SELECT_H_
+#ifndef _AWEAKOBJECT_H_
+#define _AWEAKOBJECT_H_
 
-#include "editor/Command.h"
-#include "AWeakObject.h"
-#include <list>
+#include "AObject.h"
 
-namespace af3d { namespace editor
+namespace af3d
 {
-    class EditModeImpl;
-
-    class CommandSelect : public Command
+    class AWeakObject
     {
     public:
-        CommandSelect(Scene* scene, EditModeImpl* em,
-            const std::list<AObjectPtr>& objs);
-        ~CommandSelect() = default;
+        AWeakObject() = default;
+        explicit AWeakObject(const AObjectPtr& obj);
+        ~AWeakObject() = default;
 
-        bool redo() override;
+        inline bool empty() const { return cookie_ == 0; }
 
-        bool undo() override;
+        inline ACookie cookie() const { return cookie_; }
+
+        inline bool operator==(const AWeakObject& other) const
+        {
+            return cookie_ == other.cookie_;
+        }
+
+        inline bool operator!=(const AWeakObject& other) const
+        {
+            return !(*this == other);
+        }
+
+        AObjectPtr lock() const;
+
+        void reset(const AObjectPtr& obj = AObjectPtr());
 
     private:
-        EditModeImpl* em_;
-        std::list<AWeakObject> prevWobjs_;
-        std::list<AWeakObject> wobjs_;
+        ACookie cookie_ = 0;
     };
-} }
+
+    template <class T>
+    inline std::shared_ptr<T> aweakObjectCast(const AWeakObject& weakObj)
+    {
+        auto obj = weakObj.lock();
+        return (obj && obj->isSubClassOf(T::staticKlass())) ?
+            std::static_pointer_cast<T>(obj) : std::shared_ptr<T>();
+    }
+}
 
 #endif

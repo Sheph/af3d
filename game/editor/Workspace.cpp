@@ -99,7 +99,7 @@ namespace editor {
 
         ImGuiIO& io = ImGui::GetIO();
 
-        em_->setHovered(EditMode::AList());
+        em_->setHovered(EditMode::AWeakList());
 
         if (io.WantCaptureMouse || io.WantCaptureKeyboard) {
             return;
@@ -114,9 +114,9 @@ namespace editor {
         auto res = em_->rayCast(cc->getFrustum(), cc->screenPointToRay(inputManager.mouse().pos()));
 
         if (res) {
-            em_->setHovered(EditMode::AList{res});
+            em_->setHovered(EditMode::AWeakList{AWeakObject(res)});
             if (inputManager.mouse().triggered(true)) {
-                em_->select(EditMode::AList{res});
+                em_->select({res});
             }
         }
     }
@@ -269,7 +269,7 @@ namespace editor {
 
             cmdHistory_.add(
                 std::make_shared<CommandAddComponent>(scene(),
-                    emObject_->selected().back(),
+                    emObject_->selected().back().lock(),
                     RenderMeshComponent::staticKlass(), "Mesh", initVals));
         });
 

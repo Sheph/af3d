@@ -32,7 +32,7 @@ namespace af3d { namespace editor
         const AObjectPtr& obj,
         const std::string& propName, const APropertyValue& propValue)
     : Command(scene),
-      cookie_(obj->cookie()),
+      wobj_(obj),
       name_(propName),
       prevValue_(obj->propertyGet(propName)),
       value_(propValue)
@@ -42,7 +42,7 @@ namespace af3d { namespace editor
 
     bool CommandSetProperty::redo()
     {
-        auto obj = AObject::getByCookie(cookie_);
+        auto obj = wobj_.lock();
         if (!obj) {
             LOG4CPLUS_ERROR(logger(), "redo: Cannot get obj by cookie: " << description());
             return false;
@@ -55,7 +55,7 @@ namespace af3d { namespace editor
 
     bool CommandSetProperty::undo()
     {
-        auto obj = AObject::getByCookie(cookie_);
+        auto obj = wobj_.lock();
         if (!obj) {
             LOG4CPLUS_ERROR(logger(), "undo: Cannot get obj by cookie: " << description());
             return false;

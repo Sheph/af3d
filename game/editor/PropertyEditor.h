@@ -28,6 +28,7 @@
 
 #include "UIComponent.h"
 #include "ImGuiUtils.h"
+#include "AWeakObject.h"
 
 namespace af3d { namespace editor
 {
@@ -53,7 +54,7 @@ namespace af3d { namespace editor
 
         bool show_ = true;
 
-        ACookie cookie_ = 0;
+        AWeakObject wobj_;
         APropertyList properties_;
     };
 

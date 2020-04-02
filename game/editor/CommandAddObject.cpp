@@ -66,10 +66,10 @@ namespace af3d { namespace editor
             return false;
         }
 
-        if (cookie_) {
-            sObj->setCookie(cookie_);
+        if (!wobj_.empty()) {
+            sObj->setCookie(wobj_.cookie());
         } else {
-            cookie_ = sObj->cookie();
+            wobj_.reset(sObj);
         }
 
         sObj->aflagsSet(AObjectEditable);
@@ -82,7 +82,7 @@ namespace af3d { namespace editor
 
     bool CommandAddObject::undo()
     {
-        auto obj = AObject::getByCookie(cookie_);
+        auto obj = wobj_.lock();
         if (!obj) {
             LOG4CPLUS_ERROR(logger(), "undo: Cannot find obj: " << description());
             return false;

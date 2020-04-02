@@ -37,8 +37,11 @@ namespace af3d { namespace editor
     EditModeVisual::TList EditModeVisualImpl::hoveredTyped() const
     {
         TList res;
-        for (const auto& obj : hovered()) {
-            res.push_back(std::static_pointer_cast<RenderComponent>(obj));
+        for (const auto& wobj : hovered()) {
+            auto obj = wobj.lock();
+            if (obj) {
+                res.push_back(std::static_pointer_cast<RenderComponent>(obj));
+            }
         }
         return res;
     }
@@ -46,8 +49,11 @@ namespace af3d { namespace editor
     EditModeVisual::TList EditModeVisualImpl::selectedTyped() const
     {
         TList res;
-        for (const auto& obj : selected()) {
-            res.push_back(std::static_pointer_cast<RenderComponent>(obj));
+        for (const auto& wobj : selected()) {
+            auto obj = wobj.lock();
+            if (obj ){
+                res.push_back(std::static_pointer_cast<RenderComponent>(obj));
+            }
         }
         return res;
     }

@@ -27,7 +27,7 @@
 #define _EDITOR_COMMAND_ADDCOMPONENT_H_
 
 #include "editor/Command.h"
-#include "AObject.h"
+#include "AWeakObject.h"
 
 namespace af3d { namespace editor
 {
@@ -45,10 +45,10 @@ namespace af3d { namespace editor
         bool undo() override;
 
     private:
-        ACookie parentCookie_;
+        AWeakObject parentWobj_;
         const AClass& klass_;
         APropertyValueMap initVals_;
-        ACookie cookie_ = 0;
+        AWeakObject wobj_;
     };
 } }
 

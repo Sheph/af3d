@@ -67,16 +67,16 @@ namespace editor {
             return;
         }
 
-        AObjectPtr obj;
-        ACookie newCookie = 0;
+        AWeakObject newWobj;
         const auto& sList = scene()->workspace()->em()->selected();
         if (!sList.empty()) {
-            obj = sList.back();
-            newCookie = obj->cookie();
+            newWobj = sList.back();
         }
 
-        if (newCookie != cookie_) {
-            cookie_ = newCookie;
+        AObjectPtr obj = newWobj.lock();
+
+        if (newWobj != wobj_) {
+            wobj_ = newWobj;
             properties_.clear();
             if (obj) {
                 properties_ = obj->klass().getProperties();
@@ -96,7 +96,7 @@ namespace editor {
         ImGui::TextColored(style.Colors[ImGuiCol_HeaderActive], "Value"); ImGui::NextColumn();
 
         if (obj) {
-            ImGui::PushID(std::to_string(newCookie).c_str());
+            ImGui::PushID(std::to_string(wobj_.cookie()).c_str());
 
             for (const auto& prop : properties_) {
                 if ((prop.flags() & APropertyEditable) == 0) {

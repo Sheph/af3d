@@ -47,23 +47,23 @@ namespace editor
 
         void activate() override;
 
-        const AList& hovered() const override;
+        const AWeakList& hovered() const override;
 
-        const AList& selected() const override;
+        const AWeakList& selected() const override;
 
         bool isHovered(const AObjectPtr& obj) const override;
 
         bool isSelected(const AObjectPtr& obj) const override;
 
-        void select(AList&& objs) override;
+        void select(std::list<AObjectPtr>&& objs) override;
 
         void enter();
 
         void leave();
 
-        void setHovered(AList&& objs);
+        void setHovered(const AWeakList& wobjs);
 
-        void setSelected(AList&& objs);
+        void setSelected(const AWeakList& wobjs);
 
     protected:
         inline Workspace& workspace() { return *workspace_; }
@@ -76,8 +76,8 @@ namespace editor
         std::string name_;
 
         bool active_ = false;
-        mutable AList hovered_;
-        mutable AList selected_;
+        mutable AWeakList hovered_;
+        mutable AWeakList selected_;
     };
 } }
 

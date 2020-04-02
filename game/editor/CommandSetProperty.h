@@ -27,7 +27,7 @@
 #define _EDITOR_COMMAND_SETPROPERTY_H_
 
 #include "editor/Command.h"
-#include "AObject.h"
+#include "AWeakObject.h"
 
 namespace af3d { namespace editor
 {
@@ -44,7 +44,7 @@ namespace af3d { namespace editor
         bool undo() override;
 
     private:
-        ACookie cookie_;
+        AWeakObject wobj_;
         std::string name_;
         APropertyValue prevValue_;
         APropertyValue value_;
