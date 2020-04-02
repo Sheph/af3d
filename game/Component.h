@@ -67,6 +67,8 @@ namespace af3d
 
         std::shared_ptr<SceneObject> script_parent() const;
 
+        APropertyValue propertyParentGet(const std::string&) const;
+
     protected:
         template <class ComponentManagerT>
         inline void onSetManager(ComponentManagerT*& manager,
@@ -88,7 +90,7 @@ namespace af3d
 
         virtual void onUnregister() = 0;
 
-        mutable SceneObject* parent_ = nullptr;
+        SceneObject* parent_ = nullptr;
     };
 
     ACLASS_DECLARE(Component)

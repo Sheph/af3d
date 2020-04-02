@@ -89,6 +89,7 @@ namespace af3d
     using APropertyList = std::vector<AProperty>;
 
     #define AProperty_Children "children"
+    #define AProperty_Parent "parent"
     #define AProperty_Name "name"
     #define AProperty_Visible "visible"
     #define AProperty_LocalTransform "local transform"

@@ -33,6 +33,7 @@ namespace af3d
     const APropertyTypeArray APropertyType_ArrayLight{"ArrayLight", APropertyType_Light};
 
     ACLASS_DEFINE_BEGIN_ABSTRACT(Light, AObject)
+    ACLASS_PROPERTY_RO(Light, Parent, AProperty_Parent, "Parent", AObject, Hierarchy, APropertyTransient)
     ACLASS_PROPERTY(Light, LocalTransform, AProperty_LocalTransform, "Local transform", Transform, btTransform::getIdentity(), Position, APropertyEditable)
     ACLASS_PROPERTY(Light, WorldTransform, AProperty_WorldTransform, "World transform", Transform, btTransform::getIdentity(), Position, APropertyEditable|APropertyTransient)
     ACLASS_PROPERTY(Light, Color, "color", "Color", ColorRGB, Color(1.0f, 1.0f, 1.0f, 1.0f), General, APropertyEditable)
@@ -133,5 +134,10 @@ namespace af3d
     {
         localAABB_ = value;
         dirty_ = true;
+    }
+
+    APropertyValue Light::propertyParentGet(const std::string&) const
+    {
+        return APropertyValue(parent_ ? parent_->sharedThis() : AObjectPtr());
     }
 }

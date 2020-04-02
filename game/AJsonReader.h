@@ -36,7 +36,7 @@ namespace af3d
     class AJsonReader : boost::noncopyable
     {
     public:
-        AJsonReader(AJsonSerializer& serializer, bool editor);
+        AJsonReader(AJsonSerializer& serializer, bool editor, bool withCookie = false);
         ~AJsonReader() = default;
 
         inline AJsonSerializer& serializer() { return serializer_; }
@@ -78,6 +78,7 @@ namespace af3d
 
         AJsonSerializer& serializer_;
         bool editor_ = false;
+        bool withCookie_ = false;
 
         ObjectStateMap objectStateMap_;
     };

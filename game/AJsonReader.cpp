@@ -50,7 +50,7 @@ namespace af3d
         void visitBool(const APropertyTypeBool& type) override
         {
             if (!jsonValue_.isBool()) {
-                LOG4CPLUS_ERROR(logger(), "Bool not an json bool");
+                LOG4CPLUS_ERROR(logger(), "Bool not a json bool");
                 value_ = APropertyValue(false);
                 return;
             }
@@ -60,7 +60,7 @@ namespace af3d
         void visitInt(const APropertyTypeInt& type) override
         {
             if (!jsonValue_.isInt()) {
-                LOG4CPLUS_ERROR(logger(), "Int not an json int");
+                LOG4CPLUS_ERROR(logger(), "Int not a json int");
                 value_ = APropertyValue(0);
                 return;
             }
@@ -237,9 +237,10 @@ namespace af3d
         APropertyValue value_;
     };
 
-    AJsonReader::AJsonReader(AJsonSerializer& serializer, bool editor)
+    AJsonReader::AJsonReader(AJsonSerializer& serializer, bool editor, bool withCookie)
     : serializer_(serializer),
-      editor_(editor)
+      editor_(editor),
+      withCookie_(withCookie)
     {
     }
 
@@ -253,6 +254,8 @@ namespace af3d
             LOG4CPLUS_ERROR(logger(), "Root Json value is not an array");
             return res;
         }
+
+        std::uint32_t firstId = 0;
 
         for (std::uint32_t i = 0; i < jsonValue.size(); ++i) {
             const auto& jv = jsonValue[i];
@@ -274,6 +277,10 @@ namespace af3d
                 continue;
             }
 
+            if (!firstId) {
+                firstId = id;
+            }
+
             objectStateMap_.emplace(id, ObjectState(jv, *klass));
         }
 
@@ -281,12 +288,28 @@ namespace af3d
             getObject(kv.first, false);
         }
 
+        bool allReferred = true;
+
         for (const auto& kv : objectStateMap_) {
             runtime_assert(kv.second.obj);
             runtime_assert(kv.second.objectsToNotify.empty());
             runtime_assert(kv.second.delayedProps.empty());
-            if (!kv.second.referred && *kv.second.obj) {
-                res.push_back(*kv.second.obj);
+            if (!kv.second.referred) {
+                allReferred = false;
+                if (*kv.second.obj) {
+                    res.push_back(*kv.second.obj);
+                }
+            }
+        }
+
+        if (allReferred && firstId) {
+            // No top-level objects, probably not a scene asset, just pick
+            // first object.
+            runtime_assert(res.empty());
+            auto it = objectStateMap_.find(firstId);
+            runtime_assert(it != objectStateMap_.end());
+            if (*it->second.obj) {
+                res.push_back(*it->second.obj);
             }
         }
 
@@ -357,6 +380,14 @@ namespace af3d
         it->second.obj = it->second.klass.create(propVals);
         if (*it->second.obj) {
             (*it->second.obj)->aflagsSet(AObjectEditable);
+            if (withCookie_) {
+                const auto& val = it->second.jsonValue["cookie"];
+                if (!val.isInt() && !val.isUInt()) {
+                    LOG4CPLUS_ERROR(logger(), "withCookie specified, but no cookie found for object " << id);
+                } else {
+                    (*it->second.obj)->setCookie(val.asUInt64());
+                }
+            }
             if (editor_) {
                 if (auto sObj = aobjectCast<SceneObject>(*it->second.obj)) {
                     sObj->addComponent(std::make_shared<editor::ObjectComponent>());

@@ -88,6 +88,8 @@ namespace af3d
          * @}
          */
 
+        APropertyValue propertyParentGet(const std::string&) const;
+
         APropertyValue propertyLocalTransformGet(const std::string&) const { return transform(); }
         void propertyLocalTransformSet(const std::string&, const APropertyValue& value) { setTransform(value.toTransform()); }
 

@@ -151,9 +151,10 @@ namespace af3d
         Json::Value& jsonValue_;
     };
 
-    AJsonWriter::AJsonWriter(Json::Value& jsonValue, AJsonSerializer& serializer)
+    AJsonWriter::AJsonWriter(Json::Value& jsonValue, AJsonSerializer& serializer, bool withCookie)
     : jsonValue_(jsonValue),
-      serializer_(serializer)
+      serializer_(serializer),
+      withCookie_(withCookie)
     {
         runtime_assert(jsonValue.isArray());
     }
@@ -168,6 +169,9 @@ namespace af3d
             auto& value = jsonValue_.append(Json::objectValue);
             value["id"] = registerObject(nextObj);
             value["class"] = (nextObj->klass().name() == "Scene") ? "SceneAsset" : nextObj->klass().name();
+            if (withCookie_) {
+                value["cookie"] = static_cast<Json::UInt64>(nextObj->cookie());
+            }
             auto props = nextObj->klass().getProperties();
             for (const auto& prop : props) {
                 if ((prop.flags() & APropertyTransient) == 0) {

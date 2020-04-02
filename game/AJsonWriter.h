@@ -34,7 +34,7 @@ namespace af3d
     class AJsonWriter : boost::noncopyable
     {
     public:
-        AJsonWriter(Json::Value& jsonValue, AJsonSerializer& serializer);
+        AJsonWriter(Json::Value& jsonValue, AJsonSerializer& serializer, bool withCookie = false);
         ~AJsonWriter() = default;
 
         inline AJsonSerializer& serializer() { return serializer_; }
@@ -48,6 +48,7 @@ namespace af3d
 
         Json::Value& jsonValue_;
         AJsonSerializer& serializer_;
+        bool withCookie_ = false;
 
         std::uint32_t nextId_ = 1;
         ObjectMap objectMap_;

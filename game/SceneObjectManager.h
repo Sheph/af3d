@@ -113,6 +113,11 @@ namespace af3d
             setChildren(res);
         }
 
+        APropertyValue propertyParentGet(const std::string&) const
+        {
+            return APropertyValue(parent_ ? parent_->sharedThis() : AObjectPtr());
+        }
+
     private:
         void registerObject(const SceneObjectPtr& obj);
 

@@ -29,6 +29,7 @@
 namespace af3d
 {
     ACLASS_DEFINE_BEGIN_ABSTRACT(Component, AObject)
+    ACLASS_PROPERTY_RO(Component, Parent, AProperty_Parent, "Parent", AObject, Hierarchy, APropertyTransient)
     ACLASS_DEFINE_END(Component)
 
     Component::Component(const AClass& klass)
@@ -72,5 +73,10 @@ namespace af3d
         } else {
             return SceneObjectPtr();
         }
+    }
+
+    APropertyValue Component::propertyParentGet(const std::string&) const
+    {
+        return APropertyValue(script_parent());
     }
 }

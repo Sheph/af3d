@@ -31,6 +31,7 @@ namespace af3d
 {
     ACLASS_DEFINE_BEGIN_ABSTRACT(SceneObjectManager, AObject)
     ACLASS_PROPERTY(SceneObjectManager, Children, AProperty_Children, "Children", ArrayAObject, std::vector<APropertyValue>{}, Hierarchy, 0)
+    ACLASS_PROPERTY_RO(SceneObjectManager, Parent, AProperty_Parent, "Parent", AObject, Hierarchy, APropertyTransient)
     ACLASS_DEFINE_END(SceneObjectManager)
 
     const APropertyTypeEnumImpl<SceneObjectType> APropertyType_SceneObjectType{"SceneObjectType",
