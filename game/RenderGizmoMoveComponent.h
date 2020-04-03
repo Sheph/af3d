@@ -69,6 +69,12 @@ namespace af3d
         inline MoveType moveType() const { return moveType_; }
         inline void setMoveType(MoveType value) { moveType_ = value; }
 
+        inline float alphaInactive() const { return alpha_[0]; }
+        inline void setAlphaInactive(float value) { alpha_[0] = value; }
+
+        inline float alphaActive() const { return alpha_[1]; }
+        inline void setAlphaActive(float value) { alpha_[1] = value; }
+
         MoveType testRay(const Frustum& frustum, const Ray& ray) const;
 
     private:
@@ -98,7 +104,7 @@ namespace af3d
 
         AObjectPtr target_;
         MoveType moveType_ = MoveType::None;
-        float alpha_[2] = {0.4f, 0.8f};
+        float alpha_[2] = {1.0f, 1.0f};
         float radius_ = 5.0f;
         float viewportLength_ = 0.1f;
         float viewportRadius_ = 0.001f;

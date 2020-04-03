@@ -46,17 +46,16 @@ namespace af3d { namespace editor
 
     void ToolMove::onDeactivate()
     {
-        selTool_.activate(false);
         cleanup();
+        selTool_.activate(false);
     }
 
     void ToolMove::doUpdate(float dt)
     {
-        selTool_.update(dt);
-
         const auto& sel = workspace().em()->selected();
         if (sel.empty()) {
             cleanup();
+            selTool_.update(dt);
             return;
         }
 
@@ -67,12 +66,35 @@ namespace af3d { namespace editor
 
         if (!rc_) {
             if (!obj || !obj->propertyCanGet(AProperty_WorldTransform)) {
+                selTool_.update(dt);
                 return;
             }
 
             rc_ = std::make_shared<RenderGizmoMoveComponent>();
             rc_->setTarget(obj);
+            rc_->setAlphaInactive(0.4f);
+            rc_->setAlphaActive(0.7f);
             workspace().parent()->addComponent(rc_);
+        }
+
+        if (mt_ != MoveType::None) {
+            if (!inputManager.mouse().pressed(true)) {
+                mt_ = MoveType::None;
+                selTool_.activate(true);
+                rc_->setAlphaActive(0.7f);
+                auto xf = rc_->target()->propertyGet(AProperty_WorldTransform);
+                rc_->target()->propertySet(AProperty_WorldTransform, targetXf_);
+                workspace().setProperty(rc_->target(), AProperty_WorldTransform, xf, false);
+            } else {
+                auto diff = inputManager.mouse().pos() - mousePos_;
+                if (mt_ == MoveType::AxisX) {
+                    auto xf = targetXf_;
+                    xf.getOrigin() += targetXf_.getBasis() * btVector3_right * diff.x() * 0.1f;
+                    rc_->target()->propertySet(AProperty_WorldTransform, xf);
+                }
+            }
+            selTool_.update(dt);
+            return;
         }
 
         auto cc = scene()->camera()->findComponent<CameraComponent>();
@@ -80,6 +102,16 @@ namespace af3d { namespace editor
         auto res = rc_->testRay(cc->getFrustum(), cc->screenPointToRay(inputManager.mouse().pos()));
 
         rc_->setMoveType(res);
+
+        if ((res != MoveType::None) && inputManager.mouse().pressed(true)) {
+            mt_ = res;
+            rc_->setAlphaActive(1.0f);
+            selTool_.activate(false);
+            mousePos_ = inputManager.mouse().pos();
+            targetXf_ = rc_->target()->propertyGet(AProperty_WorldTransform).toTransform();
+        }
+
+        selTool_.update(dt);
     }
 
     void ToolMove::doOptions()
@@ -89,8 +121,13 @@ namespace af3d { namespace editor
     void ToolMove::cleanup()
     {
         if (rc_) {
+            if (mt_ != MoveType::None) {
+                rc_->target()->propertySet(AProperty_WorldTransform, targetXf_);
+            }
             rc_->removeFromParent();
             rc_.reset();
+            mt_ = MoveType::None;
+            selTool_.activate(true);
         }
     }
 } }

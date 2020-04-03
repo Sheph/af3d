@@ -50,6 +50,10 @@ namespace af3d { namespace editor
 
         ToolSelect selTool_;
         RenderGizmoMoveComponentPtr rc_;
+        MoveType mt_ = MoveType::None;
+
+        Vector2f mousePos_;
+        btTransform targetXf_;
     };
 } }
 
