@@ -20,7 +20,7 @@
 },
 {
 	"filename": "mode_object.png",
-	"frame": {"x":4,"y":72,"w":24,"h":24},
+	"frame": {"x":100,"y":4,"w":24,"h":24},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":24,"h":24},
@@ -29,7 +29,7 @@
 },
 {
 	"filename": "mode_scene.png",
-	"frame": {"x":32,"y":72,"w":24,"h":24},
+	"frame": {"x":4,"y":72,"w":24,"h":24},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":24,"h":24},
@@ -38,7 +38,7 @@
 },
 {
 	"filename": "mode_visual.png",
-	"frame": {"x":60,"y":72,"w":24,"h":24},
+	"frame": {"x":32,"y":72,"w":24,"h":24},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":24,"h":24},
@@ -47,7 +47,7 @@
 },
 {
 	"filename": "redo.png",
-	"frame": {"x":88,"y":72,"w":24,"h":24},
+	"frame": {"x":60,"y":72,"w":24,"h":24},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":24,"h":24},
@@ -56,7 +56,7 @@
 },
 {
 	"filename": "scene_new.png",
-	"frame": {"x":4,"y":100,"w":24,"h":24},
+	"frame": {"x":88,"y":72,"w":24,"h":24},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":24,"h":24},
@@ -65,7 +65,7 @@
 },
 {
 	"filename": "scene_open.png",
-	"frame": {"x":32,"y":100,"w":24,"h":24},
+	"frame": {"x":116,"y":72,"w":24,"h":24},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":24,"h":24},
@@ -74,6 +74,24 @@
 },
 {
 	"filename": "scene_save.png",
+	"frame": {"x":4,"y":100,"w":24,"h":24},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":24,"h":24},
+	"sourceSize": {"w":24,"h":24},
+	"pivot": {"x":0.5,"y":0.5}
+},
+{
+	"filename": "tool_move.png",
+	"frame": {"x":32,"y":100,"w":24,"h":24},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":24,"h":24},
+	"sourceSize": {"w":24,"h":24},
+	"pivot": {"x":0.5,"y":0.5}
+},
+{
+	"filename": "tool_select.png",
 	"frame": {"x":60,"y":100,"w":24,"h":24},
 	"rotated": false,
 	"trimmed": false,
@@ -95,8 +113,8 @@
 	"version": "1.0",
 	"image": "common1.png",
 	"format": "RGBA8888",
-	"size": {"w":116,"h":128},
+	"size": {"w":144,"h":128},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:5a7efc36873482eaa519ae4e75269c94:05684c8dcff0e25d7062e45e11005331:849a2d506a3dff356c1665b7dfafc6aa$"
+	"smartupdate": "$TexturePacker:SmartUpdate:e40563bbb22013cee7d9307a6720c7b0:2a13acd4a1f3fc0a43c96d40d85ca05c:849a2d506a3dff356c1665b7dfafc6aa$"
 }
 }

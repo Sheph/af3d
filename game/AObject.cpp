@@ -84,6 +84,16 @@ namespace af3d
         return klass_->isSubClassOf(value);
     }
 
+    bool AObject::propertyCanGet(const std::string& key) const
+    {
+        return klass_->propertyCanGet(key);
+    }
+
+    bool AObject::propertyCanSet(const std::string& key) const
+    {
+        return klass_->propertyCanSet(key);
+    }
+
     APropertyValue AObject::propertyGet(const std::string& key) const
     {
         return klass_->propertyGet(this, key);

@@ -57,11 +57,11 @@ namespace editor
 
         void select(std::list<AObjectPtr>&& objs) override;
 
+        void setHovered(const AWeakList& wobjs) override;
+
         void enter();
 
         void leave();
-
-        void setHovered(const AWeakList& wobjs);
 
         void setSelected(const AWeakList& wobjs);
 

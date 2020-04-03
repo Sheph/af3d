@@ -23,50 +23,59 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _EDITOR_EDITMODE_H_
-#define _EDITOR_EDITMODE_H_
-
-#include "AWeakObject.h"
-#include "af3d/Types.h"
-#include "af3d/Ray.h"
-#include "af3d/Frustum.h"
-#include <boost/noncopyable.hpp>
-#include <list>
+#include "editor/ToolSelect.h"
+#include "editor/Workspace.h"
+#include "editor/EditMode.h"
+#include "AssetManager.h"
+#include "InputManager.h"
+#include "Scene.h"
+#include "SceneObject.h"
+#include "CameraComponent.h"
+#include "imgui.h"
 
 namespace af3d { namespace editor
 {
-    class EditMode : boost::noncopyable
+    ToolSelect::ToolSelect(Workspace* workspace)
+    : Tool(workspace, "Select", assetManager.getImage("common1/tool_select.png"))
     {
-    public:
-        using AWeakList = std::list<AWeakObject>;
+    }
 
-        EditMode() = default;
-        virtual ~EditMode() = default;
+    void ToolSelect::onActivate()
+    {
+    }
 
-        virtual const std::string& name() const = 0;
+    void ToolSelect::onDeactivate()
+    {
+        auto em = workspace().em();
 
-        virtual bool active() const = 0;
+        em->setHovered(EditMode::AWeakList());
+    }
 
-        virtual void activate() = 0;
+    void ToolSelect::doUpdate(float dt)
+    {
+        auto em = workspace().em();
 
-        virtual const AWeakList& hovered() const = 0;
+        ImGuiIO& io = ImGui::GetIO();
 
-        virtual const AWeakList& selected() const = 0;
+        em->setHovered(EditMode::AWeakList());
 
-        virtual bool isHovered(const AObjectPtr& obj) const = 0;
+        if (io.WantCaptureMouse || io.WantCaptureKeyboard) {
+            return;
+        }
 
-        virtual bool isSelected(const AObjectPtr& obj) const = 0;
+        auto cc = scene()->camera()->findComponent<CameraComponent>();
 
-        virtual void select(std::list<AObjectPtr>&& objs) = 0;
+        auto res = em->rayCast(cc->getFrustum(), cc->screenPointToRay(inputManager.mouse().pos()));
 
-        virtual void setHovered(const AWeakList& wobjs) = 0;
+        if (res) {
+            em->setHovered(EditMode::AWeakList{AWeakObject(res)});
+            if (inputManager.mouse().triggered(true)) {
+                em->select({res});
+            }
+        }
+    }
 
-        virtual AObjectPtr rayCast(const Frustum& frustum, const Ray& ray) const = 0;
-
-        virtual bool isValid(const AObjectPtr& obj) const = 0;
-
-        virtual bool isAlive(const AObjectPtr& obj) const = 0;
-    };
+    void ToolSelect::doOptions()
+    {
+    }
 } }
-
-#endif

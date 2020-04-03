@@ -85,6 +85,9 @@ namespace af3d
 
         APropertyList getProperties() const;
 
+        bool propertyCanGet(const std::string& key) const;
+        bool propertyCanSet(const std::string& key) const;
+
         APropertyValue propertyGet(const AObject* obj, const std::string& key) const;
         void propertySet(AObject* obj, const std::string& key, const APropertyValue& value) const;
 

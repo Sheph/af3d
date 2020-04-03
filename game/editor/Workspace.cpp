@@ -27,6 +27,7 @@
 #include "editor/MainPopup.h"
 #include "editor/CommandHistoryWindow.h"
 #include "editor/PropertyEditor.h"
+#include "editor/Toolbox.h"
 #include "editor/CommandAddObject.h"
 #include "editor/CommandAddComponent.h"
 #include "editor/CommandSetProperty.h"
@@ -36,7 +37,6 @@
 #include "AClassRegistry.h"
 #include "Scene.h"
 #include "SceneObject.h"
-#include "CameraComponent.h"
 #include "RenderMeshComponent.h"
 #include "MeshManager.h"
 #include "AssetManager.h"
@@ -57,14 +57,19 @@ namespace editor {
     Workspace::Workspace()
     : UIComponent(AClass_editorWorkspace, zOrderEditor),
       emObject_(new EditModeObjectImpl(this)),
-      emVisual_(new EditModeVisualImpl(this))
+      emVisual_(new EditModeVisualImpl(this)),
+      toolSelect_(new ToolSelect(this)),
+      toolMove_(new ToolMove(this))
     {
         static const char* prefix = "SceneObject";
 
         ems_.push_back(emObject_.get());
         ems_.push_back(emVisual_.get());
-
         em_ = emObject_.get();
+
+        tools_.push_back(toolSelect_.get());
+        tools_.push_back(toolMove_.get());
+        currentTool_ = toolSelect_.get();
 
         std::set<std::string> sortedKinds;
 
@@ -126,9 +131,11 @@ namespace editor {
             dlg->endModal();
         }
 
-        ImGuiIO& io = ImGui::GetIO();
+        for (auto tool : tools_) {
+            tool->update(dt);
+        }
 
-        em_->setHovered(EditMode::AWeakList());
+        ImGuiIO& io = ImGui::GetIO();
 
         if (io.WantCaptureMouse || io.WantCaptureKeyboard) {
             return;
@@ -140,17 +147,6 @@ namespace editor {
             auto sel = em_->selected();
             for (const auto& wobj : sel) {
                 deleteObject(wobj.lock());
-            }
-        }
-
-        auto cc = scene()->camera()->findComponent<CameraComponent>();
-
-        auto res = em_->rayCast(cc->getFrustum(), cc->screenPointToRay(inputManager.mouse().pos()));
-
-        if (res) {
-            em_->setHovered(EditMode::AWeakList{AWeakObject(res)});
-            if (inputManager.mouse().triggered(true)) {
-                em_->select({res});
             }
         }
     }
@@ -205,18 +201,27 @@ namespace editor {
     void Workspace::onRegister()
     {
         em_->enter();
+        currentTool_->activate(true);
 
         actionCommandHistory().trigger();
         actionPropertyEditor().trigger();
+        actionToolbox().trigger();
     }
 
     void Workspace::onUnregister()
     {
+        currentTool_->activate(false);
         em_->leave();
 
         emObject_.reset();
         emVisual_.reset();
         em_ = nullptr;
+        ems_.clear();
+
+        toolSelect_.reset();
+        toolMove_.reset();
+        currentTool_ = nullptr;
+        tools_.clear();
     }
 
     void Workspace::setupActions()
@@ -336,6 +341,13 @@ namespace editor {
             auto w = std::make_shared<PropertyEditor>();
             parent()->addComponent(w);
         });
+
+        actionToolbox_ = Action("Toolbox", [this]() {
+            return Action::State(!parent()->findComponent<Toolbox>());
+        }, [this]() {
+            auto w = std::make_shared<Toolbox>();
+            parent()->addComponent(w);
+        });
     }
 
     float Workspace::mainMenu()
@@ -396,6 +408,7 @@ namespace editor {
         if (ImGui::BeginMenu("Window")) {
             actionCommandHistory().doMenuItem();
             actionPropertyEditor().doMenuItem();
+            actionToolbox().doMenuItem();
             ImGui::EndMenu();
         }
     }

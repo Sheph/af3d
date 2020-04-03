@@ -65,6 +65,9 @@ namespace af3d
         inline void aflagsSet(std::uint32_t value) { aflags_ |= value; }
         inline void aflagsClear(std::uint32_t value) { aflags_ &= ~value; }
 
+        bool propertyCanGet(const std::string& key) const;
+        bool propertyCanSet(const std::string& key) const;
+
         APropertyValue propertyGet(const std::string& key) const;
         void propertySet(const std::string& key, const APropertyValue& value);
 

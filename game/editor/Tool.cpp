@@ -23,50 +23,53 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _EDITOR_EDITMODE_H_
-#define _EDITOR_EDITMODE_H_
-
-#include "AWeakObject.h"
-#include "af3d/Types.h"
-#include "af3d/Ray.h"
-#include "af3d/Frustum.h"
-#include <boost/noncopyable.hpp>
-#include <list>
+#include "editor/Tool.h"
+#include "editor/Workspace.h"
 
 namespace af3d { namespace editor
 {
-    class EditMode : boost::noncopyable
+    Tool::Tool(Workspace* workspace, const std::string& name, const Image& icon)
+    : workspace_(workspace),
+      name_(name),
+      icon_(icon)
     {
-    public:
-        using AWeakList = std::list<AWeakObject>;
+    }
 
-        EditMode() = default;
-        virtual ~EditMode() = default;
+    void Tool::activate(bool value)
+    {
+        if (active_ == value) {
+            return;
+        }
+        active_ = value;
+        if (active_) {
+            btAssert(canWork());
+            onActivate();
+        } else {
+            onDeactivate();
+        }
+    }
 
-        virtual const std::string& name() const = 0;
+    void Tool::update(float dt)
+    {
+        if (active_) {
+            doUpdate(dt);
+        }
+    }
 
-        virtual bool active() const = 0;
+    void Tool::options()
+    {
+        if (active_) {
+            doOptions();
+        }
+    }
 
-        virtual void activate() = 0;
+    Scene* Tool::scene()
+    {
+        return workspace_->scene();
+    }
 
-        virtual const AWeakList& hovered() const = 0;
-
-        virtual const AWeakList& selected() const = 0;
-
-        virtual bool isHovered(const AObjectPtr& obj) const = 0;
-
-        virtual bool isSelected(const AObjectPtr& obj) const = 0;
-
-        virtual void select(std::list<AObjectPtr>&& objs) = 0;
-
-        virtual void setHovered(const AWeakList& wobjs) = 0;
-
-        virtual AObjectPtr rayCast(const Frustum& frustum, const Ray& ray) const = 0;
-
-        virtual bool isValid(const AObjectPtr& obj) const = 0;
-
-        virtual bool isAlive(const AObjectPtr& obj) const = 0;
-    };
+    const Scene* Tool::scene() const
+    {
+        return workspace_->scene();
+    }
 } }
-
-#endif

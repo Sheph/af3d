@@ -97,6 +97,10 @@ set(SOURCES
     editor/EditModeVisualImpl.cpp
     editor/PropertyEditor.cpp
     editor/JsonSerializer.cpp
+    editor/Toolbox.cpp
+    editor/Tool.cpp
+    editor/ToolSelect.cpp
+    editor/ToolMove.cpp
 )
 
 include_directories(.)

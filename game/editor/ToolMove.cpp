@@ -23,50 +23,34 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _EDITOR_EDITMODE_H_
-#define _EDITOR_EDITMODE_H_
-
-#include "AWeakObject.h"
-#include "af3d/Types.h"
-#include "af3d/Ray.h"
-#include "af3d/Frustum.h"
-#include <boost/noncopyable.hpp>
-#include <list>
+#include "editor/ToolMove.h"
+#include "editor/Workspace.h"
+#include "AssetManager.h"
 
 namespace af3d { namespace editor
 {
-    class EditMode : boost::noncopyable
+    ToolMove::ToolMove(Workspace* workspace)
+    : Tool(workspace, "Move", assetManager.getImage("common1/tool_move.png")),
+      selTool_(workspace)
     {
-    public:
-        using AWeakList = std::list<AWeakObject>;
+    }
 
-        EditMode() = default;
-        virtual ~EditMode() = default;
+    void ToolMove::onActivate()
+    {
+        selTool_.activate(true);
+    }
 
-        virtual const std::string& name() const = 0;
+    void ToolMove::onDeactivate()
+    {
+        selTool_.activate(false);
+    }
 
-        virtual bool active() const = 0;
+    void ToolMove::doUpdate(float dt)
+    {
+        selTool_.update(dt);
+    }
 
-        virtual void activate() = 0;
-
-        virtual const AWeakList& hovered() const = 0;
-
-        virtual const AWeakList& selected() const = 0;
-
-        virtual bool isHovered(const AObjectPtr& obj) const = 0;
-
-        virtual bool isSelected(const AObjectPtr& obj) const = 0;
-
-        virtual void select(std::list<AObjectPtr>&& objs) = 0;
-
-        virtual void setHovered(const AWeakList& wobjs) = 0;
-
-        virtual AObjectPtr rayCast(const Frustum& frustum, const Ray& ray) const = 0;
-
-        virtual bool isValid(const AObjectPtr& obj) const = 0;
-
-        virtual bool isAlive(const AObjectPtr& obj) const = 0;
-    };
+    void ToolMove::doOptions()
+    {
+    }
 } }
-
-#endif

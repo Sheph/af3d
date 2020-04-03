@@ -29,6 +29,8 @@
 #include "editor/CommandHistory.h"
 #include "editor/EditModeObjectImpl.h"
 #include "editor/EditModeVisualImpl.h"
+#include "editor/ToolSelect.h"
+#include "editor/ToolMove.h"
 #include "UIComponent.h"
 #include "Action.h"
 
@@ -80,6 +82,12 @@ namespace af3d { namespace editor
         inline Action& actionMainPopup() { return actionMainPopup_; }
         inline Action& actionCommandHistory() { return actionCommandHistory_; }
         inline Action& actionPropertyEditor() { return actionPropertyEditor_; }
+        inline Action& actionToolbox() { return actionToolbox_; }
+
+        inline Tool* currentTool() { return currentTool_; }
+        inline void setCurrentTool(Tool* value) { runtime_assert(value); currentTool_ = value; }
+
+        inline const std::vector<Tool*>& tools() { return tools_; }
 
         void addObject(const std::string& kind);
 
@@ -138,6 +146,14 @@ namespace af3d { namespace editor
         Action actionMainPopup_;
         Action actionCommandHistory_;
         Action actionPropertyEditor_;
+        Action actionToolbox_;
+
+        std::unique_ptr<ToolSelect> toolSelect_;
+        std::unique_ptr<ToolMove> toolMove_;
+
+        std::vector<Tool*> tools_;
+
+        Tool* currentTool_;
 
         bool needNewSceneDlg_ = false;
         bool needOpenSceneDlg_ = false;

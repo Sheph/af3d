@@ -97,6 +97,34 @@ namespace af3d
         }
     }
 
+    bool AClass::propertyCanGet(const std::string& key) const
+    {
+        if (&super_ == this) {
+            return false;
+        }
+
+        auto it = funcs_.find(key);
+        if (it == funcs_.end()) {
+            return super_.propertyCanGet(key);
+        }
+
+        return !!it->second.getter;
+    }
+
+    bool AClass::propertyCanSet(const std::string& key) const
+    {
+        if (&super_ == this) {
+            return false;
+        }
+
+        auto it = funcs_.find(key);
+        if (it == funcs_.end()) {
+            return super_.propertyCanSet(key);
+        }
+
+        return !!it->second.setter;
+    }
+
     APropertyValue AClass::propertyGet(const AObject* obj, const std::string& key) const
     {
         if (&super_ == this) {

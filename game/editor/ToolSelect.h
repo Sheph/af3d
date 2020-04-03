@@ -23,49 +23,27 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _EDITOR_EDITMODE_H_
-#define _EDITOR_EDITMODE_H_
+#ifndef _EDITOR_TOOLSELECT_H_
+#define _EDITOR_TOOLSELECT_H_
 
-#include "AWeakObject.h"
-#include "af3d/Types.h"
-#include "af3d/Ray.h"
-#include "af3d/Frustum.h"
-#include <boost/noncopyable.hpp>
-#include <list>
+#include "editor/Tool.h"
 
 namespace af3d { namespace editor
 {
-    class EditMode : boost::noncopyable
+    class ToolSelect : public Tool
     {
     public:
-        using AWeakList = std::list<AWeakObject>;
+        explicit ToolSelect(Workspace* workspace);
+        ~ToolSelect() = default;
 
-        EditMode() = default;
-        virtual ~EditMode() = default;
+    private:
+        void onActivate() override;
 
-        virtual const std::string& name() const = 0;
+        void onDeactivate() override;
 
-        virtual bool active() const = 0;
+        void doUpdate(float dt) override;
 
-        virtual void activate() = 0;
-
-        virtual const AWeakList& hovered() const = 0;
-
-        virtual const AWeakList& selected() const = 0;
-
-        virtual bool isHovered(const AObjectPtr& obj) const = 0;
-
-        virtual bool isSelected(const AObjectPtr& obj) const = 0;
-
-        virtual void select(std::list<AObjectPtr>&& objs) = 0;
-
-        virtual void setHovered(const AWeakList& wobjs) = 0;
-
-        virtual AObjectPtr rayCast(const Frustum& frustum, const Ray& ray) const = 0;
-
-        virtual bool isValid(const AObjectPtr& obj) const = 0;
-
-        virtual bool isAlive(const AObjectPtr& obj) const = 0;
+        void doOptions() override;
     };
 } }
 

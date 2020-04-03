@@ -23,50 +23,39 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _EDITOR_EDITMODE_H_
-#define _EDITOR_EDITMODE_H_
+#ifndef _EDITOR_TOOLBOX_H_
+#define _EDITOR_TOOLBOX_H_
 
-#include "AWeakObject.h"
-#include "af3d/Types.h"
-#include "af3d/Ray.h"
-#include "af3d/Frustum.h"
-#include <boost/noncopyable.hpp>
-#include <list>
+#include "UIComponent.h"
 
 namespace af3d { namespace editor
 {
-    class EditMode : boost::noncopyable
+    class Toolbox : public std::enable_shared_from_this<Toolbox>,
+        public UIComponent
     {
     public:
-        using AWeakList = std::list<AWeakObject>;
+        Toolbox();
+        ~Toolbox() = default;
 
-        EditMode() = default;
-        virtual ~EditMode() = default;
+        static const AClass& staticKlass();
 
-        virtual const std::string& name() const = 0;
+        static AObjectPtr create(const APropertyValueMap& propVals);
 
-        virtual bool active() const = 0;
+        AObjectPtr sharedThis() override { return shared_from_this(); }
 
-        virtual void activate() = 0;
+        void update(float dt) override;
 
-        virtual const AWeakList& hovered() const = 0;
+    private:
+        void onRegister() override;
 
-        virtual const AWeakList& selected() const = 0;
+        void onUnregister() override;
 
-        virtual bool isHovered(const AObjectPtr& obj) const = 0;
-
-        virtual bool isSelected(const AObjectPtr& obj) const = 0;
-
-        virtual void select(std::list<AObjectPtr>&& objs) = 0;
-
-        virtual void setHovered(const AWeakList& wobjs) = 0;
-
-        virtual AObjectPtr rayCast(const Frustum& frustum, const Ray& ray) const = 0;
-
-        virtual bool isValid(const AObjectPtr& obj) const = 0;
-
-        virtual bool isAlive(const AObjectPtr& obj) const = 0;
+        bool show_ = true;
     };
-} }
+
+    using ToolboxPtr = std::shared_ptr<Toolbox>;
+}
+    ACLASS_NS_DECLARE(editor, Toolbox)
+}
 
 #endif

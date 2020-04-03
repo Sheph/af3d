@@ -58,7 +58,7 @@ namespace editor {
             return;
         }
 
-        ImGui::SetNextWindowPos(ImVec2(10, 100), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowPos(ImVec2(10, 400), ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowSize(ImVec2(200, 400), ImGuiCond_FirstUseEver);
 
         if (!ImGui::Begin("Command History", &show_)) {

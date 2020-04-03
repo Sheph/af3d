@@ -23,49 +23,61 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _EDITOR_EDITMODE_H_
-#define _EDITOR_EDITMODE_H_
+#ifndef _EDITOR_TOOL_H_
+#define _EDITOR_TOOL_H_
 
-#include "AWeakObject.h"
+#include "Image.h"
 #include "af3d/Types.h"
-#include "af3d/Ray.h"
-#include "af3d/Frustum.h"
 #include <boost/noncopyable.hpp>
-#include <list>
 
-namespace af3d { namespace editor
+namespace af3d {
+    class Scene;
+
+namespace editor
 {
-    class EditMode : boost::noncopyable
+    class Workspace;
+
+    class Tool : boost::noncopyable
     {
     public:
-        using AWeakList = std::list<AWeakObject>;
+        explicit Tool(Workspace* workspace, const std::string& name,
+            const Image& icon);
+        virtual ~Tool() = default;
 
-        EditMode() = default;
-        virtual ~EditMode() = default;
+        inline const std::string& name() const { return name_; }
 
-        virtual const std::string& name() const = 0;
+        inline const Image& icon() const { return icon_; }
 
-        virtual bool active() const = 0;
+        inline bool active() const { return active_; }
 
-        virtual void activate() = 0;
+        virtual bool canWork() const { return true; }
 
-        virtual const AWeakList& hovered() const = 0;
+        void activate(bool value);
 
-        virtual const AWeakList& selected() const = 0;
+        void update(float dt);
 
-        virtual bool isHovered(const AObjectPtr& obj) const = 0;
+        void options();
 
-        virtual bool isSelected(const AObjectPtr& obj) const = 0;
+    protected:
+        inline Workspace& workspace() { return *workspace_; }
+        inline const Workspace& workspace() const { return *workspace_; }
+        Scene* scene();
+        const Scene* scene() const;
 
-        virtual void select(std::list<AObjectPtr>&& objs) = 0;
+    private:
+        virtual void onActivate() = 0;
 
-        virtual void setHovered(const AWeakList& wobjs) = 0;
+        virtual void onDeactivate() = 0;
 
-        virtual AObjectPtr rayCast(const Frustum& frustum, const Ray& ray) const = 0;
+        virtual void doUpdate(float dt) = 0;
 
-        virtual bool isValid(const AObjectPtr& obj) const = 0;
+        virtual void doOptions() = 0;
 
-        virtual bool isAlive(const AObjectPtr& obj) const = 0;
+        Workspace* workspace_;
+        std::string name_;
+        Image icon_;
+
+        bool active_ = false;
     };
 } }
 
