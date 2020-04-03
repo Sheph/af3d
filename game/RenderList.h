@@ -91,6 +91,14 @@ namespace af3d
             vertices().emplace_back(pos, uv, toPackedColor(color));
         }
 
+        void addLine(const btVector3& pos, const btVector3& dir, const btVector3& up, const Color& c);
+
+        void addArrow(const btVector3& pos, const btVector3& dir, const btVector3& up, const Color& c);
+
+        void addQuad(const btVector3& pos, const std::array<btVector3, 2>& dirs, const Color& c);
+
+        void addBox(const btVector3& pos, const std::array<btVector3, 3>& dirs, const Color& c);
+
     private:
         MaterialPtr material_;
         GLenum primitiveMode_;

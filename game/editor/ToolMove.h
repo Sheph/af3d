@@ -27,6 +27,7 @@
 #define _EDITOR_TOOLMOVE_H_
 
 #include "editor/ToolSelect.h"
+#include "RenderGizmoTransformComponent.h"
 
 namespace af3d { namespace editor
 {
@@ -45,7 +46,10 @@ namespace af3d { namespace editor
 
         void doOptions() override;
 
+        void cleanup();
+
         ToolSelect selTool_;
+        RenderGizmoTransformComponentPtr rc_;
     };
 } }
 

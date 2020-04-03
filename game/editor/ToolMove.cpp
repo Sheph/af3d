@@ -43,14 +43,44 @@ namespace af3d { namespace editor
     void ToolMove::onDeactivate()
     {
         selTool_.activate(false);
+        cleanup();
     }
 
     void ToolMove::doUpdate(float dt)
     {
         selTool_.update(dt);
+
+        const auto& sel = workspace().em()->selected();
+        if (sel.empty()) {
+            cleanup();
+            return;
+        }
+
+        auto obj = sel.back().lock();
+        if (rc_ && (rc_->target() != obj)) {
+            cleanup();
+        }
+
+        if (!rc_) {
+            if (!obj || !obj->propertyCanGet(AProperty_WorldTransform)) {
+                return;
+            }
+
+            rc_ = std::make_shared<RenderGizmoTransformComponent>();
+            rc_->setTarget(obj);
+            workspace().parent()->addComponent(rc_);
+        }
     }
 
     void ToolMove::doOptions()
     {
+    }
+
+    void ToolMove::cleanup()
+    {
+        if (rc_) {
+            rc_->removeFromParent();
+            rc_.reset();
+        }
     }
 } }
