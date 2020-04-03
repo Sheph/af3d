@@ -131,23 +131,21 @@ namespace editor {
             dlg->endModal();
         }
 
-        for (auto tool : tools_) {
-            tool->update(dt);
-        }
-
         ImGuiIO& io = ImGui::GetIO();
 
-        if (io.WantCaptureMouse || io.WantCaptureKeyboard) {
-            return;
+        if (!io.WantCaptureMouse && !io.WantCaptureKeyboard) {
+            if (inputManager.keyboard().triggered(KI_I)) {
+                actionMainPopup().trigger();
+            } else if (inputManager.keyboard().triggered(KI_DELETE)) {
+                auto sel = em_->selected();
+                for (const auto& wobj : sel) {
+                    deleteObject(wobj.lock());
+                }
+            }
         }
 
-        if (inputManager.keyboard().triggered(KI_I)) {
-            actionMainPopup().trigger();
-        } else if (inputManager.keyboard().triggered(KI_DELETE)) {
-            auto sel = em_->selected();
-            for (const auto& wobj : sel) {
-                deleteObject(wobj.lock());
-            }
+        for (auto tool : tools_) {
+            tool->update(dt);
         }
     }
 

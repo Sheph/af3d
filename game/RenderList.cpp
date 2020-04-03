@@ -173,14 +173,161 @@ namespace af3d
 
     void RenderImm::addArrow(const btVector3& pos, const btVector3& dir, const btVector3& up, const Color& c)
     {
+        auto pos2 = pos + dir;
+
+        auto dirN = dir.normalized();
+
+        auto up2 = up.rotate(dirN, SIMD_2_PI / 3);
+        auto up3 = up.rotate(dirN, -SIMD_2_PI / 3);
+
+        addVertex(pos + up3, Vector2f_zero, c);
+        addVertex(pos + up2, Vector2f_zero, c);
+        addVertex(pos + up, Vector2f_zero, c);
+
+        addVertex(pos + up2, Vector2f_zero, c);
+        addVertex(pos2, Vector2f_zero, c);
+        addVertex(pos + up, Vector2f_zero, c);
+
+        addVertex(pos2, Vector2f_zero, c);
+        addVertex(pos + up2, Vector2f_zero, c);
+        addVertex(pos + up3, Vector2f_zero, c);
+
+        addVertex(pos2, Vector2f_zero, c);
+        addVertex(pos + up3, Vector2f_zero, c);
+        addVertex(pos + up, Vector2f_zero, c);
+    }
+
+    void RenderImm::addQuadArrow(const btVector3& pos, const btVector3& dir, const btVector3& up, const Color& c)
+    {
+        auto pos2 = pos + dir;
+
+        auto dirN = dir.normalized();
+
+        auto up2 = up.rotate(dirN, SIMD_HALF_PI);
+        auto up3 = -up;
+        auto up4 = -up2;
+
+        // Cover
+        addVertex(pos, Vector2f_zero, c);
+        addVertex(pos + up2, Vector2f_zero, c);
+        addVertex(pos + up, Vector2f_zero, c);
+
+        addVertex(pos, Vector2f_zero, c);
+        addVertex(pos + up3, Vector2f_zero, c);
+        addVertex(pos + up2, Vector2f_zero, c);
+
+        addVertex(pos + up4, Vector2f_zero, c);
+        addVertex(pos + up3, Vector2f_zero, c);
+        addVertex(pos, Vector2f_zero, c);
+
+        addVertex(pos + up4, Vector2f_zero, c);
+        addVertex(pos, Vector2f_zero, c);
+        addVertex(pos + up, Vector2f_zero, c);
+
+        // Side
+        addVertex(pos + up3, Vector2f_zero, c);
+        addVertex(pos2, Vector2f_zero, c);
+        addVertex(pos + up2, Vector2f_zero, c);
+
+        addVertex(pos + up2, Vector2f_zero, c);
+        addVertex(pos2, Vector2f_zero, c);
+        addVertex(pos + up, Vector2f_zero, c);
+
+        addVertex(pos + up4, Vector2f_zero, c);
+        addVertex(pos2, Vector2f_zero, c);
+        addVertex(pos + up3, Vector2f_zero, c);
+
+        addVertex(pos + up, Vector2f_zero, c);
+        addVertex(pos2, Vector2f_zero, c);
+        addVertex(pos + up4, Vector2f_zero, c);
+    }
+
+    void RenderImm::addLineArrow(const btVector3& pos, const btVector3& dir, const btVector3& up, const Color& c, float arrowScale)
+    {
+        addLine(pos, dir, up, c);
+        auto v = up * arrowScale;
+        addArrow(pos + dir, dir.normalized() * (v * 3.0f).length(), v, c);
     }
 
     void RenderImm::addQuad(const btVector3& pos, const std::array<btVector3, 2>& dirs, const Color& c)
     {
+        auto p2 = pos + dirs[0];
+        auto p3 = pos + dirs[1];
+        auto p4 = p2 + dirs[1];
+
+        addVertex(pos, Vector2f_zero, c);
+        addVertex(p2, Vector2f_zero, c);
+        addVertex(p4, Vector2f_zero, c);
+
+        addVertex(pos, Vector2f_zero, c);
+        addVertex(p4, Vector2f_zero, c);
+        addVertex(p3, Vector2f_zero, c);
     }
 
     void RenderImm::addBox(const btVector3& pos, const std::array<btVector3, 3>& dirs, const Color& c)
     {
+        auto p2 = pos + dirs[0];
+        auto p3 = pos + dirs[1];
+        auto p4 = p2 + dirs[1];
+
+        auto t = pos + dirs[2];
+        auto t2 = p2 + dirs[2];
+        auto t3 = p3 + dirs[2];
+        auto t4 = p4 + dirs[2];
+
+        // Top
+        addVertex(t, Vector2f_zero, c);
+        addVertex(t2, Vector2f_zero, c);
+        addVertex(t4, Vector2f_zero, c);
+
+        addVertex(t, Vector2f_zero, c);
+        addVertex(t4, Vector2f_zero, c);
+        addVertex(t3, Vector2f_zero, c);
+
+        // Bottom
+        addVertex(p4, Vector2f_zero, c);
+        addVertex(p2, Vector2f_zero, c);
+        addVertex(pos, Vector2f_zero, c);
+
+        addVertex(p3, Vector2f_zero, c);
+        addVertex(p4, Vector2f_zero, c);
+        addVertex(pos, Vector2f_zero, c);
+
+        // Right
+        addVertex(p2, Vector2f_zero, c);
+        addVertex(p4, Vector2f_zero, c);
+        addVertex(t4, Vector2f_zero, c);
+
+        addVertex(p2, Vector2f_zero, c);
+        addVertex(t4, Vector2f_zero, c);
+        addVertex(t2, Vector2f_zero, c);
+
+        // Left
+        addVertex(pos, Vector2f_zero, c);
+        addVertex(t3, Vector2f_zero, c);
+        addVertex(p3, Vector2f_zero, c);
+
+        addVertex(pos, Vector2f_zero, c);
+        addVertex(t, Vector2f_zero, c);
+        addVertex(t3, Vector2f_zero, c);
+
+        // Front
+        addVertex(pos, Vector2f_zero, c);
+        addVertex(p2, Vector2f_zero, c);
+        addVertex(t2, Vector2f_zero, c);
+
+        addVertex(pos, Vector2f_zero, c);
+        addVertex(t2, Vector2f_zero, c);
+        addVertex(t, Vector2f_zero, c);
+
+        // Back
+        addVertex(p3, Vector2f_zero, c);
+        addVertex(t3, Vector2f_zero, c);
+        addVertex(t4, Vector2f_zero, c);
+
+        addVertex(p3, Vector2f_zero, c);
+        addVertex(t4, Vector2f_zero, c);
+        addVertex(p4, Vector2f_zero, c);
     }
 
     RenderList::RenderList(const AABB2i& viewport, const Frustum& frustum,

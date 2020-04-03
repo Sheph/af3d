@@ -38,7 +38,7 @@ namespace af3d
         material_ = materialManager.createMaterial(MaterialTypeImm);
         material_->setBlendingParams(BlendingParams(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
         material_->setDepthTest(false);
-        //material_->setCullFaceMode(0);
+        material_->setCullFaceMode(0);
     }
 
     const AClass& RenderGizmoTransformComponent::staticKlass()
@@ -85,9 +85,19 @@ namespace af3d
         auto vUp = targetXf_.getBasis() * btVector3_up;
         auto vRight = targetXf_.getBasis() * btVector3_right;
 
-        rop.addLine(targetXf_.getOrigin(), vForward * length, vUp * radius, Color(1.0f, 0.0f, 0.0f, 0.8f));
-        rop.addLine(targetXf_.getOrigin(), vRight * length, vUp * radius, Color(0.0f, 1.0f, 0.0f, 0.8f));
-        rop.addLine(targetXf_.getOrigin(), vUp * length, vForward * radius, Color(0.0f, 0.0f, 1.0f, 0.8f));
+        rop.addLineArrow(targetXf_.getOrigin(), vRight * length, vUp * radius, Color(1.0f, 0.0f, 0.0f, 0.8f));
+        rop.addLineArrow(targetXf_.getOrigin(), vUp * length, vForward * radius, Color(0.0f, 1.0f, 0.0f, 0.8f));
+        rop.addLineArrow(targetXf_.getOrigin(), vForward * length, vUp * radius, Color(0.0f, 0.0f, 1.0f, 0.8f));
+
+        rop.addQuad(targetXf_.getOrigin() + (vUp + vForward) * length * 0.3f,
+            {vUp * length * 0.18f, vForward * length * 0.18f}, Color(1.0f, 0.0f, 0.0f, 0.8f));
+        rop.addQuad(targetXf_.getOrigin() + (vRight + vForward) * length * 0.3f,
+            {vRight * length * 0.18f, vForward * length * 0.18f}, Color(0.0f, 1.0f, 0.0f, 0.8f));
+        rop.addQuad(targetXf_.getOrigin() + (vRight + vUp) * length * 0.3f,
+            {vRight * length * 0.18f, vUp * length * 0.18f}, Color(0.0f, 0.0f, 1.0f, 0.8f));
+
+        rop.addBox(targetXf_.getOrigin(),
+            {vRight * length * 0.14f, vForward * length * 0.14f, vUp * length * 0.14f}, Color(1.0f, 1.0f, 1.0f, 0.8f));
     }
 
     std::pair<AObjectPtr, float> RenderGizmoTransformComponent::testRay(const Frustum& frustum, const Ray& ray, void* part)

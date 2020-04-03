@@ -36,9 +36,9 @@ namespace af3d
         AxisX,
         AxisY,
         AxisZ,
-        PlaneXY,
-        PlaneXZ,
         PlaneYZ,
+        PlaneXZ,
+        PlaneXY,
         PlaneCurrent
     };
 

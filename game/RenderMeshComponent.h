@@ -70,19 +70,11 @@ namespace af3d
 
         APropertyValue propertyWorldTransformGet(const std::string&) const
         {
-            if (parent()) {
-                return parent()->transform() * transform();
-            } else {
-                return transform();
-            }
+            return prevParentXf_ * transform();
         }
         void propertyWorldTransformSet(const std::string&, const APropertyValue& value)
         {
-            if (parent()) {
-                setTransform(parent()->transform().inverse() * value.toTransform());
-            } else {
-                setTransform(value.toTransform());
-            }
+            setTransform(prevParentXf_.inverse() * value.toTransform());
         }
 
         APropertyValue propertyScaleGet(const std::string&) const { return scale(); }
@@ -102,7 +94,7 @@ namespace af3d
         btVector3 scale_ = btVector3_one;
         bool dirty_ = false;
 
-        btTransform prevParentXf_;
+        btTransform prevParentXf_ = btTransform::getIdentity();
         AABB prevAABB_;
         RenderCookie* cookie_ = nullptr;
     };
