@@ -66,7 +66,7 @@ namespace af3d { namespace editor
                 return;
             }
 
-            rc_ = std::make_shared<RenderGizmoTransformComponent>();
+            rc_ = std::make_shared<RenderGizmoMoveComponent>();
             rc_->setTarget(obj);
             workspace().parent()->addComponent(rc_);
         }

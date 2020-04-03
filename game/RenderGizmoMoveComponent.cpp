@@ -23,17 +23,17 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "RenderGizmoTransformComponent.h"
+#include "RenderGizmoMoveComponent.h"
 #include "MaterialManager.h"
 #include "SceneObject.h"
 
 namespace af3d
 {
-    ACLASS_DEFINE_BEGIN(RenderGizmoTransformComponent, RenderComponent)
-    ACLASS_DEFINE_END(RenderGizmoTransformComponent)
+    ACLASS_DEFINE_BEGIN(RenderGizmoMoveComponent, RenderComponent)
+    ACLASS_DEFINE_END(RenderGizmoMoveComponent)
 
-    RenderGizmoTransformComponent::RenderGizmoTransformComponent()
-    : RenderComponent(AClass_RenderGizmoTransformComponent)
+    RenderGizmoMoveComponent::RenderGizmoMoveComponent()
+    : RenderComponent(AClass_RenderGizmoMoveComponent)
     {
         material_ = materialManager.createMaterial(MaterialTypeImm);
         material_->setBlendingParams(BlendingParams(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
@@ -41,19 +41,19 @@ namespace af3d
         material_->setCullFaceMode(0);
     }
 
-    const AClass& RenderGizmoTransformComponent::staticKlass()
+    const AClass& RenderGizmoMoveComponent::staticKlass()
     {
-        return AClass_RenderGizmoTransformComponent;
+        return AClass_RenderGizmoMoveComponent;
     }
 
-    AObjectPtr RenderGizmoTransformComponent::create(const APropertyValueMap& propVals)
+    AObjectPtr RenderGizmoMoveComponent::create(const APropertyValueMap& propVals)
     {
-        auto obj = std::make_shared<RenderGizmoTransformComponent>();
+        auto obj = std::make_shared<RenderGizmoMoveComponent>();
         obj->propertiesSet(propVals);
         return obj;
     }
 
-    void RenderGizmoTransformComponent::update(float dt)
+    void RenderGizmoMoveComponent::update(float dt)
     {
         btTransform newXf = getTargetXf();
 
@@ -72,7 +72,7 @@ namespace af3d
         dirty_ = false;
     }
 
-    void RenderGizmoTransformComponent::render(RenderList& rl, void* const* parts, size_t numParts)
+    void RenderGizmoMoveComponent::render(RenderList& rl, void* const* parts, size_t numParts)
     {
         auto viewExt = rl.frustum().getExtents(targetXf_.getOrigin());
 
@@ -100,7 +100,7 @@ namespace af3d
             {vRight * length * 0.14f, vForward * length * 0.14f, vUp * length * 0.14f}, Color(1.0f, 1.0f, 1.0f, 0.8f));
     }
 
-    std::pair<AObjectPtr, float> RenderGizmoTransformComponent::testRay(const Frustum& frustum, const Ray& ray, void* part)
+    std::pair<AObjectPtr, float> RenderGizmoMoveComponent::testRay(const Frustum& frustum, const Ray& ray, void* part)
     {
         auto res = ray.testSphere(Sphere(targetXf_.getOrigin(), radius_));
         if (res.first) {
@@ -110,11 +110,11 @@ namespace af3d
         }
     }
 
-    void RenderGizmoTransformComponent::debugDraw()
+    void RenderGizmoMoveComponent::debugDraw()
     {
     }
 
-    void RenderGizmoTransformComponent::onRegister()
+    void RenderGizmoMoveComponent::onRegister()
     {
         targetXf_ = getTargetXf();
         prevAABB_ = calcAABB();
@@ -122,19 +122,19 @@ namespace af3d
         dirty_ = false;
     }
 
-    void RenderGizmoTransformComponent::onUnregister()
+    void RenderGizmoMoveComponent::onUnregister()
     {
         manager()->removeAABB(cookie_);
     }
 
-    AABB RenderGizmoTransformComponent::calcAABB()
+    AABB RenderGizmoMoveComponent::calcAABB()
     {
         auto sz = btVector3(radius_, radius_, radius_);
 
         return AABB(targetXf_.getOrigin() - sz, targetXf_.getOrigin() + sz);
     }
 
-    btTransform RenderGizmoTransformComponent::getTargetXf() const
+    btTransform RenderGizmoMoveComponent::getTargetXf() const
     {
         return target_ ? target_->propertyGet(AProperty_WorldTransform).toTransform() : btTransform::getIdentity();
     }

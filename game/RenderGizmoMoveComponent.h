@@ -23,14 +23,14 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _RENDERGIZMOTRANSFORMCOMPONENT_H_
-#define _RENDERGIZMOTRANSFORMCOMPONENT_H_
+#ifndef _RENDERGIZMOMOVECOMPONENT_H_
+#define _RENDERGIZMOMOVECOMPONENT_H_
 
 #include "RenderComponent.h"
 
 namespace af3d
 {
-    enum class TransformType
+    enum class MoveType
     {
         None = 0,
         AxisX,
@@ -42,12 +42,12 @@ namespace af3d
         PlaneCurrent
     };
 
-    class RenderGizmoTransformComponent : public std::enable_shared_from_this<RenderGizmoTransformComponent>,
+    class RenderGizmoMoveComponent : public std::enable_shared_from_this<RenderGizmoMoveComponent>,
         public RenderComponent
     {
     public:
-        RenderGizmoTransformComponent();
-        ~RenderGizmoTransformComponent() = default;
+        RenderGizmoMoveComponent();
+        ~RenderGizmoMoveComponent() = default;
 
         static const AClass& staticKlass();
 
@@ -66,10 +66,10 @@ namespace af3d
         inline const AObjectPtr& target() const { return target_; }
         inline void setTarget(const AObjectPtr& value) { target_ = value; }
 
-        inline TransformType transformType() const { return xfType_; }
-        inline void setTransformType(TransformType value) { xfType_ = value; }
+        inline MoveType moveType() const { return moveType_; }
+        inline void setMoveType(MoveType value) { moveType_ = value; }
 
-        TransformType testRay(const Frustum& frustum, const Ray& ray) const;
+        MoveType testRay(const Frustum& frustum, const Ray& ray) const;
 
     private:
         void onRegister() override;
@@ -83,7 +83,7 @@ namespace af3d
         MaterialPtr material_;
 
         AObjectPtr target_;
-        TransformType xfType_ = TransformType::None;
+        MoveType moveType_ = MoveType::None;
         float radius_ = 5.0f;
         float viewportLength_ = 0.1f;
         float viewportRadius_ = 0.001f;
@@ -95,9 +95,9 @@ namespace af3d
         RenderCookie* cookie_ = nullptr;
     };
 
-    using RenderGizmoTransformComponentPtr = std::shared_ptr<RenderGizmoTransformComponent>;
+    using RenderGizmoMoveComponentPtr = std::shared_ptr<RenderGizmoMoveComponent>;
 
-    ACLASS_DECLARE(RenderGizmoTransformComponent)
+    ACLASS_DECLARE(RenderGizmoMoveComponent)
 }
 
 #endif

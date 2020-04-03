@@ -78,7 +78,7 @@ set(SOURCES
     Image.cpp
     AssetManager.cpp
     RenderQuadComponent.cpp
-    RenderGizmoTransformComponent.cpp
+    RenderGizmoMoveComponent.cpp
     AJsonReader.cpp
     AJsonWriter.cpp
     SceneAsset.cpp
