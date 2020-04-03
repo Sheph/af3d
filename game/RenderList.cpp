@@ -242,11 +242,10 @@ namespace af3d
         addVertex(pos + up4, Vector2f_zero, c);
     }
 
-    void RenderImm::addLineArrow(const btVector3& pos, const btVector3& dir, const btVector3& up, const Color& c, float arrowScale)
+    void RenderImm::addLineArrow(const btVector3& pos, const btVector3& dir, const btVector3& up, const Vector2f& arrowSize, const Color& c)
     {
         addLine(pos, dir, up, c);
-        auto v = up * arrowScale;
-        addArrow(pos + dir, dir.normalized() * (v * 3.0f).length(), v, c);
+        addArrow(pos + dir, dir.normalized() * arrowSize.x(), up.normalized() * arrowSize.y(), c);
     }
 
     void RenderImm::addQuad(const btVector3& pos, const std::array<btVector3, 2>& dirs, const Color& c)

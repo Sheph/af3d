@@ -44,6 +44,11 @@ namespace af3d
         return pos + (dir * t);
     }
 
+    Ray Ray::getTransformed(const btTransform& xf) const
+    {
+        return Ray(xf * pos, xf.getBasis() * dir);
+    }
+
     // See: http://psgraphics.blogspot.com/2016/02/new-simple-ray-box-test-from-andrew.html
     RayTestResult Ray::testAABB(const AABB& aabb) const
     {

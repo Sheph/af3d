@@ -26,6 +26,10 @@
 #include "editor/ToolMove.h"
 #include "editor/Workspace.h"
 #include "AssetManager.h"
+#include "InputManager.h"
+#include "Scene.h"
+#include "SceneObject.h"
+#include "CameraComponent.h"
 
 namespace af3d { namespace editor
 {
@@ -70,6 +74,12 @@ namespace af3d { namespace editor
             rc_->setTarget(obj);
             workspace().parent()->addComponent(rc_);
         }
+
+        auto cc = scene()->camera()->findComponent<CameraComponent>();
+
+        auto res = rc_->testRay(cc->getFrustum(), cc->screenPointToRay(inputManager.mouse().pos()));
+
+        rc_->setMoveType(res);
     }
 
     void ToolMove::doOptions()

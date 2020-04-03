@@ -72,6 +72,16 @@ namespace af3d
         MoveType testRay(const Frustum& frustum, const Ray& ray) const;
 
     private:
+        struct Sizes
+        {
+            float lineLength;
+            float lineRadius;
+            Vector2f arrowSize;
+            float quadOffset;
+            float quadSize;
+            float boxSize;
+        };
+
         void onRegister() override;
 
         void onUnregister() override;
@@ -80,10 +90,15 @@ namespace af3d
 
         btTransform getTargetXf() const;
 
+        Sizes getSizes(const Frustum& frustum) const;
+
+        inline float alpha(MoveType mt) const { return (mt == moveType_) ? alpha_[1] : alpha_[0]; }
+
         MaterialPtr material_;
 
         AObjectPtr target_;
         MoveType moveType_ = MoveType::None;
+        float alpha_[2] = {0.4f, 0.8f};
         float radius_ = 5.0f;
         float viewportLength_ = 0.1f;
         float viewportRadius_ = 0.001f;

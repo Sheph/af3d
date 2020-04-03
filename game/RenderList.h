@@ -97,7 +97,7 @@ namespace af3d
 
         void addQuadArrow(const btVector3& pos, const btVector3& dir, const btVector3& up, const Color& c);
 
-        void addLineArrow(const btVector3& pos, const btVector3& dir, const btVector3& up, const Color& c, float arrowScale = 5.0f);
+        void addLineArrow(const btVector3& pos, const btVector3& dir, const btVector3& up, const Vector2f& arrowSize, const Color& c);
 
         void addQuad(const btVector3& pos, const std::array<btVector3, 2>& dirs, const Color& c);
 

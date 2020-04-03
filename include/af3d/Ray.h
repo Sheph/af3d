@@ -48,6 +48,8 @@ namespace af3d
 
         btVector3 getAt(float t) const;
 
+        Ray getTransformed(const btTransform& xf) const;
+
         RayTestResult testAABB(const AABB& aabb) const;
 
         RayTestResult testSphere(const Sphere& s) const;
