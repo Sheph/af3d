@@ -29,6 +29,7 @@
 #include "af3d/Types.h"
 #include "af3d/AABB.h"
 #include "af3d/Sphere.h"
+#include "af3d/Plane.h"
 
 namespace af3d
 {
@@ -53,6 +54,8 @@ namespace af3d
         RayTestResult testAABB(const AABB& aabb) const;
 
         RayTestResult testSphere(const Sphere& s) const;
+
+        RayTestResult testPlane(const btPlane& p) const;
     };
 
     extern const Ray Ray_empty;

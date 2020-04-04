@@ -48,6 +48,8 @@ namespace af3d { namespace editor
 
         void cleanup();
 
+        btPlane getMovePlane(const Frustum& frustum);
+
         bool moveTarget(const Vector2f& mp);
 
         ToolSelect selTool_;
@@ -55,6 +57,7 @@ namespace af3d { namespace editor
 
         MoveType capturedMt_ = MoveType::None;
         Vector2f capturedMousePos_ = Vector2f_zero;
+        Ray capturedRay_;
         btTransform capturedTargetXf_ = btTransform::getIdentity();
         bool capturedChanged_ = false;
     };

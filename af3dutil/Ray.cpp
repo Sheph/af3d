@@ -108,4 +108,17 @@ namespace af3d
             return RayTestResult(true, t);
         }
     }
+
+    RayTestResult Ray::testPlane(const btPlane& p) const
+    {
+        float denom = p.normal.dot(dir);
+        if (btFabs(denom) < SIMD_EPSILON) {
+            // Parallel
+            return RayTestResult(false, 0.0f);
+        } else {
+            float nom = p.normal.dot(pos) + p.dist;
+            float t = -(nom / denom);
+            return RayTestResult(t >= 0, t);
+        }
+    }
 }

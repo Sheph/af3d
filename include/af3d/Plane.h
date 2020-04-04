@@ -60,9 +60,12 @@ inline bool btPlaneIsCoplanar(const btPlane& a, const btPlane& b)
     return (a == b || a == btPlaneFlip(b));
 }
 
+inline btPlane btPlaneMake(const btVector3& point, const btVector3& n)
+{
+    return btPlane(n, -n.dot(point));
+}
+
 btVector3 btPlaneProject(const btPlane& plane, const btVector3& point);
-btVector3 btPlaneLineIntersection(const btPlane& plane, const btVector3& p0, const btVector3& p1);
-btVector3 btPlaneThreeIntersection(const btPlane& p0, const btPlane& p1, const btPlane& p2);
 af3d::PlaneSide btPlanePointTest(const btPlane& plane, const btVector3& p);
 af3d::PlaneSide btPlaneAABBTest(const btPlane& plane, const btVector3& center, const btVector3& extents);
 af3d::PlaneSide btPlaneAABBTest(const btPlane& plane, const af3d::AABB& aabb);
