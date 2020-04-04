@@ -82,7 +82,7 @@ namespace af3d
         auto vRight = targetXf_.getBasis() * btVector3_right;
 
         rop.addCircle(targetXf_.getOrigin(),
-            rl.frustum().plane(Frustum::Plane::Far).normal * sz.radius1, Color(1.0f, 1.0f, 1.0f, alpha(RotateType::Trackball) * 0.25f));
+            rl.frustum().plane(Frustum::Plane::Far).normal * sz.radius1, Color(1.0f, 1.0f, 1.0f, alpha(RotateType::Trackball) * 0.15f));
 
         rop.addRing(targetXf_.getOrigin(), vRight * sz.width, sz.radius1, Color(1.0f, 0.0f, 0.0f, alpha(RotateType::PlaneX)));
         rop.addRing(targetXf_.getOrigin(), vUp * sz.width, sz.radius1, Color(0.0f, 1.0f, 0.0f, alpha(RotateType::PlaneY)));
@@ -113,28 +113,28 @@ namespace af3d
         auto res = ray.testPlane(btPlaneMake(targetXf_.getOrigin(), frustum.plane(Frustum::Plane::Far).normal));
         if (res.first) {
             auto l = (ray.getAt(res.second) - targetXf_.getOrigin()).length();
-            if (l >= (sz.radius2 - sz.width * 5.0f) && l <= (sz.radius2 + sz.width * 5.0f)) {
+            if (l >= (sz.radius2 - sz.width * 8.0f) && l <= (sz.radius2 + sz.width * 8.0f)) {
                 return RotateType::PlaneCurrent;
             }
         }
         res = ray.testPlane(btPlaneMake(targetXf_.getOrigin(), targetXf_.getBasis() * btVector3_right));
         if (res.first) {
             auto l = (ray.getAt(res.second) - targetXf_.getOrigin()).length();
-            if (l >= (sz.radius1 - sz.width * 5.0f) && l <= (sz.radius1 + sz.width * 5.0f)) {
+            if (l >= (sz.radius1 - sz.width * 8.0f) && l <= (sz.radius1 + sz.width * 8.0f)) {
                 return RotateType::PlaneX;
             }
         }
         res = ray.testPlane(btPlaneMake(targetXf_.getOrigin(), targetXf_.getBasis() * btVector3_up));
         if (res.first) {
             auto l = (ray.getAt(res.second) - targetXf_.getOrigin()).length();
-            if (l >= (sz.radius1 - sz.width * 5.0f) && l <= (sz.radius1 + sz.width * 5.0f)) {
+            if (l >= (sz.radius1 - sz.width * 8.0f) && l <= (sz.radius1 + sz.width * 8.0f)) {
                 return RotateType::PlaneY;
             }
         }
         res = ray.testPlane(btPlaneMake(targetXf_.getOrigin(), targetXf_.getBasis() * btVector3_forward));
         if (res.first) {
             auto l = (ray.getAt(res.second) - targetXf_.getOrigin()).length();
-            if (l >= (sz.radius1 - sz.width * 5.0f) && l <= (sz.radius1 + sz.width * 5.0f)) {
+            if (l >= (sz.radius1 - sz.width * 8.0f) && l <= (sz.radius1 + sz.width * 8.0f)) {
                 return RotateType::PlaneZ;
             }
         }
