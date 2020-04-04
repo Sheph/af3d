@@ -100,6 +100,7 @@ set(SOURCES
     editor/JsonSerializer.cpp
     editor/Toolbox.cpp
     editor/Tool.cpp
+    editor/ToolGizmo.cpp
     editor/ToolSelect.cpp
     editor/ToolMove.cpp
 )

@@ -23,43 +23,45 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _EDITOR_TOOLMOVE_H_
-#define _EDITOR_TOOLMOVE_H_
+#ifndef _EDITOR_TOOLGIZMO_H_
+#define _EDITOR_TOOLGIZMO_H_
 
-#include "editor/ToolSelect.h"
-#include "editor/ToolGizmo.h"
-#include "RenderGizmoMoveComponent.h"
+#include "editor/Tool.h"
+#include "af3d/Ray.h"
+#include "af3d/Frustum.h"
 
 namespace af3d { namespace editor
 {
-    class ToolMove : public ToolGizmo
+    class ToolGizmo : public Tool
     {
     public:
-        explicit ToolMove(Workspace* workspace);
-        ~ToolMove() = default;
+        ToolGizmo(Workspace* workspace, const std::string& name,
+            const Image& icon);
+        ~ToolGizmo() = default;
 
-    private:
+    protected:
+        inline bool captured() const { return !capturedRay_.empty(); }
+        inline const Ray& capturedRay() const { return capturedRay_; }
+
         void onActivate() override;
 
         void onDeactivate() override;
 
         void doUpdate(float dt) override;
 
-        void doOptions() override;
+    private:
+        void cleanup();
 
-        bool gizmoCreate(const AObjectPtr& obj) override;
-        void gizmoDestroy() override;
+        virtual bool gizmoCreate(const AObjectPtr& obj) = 0;
+        virtual void gizmoDestroy() = 0;
 
-        bool gizmoCapture(const Frustum& frustum, const Ray& ray) override;
-        void gizmoRelease(bool canceled) override;
-        void gizmoMove(const Frustum& frustum, const Ray& ray) override;
+        virtual bool gizmoCapture(const Frustum& frustum, const Ray& ray) = 0;
+        virtual void gizmoRelease(bool canceled) = 0;
+        virtual void gizmoMove(const Frustum& frustum, const Ray& ray) = 0;
 
-        btPlane getMovePlane(const Frustum& frustum);
-
-        ToolSelect selTool_;
-        RenderGizmoMoveComponentPtr rc_;
-
-        btTransform capturedTargetXf_ = btTransform::getIdentity();
+        AObjectPtr target_;
+        Ray capturedRay_ = Ray_empty;
+        Vector2f capturedMousePos_;
     };
 } }
 

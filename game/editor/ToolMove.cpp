@@ -26,100 +26,31 @@
 #include "editor/ToolMove.h"
 #include "editor/Workspace.h"
 #include "AssetManager.h"
-#include "InputManager.h"
-#include "Scene.h"
 #include "SceneObject.h"
-#include "CameraComponent.h"
 
 namespace af3d { namespace editor
 {
     ToolMove::ToolMove(Workspace* workspace)
-    : Tool(workspace, "Move", assetManager.getImage("common1/tool_move.png")),
+    : ToolGizmo(workspace, "Move", assetManager.getImage("common1/tool_move.png")),
       selTool_(workspace)
     {
     }
 
     void ToolMove::onActivate()
     {
+        ToolGizmo::onActivate();
         selTool_.activate(true);
     }
 
     void ToolMove::onDeactivate()
     {
-        cleanup();
+        ToolGizmo::onDeactivate();
         selTool_.activate(false);
     }
 
     void ToolMove::doUpdate(float dt)
     {
-        const auto& sel = workspace().em()->selected();
-        if (sel.empty()) {
-            cleanup();
-            selTool_.update(dt);
-            return;
-        }
-
-        auto obj = sel.back().lock();
-        if (rc_ && (rc_->target() != obj)) {
-            cleanup();
-        }
-
-        if (!rc_) {
-            if (!obj || !obj->propertyCanGet(AProperty_WorldTransform)) {
-                selTool_.update(dt);
-                return;
-            }
-
-            rc_ = std::make_shared<RenderGizmoMoveComponent>();
-            rc_->setTarget(obj);
-            rc_->setAlphaInactive(0.4f);
-            rc_->setAlphaActive(0.7f);
-            workspace().parent()->addComponent(rc_);
-        }
-
-        if (capturedMt_ != MoveType::None) {
-            bool canceled = inputManager.keyboard().triggered(KI_ESCAPE);
-            if (!inputManager.mouse().pressed(true) || canceled) {
-                capturedMt_ = MoveType::None;
-                selTool_.activate(true);
-                rc_->setAlphaActive(0.7f);
-                auto xf = rc_->target()->propertyGet(AProperty_WorldTransform);
-                rc_->target()->propertySet(AProperty_WorldTransform, capturedTargetXf_);
-                if (!canceled && capturedChanged_) {
-                    workspace().setProperty(rc_->target(), AProperty_WorldTransform, xf, false);
-                }
-                rc_->setMoveType(MoveType::None);
-                workspace().unlock();
-            } else {
-                auto mp = inputManager.mouse().pos();
-                if (moveTarget(mp)) {
-                    capturedChanged_ = true;
-                }
-            }
-        } else {
-            auto cc = scene()->camera()->findComponent<CameraComponent>();
-
-            auto ray = cc->screenPointToRay(inputManager.mouse().pos());
-
-            auto res = rc_->testRay(cc->getFrustum(), ray);
-
-            if (!inputManager.mouse().pressed(true)) {
-                rc_->setMoveType(res);
-            } else if ((rc_->moveType() != MoveType::None) && inputManager.mouse().triggered(true)) {
-                if (workspace().lock()) {
-                    capturedMt_ = rc_->moveType();
-                    rc_->setAlphaActive(1.0f);
-                    selTool_.activate(false);
-                    capturedMousePos_ = inputManager.mouse().pos();
-                    capturedRay_ = ray;
-                    capturedTargetXf_ = rc_->target()->propertyGet(AProperty_WorldTransform).toTransform();
-                    capturedChanged_ = false;
-                } else {
-                    rc_->setMoveType(MoveType::None);
-                }
-            }
-        }
-
+        ToolGizmo::doUpdate(dt);
         selTool_.update(dt);
     }
 
@@ -127,72 +58,70 @@ namespace af3d { namespace editor
     {
     }
 
-    void ToolMove::cleanup()
+    bool ToolMove::gizmoCreate(const AObjectPtr& obj)
     {
-        if (!rc_) {
-            return;
+        if (!obj->propertyCanGet(AProperty_WorldTransform)) {
+            return false;
         }
 
-        if (capturedMt_ != MoveType::None) {
-            rc_->target()->propertySet(AProperty_WorldTransform, capturedTargetXf_);
-            workspace().unlock();
-        }
+        rc_ = std::make_shared<RenderGizmoMoveComponent>();
+        rc_->setTarget(obj);
+        rc_->setAlphaInactive(0.4f);
+        rc_->setAlphaActive(0.7f);
+        workspace().parent()->addComponent(rc_);
+
+        return true;
+    }
+
+    void ToolMove::gizmoDestroy()
+    {
         rc_->removeFromParent();
         rc_.reset();
-        capturedMt_ = MoveType::None;
+    }
+
+    bool ToolMove::gizmoCapture(const Frustum& frustum, const Ray& ray)
+    {
+        auto res = rc_->testRay(frustum, ray);
+        if (res != MoveType::None) {
+            rc_->setMoveType(res);
+            rc_->setAlphaActive(1.0f);
+            capturedTargetXf_ = rc_->target()->propertyGet(AProperty_WorldTransform).toTransform();
+            selTool_.activate(false);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    void ToolMove::gizmoRelease(bool canceled)
+    {
+        auto xf = rc_->target()->propertyGet(AProperty_WorldTransform);
+        rc_->target()->propertySet(AProperty_WorldTransform, capturedTargetXf_);
+        if (!canceled) {
+            workspace().setProperty(rc_->target(), AProperty_WorldTransform, xf, false);
+        }
+        rc_->setMoveType(MoveType::None);
+        rc_->setAlphaActive(0.7f);
         selTool_.activate(true);
     }
 
-    btPlane ToolMove::getMovePlane(const Frustum& frustum)
+    void ToolMove::gizmoMove(const Frustum& frustum, const Ray& ray)
     {
-        auto vRight = capturedTargetXf_.getBasis() * btVector3_right;
-        auto vUp = capturedTargetXf_.getBasis() * btVector3_up;
-        auto vForward = capturedTargetXf_.getBasis() * btVector3_forward;
-
-        auto planeX = btPlaneMake(capturedTargetXf_.getOrigin(), vRight);
-        auto planeY = btPlaneMake(capturedTargetXf_.getOrigin(), vUp);
-        auto planeZ = btPlaneMake(capturedTargetXf_.getOrigin(), vForward);
-
-        if (capturedMt_ == MoveType::PlaneYZ) {
-            return planeX;
-        } else if (capturedMt_ == MoveType::PlaneXZ) {
-            return planeY;
-        } else if (capturedMt_ == MoveType::PlaneXY) {
-            return planeZ;
-        } else if (capturedMt_ == MoveType::PlaneCurrent) {
-            return btPlaneMake(capturedTargetXf_.getOrigin(),
-                frustum.plane(Frustum::Plane::Far).normal);
+        if (!captured()) {
+            rc_->setMoveType(rc_->testRay(frustum, ray));
+            return;
         }
 
-        auto px = btFabs(capturedRay_.dir.dot(planeX.normal));
-        auto py = btFabs(capturedRay_.dir.dot(planeY.normal));
-        auto pz = btFabs(capturedRay_.dir.dot(planeZ.normal));
+        btPlane plane = getMovePlane(frustum);
 
-        if (capturedMt_ == MoveType::AxisX) {
-            return (py > pz) ? planeY : planeZ;
-        } else if (capturedMt_ == MoveType::AxisY) {
-            return (px > pz) ? planeX : planeZ;
-        } else {
-            btAssert(capturedMt_ == MoveType::AxisZ);
-            return (px > py) ? planeX : planeY;
-        }
-    }
-
-    bool ToolMove::moveTarget(const Vector2f& mp)
-    {
-        auto cc = scene()->camera()->findComponent<CameraComponent>();
-
-        btPlane plane = getMovePlane(cc->getFrustum());
-
-        auto r = capturedRay_.testPlane(plane);
+        auto r = capturedRay().testPlane(plane);
         if (r.first) {
-            auto p1 = capturedRay_.getAt(r.second);
-            auto ray = cc->screenPointToRay(mp);
+            auto p1 = capturedRay().getAt(r.second);
             r = ray.testPlane(plane);
             if (r.first) {
                 auto p2 = ray.getAt(r.second);
                 auto xf = capturedTargetXf_;
-                switch (capturedMt_) {
+                switch (rc_->moveType()) {
                 case MoveType::AxisX: {
                     auto v = capturedTargetXf_.getBasis() * btVector3_right;
                     xf.getOrigin() += v * (p2 - p1).dot(v);
@@ -215,7 +144,40 @@ namespace af3d { namespace editor
                 rc_->target()->propertySet(AProperty_WorldTransform, xf);
             }
         }
+    }
 
-        return (mp != capturedMousePos_);
+    btPlane ToolMove::getMovePlane(const Frustum& frustum)
+    {
+        auto vRight = capturedTargetXf_.getBasis() * btVector3_right;
+        auto vUp = capturedTargetXf_.getBasis() * btVector3_up;
+        auto vForward = capturedTargetXf_.getBasis() * btVector3_forward;
+
+        auto planeX = btPlaneMake(capturedTargetXf_.getOrigin(), vRight);
+        auto planeY = btPlaneMake(capturedTargetXf_.getOrigin(), vUp);
+        auto planeZ = btPlaneMake(capturedTargetXf_.getOrigin(), vForward);
+
+        if (rc_->moveType() == MoveType::PlaneYZ) {
+            return planeX;
+        } else if (rc_->moveType() == MoveType::PlaneXZ) {
+            return planeY;
+        } else if (rc_->moveType() == MoveType::PlaneXY) {
+            return planeZ;
+        } else if (rc_->moveType() == MoveType::PlaneCurrent) {
+            return btPlaneMake(capturedTargetXf_.getOrigin(),
+                frustum.plane(Frustum::Plane::Far).normal);
+        }
+
+        auto px = btFabs(capturedRay().dir.dot(planeX.normal));
+        auto py = btFabs(capturedRay().dir.dot(planeY.normal));
+        auto pz = btFabs(capturedRay().dir.dot(planeZ.normal));
+
+        if (rc_->moveType() == MoveType::AxisX) {
+            return (py > pz) ? planeY : planeZ;
+        } else if (rc_->moveType() == MoveType::AxisY) {
+            return (px > pz) ? planeX : planeZ;
+        } else {
+            btAssert(rc_->moveType() == MoveType::AxisZ);
+            return (px > py) ? planeX : planeY;
+        }
     }
 } }
