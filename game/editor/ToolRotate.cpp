@@ -26,7 +26,10 @@
 #include "editor/ToolRotate.h"
 #include "editor/Workspace.h"
 #include "AssetManager.h"
+#include "InputManager.h"
+#include "Scene.h"
 #include "SceneObject.h"
+#include "CameraComponent.h"
 
 namespace af3d { namespace editor
 {
@@ -110,6 +113,57 @@ namespace af3d { namespace editor
         if (!captured()) {
             rc_->setRotateType(rc_->testRay(frustum, ray));
             return;
+        }
+
+        btPlane plane = getRotatePlane(frustum);
+
+        auto r = capturedRay().testPlane(plane);
+        if (r.first) {
+            auto p1 = capturedRay().getAt(r.second);
+            r = ray.testPlane(plane);
+            if (r.first) {
+                auto p2 = ray.getAt(r.second);
+                auto xf = capturedTargetXf_;
+
+                if (rc_->rotateType() == RotateType::Trackball) {
+                    if (capturedMousePos() != inputManager.mouse().pos()) {
+                        auto cc = scene()->camera()->findComponent<CameraComponent>();
+
+                        auto diff = cc->screenToViewport(inputManager.mouse().pos()) - cc->screenToViewport(capturedMousePos());
+
+                        xf.setRotation(btQuaternion((p2 - p1).cross(plane.normal), -diff.length() * SIMD_PI * 2.0f) *
+                            xf.getRotation());
+                        rc_->target()->propertySet(AProperty_WorldTransform, xf);
+                    }
+                } else {
+                    p1 -= capturedTargetXf_.getOrigin();
+                    p2 -= capturedTargetXf_.getOrigin();
+
+                    xf.setRotation(shortestArcQuatNormalize2(p1, p2) * xf.getRotation());
+                    rc_->target()->propertySet(AProperty_WorldTransform, xf);
+                }
+            }
+        }
+    }
+
+    btPlane ToolRotate::getRotatePlane(const Frustum& frustum)
+    {
+        if (rc_->rotateType() == RotateType::PlaneX) {
+            auto v = capturedTargetXf_.getBasis() * btVector3_right;
+            return btPlaneMake(capturedTargetXf_.getOrigin(), v);
+        } else if (rc_->rotateType() == RotateType::PlaneY) {
+            auto v = capturedTargetXf_.getBasis() * btVector3_up;
+            return btPlaneMake(capturedTargetXf_.getOrigin(), v);
+        } else if (rc_->rotateType() == RotateType::PlaneZ) {
+            auto v = capturedTargetXf_.getBasis() * btVector3_forward;
+            return btPlaneMake(capturedTargetXf_.getOrigin(), v);
+        } else if ((rc_->rotateType() == RotateType::PlaneCurrent) ||
+            rc_->rotateType() == RotateType::Trackball) {
+            return btPlaneMake(capturedTargetXf_.getOrigin(),
+                frustum.plane(Frustum::Plane::Far).normal);
+        } else {
+            btAssert(false);
+            return btPlane();
         }
     }
 } }

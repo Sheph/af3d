@@ -108,6 +108,40 @@ namespace af3d
 
     RotateType RenderGizmoRotateComponent::testRay(const Frustum& frustum, const Ray& ray) const
     {
+        auto sz = getSizes(frustum);
+
+        auto res = ray.testPlane(btPlaneMake(targetXf_.getOrigin(), frustum.plane(Frustum::Plane::Far).normal));
+        if (res.first) {
+            auto l = (ray.getAt(res.second) - targetXf_.getOrigin()).length();
+            if (l >= (sz.radius2 - sz.width * 5.0f) && l <= (sz.radius2 + sz.width * 5.0f)) {
+                return RotateType::PlaneCurrent;
+            }
+        }
+        res = ray.testPlane(btPlaneMake(targetXf_.getOrigin(), targetXf_.getBasis() * btVector3_right));
+        if (res.first) {
+            auto l = (ray.getAt(res.second) - targetXf_.getOrigin()).length();
+            if (l >= (sz.radius1 - sz.width * 5.0f) && l <= (sz.radius1 + sz.width * 5.0f)) {
+                return RotateType::PlaneX;
+            }
+        }
+        res = ray.testPlane(btPlaneMake(targetXf_.getOrigin(), targetXf_.getBasis() * btVector3_up));
+        if (res.first) {
+            auto l = (ray.getAt(res.second) - targetXf_.getOrigin()).length();
+            if (l >= (sz.radius1 - sz.width * 5.0f) && l <= (sz.radius1 + sz.width * 5.0f)) {
+                return RotateType::PlaneY;
+            }
+        }
+        res = ray.testPlane(btPlaneMake(targetXf_.getOrigin(), targetXf_.getBasis() * btVector3_forward));
+        if (res.first) {
+            auto l = (ray.getAt(res.second) - targetXf_.getOrigin()).length();
+            if (l >= (sz.radius1 - sz.width * 5.0f) && l <= (sz.radius1 + sz.width * 5.0f)) {
+                return RotateType::PlaneZ;
+            }
+        }
+        if (ray.testSphere(Sphere(targetXf_.getOrigin(), sz.radius1)).first) {
+            return RotateType::Trackball;
+        }
+
         return RotateType::None;
     }
 

@@ -54,6 +54,8 @@ namespace af3d { namespace editor
         void gizmoRelease(bool canceled) override;
         void gizmoMove(const Frustum& frustum, const Ray& ray) override;
 
+        btPlane getRotatePlane(const Frustum& frustum);
+
         ToolSelect selTool_;
         RenderGizmoRotateComponentPtr rc_;
 

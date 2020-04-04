@@ -42,6 +42,7 @@ namespace af3d { namespace editor
     protected:
         inline bool captured() const { return !capturedRay_.empty(); }
         inline const Ray& capturedRay() const { return capturedRay_; }
+        inline const Vector2f& capturedMousePos() const { return capturedMousePos_; }
 
         void onActivate() override;
 
