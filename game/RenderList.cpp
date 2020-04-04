@@ -384,6 +384,27 @@ namespace af3d
         }
     }
 
+    void RenderImm::addCircle(const btVector3& pos, const btVector3& up, const Color& c, int numSegments)
+    {
+        btQuaternion rot(up, SIMD_2_PI / numSegments);
+
+        auto p = btZeroNormalized(btPerpendicular(up)) * up.length();
+
+        auto p1 = pos + p;
+
+        for (int i = 0; i < numSegments; ++i) {
+            p = quatRotate(rot, p);
+
+            auto p2 = pos + p;
+
+            addVertex(p1, Vector2f_zero, c);
+            addVertex(p2, Vector2f_zero, c);
+            addVertex(pos, Vector2f_zero, c);
+
+            p1 = p2;
+        }
+    }
+
     RenderList::RenderList(const AABB2i& viewport, const Frustum& frustum,
         const RenderSettings& rs, VertexArrayWriter& defaultVa)
     : viewport_(viewport),

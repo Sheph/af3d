@@ -105,6 +105,8 @@ namespace af3d
 
         void addRing(const btVector3& pos, const btVector3& up, float radius, const Color& c, int numSegments = 40);
 
+        void addCircle(const btVector3& pos, const btVector3& up, const Color& c, int numSegments = 40);
+
     private:
         MaterialPtr material_;
         GLenum primitiveMode_;

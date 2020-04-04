@@ -81,6 +81,9 @@ namespace af3d
         auto vUp = targetXf_.getBasis() * btVector3_up;
         auto vRight = targetXf_.getBasis() * btVector3_right;
 
+        rop.addCircle(targetXf_.getOrigin(),
+            rl.frustum().plane(Frustum::Plane::Far).normal * sz.radius1, Color(1.0f, 1.0f, 1.0f, alpha(RotateType::Trackball) * 0.25f));
+
         rop.addRing(targetXf_.getOrigin(), vRight * sz.width, sz.radius1, Color(1.0f, 0.0f, 0.0f, alpha(RotateType::PlaneX)));
         rop.addRing(targetXf_.getOrigin(), vUp * sz.width, sz.radius1, Color(0.0f, 1.0f, 0.0f, alpha(RotateType::PlaneY)));
         rop.addRing(targetXf_.getOrigin(), vForward * sz.width, sz.radius1, Color(0.0f, 0.0f, 1.0f, alpha(RotateType::PlaneZ)));
