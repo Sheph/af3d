@@ -77,38 +77,44 @@ namespace af3d { namespace editor
             workspace().parent()->addComponent(rc_);
         }
 
-        if (mt_ != MoveType::None) {
-            if (!inputManager.mouse().pressed(true)) {
-                mt_ = MoveType::None;
+        if (capturedMt_ != MoveType::None) {
+            bool canceled = inputManager.keyboard().triggered(KI_ESCAPE);
+            if (!inputManager.mouse().pressed(true) || canceled) {
+                capturedMt_ = MoveType::None;
                 selTool_.activate(true);
                 rc_->setAlphaActive(0.7f);
                 auto xf = rc_->target()->propertyGet(AProperty_WorldTransform);
-                rc_->target()->propertySet(AProperty_WorldTransform, targetXf_);
-                workspace().setProperty(rc_->target(), AProperty_WorldTransform, xf, false);
+                rc_->target()->propertySet(AProperty_WorldTransform, capturedTargetXf_);
+                if (!canceled && capturedChanged_) {
+                    workspace().setProperty(rc_->target(), AProperty_WorldTransform, xf, false);
+                }
+                rc_->setMoveType(MoveType::None);
+                workspace().unlock();
             } else {
-                auto diff = inputManager.mouse().pos() - mousePos_;
-                if (mt_ == MoveType::AxisX) {
-                    auto xf = targetXf_;
-                    xf.getOrigin() += targetXf_.getBasis() * btVector3_right * diff.x() * 0.1f;
-                    rc_->target()->propertySet(AProperty_WorldTransform, xf);
+                auto mp = inputManager.mouse().pos();
+                if (moveTarget(mp)) {
+                    capturedChanged_ = true;
                 }
             }
-            selTool_.update(dt);
-            return;
-        }
+        } else {
+            auto cc = scene()->camera()->findComponent<CameraComponent>();
 
-        auto cc = scene()->camera()->findComponent<CameraComponent>();
+            auto res = rc_->testRay(cc->getFrustum(), cc->screenPointToRay(inputManager.mouse().pos()));
 
-        auto res = rc_->testRay(cc->getFrustum(), cc->screenPointToRay(inputManager.mouse().pos()));
-
-        rc_->setMoveType(res);
-
-        if ((res != MoveType::None) && inputManager.mouse().pressed(true)) {
-            mt_ = res;
-            rc_->setAlphaActive(1.0f);
-            selTool_.activate(false);
-            mousePos_ = inputManager.mouse().pos();
-            targetXf_ = rc_->target()->propertyGet(AProperty_WorldTransform).toTransform();
+            if (!inputManager.mouse().pressed(true)) {
+                rc_->setMoveType(res);
+            } else if ((rc_->moveType() != MoveType::None) && inputManager.mouse().triggered(true)) {
+                if (workspace().lock()) {
+                    capturedMt_ = rc_->moveType();
+                    rc_->setAlphaActive(1.0f);
+                    selTool_.activate(false);
+                    capturedMousePos_ = inputManager.mouse().pos();
+                    capturedTargetXf_ = rc_->target()->propertyGet(AProperty_WorldTransform).toTransform();
+                    capturedChanged_ = false;
+                } else {
+                    rc_->setMoveType(MoveType::None);
+                }
+            }
         }
 
         selTool_.update(dt);
@@ -120,14 +126,30 @@ namespace af3d { namespace editor
 
     void ToolMove::cleanup()
     {
-        if (rc_) {
-            if (mt_ != MoveType::None) {
-                rc_->target()->propertySet(AProperty_WorldTransform, targetXf_);
-            }
-            rc_->removeFromParent();
-            rc_.reset();
-            mt_ = MoveType::None;
-            selTool_.activate(true);
+        if (!rc_) {
+            return;
         }
+
+        if (capturedMt_ != MoveType::None) {
+            rc_->target()->propertySet(AProperty_WorldTransform, capturedTargetXf_);
+            workspace().unlock();
+        }
+        rc_->removeFromParent();
+        rc_.reset();
+        capturedMt_ = MoveType::None;
+        selTool_.activate(true);
+    }
+
+    bool ToolMove::moveTarget(const Vector2f& mp)
+    {
+        bool moved = false;
+        auto diff = mp - capturedMousePos_;
+        if (capturedMt_ == MoveType::AxisX) {
+            moved = (mp.x() != capturedMousePos_.x());
+            auto xf = capturedTargetXf_;
+            xf.getOrigin() += xf.getBasis() * btVector3_right * diff.x() * 0.1f;
+            rc_->target()->propertySet(AProperty_WorldTransform, xf);
+        }
+        return moved;
     }
 } }

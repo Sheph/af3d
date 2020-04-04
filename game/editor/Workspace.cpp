@@ -107,39 +107,41 @@ namespace editor {
         float mainMenuH = mainMenu();
         mainToolbar(mainMenuH);
 
-        if (needNewSceneDlg_) {
-            needNewSceneDlg_ = false;
-            ImGui::OpenPopup("New scene");
-        }
-
-        if (needOpenSceneDlg_) {
-            needOpenSceneDlg_ = false;
-            ImGui::OpenPopup("Open scene");
-        }
-
-        if (auto dlg = ImGuiFileDialog::beginAssetsModal("New scene", "noname.af3", "Scene files,.af3;All files")) {
-            if (dlg->ok() && !dlg->fileName().empty()) {
-                scene()->setNextLevel(dlg->filePath());
+        if (!locked()) {
+            if (needNewSceneDlg_) {
+                needNewSceneDlg_ = false;
+                ImGui::OpenPopup("New scene");
             }
-            dlg->endModal();
-        }
 
-        if (auto dlg = ImGuiFileDialog::beginAssetsModal("Open scene", "", "Scene files,.af3;All files")) {
-            if (dlg->ok() && !dlg->fileName().empty()) {
-                scene()->setNextLevel(dlg->filePath());
+            if (needOpenSceneDlg_) {
+                needOpenSceneDlg_ = false;
+                ImGui::OpenPopup("Open scene");
             }
-            dlg->endModal();
-        }
 
-        ImGuiIO& io = ImGui::GetIO();
+            if (auto dlg = ImGuiFileDialog::beginAssetsModal("New scene", "noname.af3", "Scene files,.af3;All files")) {
+                if (dlg->ok() && !dlg->fileName().empty()) {
+                    scene()->setNextLevel(dlg->filePath());
+                }
+                dlg->endModal();
+            }
 
-        if (!io.WantCaptureMouse && !io.WantCaptureKeyboard) {
-            if (inputManager.keyboard().triggered(KI_I)) {
-                actionMainPopup().trigger();
-            } else if (inputManager.keyboard().triggered(KI_DELETE)) {
-                auto sel = em_->selected();
-                for (const auto& wobj : sel) {
-                    deleteObject(wobj.lock());
+            if (auto dlg = ImGuiFileDialog::beginAssetsModal("Open scene", "", "Scene files,.af3;All files")) {
+                if (dlg->ok() && !dlg->fileName().empty()) {
+                    scene()->setNextLevel(dlg->filePath());
+                }
+                dlg->endModal();
+            }
+
+            ImGuiIO& io = ImGui::GetIO();
+
+            if (!io.WantCaptureMouse && !io.WantCaptureKeyboard) {
+                if (inputManager.keyboard().triggered(KI_I)) {
+                    actionMainPopup().trigger();
+                } else if (inputManager.keyboard().triggered(KI_DELETE)) {
+                    auto sel = em_->selected();
+                    for (const auto& wobj : sel) {
+                        deleteObject(wobj.lock());
+                    }
                 }
             }
         }

@@ -48,12 +48,15 @@ namespace af3d { namespace editor
 
         void cleanup();
 
+        bool moveTarget(const Vector2f& mp);
+
         ToolSelect selTool_;
         RenderGizmoMoveComponentPtr rc_;
-        MoveType mt_ = MoveType::None;
 
-        Vector2f mousePos_;
-        btTransform targetXf_;
+        MoveType capturedMt_ = MoveType::None;
+        Vector2f capturedMousePos_ = Vector2f_zero;
+        btTransform capturedTargetXf_ = btTransform::getIdentity();
+        bool capturedChanged_ = false;
     };
 } }
 

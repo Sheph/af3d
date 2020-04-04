@@ -53,6 +53,24 @@ namespace af3d { namespace editor
 
         void render(RenderList& rl) override;
 
+        inline bool locked() const { return locked_; }
+
+        inline bool lock()
+        {
+            if (!locked_) {
+                locked_ = true;
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        inline void unlock()
+        {
+            runtime_assert(locked_);
+            locked_ = false;
+        }
+
         inline const std::vector<std::string>& objectKinds() const { return objectKinds_; }
 
         inline EditModeObject* emObject() { return emObject_.get(); }
@@ -155,6 +173,7 @@ namespace af3d { namespace editor
 
         Tool* currentTool_;
 
+        bool locked_ = false;
         bool needNewSceneDlg_ = false;
         bool needOpenSceneDlg_ = false;
     };

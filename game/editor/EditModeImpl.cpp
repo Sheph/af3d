@@ -58,6 +58,16 @@ namespace af3d { namespace editor
         return hovered_;
     }
 
+    std::list<AObjectPtr> EditModeImpl::hoveredObjs() const
+    {
+        std::list<AObjectPtr> res;
+        const auto& tmp = hovered();
+        for (const auto& wobj : tmp) {
+            res.push_back(wobj.lock());
+        }
+        return res;
+    }
+
     const EditMode::AWeakList& EditModeImpl::selected() const
     {
         for (auto it = selected_.begin(); it != selected_.end();) {
@@ -69,6 +79,16 @@ namespace af3d { namespace editor
             }
         }
         return selected_;
+    }
+
+    std::list<AObjectPtr> EditModeImpl::selectedObjs() const
+    {
+        std::list<AObjectPtr> res;
+        const auto& tmp = selected();
+        for (const auto& wobj : tmp) {
+            res.push_back(wobj.lock());
+        }
+        return res;
     }
 
     bool EditModeImpl::isHovered(const AObjectPtr& obj) const
@@ -95,6 +115,10 @@ namespace af3d { namespace editor
 
     void EditModeImpl::select(std::list<AObjectPtr>&& objs)
     {
+        if (selectedObjs() == objs) {
+            return;
+        }
+
         workspace_->cmdHistory().add(
             std::make_shared<CommandSelect>(workspace_->scene(), this, std::move(objs)));
     }

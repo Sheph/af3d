@@ -51,7 +51,11 @@ namespace af3d { namespace editor
 
         virtual const AWeakList& hovered() const = 0;
 
+        virtual std::list<AObjectPtr> hoveredObjs() const = 0;
+
         virtual const AWeakList& selected() const = 0;
+
+        virtual std::list<AObjectPtr> selectedObjs() const = 0;
 
         virtual bool isHovered(const AObjectPtr& obj) const = 0;
 
