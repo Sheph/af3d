@@ -90,11 +90,11 @@ namespace af3d
             Color(0.0f, 0.0f, 1.0f, alpha(MoveType::AxisZ)));
 
         rop.addQuad(targetXf_.getOrigin() + (vUp + vForward) * sz.quadOffset,
-            {vUp * sz.quadSize, vForward * sz.quadSize}, Color(1.0f, 0.0f, 0.0f, alpha(MoveType::PlaneYZ)));
+            {vUp * sz.quadSize, vForward * sz.quadSize}, Color(1.0f, 0.0f, 0.0f, alpha(MoveType::PlaneX)));
         rop.addQuad(targetXf_.getOrigin() + (vRight + vForward) * sz.quadOffset,
-            {vRight * sz.quadSize, vForward * sz.quadSize}, Color(0.0f, 1.0f, 0.0f, alpha(MoveType::PlaneXZ)));
+            {vRight * sz.quadSize, vForward * sz.quadSize}, Color(0.0f, 1.0f, 0.0f, alpha(MoveType::PlaneY)));
         rop.addQuad(targetXf_.getOrigin() + (vRight + vUp) * sz.quadOffset,
-            {vRight * sz.quadSize, vUp * sz.quadSize}, Color(0.0f, 0.0f, 1.0f, alpha(MoveType::PlaneXY)));
+            {vRight * sz.quadSize, vUp * sz.quadSize}, Color(0.0f, 0.0f, 1.0f, alpha(MoveType::PlaneZ)));
 
         rop.addBox(targetXf_.getOrigin(),
             {vRight * sz.boxSize, vForward * sz.boxSize, vUp * sz.boxSize}, Color(1.0f, 1.0f, 1.0f, alpha(MoveType::PlaneCurrent)));
@@ -125,13 +125,13 @@ namespace af3d
             return MoveType::PlaneCurrent;
         } else if (r2.testAABB(AABB((btVector3_up + btVector3_forward) * sz.quadOffset + (btVector3_forward - btVector3_right) * sz.quadSize,
             (btVector3_up + btVector3_forward) * sz.quadOffset + (btVector3_up + btVector3_right) * sz.quadSize)).first) {
-            return MoveType::PlaneYZ;
+            return MoveType::PlaneX;
         } else if (r2.testAABB(AABB((btVector3_right + btVector3_forward) * sz.quadOffset + (btVector3_forward - btVector3_up) * sz.quadSize,
             (btVector3_right + btVector3_forward) * sz.quadOffset + (btVector3_up + btVector3_right) * sz.quadSize)).first) {
-            return MoveType::PlaneXZ;
+            return MoveType::PlaneY;
         } else if (r2.testAABB(AABB((btVector3_right + btVector3_up) * sz.quadOffset + btVector3_forward * sz.quadSize,
             (btVector3_right + btVector3_up) * sz.quadOffset + (btVector3_up + btVector3_right - btVector3_forward) * sz.quadSize)).first) {
-            return MoveType::PlaneXY;
+            return MoveType::PlaneZ;
         } else if (r2.testAABB(AABB(btVector3(0.0f, -sz.arrowSize.y(), -sz.arrowSize.y()),
             btVector3(sz.lineLength + sz.arrowSize.x(), sz.arrowSize.y(), sz.arrowSize.y()))).first) {
             return MoveType::AxisX;

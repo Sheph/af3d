@@ -79,6 +79,7 @@ set(SOURCES
     AssetManager.cpp
     RenderQuadComponent.cpp
     RenderGizmoMoveComponent.cpp
+    RenderGizmoRotateComponent.cpp
     AJsonReader.cpp
     AJsonWriter.cpp
     SceneAsset.cpp
@@ -103,6 +104,7 @@ set(SOURCES
     editor/ToolGizmo.cpp
     editor/ToolSelect.cpp
     editor/ToolMove.cpp
+    editor/ToolRotate.cpp
 )
 
 include_directories(.)

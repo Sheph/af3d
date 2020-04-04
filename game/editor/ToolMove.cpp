@@ -156,11 +156,11 @@ namespace af3d { namespace editor
         auto planeY = btPlaneMake(capturedTargetXf_.getOrigin(), vUp);
         auto planeZ = btPlaneMake(capturedTargetXf_.getOrigin(), vForward);
 
-        if (rc_->moveType() == MoveType::PlaneYZ) {
+        if (rc_->moveType() == MoveType::PlaneX) {
             return planeX;
-        } else if (rc_->moveType() == MoveType::PlaneXZ) {
+        } else if (rc_->moveType() == MoveType::PlaneY) {
             return planeY;
-        } else if (rc_->moveType() == MoveType::PlaneXY) {
+        } else if (rc_->moveType() == MoveType::PlaneZ) {
             return planeZ;
         } else if (rc_->moveType() == MoveType::PlaneCurrent) {
             return btPlaneMake(capturedTargetXf_.getOrigin(),

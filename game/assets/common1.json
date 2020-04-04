@@ -91,7 +91,7 @@
 	"pivot": {"x":0.5,"y":0.5}
 },
 {
-	"filename": "tool_select.png",
+	"filename": "tool_rotate.png",
 	"frame": {"x":60,"y":100,"w":24,"h":24},
 	"rotated": false,
 	"trimmed": false,
@@ -100,8 +100,17 @@
 	"pivot": {"x":0.5,"y":0.5}
 },
 {
-	"filename": "undo.png",
+	"filename": "tool_select.png",
 	"frame": {"x":88,"y":100,"w":24,"h":24},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":24,"h":24},
+	"sourceSize": {"w":24,"h":24},
+	"pivot": {"x":0.5,"y":0.5}
+},
+{
+	"filename": "undo.png",
+	"frame": {"x":116,"y":100,"w":24,"h":24},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":24,"h":24},
@@ -115,6 +124,6 @@
 	"format": "RGBA8888",
 	"size": {"w":144,"h":128},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:e40563bbb22013cee7d9307a6720c7b0:2a13acd4a1f3fc0a43c96d40d85ca05c:849a2d506a3dff356c1665b7dfafc6aa$"
+	"smartupdate": "$TexturePacker:SmartUpdate:3b01de27540e2cb7b82d012951f0f9fd:6afca6b1a0666227a5632782ee0a9271:849a2d506a3dff356c1665b7dfafc6aa$"
 }
 }

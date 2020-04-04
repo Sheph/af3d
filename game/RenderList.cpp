@@ -90,7 +90,7 @@ namespace af3d
         return rl_.defaultVa_.data().vertices;
     }
 
-    void RenderImm::addLine(const btVector3& pos, const btVector3& dir, const btVector3& up, const Color& c)
+    void RenderImm::addLine(const btVector3& pos, const btVector3& dir, const btVector3& up, const Color& c, bool withCovers)
     {
         auto pos2 = pos + dir;
 
@@ -100,39 +100,41 @@ namespace af3d
         auto up3 = -up;
         auto up4 = -up2;
 
-        // Back cover
-        addVertex(pos, Vector2f_zero, c);
-        addVertex(pos + up2, Vector2f_zero, c);
-        addVertex(pos + up, Vector2f_zero, c);
+        if (withCovers) {
+            // Back cover
+            addVertex(pos, Vector2f_zero, c);
+            addVertex(pos + up2, Vector2f_zero, c);
+            addVertex(pos + up, Vector2f_zero, c);
 
-        addVertex(pos, Vector2f_zero, c);
-        addVertex(pos + up3, Vector2f_zero, c);
-        addVertex(pos + up2, Vector2f_zero, c);
+            addVertex(pos, Vector2f_zero, c);
+            addVertex(pos + up3, Vector2f_zero, c);
+            addVertex(pos + up2, Vector2f_zero, c);
 
-        addVertex(pos + up4, Vector2f_zero, c);
-        addVertex(pos + up3, Vector2f_zero, c);
-        addVertex(pos, Vector2f_zero, c);
+            addVertex(pos + up4, Vector2f_zero, c);
+            addVertex(pos + up3, Vector2f_zero, c);
+            addVertex(pos, Vector2f_zero, c);
 
-        addVertex(pos + up4, Vector2f_zero, c);
-        addVertex(pos, Vector2f_zero, c);
-        addVertex(pos + up, Vector2f_zero, c);
+            addVertex(pos + up4, Vector2f_zero, c);
+            addVertex(pos, Vector2f_zero, c);
+            addVertex(pos + up, Vector2f_zero, c);
 
-        // Front cover
-        addVertex(pos2 + up, Vector2f_zero, c);
-        addVertex(pos2 + up2, Vector2f_zero, c);
-        addVertex(pos2, Vector2f_zero, c);
+            // Front cover
+            addVertex(pos2 + up, Vector2f_zero, c);
+            addVertex(pos2 + up2, Vector2f_zero, c);
+            addVertex(pos2, Vector2f_zero, c);
 
-        addVertex(pos2 + up2, Vector2f_zero, c);
-        addVertex(pos2 + up3, Vector2f_zero, c);
-        addVertex(pos2, Vector2f_zero, c);
+            addVertex(pos2 + up2, Vector2f_zero, c);
+            addVertex(pos2 + up3, Vector2f_zero, c);
+            addVertex(pos2, Vector2f_zero, c);
 
-        addVertex(pos2, Vector2f_zero, c);
-        addVertex(pos2 + up3, Vector2f_zero, c);
-        addVertex(pos2 + up4, Vector2f_zero, c);
+            addVertex(pos2, Vector2f_zero, c);
+            addVertex(pos2 + up3, Vector2f_zero, c);
+            addVertex(pos2 + up4, Vector2f_zero, c);
 
-        addVertex(pos2 + up, Vector2f_zero, c);
-        addVertex(pos2, Vector2f_zero, c);
-        addVertex(pos2 + up4, Vector2f_zero, c);
+            addVertex(pos2 + up, Vector2f_zero, c);
+            addVertex(pos2, Vector2f_zero, c);
+            addVertex(pos2 + up4, Vector2f_zero, c);
+        }
 
         // Side 1
         addVertex(pos + up2, Vector2f_zero, c);
@@ -327,6 +329,59 @@ namespace af3d
         addVertex(p3, Vector2f_zero, c);
         addVertex(t4, Vector2f_zero, c);
         addVertex(p4, Vector2f_zero, c);
+    }
+
+    void RenderImm::addRing(const btVector3& pos, const btVector3& up, float radius, const Color& c, int numSegments)
+    {
+        btQuaternion rot(up, SIMD_2_PI / numSegments);
+
+        auto p = btZeroNormalized(btPerpendicular(up)) * radius;
+
+        auto dirN = btZeroNormalized(p.cross(up));
+
+        auto pUp1 = pos + p + up;
+        auto pUp2 = pos + p + up.rotate(dirN, SIMD_2_PI / 3);
+        auto pUp3 = pos + p + up.rotate(dirN, -SIMD_2_PI / 3);
+
+        for (int i = 0; i < numSegments; ++i) {
+            p = quatRotate(rot, p);
+            dirN = quatRotate(rot, dirN);
+
+            auto up1 = pos + p + up;
+            auto up2 = pos + p + up.rotate(dirN, SIMD_2_PI / 3);
+            auto up3 = pos + p + up.rotate(dirN, -SIMD_2_PI / 3);
+
+            // Side 1
+            addVertex(pUp3, Vector2f_zero, c);
+            addVertex(up1, Vector2f_zero, c);
+            addVertex(pUp1, Vector2f_zero, c);
+
+            addVertex(pUp3, Vector2f_zero, c);
+            addVertex(up3, Vector2f_zero, c);
+            addVertex(up1, Vector2f_zero, c);
+
+            // Side 2
+            addVertex(pUp1, Vector2f_zero, c);
+            addVertex(up1, Vector2f_zero, c);
+            addVertex(pUp2, Vector2f_zero, c);
+
+            addVertex(up1, Vector2f_zero, c);
+            addVertex(up2, Vector2f_zero, c);
+            addVertex(pUp2, Vector2f_zero, c);
+
+            // Side 3
+            addVertex(pUp2, Vector2f_zero, c);
+            addVertex(up2, Vector2f_zero, c);
+            addVertex(up3, Vector2f_zero, c);
+
+            addVertex(pUp2, Vector2f_zero, c);
+            addVertex(up3, Vector2f_zero, c);
+            addVertex(pUp3, Vector2f_zero, c);
+
+            pUp1 = up1;
+            pUp2 = up2;
+            pUp3 = up3;
+        }
     }
 
     RenderList::RenderList(const AABB2i& viewport, const Frustum& frustum,

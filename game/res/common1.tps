@@ -191,6 +191,7 @@
             <filename>common1/undo.png</filename>
             <filename>common1/tool_move.png</filename>
             <filename>common1/tool_select.png</filename>
+            <filename>common1/tool_rotate.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>

@@ -461,6 +461,12 @@ namespace af3d
         btZeroNormalize(n);
         return n;
     }
+
+    inline btVector3 btPerpendicular(const btVector3& v)
+    {
+        return btFabs(v.x()) > btFabs(v.z()) ?
+            btVector3(-v.y(), v.x(), 0.0f) : btVector3(0.0f, -v.z(), v.y());
+    }
 }
 
 template <class T>
