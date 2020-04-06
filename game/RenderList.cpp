@@ -250,6 +250,16 @@ namespace af3d
         addArrow(pos + dir, dir.normalized() * arrowSize.x(), up.normalized() * arrowSize.y(), c);
     }
 
+    void RenderImm::addLineBox(const btVector3& pos, const btVector3& dir, const btVector3& up, const btVector3& boxSize, const Color& c)
+    {
+        addLine(pos, dir, up, c);
+
+        auto dirN = dir.normalized();
+        auto upN = up.normalized();
+        auto rightN = dirN.cross(upN);
+        addBox(pos + dir - upN * boxSize.y() * 0.5f - rightN * boxSize.x() * 0.5f, {rightN * boxSize.x(), dirN * boxSize.z(), upN * boxSize.y()}, c);
+    }
+
     void RenderImm::addQuad(const btVector3& pos, const std::array<btVector3, 2>& dirs, const Color& c)
     {
         auto p2 = pos + dirs[0];

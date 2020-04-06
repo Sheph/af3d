@@ -23,17 +23,17 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "RenderGizmoMoveComponent.h"
+#include "RenderGizmoAxesComponent.h"
 #include "MaterialManager.h"
 #include "SceneObject.h"
 
 namespace af3d
 {
-    ACLASS_DEFINE_BEGIN(RenderGizmoMoveComponent, RenderComponent)
-    ACLASS_DEFINE_END(RenderGizmoMoveComponent)
+    ACLASS_DEFINE_BEGIN(RenderGizmoAxesComponent, RenderComponent)
+    ACLASS_DEFINE_END(RenderGizmoAxesComponent)
 
-    RenderGizmoMoveComponent::RenderGizmoMoveComponent()
-    : RenderComponent(AClass_RenderGizmoMoveComponent)
+    RenderGizmoAxesComponent::RenderGizmoAxesComponent()
+    : RenderComponent(AClass_RenderGizmoAxesComponent)
     {
         material_ = materialManager.createMaterial(MaterialTypeImm);
         material_->setBlendingParams(BlendingParams(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
@@ -41,19 +41,19 @@ namespace af3d
         material_->setCullFaceMode(0);
     }
 
-    const AClass& RenderGizmoMoveComponent::staticKlass()
+    const AClass& RenderGizmoAxesComponent::staticKlass()
     {
-        return AClass_RenderGizmoMoveComponent;
+        return AClass_RenderGizmoAxesComponent;
     }
 
-    AObjectPtr RenderGizmoMoveComponent::create(const APropertyValueMap& propVals)
+    AObjectPtr RenderGizmoAxesComponent::create(const APropertyValueMap& propVals)
     {
-        auto obj = std::make_shared<RenderGizmoMoveComponent>();
+        auto obj = std::make_shared<RenderGizmoAxesComponent>();
         obj->propertiesSet(propVals);
         return obj;
     }
 
-    void RenderGizmoMoveComponent::update(float dt)
+    void RenderGizmoAxesComponent::update(float dt)
     {
         btTransform newXf = getTargetXf();
 
@@ -72,7 +72,7 @@ namespace af3d
         dirty_ = false;
     }
 
-    void RenderGizmoMoveComponent::render(RenderList& rl, void* const* parts, size_t numParts)
+    void RenderGizmoAxesComponent::render(RenderList& rl, void* const* parts, size_t numParts)
     {
         auto sz = getSizes(rl.frustum());
 
@@ -82,12 +82,22 @@ namespace af3d
         auto vUp = targetXf_.getBasis() * btVector3_up;
         auto vRight = targetXf_.getBasis() * btVector3_right;
 
-        rop.addLineArrow(targetXf_.getOrigin(), vRight * sz.lineLength, vUp * sz.lineRadius, sz.arrowSize,
-            Color(1.0f, 0.0f, 0.0f, alpha(MoveType::AxisX)));
-        rop.addLineArrow(targetXf_.getOrigin(), vUp * sz.lineLength, vForward * sz.lineRadius, sz.arrowSize,
-            Color(0.0f, 1.0f, 0.0f, alpha(MoveType::AxisY)));
-        rop.addLineArrow(targetXf_.getOrigin(), vForward * sz.lineLength, vUp * sz.lineRadius, sz.arrowSize,
-            Color(0.0f, 0.0f, 1.0f, alpha(MoveType::AxisZ)));
+        if (kind_ == KindMove) {
+            rop.addLineArrow(targetXf_.getOrigin(), vRight * sz.lineLength, vUp * sz.lineRadius, sz.arrowSize,
+                Color(1.0f, 0.0f, 0.0f, alpha(MoveType::AxisX)));
+            rop.addLineArrow(targetXf_.getOrigin(), vUp * sz.lineLength, vForward * sz.lineRadius, sz.arrowSize,
+                Color(0.0f, 1.0f, 0.0f, alpha(MoveType::AxisY)));
+            rop.addLineArrow(targetXf_.getOrigin(), vForward * sz.lineLength, vUp * sz.lineRadius, sz.arrowSize,
+                Color(0.0f, 0.0f, 1.0f, alpha(MoveType::AxisZ)));
+        } else {
+            auto asz = btVector3(sz.arrowSize.y(), sz.arrowSize.y(), sz.arrowSize.y()) * 1.5f;
+            rop.addLineBox(targetXf_.getOrigin(), vRight * sz.lineLength, vUp * sz.lineRadius, asz,
+                Color(1.0f, 0.0f, 0.0f, alpha(MoveType::AxisX)));
+            rop.addLineBox(targetXf_.getOrigin(), vUp * sz.lineLength, vForward * sz.lineRadius, asz,
+                Color(0.0f, 1.0f, 0.0f, alpha(MoveType::AxisY)));
+            rop.addLineBox(targetXf_.getOrigin(), vForward * sz.lineLength, vUp * sz.lineRadius, asz,
+                Color(0.0f, 0.0f, 1.0f, alpha(MoveType::AxisZ)));
+        }
 
         rop.addQuad(targetXf_.getOrigin() + (vUp + vForward) * sz.quadOffset,
             {vUp * sz.quadSize, vForward * sz.quadSize}, Color(1.0f, 0.0f, 0.0f, alpha(MoveType::PlaneX)));
@@ -96,11 +106,16 @@ namespace af3d
         rop.addQuad(targetXf_.getOrigin() + (vRight + vUp) * sz.quadOffset,
             {vRight * sz.quadSize, vUp * sz.quadSize}, Color(0.0f, 0.0f, 1.0f, alpha(MoveType::PlaneZ)));
 
-        rop.addBox(targetXf_.getOrigin(),
-            {vRight * sz.boxSize, vForward * sz.boxSize, vUp * sz.boxSize}, Color(1.0f, 1.0f, 1.0f, alpha(MoveType::PlaneCurrent)));
+        if (kind_ == KindMove) {
+            rop.addBox(targetXf_.getOrigin(),
+                {vRight * sz.boxSize, vForward * sz.boxSize, vUp * sz.boxSize}, Color(1.0f, 1.0f, 1.0f, alpha(MoveType::PlaneCurrent)));
+        } else {
+            rop.addRing(targetXf_.getOrigin(),
+                rl.frustum().plane(Frustum::Plane::Far).normal * sz.lineRadius, sz.ringRadius, Color(1.0f, 1.0f, 1.0f, alpha(MoveType::PlaneCurrent)));
+        }
     }
 
-    std::pair<AObjectPtr, float> RenderGizmoMoveComponent::testRay(const Frustum& frustum, const Ray& ray, void* part)
+    std::pair<AObjectPtr, float> RenderGizmoAxesComponent::testRay(const Frustum& frustum, const Ray& ray, void* part)
     {
         auto res = ray.testSphere(Sphere(targetXf_.getOrigin(), radius_));
         if (res.first) {
@@ -110,20 +125,32 @@ namespace af3d
         }
     }
 
-    void RenderGizmoMoveComponent::debugDraw()
+    void RenderGizmoAxesComponent::debugDraw()
     {
     }
 
-    MoveType RenderGizmoMoveComponent::testRay(const Frustum& frustum, const Ray& ray) const
+    MoveType RenderGizmoAxesComponent::testRay(const Frustum& frustum, const Ray& ray) const
     {
         auto sz = getSizes(frustum);
 
         auto r2 = ray.getTransformed(targetXf_.inverse());
 
-        if (r2.testAABB(AABB(btVector3_forward * sz.boxSize,
-            (btVector3_up + btVector3_right) * sz.boxSize)).first) {
-            return MoveType::PlaneCurrent;
-        } else if (r2.testAABB(AABB((btVector3_up + btVector3_forward) * sz.quadOffset + (btVector3_forward - btVector3_right) * sz.quadSize,
+        if (kind_ == KindMove) {
+            if (r2.testAABB(AABB(btVector3_forward * sz.boxSize,
+                (btVector3_up + btVector3_right) * sz.boxSize)).first) {
+                return MoveType::PlaneCurrent;
+            }
+        } else {
+            auto res = ray.testPlane(btPlaneMake(targetXf_.getOrigin(), frustum.plane(Frustum::Plane::Far).normal));
+            if (res.first) {
+                auto l = (ray.getAt(res.second) - targetXf_.getOrigin()).length();
+                if (l >= (sz.ringRadius - sz.arrowSize.y()) && l <= (sz.ringRadius + sz.arrowSize.y())) {
+                    return MoveType::PlaneCurrent;
+                }
+            }
+        }
+
+        if (r2.testAABB(AABB((btVector3_up + btVector3_forward) * sz.quadOffset + (btVector3_forward - btVector3_right) * sz.quadSize,
             (btVector3_up + btVector3_forward) * sz.quadOffset + (btVector3_up + btVector3_right) * sz.quadSize)).first) {
             return MoveType::PlaneX;
         } else if (r2.testAABB(AABB((btVector3_right + btVector3_forward) * sz.quadOffset + (btVector3_forward - btVector3_up) * sz.quadSize,
@@ -146,7 +173,7 @@ namespace af3d
         return MoveType::None;
     }
 
-    void RenderGizmoMoveComponent::onRegister()
+    void RenderGizmoAxesComponent::onRegister()
     {
         targetXf_ = getTargetXf();
         prevAABB_ = calcAABB();
@@ -154,24 +181,24 @@ namespace af3d
         dirty_ = false;
     }
 
-    void RenderGizmoMoveComponent::onUnregister()
+    void RenderGizmoAxesComponent::onUnregister()
     {
         manager()->removeAABB(cookie_);
     }
 
-    AABB RenderGizmoMoveComponent::calcAABB()
+    AABB RenderGizmoAxesComponent::calcAABB()
     {
         auto sz = btVector3(radius_, radius_, radius_);
 
         return AABB(targetXf_.getOrigin() - sz, targetXf_.getOrigin() + sz);
     }
 
-    btTransform RenderGizmoMoveComponent::getTargetXf() const
+    btTransform RenderGizmoAxesComponent::getTargetXf() const
     {
         return target_ ? target_->propertyGet(AProperty_WorldTransform).toTransform() : btTransform::getIdentity();
     }
 
-    RenderGizmoMoveComponent::Sizes RenderGizmoMoveComponent::getSizes(const Frustum& frustum) const
+    RenderGizmoAxesComponent::Sizes RenderGizmoAxesComponent::getSizes(const Frustum& frustum) const
     {
         auto viewExt = frustum.getExtents(targetXf_.getOrigin());
 
@@ -183,6 +210,7 @@ namespace af3d
         ret.quadOffset = ret.lineLength * 0.3f;
         ret.quadSize = ret.lineLength * 0.18f;
         ret.boxSize = ret.lineLength * 0.14f;
+        ret.ringRadius = ret.lineLength + ret.arrowSize.x();
 
         return ret;
     }

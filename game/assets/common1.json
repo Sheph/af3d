@@ -29,7 +29,7 @@
 },
 {
 	"filename": "mode_scene.png",
-	"frame": {"x":4,"y":72,"w":24,"h":24},
+	"frame": {"x":128,"y":4,"w":24,"h":24},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":24,"h":24},
@@ -38,7 +38,7 @@
 },
 {
 	"filename": "mode_visual.png",
-	"frame": {"x":32,"y":72,"w":24,"h":24},
+	"frame": {"x":4,"y":72,"w":24,"h":24},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":24,"h":24},
@@ -47,7 +47,7 @@
 },
 {
 	"filename": "redo.png",
-	"frame": {"x":60,"y":72,"w":24,"h":24},
+	"frame": {"x":32,"y":72,"w":24,"h":24},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":24,"h":24},
@@ -56,7 +56,7 @@
 },
 {
 	"filename": "scene_new.png",
-	"frame": {"x":88,"y":72,"w":24,"h":24},
+	"frame": {"x":60,"y":72,"w":24,"h":24},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":24,"h":24},
@@ -65,7 +65,7 @@
 },
 {
 	"filename": "scene_open.png",
-	"frame": {"x":116,"y":72,"w":24,"h":24},
+	"frame": {"x":88,"y":72,"w":24,"h":24},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":24,"h":24},
@@ -74,7 +74,7 @@
 },
 {
 	"filename": "scene_save.png",
-	"frame": {"x":4,"y":100,"w":24,"h":24},
+	"frame": {"x":116,"y":72,"w":24,"h":24},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":24,"h":24},
@@ -83,7 +83,7 @@
 },
 {
 	"filename": "tool_move.png",
-	"frame": {"x":32,"y":100,"w":24,"h":24},
+	"frame": {"x":4,"y":100,"w":24,"h":24},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":24,"h":24},
@@ -92,6 +92,15 @@
 },
 {
 	"filename": "tool_rotate.png",
+	"frame": {"x":32,"y":100,"w":24,"h":24},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":24,"h":24},
+	"sourceSize": {"w":24,"h":24},
+	"pivot": {"x":0.5,"y":0.5}
+},
+{
+	"filename": "tool_scale.png",
 	"frame": {"x":60,"y":100,"w":24,"h":24},
 	"rotated": false,
 	"trimmed": false,
@@ -122,8 +131,8 @@
 	"version": "1.0",
 	"image": "common1.png",
 	"format": "RGBA8888",
-	"size": {"w":144,"h":128},
+	"size": {"w":156,"h":128},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:3b01de27540e2cb7b82d012951f0f9fd:6afca6b1a0666227a5632782ee0a9271:849a2d506a3dff356c1665b7dfafc6aa$"
+	"smartupdate": "$TexturePacker:SmartUpdate:d18b1b95d01f503b21eadf56656c1302:7e8720f34fedb26c6f6adbf0dfc3383f:849a2d506a3dff356c1665b7dfafc6aa$"
 }
 }

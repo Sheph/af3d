@@ -138,7 +138,7 @@ namespace af3d
 
     AABB RenderMeshComponent::calcAABB() const
     {
-        return mesh_->aabb().scaled(scale_).getTransformed(parent()->transform() * xf_);
+        return mesh_->aabb().scaledAt0(scale_).getTransformed(parent()->transform() * xf_);
     }
 
     void RenderMeshComponent::render(RenderList& rl, const Matrix4f& modelMat, const MaterialPtr& material)

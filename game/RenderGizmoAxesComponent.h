@@ -23,8 +23,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _RENDERGIZMOMOVECOMPONENT_H_
-#define _RENDERGIZMOMOVECOMPONENT_H_
+#ifndef _RENDERGIZMOAXESCOMPONENT_H_
+#define _RENDERGIZMOAXESCOMPONENT_H_
 
 #include "RenderComponent.h"
 
@@ -42,12 +42,18 @@ namespace af3d
         PlaneCurrent
     };
 
-    class RenderGizmoMoveComponent : public std::enable_shared_from_this<RenderGizmoMoveComponent>,
+    class RenderGizmoAxesComponent : public std::enable_shared_from_this<RenderGizmoAxesComponent>,
         public RenderComponent
     {
     public:
-        RenderGizmoMoveComponent();
-        ~RenderGizmoMoveComponent() = default;
+        enum Kind
+        {
+            KindMove = 0,
+            KindScale
+        };
+
+        RenderGizmoAxesComponent();
+        ~RenderGizmoAxesComponent() = default;
 
         static const AClass& staticKlass();
 
@@ -62,6 +68,9 @@ namespace af3d
         std::pair<AObjectPtr, float> testRay(const Frustum& frustum, const Ray& ray, void* part) override;
 
         void debugDraw() override;
+
+        inline Kind kind() const { return kind_; }
+        inline void setKind(Kind value) { kind_ = value; }
 
         inline const AObjectPtr& target() const { return target_; }
         inline void setTarget(const AObjectPtr& value) { target_ = value; }
@@ -86,6 +95,7 @@ namespace af3d
             float quadOffset;
             float quadSize;
             float boxSize;
+            float ringRadius;
         };
 
         void onRegister() override;
@@ -102,6 +112,8 @@ namespace af3d
 
         MaterialPtr material_;
 
+        Kind kind_ = KindMove;
+
         AObjectPtr target_;
         MoveType moveType_ = MoveType::None;
         float alpha_[2] = {1.0f, 1.0f};
@@ -116,9 +128,9 @@ namespace af3d
         RenderCookie* cookie_ = nullptr;
     };
 
-    using RenderGizmoMoveComponentPtr = std::shared_ptr<RenderGizmoMoveComponent>;
+    using RenderGizmoAxesComponentPtr = std::shared_ptr<RenderGizmoAxesComponent>;
 
-    ACLASS_DECLARE(RenderGizmoMoveComponent)
+    ACLASS_DECLARE(RenderGizmoAxesComponent)
 }
 
 #endif

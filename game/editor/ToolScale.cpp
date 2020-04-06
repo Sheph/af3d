@@ -23,48 +23,50 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "editor/ToolMove.h"
+#include "editor/ToolScale.h"
 #include "editor/Workspace.h"
 #include "AssetManager.h"
 #include "SceneObject.h"
 
 namespace af3d { namespace editor
 {
-    ToolMove::ToolMove(Workspace* workspace)
-    : ToolGizmo(workspace, "Move", assetManager.getImage("common1/tool_move.png")),
+    ToolScale::ToolScale(Workspace* workspace)
+    : ToolGizmo(workspace, "Scale", assetManager.getImage("common1/tool_scale.png")),
       selTool_(workspace)
     {
     }
 
-    void ToolMove::onActivate()
+    void ToolScale::onActivate()
     {
         ToolGizmo::onActivate();
         selTool_.activate(true);
     }
 
-    void ToolMove::onDeactivate()
+    void ToolScale::onDeactivate()
     {
         ToolGizmo::onDeactivate();
         selTool_.activate(false);
     }
 
-    void ToolMove::doUpdate(float dt)
+    void ToolScale::doUpdate(float dt)
     {
         ToolGizmo::doUpdate(dt);
         selTool_.update(dt);
     }
 
-    void ToolMove::doOptions()
+    void ToolScale::doOptions()
     {
     }
 
-    bool ToolMove::gizmoCreate(const AObjectPtr& obj)
+    bool ToolScale::gizmoCreate(const AObjectPtr& obj)
     {
-        if (!obj->propertyCanGet(AProperty_WorldTransform)) {
+        if (!obj->propertyCanGet(AProperty_Scale) ||
+            !obj->propertyCanGet(AProperty_WorldTransform)) {
             return false;
         }
 
         rc_ = std::make_shared<RenderGizmoAxesComponent>();
+        rc_->setKind(RenderGizmoAxesComponent::KindScale);
         rc_->setTarget(obj);
         rc_->setAlphaInactive(0.4f);
         rc_->setAlphaActive(0.7f);
@@ -73,19 +75,20 @@ namespace af3d { namespace editor
         return true;
     }
 
-    void ToolMove::gizmoDestroy()
+    void ToolScale::gizmoDestroy()
     {
         rc_->removeFromParent();
         rc_.reset();
     }
 
-    bool ToolMove::gizmoCapture(const Frustum& frustum, const Ray& ray)
+    bool ToolScale::gizmoCapture(const Frustum& frustum, const Ray& ray)
     {
         auto res = rc_->testRay(frustum, ray);
         if (res != MoveType::None) {
             rc_->setMoveType(res);
             rc_->setAlphaActive(1.0f);
             capturedTargetXf_ = rc_->target()->propertyGet(AProperty_WorldTransform).toTransform();
+            capturedTargetScale_ = rc_->target()->propertyGet(AProperty_Scale).toVec3();
             selTool_.activate(false);
             return true;
         } else {
@@ -93,26 +96,26 @@ namespace af3d { namespace editor
         }
     }
 
-    void ToolMove::gizmoRelease(bool canceled)
+    void ToolScale::gizmoRelease(bool canceled)
     {
-        auto xf = rc_->target()->propertyGet(AProperty_WorldTransform);
-        rc_->target()->propertySet(AProperty_WorldTransform, capturedTargetXf_);
+        auto scale = rc_->target()->propertyGet(AProperty_Scale);
+        rc_->target()->propertySet(AProperty_Scale, capturedTargetScale_);
         if (!canceled) {
-            workspace().setProperty(rc_->target(), AProperty_WorldTransform, xf, false);
+            workspace().setProperty(rc_->target(), AProperty_Scale, scale, false);
         }
         rc_->setMoveType(MoveType::None);
         rc_->setAlphaActive(0.7f);
         selTool_.activate(true);
     }
 
-    void ToolMove::gizmoMove(const Frustum& frustum, const Ray& ray)
+    void ToolScale::gizmoMove(const Frustum& frustum, const Ray& ray)
     {
         if (!captured()) {
             rc_->setMoveType(rc_->testRay(frustum, ray));
             return;
         }
 
-        btPlane plane = getMovePlane(frustum);
+        btPlane plane = getScalePlane(frustum);
 
         auto r = capturedRay().testPlane(plane);
         if (r.first) {
@@ -120,33 +123,100 @@ namespace af3d { namespace editor
             r = ray.testPlane(plane);
             if (r.first) {
                 auto p2 = ray.getAt(r.second);
-                auto xf = capturedTargetXf_;
+                auto scale = capturedTargetScale_;
                 switch (rc_->moveType()) {
                 case MoveType::AxisX: {
                     auto v = capturedTargetXf_.getBasis() * btVector3_right;
-                    xf.getOrigin() += v * (p2 - p1).dot(v);
+                    scale.setX((p2 - capturedTargetXf_.getOrigin()).dot(v) * scale.x() / (p1 - capturedTargetXf_.getOrigin()).dot(v));
                     break;
                 }
                 case MoveType::AxisY: {
                     auto v = capturedTargetXf_.getBasis() * btVector3_up;
-                    xf.getOrigin() += v * (p2 - p1).dot(v);
+                    scale.setY((p2 - capturedTargetXf_.getOrigin()).dot(v) * scale.y() / (p1 - capturedTargetXf_.getOrigin()).dot(v));
                     break;
                 }
                 case MoveType::AxisZ: {
                     auto v = capturedTargetXf_.getBasis() * btVector3_forward;
-                    xf.getOrigin() += v * (p2 - p1).dot(v);
+                    scale.setZ((p2 - capturedTargetXf_.getOrigin()).dot(v) * scale.z() / (p1 - capturedTargetXf_.getOrigin()).dot(v));
+                    break;
+                }
+                case MoveType::PlaneX: {
+                    auto vX = capturedTargetXf_.getBasis() * btVector3_forward;
+                    auto vY = capturedTargetXf_.getBasis() * btVector3_up;
+                    auto diff = p2 - capturedTargetXf_.getOrigin();
+                    float x = diff.dot(vX);
+                    float y = diff.dot(vY);
+
+                    float tmp = scale.x();
+                    scale.setX(0);
+
+                    if (x + y < 0.0f) {
+                        scale = -diff.length() * scale / (p1 - capturedTargetXf_.getOrigin()).length();
+                    } else {
+                        scale = diff.length() * scale / (p1 - capturedTargetXf_.getOrigin()).length();
+                    }
+                    scale.setX(tmp);
+                    break;
+                }
+                case MoveType::PlaneY: {
+                    auto vX = capturedTargetXf_.getBasis() * btVector3_forward;
+                    auto vY = capturedTargetXf_.getBasis() * btVector3_right;
+                    auto diff = p2 - capturedTargetXf_.getOrigin();
+                    float x = diff.dot(vX);
+                    float y = diff.dot(vY);
+
+                    float tmp = scale.y();
+                    scale.setY(0);
+
+                    if (x + y < 0.0f) {
+                        scale = -diff.length() * scale / (p1 - capturedTargetXf_.getOrigin()).length();
+                    } else {
+                        scale = diff.length() * scale / (p1 - capturedTargetXf_.getOrigin()).length();
+                    }
+                    scale.setY(tmp);
+                    break;
+                }
+                case MoveType::PlaneZ: {
+                    auto vX = capturedTargetXf_.getBasis() * btVector3_right;
+                    auto vY = capturedTargetXf_.getBasis() * btVector3_up;
+                    auto diff = p2 - capturedTargetXf_.getOrigin();
+                    float x = diff.dot(vX);
+                    float y = diff.dot(vY);
+
+                    float tmp = scale.z();
+                    scale.setZ(0);
+
+                    if (x + y < 0.0f) {
+                        scale = -diff.length() * scale / (p1 - capturedTargetXf_.getOrigin()).length();
+                    } else {
+                        scale = diff.length() * scale / (p1 - capturedTargetXf_.getOrigin()).length();
+                    }
+                    scale.setZ(tmp);
+                    break;
+                }
+                case MoveType::PlaneCurrent: {
+                    auto vX = frustum.transform().getBasis() * btVector3_right;
+                    auto vY = frustum.transform().getBasis() * btVector3_up;
+                    auto vP1 = p1 - capturedTargetXf_.getOrigin();
+                    auto diff = p2 - capturedTargetXf_.getOrigin();
+
+                    if (btFabs(Vector2f(vP1.dot(vX), vP1.dot(vY)).angle(Vector2f(diff.dot(vX), diff.dot(vY)))) > SIMD_HALF_PI) {
+                        scale = -diff.length() * scale / vP1.length();
+                    } else {
+                        scale = diff.length() * scale / vP1.length();
+                    }
                     break;
                 }
                 default:
-                    xf.getOrigin() += (p2 - p1);
+                    btAssert(false);
                     break;
                 }
-                rc_->target()->propertySet(AProperty_WorldTransform, xf);
+                rc_->target()->propertySet(AProperty_Scale, scale);
             }
         }
     }
 
-    btPlane ToolMove::getMovePlane(const Frustum& frustum)
+    btPlane ToolScale::getScalePlane(const Frustum& frustum)
     {
         auto vRight = capturedTargetXf_.getBasis() * btVector3_right;
         auto vUp = capturedTargetXf_.getBasis() * btVector3_up;

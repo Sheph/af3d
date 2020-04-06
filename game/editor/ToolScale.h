@@ -23,8 +23,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _EDITOR_TOOLMOVE_H_
-#define _EDITOR_TOOLMOVE_H_
+#ifndef _EDITOR_TOOLSCALE_H_
+#define _EDITOR_TOOLSCALE_H_
 
 #include "editor/ToolSelect.h"
 #include "editor/ToolGizmo.h"
@@ -32,11 +32,11 @@
 
 namespace af3d { namespace editor
 {
-    class ToolMove : public ToolGizmo
+    class ToolScale : public ToolGizmo
     {
     public:
-        explicit ToolMove(Workspace* workspace);
-        ~ToolMove() = default;
+        explicit ToolScale(Workspace* workspace);
+        ~ToolScale() = default;
 
     private:
         void onActivate() override;
@@ -54,12 +54,13 @@ namespace af3d { namespace editor
         void gizmoRelease(bool canceled) override;
         void gizmoMove(const Frustum& frustum, const Ray& ray) override;
 
-        btPlane getMovePlane(const Frustum& frustum);
+        btPlane getScalePlane(const Frustum& frustum);
 
         ToolSelect selTool_;
         RenderGizmoAxesComponentPtr rc_;
 
         btTransform capturedTargetXf_ = btTransform::getIdentity();
+        btVector3 capturedTargetScale_ = btVector3_one;
     };
 } }
 

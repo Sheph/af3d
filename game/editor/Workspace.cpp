@@ -60,7 +60,8 @@ namespace editor {
       emVisual_(new EditModeVisualImpl(this)),
       toolSelect_(new ToolSelect(this)),
       toolMove_(new ToolMove(this)),
-      toolRotate_(new ToolRotate(this))
+      toolRotate_(new ToolRotate(this)),
+      toolScale_(new ToolScale(this))
     {
         static const char* prefix = "SceneObject";
 
@@ -71,6 +72,7 @@ namespace editor {
         tools_.push_back(toolSelect_.get());
         tools_.push_back(toolMove_.get());
         tools_.push_back(toolRotate_.get());
+        tools_.push_back(toolScale_.get());
         currentTool_ = toolSelect_.get();
 
         std::set<std::string> sortedKinds;
@@ -223,6 +225,7 @@ namespace editor {
         toolSelect_.reset();
         toolMove_.reset();
         toolRotate_.reset();
+        toolScale_.reset();
         currentTool_ = nullptr;
         tools_.clear();
     }

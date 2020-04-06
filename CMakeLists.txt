@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 2.6)
 cmake_policy(SET CMP0014 NEW)
 
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 option(CROSSCOMPILING "Enable cross-compiling")
 
 if (CROSSCOMPILING)
@@ -133,7 +136,7 @@ if (WIN32)
 else ()
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -D_REENTRANT -fPIC -DPIC -DBYPASS_ECLIPSE_INDEXER")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -D_REENTRANT -fPIC -DPIC -DBYPASS_ECLIPSE_INDEXER")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-local-typedefs -std=c++11")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-local-typedefs")
 endif ()
 add_definitions(-DROCKET_STATIC_LIB)
 add_definitions(-DASSIMP_BUILD_NO_OWN_ZLIB)

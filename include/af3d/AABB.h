@@ -110,15 +110,32 @@ namespace af3d
             return res;
         }
 
-        AABB scaled(const btVector3& s) const
+        AABB scaledAt0(const btVector3& s) const
         {
-            return AABB(lowerBound * s, upperBound * s);
+            auto sa = s.absolute();
+            return AABB(lowerBound * sa, upperBound * sa);
         }
 
-        void scale(const btVector3& s)
+        void scaleAt0(const btVector3& s)
         {
-            lowerBound *= s;
-            upperBound *= s;
+            auto sa = s.absolute();
+            lowerBound *= sa;
+            upperBound *= sa;
+        }
+
+        AABB scaledAtCenter(const btVector3& s) const
+        {
+            auto c = getCenter();
+            auto hsz = getExtents() * s.absolute();
+            return AABB(c - hsz, c + hsz);
+        }
+
+        void scaleAtCenter(const btVector3& s)
+        {
+            auto c = getCenter();
+            auto hsz = getExtents() * s.absolute();
+            lowerBound = c - hsz;
+            upperBound = c + hsz;
         }
     };
 

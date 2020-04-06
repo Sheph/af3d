@@ -32,6 +32,7 @@
 #include "editor/ToolSelect.h"
 #include "editor/ToolMove.h"
 #include "editor/ToolRotate.h"
+#include "editor/ToolScale.h"
 #include "UIComponent.h"
 #include "Action.h"
 
@@ -170,6 +171,7 @@ namespace af3d { namespace editor
         std::unique_ptr<ToolSelect> toolSelect_;
         std::unique_ptr<ToolMove> toolMove_;
         std::unique_ptr<ToolRotate> toolRotate_;
+        std::unique_ptr<ToolScale> toolScale_;
 
         std::vector<Tool*> tools_;
 
