@@ -38,6 +38,11 @@ namespace af3d { namespace editor
     {
     }
 
+    bool ToolGizmo::canWork() const
+    {
+        return canWork_;
+    }
+
     void ToolGizmo::onActivate()
     {
     }
@@ -61,10 +66,16 @@ namespace af3d { namespace editor
         }
 
         if (!target_) {
-            if (!obj || !gizmoCreate(obj)) {
+            if (!obj) {
                 return;
             }
 
+            if (!gizmoCreate(obj)) {
+                canWork_ = false;
+                return;
+            }
+
+            canWork_ = true;
             target_ = obj;
         }
 
@@ -99,6 +110,8 @@ namespace af3d { namespace editor
 
     void ToolGizmo::cleanup()
     {
+        canWork_ = true;
+
         if (!target_) {
             return;
         }

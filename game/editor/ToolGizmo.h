@@ -39,6 +39,8 @@ namespace af3d { namespace editor
             const Image& icon);
         ~ToolGizmo() = default;
 
+        bool canWork() const override;
+
     protected:
         inline bool captured() const { return !capturedRay_.empty(); }
         inline const Ray& capturedRay() const { return capturedRay_; }
@@ -63,6 +65,7 @@ namespace af3d { namespace editor
         AObjectPtr target_;
         Ray capturedRay_ = Ray_empty;
         Vector2f capturedMousePos_;
+        bool canWork_ = true;
     };
 } }
 
