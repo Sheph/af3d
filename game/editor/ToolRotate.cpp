@@ -26,15 +26,15 @@
 #include "editor/ToolRotate.h"
 #include "editor/Workspace.h"
 #include "AssetManager.h"
-#include "InputManager.h"
 #include "Scene.h"
 #include "SceneObject.h"
 #include "CameraComponent.h"
+#include "imgui.h"
 
 namespace af3d { namespace editor
 {
     ToolRotate::ToolRotate(Workspace* workspace)
-    : ToolGizmo(workspace, "Rotate", assetManager.getImage("common1/tool_rotate.png")),
+    : ToolGizmo(workspace, "Rotate", assetManager.getImage("common1/tool_rotate.png"), KI_R),
       selTool_(workspace)
     {
     }
@@ -113,6 +113,17 @@ namespace af3d { namespace editor
         if (!captured()) {
             rc_->setRotateType(rc_->testRay(frustum, ray));
             return;
+        }
+
+        ImGuiIO& io = ImGui::GetIO();
+        if (!io.WantCaptureMouse && !io.WantCaptureKeyboard) {
+            if (inputManager.keyboard().triggered(KI_X)) {
+                rc_->setRotateType(RotateType::PlaneX);
+            } else if (inputManager.keyboard().triggered(KI_Y)) {
+                rc_->setRotateType(RotateType::PlaneY);
+            } else if (inputManager.keyboard().triggered(KI_Z)) {
+                rc_->setRotateType(RotateType::PlaneZ);
+            }
         }
 
         btPlane plane = getRotatePlane(frustum);

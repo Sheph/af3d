@@ -33,8 +33,8 @@
 namespace af3d { namespace editor
 {
     ToolGizmo::ToolGizmo(Workspace* workspace, const std::string& name,
-        const Image& icon)
-    : Tool(workspace, name, icon)
+        const Image& icon, KeyIdentifier shortcut)
+    : Tool(workspace, name, icon, shortcut)
     {
     }
 

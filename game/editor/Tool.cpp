@@ -28,11 +28,15 @@
 
 namespace af3d { namespace editor
 {
-    Tool::Tool(Workspace* workspace, const std::string& name, const Image& icon)
+    Tool::Tool(Workspace* workspace, const std::string& name, const Image& icon,
+        KeyIdentifier shortcut)
     : workspace_(workspace),
       name_(name),
-      icon_(icon)
+      tooltip_((shortcut == KI_UNKNOWN) ? name : name + " (" + InputKeyboard::kiToStr(shortcut) + ")"),
+      icon_(icon),
+      shortcut_(shortcut)
     {
+
     }
 
     void Tool::activate(bool value)

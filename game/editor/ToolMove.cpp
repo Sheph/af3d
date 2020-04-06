@@ -27,11 +27,12 @@
 #include "editor/Workspace.h"
 #include "AssetManager.h"
 #include "SceneObject.h"
+#include "imgui.h"
 
 namespace af3d { namespace editor
 {
     ToolMove::ToolMove(Workspace* workspace)
-    : ToolGizmo(workspace, "Move", assetManager.getImage("common1/tool_move.png")),
+    : ToolGizmo(workspace, "Move", assetManager.getImage("common1/tool_move.png"), KI_T),
       selTool_(workspace)
     {
     }
@@ -110,6 +111,17 @@ namespace af3d { namespace editor
         if (!captured()) {
             rc_->setMoveType(rc_->testRay(frustum, ray));
             return;
+        }
+
+        ImGuiIO& io = ImGui::GetIO();
+        if (!io.WantCaptureMouse && !io.WantCaptureKeyboard) {
+            if (inputManager.keyboard().triggered(KI_X)) {
+                rc_->setMoveType((rc_->moveType() == MoveType::AxisX) ? MoveType::PlaneX : MoveType::AxisX);
+            } else if (inputManager.keyboard().triggered(KI_Y)) {
+                rc_->setMoveType((rc_->moveType() == MoveType::AxisY) ? MoveType::PlaneY : MoveType::AxisY);
+            } else if (inputManager.keyboard().triggered(KI_Z)) {
+                rc_->setMoveType((rc_->moveType() == MoveType::AxisZ) ? MoveType::PlaneZ : MoveType::AxisZ);
+            }
         }
 
         btPlane plane = getMovePlane(frustum);

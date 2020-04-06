@@ -168,6 +168,8 @@ namespace af3d { namespace editor
         Action actionPropertyEditor_;
         Action actionToolbox_;
 
+        std::vector<Action*> actions_;
+
         std::unique_ptr<ToolSelect> toolSelect_;
         std::unique_ptr<ToolMove> toolMove_;
         std::unique_ptr<ToolRotate> toolRotate_;

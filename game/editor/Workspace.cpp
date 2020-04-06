@@ -139,12 +139,31 @@ namespace editor {
             ImGuiIO& io = ImGui::GetIO();
 
             if (!io.WantCaptureMouse && !io.WantCaptureKeyboard) {
-                if (inputManager.keyboard().triggered(KI_I)) {
-                    actionMainPopup().trigger();
+                bool triggered = false;
+                for (auto action : actions_) {
+                    if ((action->shortcut() != KI_UNKNOWN) && inputManager.keyboard().triggered(action->shortcut())) {
+                        action->trigger();
+                        triggered = true;
+                        break;
+                    }
+                }
+                if (triggered) {
+                    // Pass.
                 } else if (inputManager.keyboard().triggered(KI_DELETE)) {
                     auto sel = em_->selected();
                     for (const auto& wobj : sel) {
                         deleteObject(wobj.lock());
+                    }
+                } else {
+                    for (size_t i = 0; i < tools().size(); ++i) {
+                        if ((tools()[i]->shortcut() != KI_UNKNOWN) &&
+                            (tools()[i] != currentTool()) &&
+                            tools()[i]->canWork() &&
+                            inputManager.keyboard().triggered(tools()[i]->shortcut())) {
+                            currentTool()->activate(false);
+                            setCurrentTool(tools()[i]);
+                            currentTool()->activate(true);
+                        }
                     }
                 }
             }
@@ -266,13 +285,13 @@ namespace editor {
             return Action::State(true, emObject_->active());
         }, [this]() {
             emObject_->activate();
-        }, assetManager.getImage("common1/mode_object.png"));
+        }, assetManager.getImage("common1/mode_object.png"), KI_O);
 
         actionModeVisual_ = Action("Edit visuals", [this]() {
             return Action::State(true, emVisual_->active());
         }, [this]() {
             emVisual_->activate();
-        }, assetManager.getImage("common1/mode_visual.png"));
+        }, assetManager.getImage("common1/mode_visual.png"), KI_V);
 
         actionModeLight_ = Action("Edit lights", []() {
             return Action::State(false);
@@ -332,7 +351,7 @@ namespace editor {
         }, [this]() {
             auto popup = std::make_shared<MainPopup>();
             parent()->addComponent(popup);
-        });
+        }, Image(), KI_I);
 
         actionCommandHistory_ = Action("Command History", [this]() {
             return Action::State(!parent()->findComponent<CommandHistoryWindow>());
@@ -354,6 +373,24 @@ namespace editor {
             auto w = std::make_shared<Toolbox>();
             parent()->addComponent(w);
         });
+
+        actions_.push_back(&actionSceneNew_);
+        actions_.push_back(&actionSceneOpen_);
+        actions_.push_back(&actionSceneSave_);
+        actions_.push_back(&actionModeScene_);
+        actions_.push_back(&actionModeObject_);
+        actions_.push_back(&actionModeVisual_);
+        actions_.push_back(&actionModeLight_);
+        actions_.push_back(&actionUndo_);
+        actions_.push_back(&actionRedo_);
+        actions_.push_back(&actionOpMenu_);
+        actions_.push_back(&actionOpMenuAdd_);
+        actions_.push_back(&actionOpMenuAddObject_);
+        actions_.push_back(&actionOpMenuAddMesh_);
+        actions_.push_back(&actionMainPopup_);
+        actions_.push_back(&actionCommandHistory_);
+        actions_.push_back(&actionPropertyEditor_);
+        actions_.push_back(&actionToolbox_);
     }
 
     float Workspace::mainMenu()

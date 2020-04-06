@@ -27,6 +27,7 @@
 #define _EDITOR_TOOL_H_
 
 #include "Image.h"
+#include "InputManager.h"
 #include "af3d/Types.h"
 #include <boost/noncopyable.hpp>
 
@@ -41,12 +42,16 @@ namespace editor
     {
     public:
         explicit Tool(Workspace* workspace, const std::string& name,
-            const Image& icon);
+            const Image& icon, KeyIdentifier shortcut = KI_UNKNOWN);
         virtual ~Tool() = default;
 
         inline const std::string& name() const { return name_; }
 
+        inline const std::string& tooltip() const { return tooltip_; }
+
         inline const Image& icon() const { return icon_; }
+
+        inline KeyIdentifier shortcut() const { return shortcut_; }
 
         inline bool active() const { return active_; }
 
@@ -75,7 +80,9 @@ namespace editor
 
         Workspace* workspace_;
         std::string name_;
+        std::string tooltip_;
         Image icon_;
+        KeyIdentifier shortcut_;
 
         bool active_ = false;
     };

@@ -80,7 +80,7 @@ namespace editor {
             bool enabled = tools[i]->canWork();
             bool checked = tools[i] == curTool;
             if (ImGuiUtils::imageButtonTooltip(tools[i]->name().c_str(), tools[i]->icon(), iconSize,
-                tools[i]->name().c_str(), enabled, checked) && enabled && !checked) {
+                tools[i]->tooltip().c_str(), enabled, checked) && enabled && !checked) {
                 curTool->activate(false);
                 curTool = tools[i];
                 curTool->activate(true);

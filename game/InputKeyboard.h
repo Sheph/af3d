@@ -42,6 +42,8 @@ namespace af3d
 
         static int kiToChar(KeyIdentifier ki, bool* isTextInput = nullptr);
 
+        static const char* kiToStr(KeyIdentifier ki);
+
         void press(KeyIdentifier ki);
 
         void release(KeyIdentifier ki);

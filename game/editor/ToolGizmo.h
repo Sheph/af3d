@@ -36,7 +36,7 @@ namespace af3d { namespace editor
     {
     public:
         ToolGizmo(Workspace* workspace, const std::string& name,
-            const Image& icon);
+            const Image& icon, KeyIdentifier shortcut = KI_UNKNOWN);
         ~ToolGizmo() = default;
 
         bool canWork() const override;
