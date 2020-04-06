@@ -190,6 +190,13 @@ namespace af3d
               depthValue(depthValue),
               scissorParams(scissorParams)
             {
+                const auto& activeUniforms = material->type()->prog()->activeUniforms();
+                if ((activeUniforms.count(UniformName::ModelViewProjMatrix) > 0) ||
+                    (activeUniforms.count(UniformName::ModelMatrix) > 0)) {
+                    if (modelMat.determinant3() < 0.0f) {
+                        flipCull = true;
+                    }
+                }
             }
 
             Matrix4f modelMat;
@@ -199,6 +206,7 @@ namespace af3d
             GLenum primitiveMode;
             float depthValue;
             ScissorParams scissorParams;
+            bool flipCull = false;
         };
 
         void setAutoParams(const Geometry& geom, MaterialParams& params) const;

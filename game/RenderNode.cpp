@@ -39,7 +39,7 @@ namespace af3d
     }
 
     MaterialParams& RenderNode::add(RenderNode&& tmpNode, int pass, const MaterialPtr& material,
-        GLenum depthFunc, float depthValue, const BlendingParams& blendingParams,
+        GLenum depthFunc, float depthValue, const BlendingParams& blendingParams, bool flipCull,
         const VertexArraySlice& vaSlice, GLenum primitiveMode, const ScissorParams& scissorParams)
     {
         btAssert(type_ == Type::Root);
@@ -49,7 +49,17 @@ namespace af3d
         node = node->insertPass(std::move(tmpNode), pass);
         node = node->insertDepthTest(std::move(tmpNode), material->depthTest(), depthFunc);
         node = node->insertDepth(std::move(tmpNode), depthValue);
-        node = node->insertCullFace(std::move(tmpNode), material->cullFaceMode());
+
+        GLenum cullFaceMode = material->cullFaceMode();
+        if (flipCull) {
+            if (cullFaceMode == GL_FRONT) {
+                cullFaceMode = GL_BACK;
+            } else if (cullFaceMode == GL_BACK) {
+                cullFaceMode = GL_FRONT;
+            }
+        }
+
+        node = node->insertCullFace(std::move(tmpNode), cullFaceMode);
         node = node->insertBlendingParams(std::move(tmpNode), blendingParams);
         node = node->insertMaterialType(std::move(tmpNode), material->type());
 

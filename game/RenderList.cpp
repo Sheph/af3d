@@ -487,7 +487,7 @@ namespace af3d
         for (const auto& geom : geomList_) {
             auto& params = rn->add(std::move(tmpNode), 0, geom.material,
                 GL_LEQUAL, geom.depthValue,
-                geom.material->blendingParams(),
+                geom.material->blendingParams(), geom.flipCull,
                 geom.vaSlice, geom.primitiveMode, geom.scissorParams);
             setAutoParams(geom, params);
             const auto& activeUniforms = geom.material->type()->prog()->activeUniforms();
@@ -511,7 +511,7 @@ namespace af3d
                 }
                 auto& params = rn->add(std::move(tmpNode), pass, geom.material,
                     GL_EQUAL, geom.depthValue,
-                    lightBp, geom.vaSlice, geom.primitiveMode, geom.scissorParams);
+                    lightBp, geom.flipCull, geom.vaSlice, geom.primitiveMode, geom.scissorParams);
                 setAutoParams(geom, params);
                 light->setupMaterial(frustum_.transform().getOrigin(), params);
             }

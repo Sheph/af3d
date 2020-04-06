@@ -256,6 +256,7 @@ namespace af3d
         }
 
         T determinant() const;
+        T determinant3() const;
         Matrix4<T> transpose() const;
         Matrix4<T> inverse() const;
     };
@@ -324,6 +325,13 @@ namespace af3d
             row[0][1] * cofac(1, 0, 2, 2, 3, 3) +
             row[0][2] * cofac(1, 0, 2, 1, 3, 3) -
             row[0][3] * cofac(1, 0, 2, 1, 3, 2);
+    }
+
+    // Compute determinant of a 3x3 sub matrix (for fast negative scale detection).
+    template <class T>
+    inline T Matrix4<T>::determinant3() const
+    {
+        return btTriple(toVector3((*this)[0]), toVector3((*this)[1]), toVector3((*this)[2]));
     }
 
     template <class T>
