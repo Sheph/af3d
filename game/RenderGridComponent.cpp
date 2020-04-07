@@ -86,7 +86,7 @@ namespace af3d
 
         auto rop = rl.addGeometry(material_, GL_TRIANGLES);
 
-        Color c(0.6f, 0.6f, 0.6f, 0.25f);
+        Color c(0.6f, 0.6f, 0.6f, lerp(0.6f, 0.25f, btMin(dist, 5.0f) / 5.0f));
 
         rop.addVertex(p0, Vector2f(), c);
         rop.addVertex(p1, Vector2f(), c);
