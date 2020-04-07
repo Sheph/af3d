@@ -24,6 +24,8 @@
  */
 
 #include "RenderGridComponent.h"
+#include "SceneObject.h"
+#include "MaterialManager.h"
 
 namespace af3d
 {
@@ -33,6 +35,9 @@ namespace af3d
     RenderGridComponent::RenderGridComponent()
     : RenderComponent(AClass_RenderGridComponent, true)
     {
+        material_ = materialManager.createMaterial(MaterialTypeGrid);
+        material_->setBlendingParams(BlendingParams(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+        material_->setCullFaceMode(0);
     }
 
     const AClass& RenderGridComponent::staticKlass()
@@ -49,10 +54,47 @@ namespace af3d
 
     void RenderGridComponent::update(float dt)
     {
+        plane_ = btPlaneMake(parent()->transform().getOrigin(), parent()->transform().getBasis() * btVector3_forward);
+
+        material_->params().setUniform(UniformName::GridPos, parent()->transform().getOrigin());
+        material_->params().setUniform(UniformName::GridRight, parent()->getRight());
+        material_->params().setUniform(UniformName::GridUp, parent()->getUp());
     }
 
     void RenderGridComponent::render(RenderList& rl, void* const* parts, size_t numParts)
     {
+        auto p = btPlaneProject(plane_, rl.frustum().transform().getOrigin());
+        float dist = (p - rl.frustum().transform().getOrigin()).length();
+        auto vRight = parent()->getRight();
+        auto vUp = parent()->getUp();
+
+        float gridStep = 1.0f;
+
+        int power = dist > 0.0f ? btLog(dist / gridStep / 5.0f) / btLog(10.0f) : 0;
+        if (power < 0) {
+            power = 0;
+        }
+
+        material_->params().setUniform(UniformName::GridStep, gridStep * btPow(10.0f, power));
+
+        auto sz = rl.frustum().farDist();
+
+        auto p0 = p + (- vRight - vUp) * sz;
+        auto p1 = p + (vRight - vUp) * sz;
+        auto p2 = p + (vRight + vUp) * sz;
+        auto p3 = p + (- vRight + vUp) * sz;
+
+        auto rop = rl.addGeometry(material_, GL_TRIANGLES);
+
+        Color c(0.6f, 0.6f, 0.6f, 0.25f);
+
+        rop.addVertex(p0, Vector2f(), c);
+        rop.addVertex(p1, Vector2f(), c);
+        rop.addVertex(p2, Vector2f(), c);
+
+        rop.addVertex(p0, Vector2f(), c);
+        rop.addVertex(p2, Vector2f(), c);
+        rop.addVertex(p3, Vector2f(), c);
     }
 
     std::pair<AObjectPtr, float> RenderGridComponent::testRay(const Frustum& frustum, const Ray& ray, void* part)
@@ -71,6 +113,7 @@ namespace af3d
 
     void RenderGridComponent::onRegister()
     {
+        plane_ = btPlaneMake(parent()->transform().getOrigin(), parent()->transform().getBasis() * btVector3_forward);
     }
 
     void RenderGridComponent::onUnregister()

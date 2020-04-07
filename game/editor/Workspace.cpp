@@ -38,6 +38,7 @@
 #include "Scene.h"
 #include "SceneObject.h"
 #include "RenderMeshComponent.h"
+#include "RenderGridComponent.h"
 #include "MeshManager.h"
 #include "AssetManager.h"
 #include "ImGuiManager.h"
@@ -223,6 +224,11 @@ namespace editor {
 
     void Workspace::onRegister()
     {
+        grid_ = std::make_shared<SceneObject>();
+        grid_->setTransform(makeLookDir(btVector3_zero, btVector3_down, btVector3_forward));
+        grid_->addComponent(std::make_shared<RenderGridComponent>());
+        scene()->addObject(grid_);
+
         em_->enter();
         currentTool_->activate(true);
 
@@ -247,6 +253,9 @@ namespace editor {
         toolScale_.reset();
         currentTool_ = nullptr;
         tools_.clear();
+
+        grid_->removeFromParent();
+        grid_.reset();
     }
 
     void Workspace::setupActions()

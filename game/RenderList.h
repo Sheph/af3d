@@ -39,31 +39,6 @@ namespace af3d
 {
     class RenderList;
 
-    class RenderImmIndexed
-    {
-    public:
-        RenderImmIndexed(const MaterialPtr& material,
-            GLenum primitiveMode,
-            float depthValue,
-            const ScissorParams& scissorParams,
-            RenderList& rl);
-        ~RenderImmIndexed();
-
-        std::vector<VertexImm>& vertices();
-
-        std::vector<std::uint16_t>& indices();
-
-    private:
-        MaterialPtr material_;
-        GLenum primitiveMode_;
-        float depthValue_;
-        ScissorParams scissorParams_;
-
-        RenderList& rl_;
-        size_t startVertices_;
-        size_t startIndices_;
-    };
-
     class RenderImm
     {
     public:
@@ -138,11 +113,6 @@ namespace af3d
             float depthValue = 0.0f,
             const ScissorParams& scissorParams = ScissorParams());
 
-        RenderImmIndexed addGeometryIndexed(const MaterialPtr& material,
-            GLenum primitiveMode,
-            float depthValue = 0.0f,
-            const ScissorParams& scissorParams = ScissorParams());
-
         RenderImm addGeometry(const MaterialPtr& material,
             GLenum primitiveMode,
             float depthValue = 0.0f,
@@ -157,7 +127,6 @@ namespace af3d
         RenderNodePtr compile() const;
 
     private:
-        friend class RenderImmIndexed;
         friend class RenderImm;
 
         struct Geometry

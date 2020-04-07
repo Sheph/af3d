@@ -79,8 +79,8 @@ namespace af3d
             Pass,
             DepthTest,
             Depth,
-            CullFace,
             BlendingParams,
+            CullFace,
             MaterialType,
             Textures,
             VertexArray,
@@ -112,8 +112,8 @@ namespace af3d
         bool comparePass(const RenderNode& other) const;
         bool compareDepthTest(const RenderNode& other) const;
         bool compareDepth(const RenderNode& other) const;
-        bool compareCullFace(const RenderNode& other) const;
         bool compareBlendingParams(const RenderNode& other) const;
+        bool compareCullFace(const RenderNode& other) const;
         bool compareMaterialType(const RenderNode& other) const;
         bool compareTextures(const RenderNode& other) const;
         bool compareVertexArray(const RenderNode& other) const;
@@ -122,8 +122,8 @@ namespace af3d
         RenderNode* insertPass(RenderNode&& tmpNode, int pass);
         RenderNode* insertDepthTest(RenderNode&& tmpNode, bool depthTest, GLenum depthFunc);
         RenderNode* insertDepth(RenderNode&& tmpNode, float depth);
-        RenderNode* insertCullFace(RenderNode&& tmpNode, GLenum cullFaceMode);
         RenderNode* insertBlendingParams(RenderNode&& tmpNode, const BlendingParams& blendingParams);
+        RenderNode* insertCullFace(RenderNode&& tmpNode, GLenum cullFaceMode);
         RenderNode* insertMaterialType(RenderNode&& tmpNode, const MaterialTypePtr& materialType);
         RenderNode* insertTextures(RenderNode&& tmpNode, std::vector<HardwareTextureBinding>&& textures);
         RenderNode* insertVertexArray(RenderNode&& tmpNode, const VertexArrayPtr& va);
@@ -134,8 +134,8 @@ namespace af3d
         void applyPass(HardwareContext& ctx) const;
         void applyDepthTest(HardwareContext& ctx) const;
         void applyDepth(HardwareContext& ctx) const;
-        void applyCullFace(HardwareContext& ctx) const;
         void applyBlendingParams(HardwareContext& ctx) const;
+        void applyCullFace(HardwareContext& ctx) const;
         void applyMaterialType(HardwareContext& ctx) const;
         void applyTextures(HardwareContext& ctx) const;
         void applyVertexArray(HardwareContext& ctx) const;
@@ -173,6 +173,15 @@ namespace af3d
                 // Type::CullFace
                 GLenum cullFaceMode_; // 0 - disabled.
             };
+            struct
+            {
+                // Type::Draw
+                int drawIdx_;
+                GLenum drawPrimitiveMode_;
+                std::uint32_t drawStart_;
+                std::uint32_t drawCount_;
+                std::uint32_t drawBaseVertex_;
+            };
         };
 
         // Type::BlendingParams
@@ -188,14 +197,9 @@ namespace af3d
         VertexArrayPtr va_;
 
         // Type::Draw
-        int drawIdx_;
         ScissorParams scissorParams_;
         MaterialParams materialParams_;
         MaterialParams materialParamsAuto_;
-        GLenum drawPrimitiveMode_;
-        std::uint32_t drawStart_;
-        std::uint32_t drawCount_;
-        std::uint32_t drawBaseVertex_;
 
         Children children_;
     };

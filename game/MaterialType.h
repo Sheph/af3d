@@ -42,8 +42,9 @@ namespace af3d
         MaterialTypeBasic,     // Basic lit shader.
         MaterialTypeImm,       // Immediate draw shader. pos(3d), color(4d) and one texture(2d)
         MaterialTypeOutline,   // Selection outline.
+        MaterialTypeGrid,
         MaterialTypeFirst = MaterialTypeUnlit,
-        MaterialTypeMax = MaterialTypeOutline
+        MaterialTypeMax = MaterialTypeGrid
     };
 
     class MaterialType : boost::noncopyable

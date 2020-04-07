@@ -61,7 +61,11 @@ namespace af3d
         {"viewportSize", UniformName::ViewportSize},
         {"mainColor", UniformName::MainColor},
         {"specularColor", UniformName::SpecularColor},
-        {"shininess", UniformName::Shininess}
+        {"shininess", UniformName::Shininess},
+        {"gridPos", UniformName::GridPos},
+        {"gridRight", UniformName::GridRight},
+        {"gridUp", UniformName::GridUp},
+        {"gridStep", UniformName::GridStep}
     };
 
     static const std::unordered_map<std::string, SamplerName> staticSamplerMap = {

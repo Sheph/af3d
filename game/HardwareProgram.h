@@ -57,7 +57,11 @@ namespace af3d
         MainColor, // Light only!
         SpecularColor, // Light only!
         Shininess, // Light only!
-        Max = Shininess
+        GridPos,
+        GridRight,
+        GridUp,
+        GridStep,
+        Max = GridStep
     };
 
     // Must always be declared in that order inside shader.

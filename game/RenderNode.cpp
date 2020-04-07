@@ -49,6 +49,7 @@ namespace af3d
         node = node->insertPass(std::move(tmpNode), pass);
         node = node->insertDepthTest(std::move(tmpNode), material->depthTest(), depthFunc);
         node = node->insertDepth(std::move(tmpNode), depthValue);
+        node = node->insertBlendingParams(std::move(tmpNode), blendingParams);
 
         GLenum cullFaceMode = material->cullFaceMode();
         if (flipCull) {
@@ -60,7 +61,6 @@ namespace af3d
         }
 
         node = node->insertCullFace(std::move(tmpNode), cullFaceMode);
-        node = node->insertBlendingParams(std::move(tmpNode), blendingParams);
         node = node->insertMaterialType(std::move(tmpNode), material->type());
 
         const auto& samplers = material->type()->prog()->samplers();
@@ -95,8 +95,8 @@ namespace af3d
         case Type::Pass: return comparePass(other);
         case Type::DepthTest: return compareDepthTest(other);
         case Type::Depth: return compareDepth(other);
-        case Type::CullFace: return compareCullFace(other);
         case Type::BlendingParams: return compareBlendingParams(other);
+        case Type::CullFace: return compareCullFace(other);
         case Type::MaterialType: return compareMaterialType(other);
         case Type::Textures: return compareTextures(other);
         case Type::VertexArray: return compareVertexArray(other);
@@ -123,11 +123,11 @@ namespace af3d
         case Type::Depth:
             applyDepth(ctx);
             break;
-        case Type::CullFace:
-            applyCullFace(ctx);
-            break;
         case Type::BlendingParams:
             applyBlendingParams(ctx);
+            break;
+        case Type::CullFace:
+            applyCullFace(ctx);
             break;
         case Type::MaterialType:
             applyMaterialType(ctx);
@@ -170,14 +170,14 @@ namespace af3d
         return depth_ < other.depth_;
     }
 
-    bool RenderNode::compareCullFace(const RenderNode& other) const
-    {
-        return cullFaceMode_ < other.cullFaceMode_;
-    }
-
     bool RenderNode::compareBlendingParams(const RenderNode& other) const
     {
         return blendingParams_ < other.blendingParams_;
+    }
+
+    bool RenderNode::compareCullFace(const RenderNode& other) const
+    {
+        return cullFaceMode_ < other.cullFaceMode_;
     }
 
     bool RenderNode::compareMaterialType(const RenderNode& other) const
@@ -222,17 +222,17 @@ namespace af3d
         return insertImpl(std::move(tmpNode));
     }
 
-    RenderNode* RenderNode::insertCullFace(RenderNode&& tmpNode, GLenum cullFaceMode)
-    {
-        tmpNode.type_ = Type::CullFace;
-        tmpNode.cullFaceMode_ = cullFaceMode;
-        return insertImpl(std::move(tmpNode));
-    }
-
     RenderNode* RenderNode::insertBlendingParams(RenderNode&& tmpNode, const BlendingParams& blendingParams)
     {
         tmpNode.type_ = Type::BlendingParams;
         tmpNode.blendingParams_ = blendingParams;
+        return insertImpl(std::move(tmpNode));
+    }
+
+    RenderNode* RenderNode::insertCullFace(RenderNode&& tmpNode, GLenum cullFaceMode)
+    {
+        tmpNode.type_ = Type::CullFace;
+        tmpNode.cullFaceMode_ = cullFaceMode;
         return insertImpl(std::move(tmpNode));
     }
 
@@ -300,16 +300,6 @@ namespace af3d
     {
     }
 
-    void RenderNode::applyCullFace(HardwareContext& ctx) const
-    {
-        if (cullFaceMode_) {
-            ogl.CullFace(cullFaceMode_);
-            ogl.Enable(GL_CULL_FACE);
-        } else {
-            ogl.Disable(GL_CULL_FACE);
-        }
-    }
-
     void RenderNode::applyBlendingParams(HardwareContext& ctx) const
     {
         if (blendingParams_.isEnabled()) {
@@ -318,6 +308,16 @@ namespace af3d
             ogl.Enable(GL_BLEND);
         } else {
             ogl.Disable(GL_BLEND);
+        }
+    }
+
+    void RenderNode::applyCullFace(HardwareContext& ctx) const
+    {
+        if (cullFaceMode_) {
+            ogl.CullFace(cullFaceMode_);
+            ogl.Enable(GL_CULL_FACE);
+        } else {
+            ogl.Disable(GL_CULL_FACE);
         }
     }
 

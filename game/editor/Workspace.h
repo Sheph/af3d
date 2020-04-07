@@ -35,6 +35,7 @@
 #include "editor/ToolScale.h"
 #include "UIComponent.h"
 #include "Action.h"
+#include "SceneObjectManager.h"
 
 namespace af3d { namespace editor
 {
@@ -178,6 +179,8 @@ namespace af3d { namespace editor
         std::vector<Tool*> tools_;
 
         Tool* currentTool_;
+
+        SceneObjectPtr grid_;
 
         bool locked_ = false;
         bool needNewSceneDlg_ = false;

@@ -41,7 +41,8 @@ namespace af3d
         {"shaders/unlit.vert", "shaders/unlit.frag", false},
         {"shaders/basic.vert", "shaders/basic.frag", true},
         {"shaders/imm.vert", "shaders/imm.frag", false},
-        {"shaders/outline.vert", "shaders/outline.frag", false}
+        {"shaders/outline.vert", "shaders/outline.frag", false},
+        {"shaders/grid.vert", "shaders/grid.frag", false}
     };
 
     MaterialManager materialManager;

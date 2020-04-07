@@ -53,14 +53,15 @@ namespace af3d
         void debugDraw() override;
 
         inline const btPlane& plane() const { return plane_; }
-        inline void setPlane(const btPlane& value) { plane_ = value; }
 
     private:
         void onRegister() override;
 
         void onUnregister() override;
 
-        btPlane plane_ = btPlaneMake(btVector3_zero, btVector3_up);
+        MaterialPtr material_;
+
+        btPlane plane_ = btPlaneMake(btVector3_zero, btVector3_forward);
     };
 
     using RenderGridComponentPtr = std::shared_ptr<RenderGridComponent>;
