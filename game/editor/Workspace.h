@@ -163,6 +163,9 @@ namespace af3d { namespace editor
         Action actionOpMenuAdd_;
         Action actionOpMenuAddObject_;
         Action actionOpMenuAddMesh_;
+        Action actionOpMenuAddLight_;
+        Action actionOpMenuAddLightDirectional_;
+        Action actionOpMenuAddLightPoint_;
 
         Action actionMainPopup_;
         Action actionCommandHistory_;

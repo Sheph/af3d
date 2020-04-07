@@ -329,6 +329,7 @@ namespace editor {
             return Action::State(true);
         }, [this]() {
             actionOpMenuAddObject_.doMenu();
+            actionOpMenuAddLight_.doMenu();
             actionOpMenuAddMesh_.doMenuItem();
         });
 
@@ -353,6 +354,23 @@ namespace editor {
                 std::make_shared<CommandAddComponent>(scene(),
                     emObject_->selected().back().lock(),
                     RenderMeshComponent::staticKlass(), "Mesh", initVals));
+        });
+
+        actionOpMenuAddLight_ = Action("Light", [this]() {
+            return Action::State(!emObject_->selected().empty());
+        }, [this]() {
+            actionOpMenuAddLightDirectional_.doMenuItem();
+            actionOpMenuAddLightPoint_.doMenuItem();
+        });
+
+        actionOpMenuAddLightDirectional_ = Action("Directional", [this]() {
+            return Action::State(!emObject_->selected().empty());
+        }, [this]() {
+        });
+
+        actionOpMenuAddLightPoint_ = Action("Point", [this]() {
+            return Action::State(!emObject_->selected().empty());
+        }, [this]() {
         });
 
         actionMainPopup_ = Action("", [this]() {
@@ -396,6 +414,9 @@ namespace editor {
         actions_.push_back(&actionOpMenuAdd_);
         actions_.push_back(&actionOpMenuAddObject_);
         actions_.push_back(&actionOpMenuAddMesh_);
+        actions_.push_back(&actionOpMenuAddLight_);
+        actions_.push_back(&actionOpMenuAddLightDirectional_);
+        actions_.push_back(&actionOpMenuAddLightPoint_);
         actions_.push_back(&actionMainPopup_);
         actions_.push_back(&actionCommandHistory_);
         actions_.push_back(&actionPropertyEditor_);
