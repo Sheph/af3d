@@ -31,7 +31,6 @@
 #include "Logger.h"
 #include "AJsonWriter.h"
 #include "AJsonReader.h"
-#include "LightComponent.h"
 
 namespace af3d { namespace editor
 {
@@ -67,15 +66,6 @@ namespace af3d { namespace editor
             preDelete(obj);
             parentWobj_ = AWeakObject(c->parent()->sharedThis());
             c->removeFromParent();
-        } else if (auto l = aobjectCast<Light>(obj)) {
-            if (!l->parent()) {
-                LOG4CPLUS_ERROR(logger(), "redo: Light not parented: " << description());
-                return false;
-            }
-            setDescription("Delete light");
-            preDelete(obj);
-            parentWobj_ = AWeakObject(l->parent()->sharedThis());
-            l->remove();
         }
 
         redoNested();
@@ -123,16 +113,6 @@ namespace af3d { namespace editor
             }
 
             parentObj->addComponent(c);
-        } else if (auto l = aobjectCast<Light>(obj)) {
-            runtime_assert(!l->parent());
-
-            auto parentLc = aweakObjectCast<LightComponent>(parentWobj_);
-            if (!parentLc) {
-                LOG4CPLUS_ERROR(logger(), "undo: Cannot get parent light component by cookie: " << description());
-                return false;
-            }
-
-            parentLc->addLight(l);
         } else {
             LOG4CPLUS_ERROR(logger(), "undo: Bad object type: " << description());
             return false;

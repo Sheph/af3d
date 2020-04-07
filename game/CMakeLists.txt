@@ -53,7 +53,6 @@ set(SOURCES
     Light.cpp
     DirectionalLight.cpp
     PointLight.cpp
-    LightComponent.cpp
     PhasedComponent.cpp
     UIComponent.cpp
     RenderComponent.cpp

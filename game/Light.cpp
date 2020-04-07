@@ -24,16 +24,11 @@
  */
 
 #include "Light.h"
-#include "LightComponent.h"
 #include "SceneObject.h"
 
 namespace af3d
 {
-    const APropertyTypeObject APropertyType_Light{"Light", AClass_Light};
-    const APropertyTypeArray APropertyType_ArrayLight{"ArrayLight", APropertyType_Light};
-
-    ACLASS_DEFINE_BEGIN_ABSTRACT(Light, AObject)
-    ACLASS_PROPERTY_RO(Light, Parent, AProperty_Parent, "Parent", AObject, Hierarchy, APropertyTransient)
+    ACLASS_DEFINE_BEGIN_ABSTRACT(Light, RenderComponent)
     ACLASS_PROPERTY(Light, LocalTransform, AProperty_LocalTransform, "Local transform", Transform, btTransform::getIdentity(), Position, APropertyEditable)
     ACLASS_PROPERTY(Light, WorldTransform, AProperty_WorldTransform, "World transform", Transform, btTransform::getIdentity(), Position, APropertyEditable|APropertyTransient)
     ACLASS_PROPERTY(Light, Color, "color", "Color", ColorRGB, Color(1.0f, 1.0f, 1.0f, 1.0f), General, APropertyEditable)
@@ -41,16 +36,10 @@ namespace af3d
     ACLASS_DEFINE_END(Light)
 
     Light::Light(const AClass& klass, int typeId)
-    : AObject(klass),
+    : RenderComponent(klass),
       typeId_(typeId)
     {
         btAssert(typeId > 0);
-    }
-
-    Light::~Light()
-    {
-        btAssert(parent_ == nullptr);
-        btAssert(cookie_ == nullptr);
     }
 
     const AClass& Light::staticKlass()
@@ -58,28 +47,54 @@ namespace af3d
         return AClass_Light;
     }
 
-    SceneObject* Light::parentObject() const
+    void Light::update(float dt)
     {
-        return parent() ? parent()->parent() : nullptr;
+        if ((parent()->transform() == prevParentXf_) && !dirty_) {
+            return;
+        }
+
+        worldXf_ = parent()->transform() * xf_;
+        dirty_ = false;
+
+        AABB aabb = getWorldAABB();
+
+        btVector3 displacement = parent()->transform().getOrigin() - prevParentXf_.getOrigin();
+
+        manager()->moveAABB(cookie_, prevAABB_, aabb, displacement);
+
+        prevParentXf_ = parent()->transform();
+        prevAABB_ = aabb;
+    }
+
+    void Light::render(RenderList& rl, void* const* parts, size_t numParts)
+    {
+        rl.addLight(std::static_pointer_cast<Light>(sharedThis()));
+    }
+
+    std::pair<AObjectPtr, float> Light::testRay(const Frustum& frustum, const Ray& ray, void* part)
+    {
+        auto res = ray.testAABB(prevAABB_);
+        if (res.first) {
+            return std::make_pair(sharedThis(), res.second);
+        } else {
+            return std::make_pair(AObjectPtr(), 0.0f);
+        }
+    }
+
+    void Light::debugDraw()
+    {
     }
 
     void Light::setTransform(const btTransform& value)
     {
         xf_ = value;
-        worldXf_ = parentXf_ * xf_;
+        worldXf_ = prevParentXf_ * xf_;
         dirty_ = true;
     }
 
     AABB Light::getWorldAABB() const
     {
         return localAABB_.getTransformed(worldTransform());
-    }
-
-    void Light::remove()
-    {
-        if (parent()) {
-            parent()->removeLight(std::static_pointer_cast<Light>(sharedThis()));
-        }
     }
 
     void Light::setupMaterial(const btVector3& eyePos, MaterialParams& params) const
@@ -90,54 +105,21 @@ namespace af3d
         doSetupMaterial(eyePos, params);
     }
 
-    void Light::adopt(LightComponent* parent)
-    {
-        parent_ = parent;
-    }
-
-    void Light::abandon()
-    {
-        parent_ = nullptr;
-    }
-
-    void Light::updateParentTransform()
-    {
-        btAssert(parent());
-        auto obj = parent()->parent();
-        btAssert(obj);
-        parentXf_ = obj->transform();
-        worldXf_ = parentXf_ * xf_;
-        dirty_ = true;
-    }
-
-    bool Light::needsRenderUpdate(AABB& prevAABB, AABB& aabb, btVector3& displacement)
-    {
-        if (!dirty_) {
-            return false;
-        }
-
-        aabb = getWorldAABB();
-        prevAABB = prevWorldAABB_;
-
-        auto worldPos = worldXf_.getOrigin();
-
-        displacement = worldPos - prevWorldPos_;
-
-        prevWorldPos_ = worldPos;
-        prevWorldAABB_ = aabb;
-        dirty_ = false;
-
-        return true;
-    }
-
     void Light::setLocalAABBImpl(const AABB& value)
     {
         localAABB_ = value;
         dirty_ = true;
     }
 
-    APropertyValue Light::propertyParentGet(const std::string&) const
+    void Light::onRegister()
     {
-        return APropertyValue(parent_ ? parent_->sharedThis() : AObjectPtr());
+        prevParentXf_ = parent()->transform();
+        prevAABB_ = getWorldAABB();
+        cookie_ = manager()->addAABB(this, prevAABB_, nullptr);
+    }
+
+    void Light::onUnregister()
+    {
+        manager()->removeAABB(cookie_);
     }
 }

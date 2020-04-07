@@ -26,6 +26,7 @@
 #ifndef _LIGHT_H_
 #define _LIGHT_H_
 
+#include "RenderComponent.h"
 #include "Material.h"
 #include "AObject.h"
 #include "af3d/Types.h"
@@ -34,23 +35,21 @@
 
 namespace af3d
 {
-    class RenderCookie;
-    class SceneObject;
-    class LightComponent;
-
-    class Light;
-    using LightPtr = std::shared_ptr<Light>;
-
-    class Light : public AObject
+    class Light : public RenderComponent
     {
     public:
         Light(const AClass& klass, int typeId);
-        virtual ~Light();
+        ~Light() = default;
 
         static const AClass& staticKlass();
 
-        inline LightComponent* parent() const { return parent_; }
-        SceneObject* parentObject() const;
+        void update(float dt) override;
+
+        void render(RenderList& rl, void* const* parts, size_t numParts) override;
+
+        std::pair<AObjectPtr, float> testRay(const Frustum& frustum, const Ray& ray, void* part) override;
+
+        void debugDraw() override;
 
         inline const btTransform& transform() const { return xf_; }
         void setTransform(const btTransform& value);
@@ -66,35 +65,13 @@ namespace af3d
         inline const AABB& localAABB() const { return localAABB_; }
         AABB getWorldAABB() const;
 
-        void remove();
-
         void setupMaterial(const btVector3& eyePos, MaterialParams& params) const;
-
-        /*
-         * Internal, do not call.
-         * @{
-         */
-
-        void adopt(LightComponent* parent);
-        void abandon();
-
-        inline void setCookie(RenderCookie* value) { cookie_ = value; }
-        inline RenderCookie* cookie() const { return cookie_; }
-
-        void updateParentTransform();
-        bool needsRenderUpdate(AABB& prevAABB, AABB& aabb, btVector3& displacement);
-
-        /*
-         * @}
-         */
-
-        APropertyValue propertyParentGet(const std::string&) const;
 
         APropertyValue propertyLocalTransformGet(const std::string&) const { return transform(); }
         void propertyLocalTransformSet(const std::string&, const APropertyValue& value) { setTransform(value.toTransform()); }
 
         APropertyValue propertyWorldTransformGet(const std::string&) const { return worldTransform(); }
-        void propertyWorldTransformSet(const std::string&, const APropertyValue& value) { setTransform(parentXf_.inverse() * value.toTransform()); }
+        void propertyWorldTransformSet(const std::string&, const APropertyValue& value) { setTransform(prevParentXf_.inverse() * value.toTransform()); }
 
         APropertyValue propertyColorGet(const std::string&) const { return Color(color().x(), color().y(), color().z(), 1.0f); }
         void propertyColorSet(const std::string&, const APropertyValue& value)
@@ -110,27 +87,24 @@ namespace af3d
         void setLocalAABBImpl(const AABB& value);
 
     private:
+        void onRegister() override;
+
+        void onUnregister() override;
+
         virtual void doSetupMaterial(const btVector3& eyePos, MaterialParams& params) const = 0;
 
         int typeId_ = 0; // 0 - ambient light.
         btTransform xf_ = btTransform::getIdentity();
         Color color_ = Color_one; // Color in rgb, alpha = intensity.
         AABB localAABB_ = AABB_empty;
-
-        LightComponent* parent_ = nullptr;
-        btTransform parentXf_ = btTransform::getIdentity();
+        bool dirty_ = false;
 
         btTransform worldXf_ = btTransform::getIdentity();
 
-        bool dirty_ = true;
-        btVector3 prevWorldPos_ = btVector3_zero;
-        AABB prevWorldAABB_ = AABB_empty;
-
+        btTransform prevParentXf_ = btTransform::getIdentity();
+        AABB prevAABB_ = AABB_empty;
         RenderCookie* cookie_ = nullptr;
     };
-
-    extern const APropertyTypeObject APropertyType_Light;
-    extern const APropertyTypeArray APropertyType_ArrayLight;
 
     ACLASS_DECLARE(Light)
 }

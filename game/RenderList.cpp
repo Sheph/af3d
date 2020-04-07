@@ -24,6 +24,7 @@
  */
 
 #include "RenderList.h"
+#include "Light.h"
 #include "Logger.h"
 
 namespace af3d

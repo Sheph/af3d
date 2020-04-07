@@ -29,7 +29,6 @@
 #include "Material.h"
 #include "VertexArraySlice.h"
 #include "VertexArrayWriter.h"
-#include "Light.h"
 #include "RenderNode.h"
 #include "RenderSettings.h"
 #include "af3d/Frustum.h"
@@ -37,7 +36,10 @@
 
 namespace af3d
 {
+    class Light;
     class RenderList;
+
+    using LightPtr = std::shared_ptr<Light>;
 
     class RenderImm
     {

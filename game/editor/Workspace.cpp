@@ -39,6 +39,8 @@
 #include "SceneObject.h"
 #include "RenderMeshComponent.h"
 #include "RenderGridComponent.h"
+#include "DirectionalLight.h"
+#include "PointLight.h"
 #include "MeshManager.h"
 #include "AssetManager.h"
 #include "ImGuiManager.h"
@@ -366,11 +368,21 @@ namespace editor {
         actionOpMenuAddLightDirectional_ = Action("Directional", [this]() {
             return Action::State(!emObject_->selected().empty());
         }, [this]() {
+            APropertyValueMap initVals;
+            cmdHistory_.add(
+                std::make_shared<CommandAddComponent>(scene(),
+                    emObject_->selected().back().lock(),
+                    DirectionalLight::staticKlass(), "Directional light", initVals));
         });
 
         actionOpMenuAddLightPoint_ = Action("Point", [this]() {
             return Action::State(!emObject_->selected().empty());
         }, [this]() {
+            APropertyValueMap initVals;
+            cmdHistory_.add(
+                std::make_shared<CommandAddComponent>(scene(),
+                    emObject_->selected().back().lock(),
+                    PointLight::staticKlass(), "Point light", initVals));
         });
 
         actionMainPopup_ = Action("", [this]() {

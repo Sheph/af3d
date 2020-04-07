@@ -26,6 +26,7 @@
 #include "editor/EditModeVisualImpl.h"
 #include "Scene.h"
 #include "SceneObject.h"
+#include "Light.h"
 
 namespace af3d { namespace editor
 {
@@ -63,7 +64,7 @@ namespace af3d { namespace editor
         RenderComponentPtr res;
 
         scene()->rayCastRender(frustum, ray, [&res](const RenderComponentPtr& r, const AObjectPtr&, const btVector3&, float dist) {
-            if ((r->aflags() & AObjectEditable) == 0) {
+            if (((r->aflags() & AObjectEditable) == 0) || aobjectCast<Light>(r)) {
                 return -1.0f;
             }
             res = r;
@@ -76,7 +77,7 @@ namespace af3d { namespace editor
     bool EditModeVisualImpl::isValid(const AObjectPtr& obj) const
     {
         auto r = aobjectCast<RenderComponent>(obj);
-        return r && ((r->aflags() & AObjectEditable) != 0);
+        return r && ((r->aflags() & AObjectEditable) != 0) && !aobjectCast<Light>(obj);
     }
 
     bool EditModeVisualImpl::isAlive(const AObjectPtr& obj) const

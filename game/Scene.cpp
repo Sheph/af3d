@@ -121,10 +121,8 @@ namespace af3d
         dummy_ = std::make_shared<SceneObject>();
 
         imGuiC_ = std::make_shared<ImGuiComponent>(zOrderImGui);
-        lightC_ = std::make_shared<LightComponent>();
 
         dummy_->addComponent(imGuiC_);
-        dummy_->addComponent(lightC_);
 
         addObject(dummy_);
 
@@ -161,7 +159,6 @@ namespace af3d
         camera_.reset();
         dummy_.reset();
 
-        lightC_.reset();
         imGuiC_.reset();
 
         workspaceObj_.reset();
