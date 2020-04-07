@@ -61,7 +61,9 @@ namespace af3d
         GridRight,
         GridUp,
         GridStep,
-        Max = GridStep
+        GridXColor,
+        GridYColor,
+        Max = GridYColor
     };
 
     // Must always be declared in that order inside shader.

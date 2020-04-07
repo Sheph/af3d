@@ -4,6 +4,8 @@ uniform vec3 gridPos;
 uniform vec3 gridRight;
 uniform vec3 gridUp;
 uniform float gridStep;
+uniform vec3 gridXColor;
+uniform vec3 gridYColor;
 uniform vec3 eyePos;
 
 in vec3 v_pos;
@@ -18,9 +20,17 @@ void main()
     vec2 coord = vec2(dot(v_pos - gridPos, gridRight), dot(v_pos - gridPos, gridUp));
     vec2 grid1 = abs(fract(coord * step1 - 0.5) - 0.5) / fwidth(coord * step1 * 1.5f);
     vec2 grid2 = abs(fract(coord * step2 - 0.5) - 0.5) / fwidth(coord * step2 * 2.0f);
-    vec4 c1 = vec4(1.0, 1.0, 1.0, 1.0 - min(min(grid1.x, grid1.y), 1.0));
-    vec4 c2 = vec4(1.0, 1.0, 1.0, (1.0 - min(min(grid2.x, grid2.y), 1.0)) * 1.5);
+    float c1 = 1.0 - min(min(grid1.x, grid1.y), 1.0);
+    float c2 = (1.0 - min(min(grid2.x, grid2.y), 1.0)) * 1.5;
+    float c2X = (1.0 - min(grid2.x, 1.0)) * 1.5;
+    float c2Y = (1.0 - min(grid2.y, 1.0)) * 1.5;
     float factor = 1.0 - abs(dot(normalize(eyePos - v_pos), cross(gridRight, gridUp)));
     factor = 1.0 - factor * factor * factor;
-    fragColor = max(c1, c2) * v_color * factor;
+    if ((abs(coord.x) < gridStep / 2) && (c2X > 0.0)) {
+        fragColor = vec4(gridYColor, c2X * factor * v_color.a);
+    } else if ((abs(coord.y) < gridStep / 2) && (c2Y > 0.0)) {
+        fragColor = vec4(gridXColor, c2Y * factor * v_color.a);
+    } else {
+        fragColor = vec4(1.0, 1.0, 1.0, max(c1, c2) * factor) * v_color;
+    }
 }

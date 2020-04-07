@@ -38,6 +38,8 @@ namespace af3d
         material_ = materialManager.createMaterial(MaterialTypeGrid);
         material_->setBlendingParams(BlendingParams(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
         material_->setCullFaceMode(0);
+        setXAxisColor(xAxisColor_);
+        setYAxisColor(yAxisColor_);
     }
 
     const AClass& RenderGridComponent::staticKlass()
@@ -68,14 +70,12 @@ namespace af3d
         auto vRight = parent()->getRight();
         auto vUp = parent()->getUp();
 
-        float gridStep = 1.0f;
-
-        int power = dist > 0.0f ? btLog(dist / gridStep / 5.0f) / btLog(10.0f) : 0;
+        int power = dist > 0.0f ? btLog(dist / step_ / 5.0f) / btLog(10.0f) : 0;
         if (power < 0) {
             power = 0;
         }
 
-        material_->params().setUniform(UniformName::GridStep, gridStep * btPow(10.0f, power));
+        material_->params().setUniform(UniformName::GridStep, step_ * btPow(10.0f, power));
 
         auto sz = rl.frustum().farDist();
 
@@ -86,7 +86,8 @@ namespace af3d
 
         auto rop = rl.addGeometry(material_, GL_TRIANGLES);
 
-        Color c(0.6f, 0.6f, 0.6f, lerp(0.6f, 0.25f, btMin(dist, 5.0f) / 5.0f));
+        Color c = color_;
+        c.setW(lerp(c.w() * 2.0f, c.w(), btMin(dist, 5.0f) / 5.0f));
 
         rop.addVertex(p0, Vector2f(), c);
         rop.addVertex(p1, Vector2f(), c);
@@ -109,6 +110,18 @@ namespace af3d
 
     void RenderGridComponent::debugDraw()
     {
+    }
+
+    void RenderGridComponent::setXAxisColor(const Color& value)
+    {
+        xAxisColor_ = value;
+        material_->params().setUniform(UniformName::GridXColor, toVector3(value));
+    }
+
+    void RenderGridComponent::setYAxisColor(const Color& value)
+    {
+        yAxisColor_ = value;
+        material_->params().setUniform(UniformName::GridYColor, toVector3(value));
     }
 
     void RenderGridComponent::onRegister()

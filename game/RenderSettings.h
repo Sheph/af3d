@@ -49,7 +49,7 @@ namespace af3d
 
     private:
         GLenum clearMask_ = GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT;
-        Color clearColor_ = Color(0.0f, 0.0f, 0.4f, 1.0f);
+        Color clearColor_ = Color(0.23f, 0.23f, 0.23f, 1.0f);
         Color ambientColor_ = Color(0.2f, 0.2f, 0.2f, 1.0f);
     };
 }

@@ -225,7 +225,7 @@ namespace editor {
     void Workspace::onRegister()
     {
         grid_ = std::make_shared<SceneObject>();
-        grid_->setTransform(makeLookDir(btVector3_zero, btVector3_down, btVector3_forward));
+        grid_->setTransform(makeLookDir(btVector3_zero, btVector3_up, btVector3_forward));
         grid_->addComponent(std::make_shared<RenderGridComponent>());
         scene()->addObject(grid_);
 

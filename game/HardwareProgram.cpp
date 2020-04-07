@@ -65,7 +65,9 @@ namespace af3d
         {"gridPos", UniformName::GridPos},
         {"gridRight", UniformName::GridRight},
         {"gridUp", UniformName::GridUp},
-        {"gridStep", UniformName::GridStep}
+        {"gridStep", UniformName::GridStep},
+        {"gridXColor", UniformName::GridXColor},
+        {"gridYColor", UniformName::GridYColor}
     };
 
     static const std::unordered_map<std::string, SamplerName> staticSamplerMap = {

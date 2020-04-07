@@ -52,7 +52,17 @@ namespace af3d
 
         void debugDraw() override;
 
-        inline const btPlane& plane() const { return plane_; }
+        inline float step() const { return step_; }
+        inline void setStep(float value) { step_ = value; }
+
+        inline const Color& color() const { return color_; }
+        inline void setColor(const Color& value) { color_ = value; }
+
+        inline const Color& xAxisColor() const { return xAxisColor_; }
+        void setXAxisColor(const Color& value);
+
+        inline const Color& yAxisColor() const { return yAxisColor_; }
+        void setYAxisColor(const Color& value);
 
     private:
         void onRegister() override;
@@ -60,6 +70,11 @@ namespace af3d
         void onUnregister() override;
 
         MaterialPtr material_;
+
+        float step_ = 1.0f;
+        Color color_ = Color(0.6f, 0.6f, 0.6f, 0.25f);
+        Color xAxisColor_ = Color(1.0f, 0.0f, 0.0f, 1.0f);
+        Color yAxisColor_ = Color(0.0f, 0.0f, 1.0f, 1.0f);
 
         btPlane plane_ = btPlaneMake(btVector3_zero, btVector3_forward);
     };
