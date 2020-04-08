@@ -51,6 +51,8 @@ namespace af3d
 
         MeshPtr loadMesh(const std::string& path);
 
+        MeshPtr loadConvertedMesh(const std::string& path, MaterialTypeName matTypeName);
+
         MeshPtr createMesh(const AABB& aabb,
             const std::vector<SubMeshPtr>& subMeshes,
             const ResourceLoaderPtr& loader = ResourceLoaderPtr());

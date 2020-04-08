@@ -86,20 +86,57 @@ namespace af3d
             return it->second;
         }
 
-        auto loader = std::make_shared<AssimpMeshLoader>(path);
+        std::string actualPath;
+        boost::optional<MaterialTypeName> convertToMatTypeName;
 
-        AABB aabb;
-        std::vector<SubMeshPtr> subMeshes;
-
-        if (!loader->init(importer_, aabb, subMeshes)) {
-            return MeshPtr();
+        auto pos = path.find_first_of('@');
+        if (pos != std::string::npos) {
+            actualPath = path.substr(0, pos);
+            int matTypeNameInt = std::atoi(path.substr(pos + 1).c_str());
+            if ((matTypeNameInt < MaterialTypeFirst) || (matTypeNameInt >= MaterialTypeMax)) {
+                LOG4CPLUS_ERROR(logger(), "meshManager: bad material type int");
+                return MeshPtr();
+            }
+            convertToMatTypeName = static_cast<MaterialTypeName>(matTypeNameInt);
+        } else {
+            actualPath = path;
         }
 
-        auto mesh = std::make_shared<Mesh>(this, path, aabb, subMeshes, loader);
-        mesh->aflagsSet(AObjectEditable);
-        mesh->load();
-        cachedMeshes_.emplace(path, mesh);
-        return mesh;
+        it = cachedMeshes_.find(actualPath);
+        if (it == cachedMeshes_.end()) {
+            auto loader = std::make_shared<AssimpMeshLoader>(actualPath);
+
+            AABB aabb;
+            std::vector<SubMeshPtr> subMeshes;
+
+            if (!loader->init(importer_, aabb, subMeshes)) {
+                return MeshPtr();
+            }
+
+            auto mesh = std::make_shared<Mesh>(this, actualPath, aabb, subMeshes, loader);
+            mesh->aflagsSet(AObjectEditable);
+            mesh->load();
+            it = cachedMeshes_.emplace(actualPath, mesh).first;
+        }
+
+        if (convertToMatTypeName) {
+            std::vector<SubMeshPtr> subMeshes;
+            for (const auto& subMesh : it->second->subMeshes()) {
+                subMeshes.push_back(std::make_shared<SubMesh>(
+                    subMesh->material()->convert(*convertToMatTypeName), subMesh->vaSlice()));
+            }
+
+            auto mesh = std::make_shared<Mesh>(this, path, it->second->aabb(), subMeshes);
+            mesh->aflagsSet(AObjectEditable);
+            it = cachedMeshes_.emplace(path, mesh).first;
+        }
+
+        return it->second;
+    }
+
+    MeshPtr MeshManager::loadConvertedMesh(const std::string& path, MaterialTypeName matTypeName)
+    {
+        return loadMesh(path + "@" + std::to_string(static_cast<int>(matTypeName)));
     }
 
     MeshPtr MeshManager::createMesh(const AABB& aabb,

@@ -128,7 +128,28 @@ namespace af3d
         }
     }
 
-    bool MaterialParams::checkName(UniformName name, size_t& offset, VariableInfo& info)
+    void MaterialParams::convert(MaterialParams& other) const
+    {
+        if (isAuto_ ^ other.isAuto_) {
+            LOG4CPLUS_WARN(logger(), "Converting incompatible params (auto / non-auto)");
+            return;
+        }
+
+        const auto& activeUniforms = materialType_->prog()->activeUniforms();
+        const auto& offsets = materialType_->paramListInfo(isAuto_).offsets;
+
+        for (const auto& kv : uniforms_) {
+            auto jt = offsets.find(kv.first);
+            runtime_assert(jt != offsets.end());
+            auto kt = activeUniforms.find(kv.first);
+            runtime_assert(kt != activeUniforms.end());
+            const auto& ti = HardwareProgram::getTypeInfo(kt->second.type);
+
+            other.setUniformImpl(kv.first, &paramList_[jt->second], ti.baseType, ti.numComponents, kv.second, true);
+        }
+    }
+
+    bool MaterialParams::checkName(UniformName name, size_t& offset, VariableInfo& info, bool quiet)
     {
         if (HardwareProgram::isAuto(name) ^ isAuto_) {
             LOG4CPLUS_WARN(logger(), "Material type " << materialType_->name() << ", auto = " << isAuto_ << " bad param " << name << ": group mismatch");
@@ -139,7 +160,9 @@ namespace af3d
 
         auto it = offsets.find(name);
         if (it == offsets.end()) {
-            LOG4CPLUS_WARN(logger(), "Material type " << materialType_->name() << ", auto = " << isAuto_ << " bad param " << name << ": not used");
+            if (!quiet) {
+                LOG4CPLUS_WARN(logger(), "Material type " << materialType_->name() << ", auto = " << isAuto_ << " bad param " << name << ": not used");
+            }
             return false;
         }
 
@@ -151,29 +174,35 @@ namespace af3d
         return true;
     }
 
-    void MaterialParams::setUniformImpl(UniformName name, const Byte* data, GLenum baseType, GLint numComponents, GLsizei count)
+    void MaterialParams::setUniformImpl(UniformName name, const Byte* data, GLenum baseType, GLint numComponents, GLsizei count, bool quiet)
     {
         size_t offset = 0;
         VariableInfo info;
 
-        if (!checkName(name, offset, info)) {
+        if (!checkName(name, offset, info, quiet)) {
             return;
         }
 
         const auto& ti = HardwareProgram::getTypeInfo(info.type);
 
         if (ti.baseType != baseType) {
-            LOG4CPLUS_WARN(logger(), "Material type " << materialType_->name() << " bad param " << name << ": base type mismatch");
+            if (!quiet) {
+                LOG4CPLUS_WARN(logger(), "Material type " << materialType_->name() << " bad param " << name << ": base type mismatch");
+            }
             return;
         }
 
         if (ti.numComponents != numComponents) {
-            LOG4CPLUS_WARN(logger(), "Material type " << materialType_->name() << " bad param " << name << ": num components mismatch");
+            if (!quiet) {
+                LOG4CPLUS_WARN(logger(), "Material type " << materialType_->name() << " bad param " << name << ": num components mismatch");
+            }
             return;
         }
 
         if (count > info.count) {
-            LOG4CPLUS_WARN(logger(), "Material type " << materialType_->name() << " bad param " << name << ": count too large");
+            if (!quiet) {
+                LOG4CPLUS_WARN(logger(), "Material type " << materialType_->name() << " bad param " << name << ": count too large");
+            }
             return;
         }
 
@@ -210,10 +239,27 @@ namespace af3d
         auto cloned = std::make_shared<Material>(mgr_, newName, type_);
         cloned->tbs_ = tbs_;
         cloned->params_ = params_;
-        cloned->blendingParams_ = blendingParams_;
-        cloned->depthTest_ = depthTest_;
-        cloned->cullFaceMode_ = cullFaceMode_;
-        if (!mgr_->onMaterialClone(cloned)) {
+        if (!cloneImpl(cloned)) {
+            return MaterialPtr();
+        }
+        return cloned;
+    }
+
+    MaterialPtr Material::convert(MaterialTypeName matTypeName, const std::string& newName) const
+    {
+        auto cloned = std::make_shared<Material>(mgr_, newName, mgr_->getMaterialType(matTypeName));
+
+        const auto& samplers = cloned->type()->prog()->samplers();
+        for (int i = 0; i <= static_cast<int>(SamplerName::Max); ++i) {
+            SamplerName sName = static_cast<SamplerName>(i);
+            if (samplers[sName]) {
+                cloned->setTextureBinding(sName, textureBinding(sName));
+            }
+        }
+
+        params_.convert(cloned->params_);
+
+        if (!cloneImpl(cloned)) {
             return MaterialPtr();
         }
         return cloned;
@@ -262,5 +308,13 @@ namespace af3d
     void Material::setCullFaceMode(GLenum value)
     {
         cullFaceMode_ = value;
+    }
+
+    bool Material::cloneImpl(const MaterialPtr& cloned) const
+    {
+        cloned->blendingParams_ = blendingParams_;
+        cloned->depthTest_ = depthTest_;
+        cloned->cullFaceMode_ = cullFaceMode_;
+        return mgr_->onMaterialClone(cloned);
     }
 }

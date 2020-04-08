@@ -53,13 +53,15 @@ namespace af3d
 
         void apply(HardwareContext& ctx) const;
 
+        void convert(MaterialParams& other) const;
+
     private:
         using UniformMap = EnumUnorderedMap<UniformName, GLsizei>; // uniform -> actual count
         using ParamList = std::vector<Byte>;
 
-        bool checkName(UniformName name, size_t& offset, VariableInfo& info);
+        bool checkName(UniformName name, size_t& offset, VariableInfo& info, bool quiet);
 
-        void setUniformImpl(UniformName name, const Byte* data, GLenum baseType, GLint numComponents, GLsizei count);
+        void setUniformImpl(UniformName name, const Byte* data, GLenum baseType, GLint numComponents, GLsizei count, bool quiet = false);
 
         MaterialTypePtr materialType_;
         bool isAuto_ = false;
@@ -195,6 +197,8 @@ namespace af3d
 
         MaterialPtr clone(const std::string& newName = "") const;
 
+        MaterialPtr convert(MaterialTypeName matTypeName, const std::string& newName = "") const;
+
         const TextureBinding& textureBinding(SamplerName samplerName) const;
         void setTextureBinding(SamplerName samplerName, const TextureBinding& value);
 
@@ -210,6 +214,8 @@ namespace af3d
         void setCullFaceMode(GLenum value);
 
     private:
+        bool cloneImpl(const MaterialPtr& cloned) const;
+
         MaterialManager* mgr_;
         MaterialTypePtr type_;
         std::array<TextureBinding, static_cast<int>(SamplerName::Max) + 1> tbs_;
