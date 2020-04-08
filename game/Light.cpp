@@ -56,21 +56,22 @@ namespace af3d
         if (markerRc_) {
             auto cc = scene()->camera()->findComponent<CameraComponent>();
             auto viewExt = cc->getFrustum().getExtents((parent()->transform() * xf_).getOrigin());
-            markerRc_->setScale(btVector3_one * viewExt.y() * (64.0f / settings.viewHeight) / markerRc_->mesh()->aabb().getLargestSize());
+            markerRc_->setScale(btVector3_one * viewExt.y() *
+                (static_cast<float>(settings.editor.lightMarkerSizePixels) / settings.viewHeight) / markerRc_->mesh()->aabb().getLargestSize());
 
             auto w = scene()->workspace();
             auto em = w->emLight();
             markerRc_->setVisible(em->active());
             if (em->active()) {
                 if (em->isSelected(sharedThis())) {
-                    setMarkerParams(0.8f, false);
+                    setMarkerParams(settings.editor.lightMarkerAlphaSelected, false);
                 } else if (em->isHovered(sharedThis())) {
-                    setMarkerParams(0.65f, false);
+                    setMarkerParams(settings.editor.lightMarkerAlphaHovered, false);
                 } else {
-                    setMarkerParams(0.4f, false);
+                    setMarkerParams(settings.editor.lightMarkerAlphaInactive, false);
                 }
             } else {
-                setMarkerParams(0.2f, true);
+                setMarkerParams(settings.editor.lightMarkerAlphaOff, true);
             }
         }
 
@@ -147,7 +148,7 @@ namespace af3d
         cookie_ = manager()->addAABB(this, prevAABB_, nullptr);
 
         if (((aflags() & AObjectEditable) != 0) && scene()->workspace()) {
-            auto mesh = meshManager.loadConvertedMesh("light.fbx", MaterialTypeUnlit)->clone();
+            auto mesh = meshManager.loadConvertedMesh("light_marker.fbx", MaterialTypeUnlit)->clone();
             for (const auto& sm : mesh->subMeshes()) {
                 sm->material()->setBlendingParams(BlendingParams(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
             }
@@ -155,7 +156,7 @@ namespace af3d
             markerRc_->setMesh(mesh);
             markerRc_->setTransform(xf_);
             markerRc_->aflagsSet(AObjectMarkerLight);
-            setMarkerParams(0.2f, true);
+            setMarkerParams(settings.editor.lightMarkerAlphaOff, true);
             parent()->addComponent(markerRc_);
         }
     }

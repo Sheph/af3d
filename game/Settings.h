@@ -52,6 +52,11 @@ namespace af3d
             Color outlineColorInactive;
             Color outlineColorHovered;
             Color outlineColorSelected;
+            int lightMarkerSizePixels;
+            float lightMarkerAlphaOff;
+            float lightMarkerAlphaInactive;
+            float lightMarkerAlphaHovered;
+            float lightMarkerAlphaSelected;
         };
 
         Settings() = default;

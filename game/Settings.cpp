@@ -98,5 +98,10 @@ namespace af3d
         editor.outlineColorInactive = appConfig->getColor("editor.outlineColorInactive");
         editor.outlineColorHovered = appConfig->getColor("editor.outlineColorHovered");
         editor.outlineColorSelected = appConfig->getColor("editor.outlineColorSelected");
+        editor.lightMarkerSizePixels = appConfig->getInt("editor.lightMarkerSizePixels");
+        editor.lightMarkerAlphaOff = appConfig->getFloat("editor.lightMarkerAlphaOff");
+        editor.lightMarkerAlphaInactive = appConfig->getFloat("editor.lightMarkerAlphaInactive");
+        editor.lightMarkerAlphaHovered = appConfig->getFloat("editor.lightMarkerAlphaHovered");
+        editor.lightMarkerAlphaSelected = appConfig->getFloat("editor.lightMarkerAlphaSelected");
     }
 }
