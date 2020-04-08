@@ -30,6 +30,15 @@
 
 namespace af3d
 {
+    bool UIComponentComparer::operator()(const UIComponentPtr& l, const UIComponentPtr& r) const
+    {
+        if (l->zOrder() == r->zOrder()) {
+            return l.get() < r.get();
+        } else {
+            return l->zOrder() < r->zOrder();
+        }
+    }
+
     UIComponentManager::~UIComponentManager()
     {
         btAssert(components_.empty());

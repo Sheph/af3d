@@ -29,6 +29,7 @@
 #include "editor/CommandHistory.h"
 #include "editor/EditModeObjectImpl.h"
 #include "editor/EditModeVisualImpl.h"
+#include "editor/EditModeLightImpl.h"
 #include "editor/ToolSelect.h"
 #include "editor/ToolMove.h"
 #include "editor/ToolRotate.h"
@@ -78,6 +79,7 @@ namespace af3d { namespace editor
 
         inline EditModeObject* emObject() { return emObject_.get(); }
         inline EditModeVisual* emVisual() { return emVisual_.get(); }
+        inline EditModeLight* emLight() { return emLight_.get(); }
 
         inline EditMode* em() { return em_; }
 
@@ -142,6 +144,7 @@ namespace af3d { namespace editor
 
         std::unique_ptr<EditModeObjectImpl> emObject_;
         std::unique_ptr<EditModeVisualImpl> emVisual_;
+        std::unique_ptr<EditModeLightImpl> emLight_;
 
         std::vector<EditMode*> ems_;
 

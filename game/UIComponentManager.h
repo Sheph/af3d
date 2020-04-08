@@ -29,12 +29,18 @@
 #include "ComponentManager.h"
 #include "RenderNode.h"
 #include "VertexArrayWriter.h"
-#include <unordered_set>
+#include <set>
 
 namespace af3d
 {
     class UIComponent;
     using UIComponentPtr = std::shared_ptr<UIComponent>;
+
+    class UIComponentComparer : public std::binary_function<UIComponentPtr, UIComponentPtr, bool>
+    {
+    public:
+        bool operator()(const UIComponentPtr& l, const UIComponentPtr& r) const;
+    };
 
     class UIComponentManager : public ComponentManager
     {
@@ -59,7 +65,7 @@ namespace af3d
         RenderNodePtr render(VertexArrayWriter& defaultVa);
 
     private:
-        std::unordered_set<UIComponentPtr> components_;
+        std::set<UIComponentPtr, UIComponentComparer> components_;
     };
 }
 

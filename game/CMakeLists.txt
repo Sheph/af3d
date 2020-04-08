@@ -94,7 +94,6 @@ set(SOURCES
     editor/CommandSetProperty.cpp
     editor/CommandDelete.cpp
     editor/ObjectComponent.cpp
-    editor/LightComponent.cpp
     editor/EditModeImpl.cpp
     editor/EditModeObjectImpl.cpp
     editor/EditModeVisualImpl.cpp

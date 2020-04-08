@@ -56,6 +56,12 @@ namespace af3d
             return upperBound - lowerBound;
         }
 
+        float getLargestSize() const
+        {
+            auto v = getSize();
+            return btMax(btMax(v.x(), v.y()), v.z());
+        };
+
         // Get the center of the AABB.
         btVector3 getCenter() const
         {

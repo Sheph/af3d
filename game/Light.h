@@ -26,7 +26,7 @@
 #ifndef _LIGHT_H_
 #define _LIGHT_H_
 
-#include "RenderComponent.h"
+#include "RenderMeshComponent.h"
 #include "Material.h"
 #include "AObject.h"
 #include "af3d/Types.h"
@@ -65,6 +65,8 @@ namespace af3d
         inline const AABB& localAABB() const { return localAABB_; }
         AABB getWorldAABB() const;
 
+        inline RenderComponentPtr markerRc() const { return markerRc_; }
+
         void setupMaterial(const btVector3& eyePos, MaterialParams& params) const;
 
         APropertyValue propertyLocalTransformGet(const std::string&) const { return transform(); }
@@ -93,6 +95,8 @@ namespace af3d
 
         virtual void doSetupMaterial(const btVector3& eyePos, MaterialParams& params) const = 0;
 
+        void setMarkerParams(float alpha, bool depthTest);
+
         int typeId_ = 0; // 0 - ambient light.
         btTransform xf_ = btTransform::getIdentity();
         Color color_ = Color_one; // Color in rgb, alpha = intensity.
@@ -104,6 +108,8 @@ namespace af3d
         btTransform prevParentXf_ = btTransform::getIdentity();
         AABB prevAABB_ = AABB_empty;
         RenderCookie* cookie_ = nullptr;
+
+        RenderMeshComponentPtr markerRc_;
     };
 
     ACLASS_DECLARE(Light)

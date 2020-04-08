@@ -32,6 +32,7 @@ namespace af3d
 {
     static const int zOrderMenu = 2;
     static const int zOrderEditor = 100;
+    static const int zOrderEditorWorkspace = 101;
     static const int zOrderImGui = 9999;
 }
 

@@ -124,7 +124,87 @@ namespace af3d
         setDefaultUniformImpl(name, reinterpret_cast<const Byte*>(value.v), GL_FLOAT, 16, 1);
     }
 
-    bool MaterialType::checkName(UniformName uName, size_t& offset, VariableInfo& info)
+    bool MaterialType::getDefaultUniform(UniformName name, float& value) const
+    {
+        auto it = paramListInfo_.defaultUniforms.find(name);
+        if (it != paramListInfo_.defaultUniforms.end()) {
+            return getDefaultUniformImpl(name, reinterpret_cast<Byte*>(&value), GL_FLOAT, 1, 1);
+        } else {
+            return false;
+        }
+    }
+
+    bool MaterialType::getDefaultUniform(UniformName name, std::int32_t& value) const
+    {
+        auto it = paramListInfo_.defaultUniforms.find(name);
+        if (it != paramListInfo_.defaultUniforms.end()) {
+            return getDefaultUniformImpl(name, reinterpret_cast<Byte*>(&value), GL_INT, 1, 1);
+        } else {
+            return false;
+        }
+    }
+
+    bool MaterialType::getDefaultUniform(UniformName name, std::uint32_t& value) const
+    {
+        auto it = paramListInfo_.defaultUniforms.find(name);
+        if (it != paramListInfo_.defaultUniforms.end()) {
+            return getDefaultUniformImpl(name, reinterpret_cast<Byte*>(&value), GL_UNSIGNED_INT, 1, 1);
+        } else {
+            return false;
+        }
+    }
+
+    bool MaterialType::getDefaultUniform(UniformName name, Vector2f& value) const
+    {
+        auto it = paramListInfo_.defaultUniforms.find(name);
+        if (it != paramListInfo_.defaultUniforms.end()) {
+            return getDefaultUniformImpl(name, reinterpret_cast<Byte*>(value.v), GL_FLOAT, 2, 1);
+        } else {
+            return false;
+        }
+    }
+
+    bool MaterialType::getDefaultUniform(UniformName name, Vector3f& value) const
+    {
+        auto it = paramListInfo_.defaultUniforms.find(name);
+        if (it != paramListInfo_.defaultUniforms.end()) {
+            return getDefaultUniformImpl(name, reinterpret_cast<Byte*>(value.v), GL_FLOAT, 3, 1);
+        } else {
+            return false;
+        }
+    }
+
+    bool MaterialType::getDefaultUniform(UniformName name, btVector3& value) const
+    {
+        auto it = paramListInfo_.defaultUniforms.find(name);
+        if (it != paramListInfo_.defaultUniforms.end()) {
+            return getDefaultUniformImpl(name, reinterpret_cast<Byte*>(value.m_floats), GL_FLOAT, 3, 1);
+        } else {
+            return false;
+        }
+    }
+
+    bool MaterialType::getDefaultUniform(UniformName name, Vector4f& value) const
+    {
+        auto it = paramListInfo_.defaultUniforms.find(name);
+        if (it != paramListInfo_.defaultUniforms.end()) {
+            return getDefaultUniformImpl(name, reinterpret_cast<Byte*>(value.v), GL_FLOAT, 4, 1);
+        } else {
+            return false;
+        }
+    }
+
+    bool MaterialType::getDefaultUniform(UniformName name, Matrix4f& value) const
+    {
+        auto it = paramListInfo_.defaultUniforms.find(name);
+        if (it != paramListInfo_.defaultUniforms.end()) {
+            return getDefaultUniformImpl(name, reinterpret_cast<Byte*>(value.v), GL_FLOAT, 16, 1);
+        } else {
+            return false;
+        }
+    }
+
+    bool MaterialType::checkName(UniformName uName, size_t& offset, VariableInfo& info) const
     {
         if (HardwareProgram::isAuto(uName)) {
             LOG4CPLUS_WARN(logger(), "Material type " << name() << ", bad param " << uName << ": auto");
@@ -172,5 +252,31 @@ namespace af3d
 
         std::memcpy(&paramListInfo_.defaultParamList[offset], data, ti.sizeInBytes * count);
         paramListInfo_.defaultUniforms[uName] = count;
+    }
+
+    bool MaterialType::getDefaultUniformImpl(UniformName uName, Byte* data, GLenum baseType, GLint numComponents, GLsizei count) const
+    {
+        size_t offset = 0;
+        VariableInfo info;
+
+        if (!checkName(uName, offset, info)) {
+            return false;
+        }
+
+        const auto& ti = HardwareProgram::getTypeInfo(info.type);
+
+        if (ti.baseType != baseType) {
+            LOG4CPLUS_WARN(logger(), "Material type " << name() << " bad param " << uName << ": base type mismatch");
+            return false;
+        }
+
+        if (ti.numComponents != numComponents) {
+            LOG4CPLUS_WARN(logger(), "Material type " << name() << " bad param " << uName << ": num components mismatch");
+            return false;
+        }
+
+        std::memcpy(data, &paramListInfo_.defaultParamList[offset], ti.sizeInBytes * count);
+
+        return true;
     }
 }

@@ -58,9 +58,10 @@ namespace af3d {
 
 namespace editor {
     Workspace::Workspace()
-    : UIComponent(AClass_editorWorkspace, zOrderEditor),
+    : UIComponent(AClass_editorWorkspace, zOrderEditorWorkspace),
       emObject_(new EditModeObjectImpl(this)),
       emVisual_(new EditModeVisualImpl(this)),
+      emLight_(new EditModeLightImpl(this)),
       toolSelect_(new ToolSelect(this)),
       toolMove_(new ToolMove(this)),
       toolRotate_(new ToolRotate(this)),
@@ -70,6 +71,7 @@ namespace editor {
 
         ems_.push_back(emObject_.get());
         ems_.push_back(emVisual_.get());
+        ems_.push_back(emLight_.get());
         em_ = emObject_.get();
 
         tools_.push_back(toolSelect_.get());
@@ -246,6 +248,7 @@ namespace editor {
 
         emObject_.reset();
         emVisual_.reset();
+        emLight_.reset();
         em_ = nullptr;
         ems_.clear();
 
@@ -304,10 +307,11 @@ namespace editor {
             emVisual_->activate();
         }, assetManager.getImage("common1/mode_visual.png"), KI_V);
 
-        actionModeLight_ = Action("Edit lights", []() {
-            return Action::State(false);
-        }, []() {
-        }, assetManager.getImage("common1/mode_light.png"));
+        actionModeLight_ = Action("Edit lights", [this]() {
+            return Action::State(true, emLight_->active());
+        }, [this]() {
+            emLight_->activate();
+        }, assetManager.getImage("common1/mode_light.png"), KI_L);
 
         actionUndo_ = Action("Undo", [this]() {
             return Action::State(cmdHistory_.pos() > 0);

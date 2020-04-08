@@ -58,19 +58,38 @@ namespace editor {
         bool showMarker = emObject->active();
 
         if (!showMarker) {
-            auto selected = scene()->workspace()->emVisual()->selectedTyped();
-            for (const auto& rc : selected) {
-                if (rc->parent() == parent()) {
-                    showMarker = true;
-                    break;
-                }
-            }
-            if (!showMarker) {
-                auto hovered = scene()->workspace()->emVisual()->hoveredTyped();
-                for (const auto& rc : hovered) {
+            if (scene()->workspace()->emVisual()->active()) {
+                auto selected = scene()->workspace()->emVisual()->selectedTyped();
+                for (const auto& rc : selected) {
                     if (rc->parent() == parent()) {
                         showMarker = true;
                         break;
+                    }
+                }
+                if (!showMarker) {
+                    auto hovered = scene()->workspace()->emVisual()->hoveredTyped();
+                    for (const auto& rc : hovered) {
+                        if (rc->parent() == parent()) {
+                            showMarker = true;
+                            break;
+                        }
+                    }
+                }
+            } else if (scene()->workspace()->emLight()->active()) {
+                auto selected = scene()->workspace()->emLight()->selectedTyped();
+                for (const auto& rc : selected) {
+                    if (rc->parent() == parent()) {
+                        showMarker = true;
+                        break;
+                    }
+                }
+                if (!showMarker) {
+                    auto hovered = scene()->workspace()->emLight()->hoveredTyped();
+                    for (const auto& rc : hovered) {
+                        if (rc->parent() == parent()) {
+                            showMarker = true;
+                            break;
+                        }
                     }
                 }
             }

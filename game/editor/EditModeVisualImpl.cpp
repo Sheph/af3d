@@ -40,9 +40,7 @@ namespace af3d { namespace editor
         TList res;
         for (const auto& wobj : hovered()) {
             auto obj = wobj.lock();
-            if (obj) {
-                res.push_back(std::static_pointer_cast<RenderComponent>(obj));
-            }
+            res.push_back(std::static_pointer_cast<RenderComponent>(obj));
         }
         return res;
     }
@@ -52,9 +50,7 @@ namespace af3d { namespace editor
         TList res;
         for (const auto& wobj : selected()) {
             auto obj = wobj.lock();
-            if (obj ){
-                res.push_back(std::static_pointer_cast<RenderComponent>(obj));
-            }
+            res.push_back(std::static_pointer_cast<RenderComponent>(obj));
         }
         return res;
     }

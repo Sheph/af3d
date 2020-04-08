@@ -82,10 +82,21 @@ namespace af3d
         void setDefaultUniform(UniformName name, const Vector4f& value);
         void setDefaultUniform(UniformName name, const Matrix4f& value);
 
+        bool getDefaultUniform(UniformName name, float& value) const;
+        bool getDefaultUniform(UniformName name, std::int32_t& value) const;
+        bool getDefaultUniform(UniformName name, std::uint32_t& value) const;
+        bool getDefaultUniform(UniformName name, Vector2f& value) const;
+        bool getDefaultUniform(UniformName name, Vector3f& value) const;
+        bool getDefaultUniform(UniformName name, btVector3& value) const;
+        bool getDefaultUniform(UniformName name, Vector4f& value) const;
+        bool getDefaultUniform(UniformName name, Matrix4f& value) const;
+
     private:
-        bool checkName(UniformName uName, size_t& offset, VariableInfo& info);
+        bool checkName(UniformName uName, size_t& offset, VariableInfo& info) const;
 
         void setDefaultUniformImpl(UniformName uName, const Byte* data, GLenum baseType, GLint numComponents, GLsizei count);
+
+        bool getDefaultUniformImpl(UniformName uName, Byte* data, GLenum baseType, GLint numComponents, GLsizei count) const;
 
         MaterialTypeName name_;
         HardwareProgramPtr prog_;

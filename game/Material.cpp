@@ -80,6 +80,86 @@ namespace af3d
         setUniformImpl(name, reinterpret_cast<const Byte*>(value.v), GL_FLOAT, 16, 1);
     }
 
+    bool MaterialParams::getUniform(UniformName name, float& value, bool withDefault) const
+    {
+        auto it = uniforms_.find(name);
+        if (it != uniforms_.end()) {
+            return getUniformImpl(name, reinterpret_cast<Byte*>(&value), GL_FLOAT, 1, 1);
+        } else {
+            return !withDefault || materialType_->getDefaultUniform(name, value);
+        }
+    }
+
+    bool MaterialParams::getUniform(UniformName name, std::int32_t& value, bool withDefault) const
+    {
+        auto it = uniforms_.find(name);
+        if (it != uniforms_.end()) {
+            return getUniformImpl(name, reinterpret_cast<Byte*>(&value), GL_INT, 1, 1);
+        } else {
+            return !withDefault || materialType_->getDefaultUniform(name, value);
+        }
+    }
+
+    bool MaterialParams::getUniform(UniformName name, std::uint32_t& value, bool withDefault) const
+    {
+        auto it = uniforms_.find(name);
+        if (it != uniforms_.end()) {
+            return getUniformImpl(name, reinterpret_cast<Byte*>(&value), GL_UNSIGNED_INT, 1, 1);
+        } else {
+            return !withDefault || materialType_->getDefaultUniform(name, value);
+        }
+    }
+
+    bool MaterialParams::getUniform(UniformName name, Vector2f& value, bool withDefault) const
+    {
+        auto it = uniforms_.find(name);
+        if (it != uniforms_.end()) {
+            return getUniformImpl(name, reinterpret_cast<Byte*>(value.v), GL_FLOAT, 2, 1);
+        } else {
+            return !withDefault || materialType_->getDefaultUniform(name, value);
+        }
+    }
+
+    bool MaterialParams::getUniform(UniformName name, Vector3f& value, bool withDefault) const
+    {
+        auto it = uniforms_.find(name);
+        if (it != uniforms_.end()) {
+            return getUniformImpl(name, reinterpret_cast<Byte*>(value.v), GL_FLOAT, 3, 1);
+        } else {
+            return !withDefault || materialType_->getDefaultUniform(name, value);
+        }
+    }
+
+    bool MaterialParams::getUniform(UniformName name, btVector3& value, bool withDefault) const
+    {
+        auto it = uniforms_.find(name);
+        if (it != uniforms_.end()) {
+            return getUniformImpl(name, reinterpret_cast<Byte*>(value.m_floats), GL_FLOAT, 3, 1);
+        } else {
+            return !withDefault || materialType_->getDefaultUniform(name, value);
+        }
+    }
+
+    bool MaterialParams::getUniform(UniformName name, Vector4f& value, bool withDefault) const
+    {
+        auto it = uniforms_.find(name);
+        if (it != uniforms_.end()) {
+            return getUniformImpl(name, reinterpret_cast<Byte*>(value.v), GL_FLOAT, 4, 1);
+        } else {
+            return !withDefault || materialType_->getDefaultUniform(name, value);
+        }
+    }
+
+    bool MaterialParams::getUniform(UniformName name, Matrix4f& value, bool withDefault) const
+    {
+        auto it = uniforms_.find(name);
+        if (it != uniforms_.end()) {
+            return getUniformImpl(name, reinterpret_cast<Byte*>(value.v), GL_FLOAT, 16, 1);
+        } else {
+            return !withDefault || materialType_->getDefaultUniform(name, value);
+        }
+    }
+
     void MaterialParams::apply(HardwareContext& ctx) const
     {
         const auto& activeUniforms = materialType_->prog()->activeUniforms();
@@ -149,7 +229,7 @@ namespace af3d
         }
     }
 
-    bool MaterialParams::checkName(UniformName name, size_t& offset, VariableInfo& info, bool quiet)
+    bool MaterialParams::checkName(UniformName name, size_t& offset, VariableInfo& info, bool quiet) const
     {
         if (HardwareProgram::isAuto(name) ^ isAuto_) {
             LOG4CPLUS_WARN(logger(), "Material type " << materialType_->name() << ", auto = " << isAuto_ << " bad param " << name << ": group mismatch");
@@ -208,6 +288,32 @@ namespace af3d
 
         std::memcpy(&paramList_[offset], data, ti.sizeInBytes * count);
         uniforms_[name] = count;
+    }
+
+    bool MaterialParams::getUniformImpl(UniformName name, Byte* data, GLenum baseType, GLint numComponents, GLsizei count) const
+    {
+        size_t offset = 0;
+        VariableInfo info;
+
+        if (!checkName(name, offset, info, false)) {
+            return false;
+        }
+
+        const auto& ti = HardwareProgram::getTypeInfo(info.type);
+
+        if (ti.baseType != baseType) {
+            LOG4CPLUS_WARN(logger(), "Material type " << materialType_->name() << " bad param " << name << ": base type mismatch");
+            return false;
+        }
+
+        if (ti.numComponents != numComponents) {
+            LOG4CPLUS_WARN(logger(), "Material type " << materialType_->name() << " bad param " << name << ": num components mismatch");
+            return false;
+        }
+
+        std::memcpy(data, &paramList_[offset], ti.sizeInBytes * count);
+
+        return true;
     }
 
     Material::Material(MaterialManager* mgr, const std::string& name, const MaterialTypePtr& type)

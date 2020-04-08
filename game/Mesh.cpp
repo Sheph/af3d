@@ -60,4 +60,14 @@ namespace af3d
         auto name = propVals.get("name").toString();
         return meshManager.loadMesh(name);
     }
+
+    MeshPtr Mesh::clone() const
+    {
+        std::vector<SubMeshPtr> subMeshes;
+        for (const auto& subMesh : subMeshes_) {
+            subMeshes.push_back(std::make_shared<SubMesh>(
+                subMesh->material()->clone(), subMesh->vaSlice()));
+        }
+        return meshManager.createMesh(aabb(), subMeshes);
+    }
 }

@@ -76,7 +76,7 @@ namespace af3d
     {
         auto sz = getSizes(rl.frustum());
 
-        auto rop = rl.addGeometry(material_, GL_TRIANGLES);
+        auto rop = rl.addGeometry(material_, GL_TRIANGLES, 1.0f);
 
         auto vForward = targetXf_.getBasis() * btVector3_forward;
         auto vUp = targetXf_.getBasis() * btVector3_up;

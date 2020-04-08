@@ -51,6 +51,15 @@ namespace af3d
         void setUniform(UniformName name, const Vector4f& value);
         void setUniform(UniformName name, const Matrix4f& value);
 
+        bool getUniform(UniformName name, float& value, bool withDefault = false) const;
+        bool getUniform(UniformName name, std::int32_t& value, bool withDefault = false) const;
+        bool getUniform(UniformName name, std::uint32_t& value, bool withDefault = false) const;
+        bool getUniform(UniformName name, Vector2f& value, bool withDefault = false) const;
+        bool getUniform(UniformName name, Vector3f& value, bool withDefault = false) const;
+        bool getUniform(UniformName name, btVector3& value, bool withDefault = false) const;
+        bool getUniform(UniformName name, Vector4f& value, bool withDefault = false) const;
+        bool getUniform(UniformName name, Matrix4f& value, bool withDefault = false) const;
+
         void apply(HardwareContext& ctx) const;
 
         void convert(MaterialParams& other) const;
@@ -59,9 +68,11 @@ namespace af3d
         using UniformMap = EnumUnorderedMap<UniformName, GLsizei>; // uniform -> actual count
         using ParamList = std::vector<Byte>;
 
-        bool checkName(UniformName name, size_t& offset, VariableInfo& info, bool quiet);
+        bool checkName(UniformName name, size_t& offset, VariableInfo& info, bool quiet) const;
 
         void setUniformImpl(UniformName name, const Byte* data, GLenum baseType, GLint numComponents, GLsizei count, bool quiet = false);
+
+        bool getUniformImpl(UniformName name, Byte* data, GLenum baseType, GLint numComponents, GLsizei count) const;
 
         MaterialTypePtr materialType_;
         bool isAuto_ = false;

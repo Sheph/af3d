@@ -46,7 +46,6 @@ namespace af3d
         }
 
         inline int zOrder() const { return zOrder_; }
-        inline void setZOrder(int value) { zOrder_ = value; }
 
         inline bool visible() const { return visible_; }
         inline void setVisible(bool value) { visible_ = value; }

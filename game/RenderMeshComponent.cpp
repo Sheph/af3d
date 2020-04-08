@@ -77,18 +77,26 @@ namespace af3d
 
         render(rl, modelMat, MaterialPtr());
 
-        auto w = scene()->workspace();
-        if (w) {
-            auto em = w->emVisual();
-            if (em->active()) {
-                if (em->isSelected(shared_from_this())) {
-                    render(rl, modelMat, materialManager.matOutlineSelected());
-                } else if (em->isHovered(shared_from_this())) {
-                    render(rl, modelMat, materialManager.matOutlineHovered());
-                } else {
-                    render(rl, modelMat, materialManager.matOutlineInactive());
+        MaterialPtr om = outlineMaterial_;
+
+        if (!om && ((aflags() & AObjectEditable) != 0)) {
+            auto w = scene()->workspace();
+            if (w) {
+                auto em = w->emVisual();
+                if (em->active()) {
+                    if (em->isSelected(shared_from_this())) {
+                        om = materialManager.matOutlineSelected();
+                    } else if (em->isHovered(shared_from_this())) {
+                        om = materialManager.matOutlineHovered();
+                    } else {
+                        om = materialManager.matOutlineInactive();
+                    }
                 }
             }
+        }
+
+        if (om) {
+            render(rl, modelMat, om);
         }
     }
 

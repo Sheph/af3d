@@ -62,6 +62,9 @@ namespace af3d
         inline const btVector3& scale() const { return scale_; }
         void setScale(const btVector3& value);
 
+        inline const MaterialPtr& outlineMaterial() const { return outlineMaterial_; }
+        inline void setOutlineMaterial(const MaterialPtr& value) { outlineMaterial_ = value; }
+
         APropertyValue propertyMeshGet(const std::string&) const { return APropertyValue(mesh()); }
         void propertyMeshSet(const std::string&, const APropertyValue& value) { setMesh(value.toObject<Mesh>()); }
 
@@ -97,6 +100,8 @@ namespace af3d
         btTransform prevParentXf_ = btTransform::getIdentity();
         AABB prevAABB_;
         RenderCookie* cookie_ = nullptr;
+
+        MaterialPtr outlineMaterial_;
     };
 
     using RenderMeshComponentPtr = std::shared_ptr<RenderMeshComponent>;

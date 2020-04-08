@@ -32,7 +32,10 @@
 
 namespace af3d
 {
+    class Mesh;
     class MeshManager;
+
+    using MeshPtr = std::shared_ptr<Mesh>;
 
     class Mesh : public std::enable_shared_from_this<Mesh>,
         public Resource
@@ -51,6 +54,9 @@ namespace af3d
 
         virtual AObjectPtr sharedThis() override { return shared_from_this(); }
 
+        // Create new unnamed mesh with unnamed cloned materials.
+        MeshPtr clone() const;
+
         inline const AABB& aabb() const { return aabb_; }
 
         const std::vector<SubMeshPtr>& subMeshes() const { return subMeshes_; }
@@ -60,8 +66,6 @@ namespace af3d
         AABB aabb_;
         std::vector<SubMeshPtr> subMeshes_;
     };
-
-    using MeshPtr = std::shared_ptr<Mesh>;
 
     extern const APropertyTypeObject APropertyType_Mesh;
 
