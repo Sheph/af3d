@@ -23,40 +23,37 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "PointLight.h"
+#ifndef _EDITOR_LIGHTCOMPONENT_H_
+#define _EDITOR_LIGHTCOMPONENT_H_
 
-namespace af3d
+#include "PhasedComponent.h"
+
+namespace af3d { namespace editor
 {
-    ACLASS_DEFINE_BEGIN(PointLight, Light)
-    ACLASS_PROPERTY(PointLight, Radius, "radius", "Radius", Float, 1.0f, Position, APropertyEditable)
-    ACLASS_DEFINE_END(PointLight)
-
-    PointLight::PointLight()
-    : Light(AClass_PointLight, TypeId)
+    class LightComponent : public std::enable_shared_from_this<LightComponent>,
+        public PhasedComponent
     {
-        setRadius(1.0f);
-    }
+    public:
+        explicit LightComponent();
+        ~LightComponent() = default;
 
-    const AClass& PointLight::staticKlass()
-    {
-        return AClass_PointLight;
-    }
+        static const AClass& staticKlass();
 
-    AObjectPtr PointLight::create(const APropertyValueMap& propVals)
-    {
-        auto obj = std::make_shared<PointLight>();
-        obj->propertiesSet(propVals);
-        return obj;
-    }
+        static AObjectPtr create(const APropertyValueMap& propVals);
 
-    void PointLight::setRadius(float value)
-    {
-        radius_ = value;
-        setLocalAABBImpl(AABB(-btVector3_one * value, btVector3_one * value));
-    }
+        AObjectPtr sharedThis() override { return shared_from_this(); }
 
-    void PointLight::doSetupMaterial(const btVector3& eyePos, MaterialParams& params) const
-    {
-        params.setUniform(UniformName::LightDir, Vector3f(radius_, 0.0f, 0.0f));
-    }
+        void preRender(float dt) override;
+
+    private:
+        void onRegister() override;
+
+        void onUnregister() override;
+    };
+
+    using LightComponentPtr = std::shared_ptr<LightComponent>;
 }
+    ACLASS_NS_DECLARE(editor, LightComponent)
+}
+
+#endif

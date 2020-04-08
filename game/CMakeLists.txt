@@ -94,9 +94,11 @@ set(SOURCES
     editor/CommandSetProperty.cpp
     editor/CommandDelete.cpp
     editor/ObjectComponent.cpp
+    editor/LightComponent.cpp
     editor/EditModeImpl.cpp
     editor/EditModeObjectImpl.cpp
     editor/EditModeVisualImpl.cpp
+    editor/EditModeLightImpl.cpp
     editor/PropertyEditor.cpp
     editor/JsonSerializer.cpp
     editor/Toolbox.cpp

@@ -38,12 +38,13 @@ namespace af3d
 {
     enum MaterialTypeName
     {
-        MaterialTypeUnlit = 0, // Unlit shader. pos(3d), color(4d) and one texture(2d)
-        MaterialTypeBasic,     // Basic lit shader.
+        MaterialTypeBasic = 0, // Basic lit shader.
+        MaterialTypeUnlit,     // Unlit shader.
+        MaterialTypeUnlitVC,   // Unlit shader with per-vertex color.
         MaterialTypeImm,       // Immediate draw shader. pos(3d), color(4d) and one texture(2d)
         MaterialTypeOutline,   // Selection outline.
         MaterialTypeGrid,
-        MaterialTypeFirst = MaterialTypeUnlit,
+        MaterialTypeFirst = MaterialTypeBasic,
         MaterialTypeMax = MaterialTypeGrid
     };
 

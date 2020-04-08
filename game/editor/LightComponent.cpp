@@ -23,40 +23,43 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "PointLight.h"
+#include "editor/LightComponent.h"
+#include "Scene.h"
+#include "SceneObject.h"
+#include "AssetManager.h"
+#include "Settings.h"
 
-namespace af3d
-{
-    ACLASS_DEFINE_BEGIN(PointLight, Light)
-    ACLASS_PROPERTY(PointLight, Radius, "radius", "Radius", Float, 1.0f, Position, APropertyEditable)
-    ACLASS_DEFINE_END(PointLight)
+namespace af3d {
+    ACLASS_NS_DEFINE_BEGIN(editor, LightComponent, PhasedComponent)
+    ACLASS_NS_DEFINE_END(editor, LightComponent)
 
-    PointLight::PointLight()
-    : Light(AClass_PointLight, TypeId)
+namespace editor {
+    LightComponent::LightComponent()
+    : PhasedComponent(AClass_editorLightComponent, phasePreRender)
     {
-        setRadius(1.0f);
     }
 
-    const AClass& PointLight::staticKlass()
+    const AClass& LightComponent::staticKlass()
     {
-        return AClass_PointLight;
+        return AClass_editorLightComponent;
     }
 
-    AObjectPtr PointLight::create(const APropertyValueMap& propVals)
+    AObjectPtr LightComponent::create(const APropertyValueMap& propVals)
     {
-        auto obj = std::make_shared<PointLight>();
+        auto obj = std::make_shared<LightComponent>();
         obj->propertiesSet(propVals);
         return obj;
     }
 
-    void PointLight::setRadius(float value)
+    void LightComponent::preRender(float dt)
     {
-        radius_ = value;
-        setLocalAABBImpl(AABB(-btVector3_one * value, btVector3_one * value));
     }
 
-    void PointLight::doSetupMaterial(const btVector3& eyePos, MaterialParams& params) const
+    void LightComponent::onRegister()
     {
-        params.setUniform(UniformName::LightDir, Vector3f(radius_, 0.0f, 0.0f));
     }
-}
+
+    void LightComponent::onUnregister()
+    {
+    }
+} }

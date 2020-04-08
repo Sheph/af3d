@@ -38,8 +38,9 @@ namespace af3d
         const char* frag;
         bool usesLight;
     } shaders[MaterialTypeMax + 1] = {
-        {"shaders/unlit.vert", "shaders/unlit.frag", false},
         {"shaders/basic.vert", "shaders/basic.frag", true},
+        {"shaders/unlit.vert", "shaders/unlit.frag", false},
+        {"shaders/unlit-vc.vert", "shaders/unlit-vc.frag", false},
         {"shaders/imm.vert", "shaders/imm.frag", false},
         {"shaders/outline.vert", "shaders/outline.frag", false},
         {"shaders/grid.vert", "shaders/grid.frag", false}
@@ -70,7 +71,7 @@ namespace af3d
     void MaterialManager::shutdown()
     {
         LOG4CPLUS_DEBUG(logger(), "materialManager: shutdown...");
-        matUnlitDefault_.reset();
+        matUnlitVCDefault_.reset();
         matOutlineInactive_.reset();
         matOutlineHovered_.reset();
         matOutlineSelected_.reset();
@@ -123,8 +124,8 @@ namespace af3d
             mat->setDefaultUniform(UniformName::Shininess, 1.0f);
         }
 
-        if (!matUnlitDefault_) {
-            matUnlitDefault_ = createMaterial(MaterialTypeUnlit);
+        if (!matUnlitVCDefault_) {
+            matUnlitVCDefault_ = createMaterial(MaterialTypeUnlitVC);
 
             matOutlineInactive_ = createMaterial(MaterialTypeOutline);
             matOutlineInactive_->params().setUniform(UniformName::MainColor, settings.editor.outlineColorInactive);
