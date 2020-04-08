@@ -32,7 +32,7 @@ namespace af3d
     ACLASS_DEFINE_END(PointLight)
 
     PointLight::PointLight()
-    : Light(AClass_PointLight, TypeId)
+    : Light(AClass_PointLight, TypeId, false)
     {
         setRadius(1.0f);
     }

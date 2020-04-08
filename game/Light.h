@@ -38,7 +38,7 @@ namespace af3d
     class Light : public RenderComponent
     {
     public:
-        Light(const AClass& klass, int typeId);
+        Light(const AClass& klass, int typeId, bool usesDirection);
         ~Light() = default;
 
         static const AClass& staticKlass();
@@ -98,6 +98,7 @@ namespace af3d
         void setMarkerParams(float alpha, bool depthTest);
 
         int typeId_ = 0; // 0 - ambient light.
+        bool usesDirection_ = false;
         btTransform xf_ = btTransform::getIdentity();
         Color color_ = Color_one; // Color in rgb, alpha = intensity.
         AABB localAABB_ = AABB_empty;

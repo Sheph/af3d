@@ -39,9 +39,10 @@ namespace af3d
     ACLASS_PROPERTY(Light, Intensity, "intensity", "Intensity", Float, 1.0f, General, APropertyEditable)
     ACLASS_DEFINE_END(Light)
 
-    Light::Light(const AClass& klass, int typeId)
+    Light::Light(const AClass& klass, int typeId, bool usesDirection)
     : RenderComponent(klass),
-      typeId_(typeId)
+      typeId_(typeId),
+      usesDirection_(usesDirection)
     {
         btAssert(typeId > 0);
     }
@@ -58,6 +59,11 @@ namespace af3d
             auto viewExt = cc->getFrustum().getExtents((parent()->transform() * xf_).getOrigin());
             markerRc_->setScale(btVector3_one * viewExt.y() *
                 (static_cast<float>(settings.editor.lightMarkerSizePixels) / settings.viewHeight) / markerRc_->mesh()->aabb().getLargestSize());
+            if (!usesDirection_) {
+                markerRc_->setTransform(
+                    btTransform(parent()->basis().inverse() * scene()->camera()->basis(),
+                        markerRc_->transform().getOrigin()));
+            }
 
             auto w = scene()->workspace();
             auto em = w->emLight();

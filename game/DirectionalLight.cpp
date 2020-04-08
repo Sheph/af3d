@@ -31,7 +31,7 @@ namespace af3d
     ACLASS_DEFINE_END(DirectionalLight)
 
     DirectionalLight::DirectionalLight()
-    : Light(AClass_DirectionalLight, TypeId)
+    : Light(AClass_DirectionalLight, TypeId, true)
     {
         setLocalAABB(AABB(btVector3_one * -1000.0f, btVector3_one * 1000.0f));
     }
