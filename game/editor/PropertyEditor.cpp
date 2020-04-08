@@ -90,7 +90,7 @@ namespace editor {
         ImGuiStyle& style = ImGui::GetStyle();
 
         if (obj) {
-            ImGui::Text("1 %s selected", scene()->workspace()->em()->name().c_str());
+            ImGui::Text("1 %s (%s) selected", scene()->workspace()->em()->name().c_str(), obj->klass().name().c_str());
         } else {
             ImGui::Text("No selection");
         }
