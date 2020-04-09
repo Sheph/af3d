@@ -154,11 +154,8 @@ namespace af3d
 
     static bool ki2strInitialized = ki2strInit();
 
-    int InputKeyboard::kiToChar(KeyIdentifier ki, bool* isTextInput)
+    int InputKeyboard::kiToChar(KeyIdentifier ki)
     {
-        if (isTextInput) {
-            *isTextInput = true;
-        }
         if (ki >= KI_0 && ki <= KI_9) {
             return (ki - KI_0) + '0';
         } else if (ki >= KI_A && ki <= KI_Z) {
@@ -188,9 +185,6 @@ namespace af3d
         } else if (ki == KI_SPACE) {
             return ' ';
         } else {
-            if (isTextInput) {
-                *isTextInput = false;
-            }
             return ki;
         }
     }

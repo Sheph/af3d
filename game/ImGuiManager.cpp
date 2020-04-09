@@ -161,21 +161,30 @@ namespace af3d
         textureCache_.clear();
     }
 
-    void ImGuiManager::keyPress(KeyIdentifier ki)
+    void ImGuiManager::keyPress(KeyIdentifier ki, std::uint32_t keyModifiers)
     {
         ImGuiIO& io = ImGui::GetIO();
-        bool isTextInput;
-        int c = InputKeyboard::kiToChar(ki, &isTextInput);
-        io.KeysDown[c] = true;
-        if (isTextInput) {
-            io.AddInputCharacter(c);
-        }
+        io.KeysDown[InputKeyboard::kiToChar(ki)] = true;
+        io.KeyCtrl = (keyModifiers & KM_CTRL) != 0;
+        io.KeyShift = (keyModifiers & KM_SHIFT) != 0;
+        io.KeyAlt = (keyModifiers & KM_ALT) != 0;
+        io.KeySuper = (keyModifiers & KM_META) != 0;
     }
 
-    void ImGuiManager::keyRelease(KeyIdentifier ki)
+    void ImGuiManager::keyRelease(KeyIdentifier ki, std::uint32_t keyModifiers)
     {
         ImGuiIO& io = ImGui::GetIO();
         io.KeysDown[InputKeyboard::kiToChar(ki)] = false;
+        io.KeyCtrl = (keyModifiers & KM_CTRL) != 0;
+        io.KeyShift = (keyModifiers & KM_SHIFT) != 0;
+        io.KeyAlt = (keyModifiers & KM_ALT) != 0;
+        io.KeySuper = (keyModifiers & KM_META) != 0;
+    }
+
+    void ImGuiManager::textInputUCS2(std::uint32_t ch)
+    {
+        ImGuiIO& io = ImGui::GetIO();
+        io.AddInputCharacter(ch);
     }
 
     void ImGuiManager::mouseDown(bool left)

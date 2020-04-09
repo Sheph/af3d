@@ -27,6 +27,7 @@
 #define _INPUTKEYBOARD_H_
 
 #include "af3d/Utils.h"
+#include "af3d/EnumSet.h"
 #include <Rocket/Core/Input.h>
 #include <boost/noncopyable.hpp>
 
@@ -40,7 +41,7 @@ namespace af3d
         InputKeyboard() = default;
         ~InputKeyboard() = default;
 
-        static int kiToChar(KeyIdentifier ki, bool* isTextInput = nullptr);
+        static int kiToChar(KeyIdentifier ki);
 
         static const char* kiToStr(KeyIdentifier ki);
 

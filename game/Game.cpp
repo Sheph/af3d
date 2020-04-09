@@ -290,16 +290,21 @@ namespace af3d
         hwManager.shutdown();
     }
 
-    void Game::keyPress(KeyIdentifier ki)
+    void Game::keyPress(KeyIdentifier ki, std::uint32_t keyModifiers)
     {
         inputManager.keyboard().press(ki);
-        imGuiManager.keyPress(ki);
+        imGuiManager.keyPress(ki, keyModifiers);
     }
 
-    void Game::keyRelease(KeyIdentifier ki)
+    void Game::keyRelease(KeyIdentifier ki, std::uint32_t keyModifiers)
     {
         inputManager.keyboard().release(ki);
-        imGuiManager.keyRelease(ki);
+        imGuiManager.keyRelease(ki, keyModifiers);
+    }
+
+    void Game::textInputUCS2(std::uint32_t ch)
+    {
+        imGuiManager.textInputUCS2(ch);
     }
 
     void Game::mouseDown(bool left)

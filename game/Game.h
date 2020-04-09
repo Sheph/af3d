@@ -57,9 +57,11 @@ namespace af3d
 
         void shutdown();
 
-        void keyPress(KeyIdentifier ki);
+        void keyPress(KeyIdentifier ki, std::uint32_t keyModifiers);
 
-        void keyRelease(KeyIdentifier ki);
+        void keyRelease(KeyIdentifier ki, std::uint32_t keyModifiers);
+
+        void textInputUCS2(std::uint32_t ch);
 
         void mouseDown(bool left);
 
