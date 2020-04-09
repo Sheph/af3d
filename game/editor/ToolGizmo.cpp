@@ -55,17 +55,23 @@ namespace af3d { namespace editor
 
     void ToolGizmo::doUpdate(float dt)
     {
-        if (inputManager.keyboard().triggered(KI_X)) {
-            switch (orientation_) {
-            case TransformOrientation::Local:
-                orientation_ = TransformOrientation::Global;
-                break;
-            default:
-                btAssert(false);
-            case TransformOrientation::Global:
-                orientation_ = TransformOrientation::Local;
-                break;
-            };
+        ImGuiIO& io = ImGui::GetIO();
+
+        bool uiInput = io.WantCaptureMouse || io.WantCaptureKeyboard;
+
+        if (!uiInput) {
+            if (inputManager.keyboard().triggered(KI_0)) {
+                switch (orientation_) {
+                case TransformOrientation::Local:
+                    orientation_ = TransformOrientation::Global;
+                    break;
+                default:
+                    btAssert(false);
+                case TransformOrientation::Global:
+                    orientation_ = TransformOrientation::Local;
+                    break;
+                };
+            }
         }
 
         const auto& sel = workspace().em()->selected();
@@ -104,7 +110,7 @@ namespace af3d { namespace editor
                 auto ray = cc->screenPointToRay(inputManager.mouse().pos());
                 gizmoMove(cc->getFrustum(), ray);
             }
-        } else if (inputManager.mouse().triggered(true)) {
+        } else if (!uiInput && inputManager.mouse().triggered(true)) {
             if (workspace().lock()) {
                 auto cc = scene()->camera()->findComponent<CameraComponent>();
                 auto ray = cc->screenPointToRay(inputManager.mouse().pos());
@@ -115,7 +121,7 @@ namespace af3d { namespace editor
                     workspace().unlock();
                 }
             }
-        } else if (!inputManager.mouse().pressed(true)) {
+        } else if (!uiInput && !inputManager.mouse().pressed(true)) {
             auto cc = scene()->camera()->findComponent<CameraComponent>();
             auto ray = cc->screenPointToRay(inputManager.mouse().pos());
             gizmoMove(cc->getFrustum(), ray);
@@ -132,7 +138,7 @@ namespace af3d { namespace editor
         }
         if (ImGui::IsItemHovered()) {
             ImGui::BeginTooltip();
-            ImGui::Text("Transform orientation (X)");
+            ImGui::Text("Transform orientation (0)");
             ImGui::EndTooltip();
         }
     }
