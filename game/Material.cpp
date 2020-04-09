@@ -406,6 +406,16 @@ namespace af3d
         depthTest_ = value;
     }
 
+    bool Material::depthWrite() const
+    {
+        return depthWrite_;
+    }
+
+    void Material::setDepthWrite(bool value)
+    {
+        depthWrite_ = value;
+    }
+
     GLenum Material::cullFaceMode() const
     {
         return cullFaceMode_;
@@ -420,6 +430,7 @@ namespace af3d
     {
         cloned->blendingParams_ = blendingParams_;
         cloned->depthTest_ = depthTest_;
+        cloned->depthWrite_ = depthWrite_;
         cloned->cullFaceMode_ = cullFaceMode_;
         return mgr_->onMaterialClone(cloned);
     }

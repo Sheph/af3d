@@ -221,6 +221,9 @@ namespace af3d
         bool depthTest() const;
         void setDepthTest(bool value);
 
+        bool depthWrite() const;
+        void setDepthWrite(bool value);
+
         GLenum cullFaceMode() const;
         void setCullFaceMode(GLenum value);
 
@@ -233,6 +236,7 @@ namespace af3d
         MaterialParams params_;
         BlendingParams blendingParams_;
         bool depthTest_ = true;
+        bool depthWrite_ = true;
         GLenum cullFaceMode_ = GL_BACK;
     };
 

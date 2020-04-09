@@ -181,6 +181,7 @@ namespace af3d
                 std::uint32_t drawStart_;
                 std::uint32_t drawCount_;
                 std::uint32_t drawBaseVertex_;
+                bool depthWrite_;
             };
         };
 

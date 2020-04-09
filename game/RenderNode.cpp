@@ -85,6 +85,7 @@ namespace af3d
         node->drawStart_ = vaSlice.start();
         node->drawCount_ = vaSlice.count();
         node->drawBaseVertex_ = vaSlice.baseVertex();
+        node->depthWrite_ = material->depthWrite();
 
         return node->materialParamsAuto_;
     }
@@ -356,6 +357,10 @@ namespace af3d
             ogl.Enable(GL_SCISSOR_TEST);
         }
 
+        if (!depthWrite_) {
+            ogl.DepthMask(GL_FALSE);
+        }
+
         // TODO: Handle other draw modes.
         materialParamsAuto_.apply(ctx);
         materialParams_.apply(ctx);
@@ -373,6 +378,10 @@ namespace af3d
             } else {
                 ogl.DrawArrays(drawPrimitiveMode_, drawStart_, drawCount_);
             }
+        }
+
+        if (!depthWrite_) {
+            ogl.DepthMask(GL_TRUE);
         }
 
         if (scissorParams_.enabled) {

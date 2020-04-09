@@ -37,6 +37,7 @@ namespace af3d
     {
         material_ = materialManager.createMaterial(MaterialTypeGrid);
         material_->setBlendingParams(BlendingParams(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+        material_->setDepthWrite(false);
         material_->setCullFaceMode(0);
         setXAxisColor(xAxisColor_);
         setYAxisColor(yAxisColor_);
