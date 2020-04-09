@@ -178,6 +178,7 @@ namespace af3d
         if (markerRc_) {
             markerRc_->removeFromParent();
             markerRc_.reset();
+            origMarkerMesh_.reset();
         }
     }
 
