@@ -78,39 +78,41 @@ namespace af3d
 
         auto rop = rl.addGeometry(material_, GL_TRIANGLES, 1.0f);
 
-        auto vForward = targetXf_.getBasis() * btVector3_forward;
-        auto vUp = targetXf_.getBasis() * btVector3_up;
-        auto vRight = targetXf_.getBasis() * btVector3_right;
+        auto txf = targetXfOriented();
+
+        auto vForward = txf.getBasis() * btVector3_forward;
+        auto vUp = txf.getBasis() * btVector3_up;
+        auto vRight = txf.getBasis() * btVector3_right;
 
         if (kind_ == KindMove) {
-            rop.addLineArrow(targetXf_.getOrigin(), vRight * sz.lineLength, vUp * sz.lineRadius, sz.arrowSize,
+            rop.addLineArrow(txf.getOrigin(), vRight * sz.lineLength, vUp * sz.lineRadius, sz.arrowSize,
                 Color(1.0f, 0.0f, 0.0f, alpha(MoveType::AxisX)));
-            rop.addLineArrow(targetXf_.getOrigin(), vUp * sz.lineLength, vForward * sz.lineRadius, sz.arrowSize,
+            rop.addLineArrow(txf.getOrigin(), vUp * sz.lineLength, vForward * sz.lineRadius, sz.arrowSize,
                 Color(0.0f, 1.0f, 0.0f, alpha(MoveType::AxisY)));
-            rop.addLineArrow(targetXf_.getOrigin(), vForward * sz.lineLength, vUp * sz.lineRadius, sz.arrowSize,
+            rop.addLineArrow(txf.getOrigin(), vForward * sz.lineLength, vUp * sz.lineRadius, sz.arrowSize,
                 Color(0.0f, 0.0f, 1.0f, alpha(MoveType::AxisZ)));
         } else {
             auto asz = btVector3(sz.arrowSize.y(), sz.arrowSize.y(), sz.arrowSize.y()) * 1.5f;
-            rop.addLineBox(targetXf_.getOrigin(), vRight * sz.lineLength, vUp * sz.lineRadius, asz,
+            rop.addLineBox(txf.getOrigin(), vRight * sz.lineLength, vUp * sz.lineRadius, asz,
                 Color(1.0f, 0.0f, 0.0f, alpha(MoveType::AxisX)));
-            rop.addLineBox(targetXf_.getOrigin(), vUp * sz.lineLength, vForward * sz.lineRadius, asz,
+            rop.addLineBox(txf.getOrigin(), vUp * sz.lineLength, vForward * sz.lineRadius, asz,
                 Color(0.0f, 1.0f, 0.0f, alpha(MoveType::AxisY)));
-            rop.addLineBox(targetXf_.getOrigin(), vForward * sz.lineLength, vUp * sz.lineRadius, asz,
+            rop.addLineBox(txf.getOrigin(), vForward * sz.lineLength, vUp * sz.lineRadius, asz,
                 Color(0.0f, 0.0f, 1.0f, alpha(MoveType::AxisZ)));
         }
 
-        rop.addQuad(targetXf_.getOrigin() + (vUp + vForward) * sz.quadOffset,
+        rop.addQuad(txf.getOrigin() + (vUp + vForward) * sz.quadOffset,
             {vUp * sz.quadSize, vForward * sz.quadSize}, Color(1.0f, 0.0f, 0.0f, alpha(MoveType::PlaneX)));
-        rop.addQuad(targetXf_.getOrigin() + (vRight + vForward) * sz.quadOffset,
+        rop.addQuad(txf.getOrigin() + (vRight + vForward) * sz.quadOffset,
             {vRight * sz.quadSize, vForward * sz.quadSize}, Color(0.0f, 1.0f, 0.0f, alpha(MoveType::PlaneY)));
-        rop.addQuad(targetXf_.getOrigin() + (vRight + vUp) * sz.quadOffset,
+        rop.addQuad(txf.getOrigin() + (vRight + vUp) * sz.quadOffset,
             {vRight * sz.quadSize, vUp * sz.quadSize}, Color(0.0f, 0.0f, 1.0f, alpha(MoveType::PlaneZ)));
 
         if (kind_ == KindMove) {
-            rop.addBox(targetXf_.getOrigin(),
+            rop.addBox(txf.getOrigin(),
                 {vRight * sz.boxSize, vForward * sz.boxSize, vUp * sz.boxSize}, Color(1.0f, 1.0f, 1.0f, alpha(MoveType::PlaneCurrent)));
         } else {
-            rop.addRing(targetXf_.getOrigin(),
+            rop.addRing(txf.getOrigin(),
                 rl.frustum().plane(Frustum::Plane::Far).normal * sz.lineRadius, sz.ringRadius, Color(1.0f, 1.0f, 1.0f, alpha(MoveType::PlaneCurrent)));
         }
     }
@@ -133,7 +135,9 @@ namespace af3d
     {
         auto sz = getSizes(frustum);
 
-        auto r2 = ray.getTransformed(targetXf_.inverse());
+        auto txf = targetXfOriented();
+
+        auto r2 = ray.getTransformed(txf.inverse());
 
         if (kind_ == KindMove) {
             if (r2.testAABB(AABB(btVector3_forward * sz.boxSize,
@@ -141,9 +145,9 @@ namespace af3d
                 return MoveType::PlaneCurrent;
             }
         } else {
-            auto res = ray.testPlane(btPlaneMake(targetXf_.getOrigin(), frustum.plane(Frustum::Plane::Far).normal));
+            auto res = ray.testPlane(btPlaneMake(txf.getOrigin(), frustum.plane(Frustum::Plane::Far).normal));
             if (res.first) {
-                auto l = (ray.getAt(res.second) - targetXf_.getOrigin()).length();
+                auto l = (ray.getAt(res.second) - txf.getOrigin()).length();
                 if (l >= (sz.ringRadius - sz.arrowSize.y()) && l <= (sz.ringRadius + sz.arrowSize.y())) {
                     return MoveType::PlaneCurrent;
                 }
@@ -213,5 +217,17 @@ namespace af3d
         ret.ringRadius = ret.lineLength + ret.arrowSize.x();
 
         return ret;
+    }
+
+    btTransform RenderGizmoAxesComponent::targetXfOriented() const
+    {
+        switch (orientation_) {
+        case TransformOrientation::Global:
+            return toTransform(targetXf_.getOrigin());
+        default:
+            btAssert(false);
+        case TransformOrientation::Local:
+            return targetXf_;
+        }
     }
 }

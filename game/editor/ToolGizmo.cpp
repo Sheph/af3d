@@ -29,6 +29,7 @@
 #include "Scene.h"
 #include "SceneObject.h"
 #include "CameraComponent.h"
+#include "imgui.h"
 
 namespace af3d { namespace editor
 {
@@ -105,6 +106,16 @@ namespace af3d { namespace editor
             auto cc = scene()->camera()->findComponent<CameraComponent>();
             auto ray = cc->screenPointToRay(inputManager.mouse().pos());
             gizmoMove(cc->getFrustum(), ray);
+        }
+    }
+
+    void ToolGizmo::doOptions()
+    {
+        int cur = static_cast<int>(orientation_);
+
+        ImGui::SetNextItemWidth(80);
+        if (ImGui::Combo("Orientation", &cur, "Local\0Global\0")) {
+            orientation_ = static_cast<TransformOrientation>(cur);
         }
     }
 

@@ -27,6 +27,7 @@
 #define _RENDERGIZMOAXESCOMPONENT_H_
 
 #include "RenderComponent.h"
+#include "Utils.h"
 
 namespace af3d
 {
@@ -72,6 +73,9 @@ namespace af3d
         inline Kind kind() const { return kind_; }
         inline void setKind(Kind value) { kind_ = value; }
 
+        inline TransformOrientation orientation() const { return orientation_; }
+        inline void setOrientation(TransformOrientation value) { orientation_ = value; }
+
         inline const AObjectPtr& target() const { return target_; }
         inline void setTarget(const AObjectPtr& value) { target_ = value; }
 
@@ -110,9 +114,12 @@ namespace af3d
 
         inline float alpha(MoveType mt) const { return (mt == moveType_) ? alpha_[1] : alpha_[0]; }
 
+        btTransform targetXfOriented() const;
+
         MaterialPtr material_;
 
         Kind kind_ = KindMove;
+        TransformOrientation orientation_ = TransformOrientation::Local;
 
         AObjectPtr target_;
         MoveType moveType_ = MoveType::None;

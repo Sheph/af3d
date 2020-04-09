@@ -57,10 +57,6 @@ namespace af3d { namespace editor
         selTool_.update(dt);
     }
 
-    void ToolRotate::doOptions()
-    {
-    }
-
     bool ToolRotate::gizmoCreate(const AObjectPtr& obj)
     {
         if (!obj->propertyCanGet(AProperty_WorldTransform)) {
@@ -68,6 +64,7 @@ namespace af3d { namespace editor
         }
 
         rc_ = std::make_shared<RenderGizmoRotateComponent>();
+        rc_->setOrientation(orientation());
         rc_->setTarget(obj);
         rc_->setAlphaInactive(0.4f);
         rc_->setAlphaActive(0.7f);
@@ -84,6 +81,7 @@ namespace af3d { namespace editor
 
     bool ToolRotate::gizmoCapture(const Frustum& frustum, const Ray& ray)
     {
+        rc_->setOrientation(orientation());
         auto res = rc_->testRay(frustum, ray);
         if (res != RotateType::None) {
             rc_->setRotateType(res);
@@ -103,6 +101,7 @@ namespace af3d { namespace editor
         if (!canceled) {
             workspace().setProperty(rc_->target(), AProperty_WorldTransform, xf, false);
         }
+        rc_->setOrientation(orientation());
         rc_->setRotateType(RotateType::None);
         rc_->setAlphaActive(0.7f);
         selTool_.activate(true);
@@ -110,6 +109,8 @@ namespace af3d { namespace editor
 
     void ToolRotate::gizmoMove(const Frustum& frustum, const Ray& ray)
     {
+        rc_->setOrientation(orientation());
+
         if (!captured()) {
             rc_->setRotateType(rc_->testRay(frustum, ray));
             return;
@@ -159,22 +160,36 @@ namespace af3d { namespace editor
 
     btPlane ToolRotate::getRotatePlane(const Frustum& frustum)
     {
+        auto txf = capturedTargetXfOriented();
+
         if (rc_->rotateType() == RotateType::PlaneX) {
-            auto v = capturedTargetXf_.getBasis() * btVector3_right;
-            return btPlaneMake(capturedTargetXf_.getOrigin(), v);
+            auto v = txf.getBasis() * btVector3_right;
+            return btPlaneMake(txf.getOrigin(), v);
         } else if (rc_->rotateType() == RotateType::PlaneY) {
-            auto v = capturedTargetXf_.getBasis() * btVector3_up;
-            return btPlaneMake(capturedTargetXf_.getOrigin(), v);
+            auto v = txf.getBasis() * btVector3_up;
+            return btPlaneMake(txf.getOrigin(), v);
         } else if (rc_->rotateType() == RotateType::PlaneZ) {
-            auto v = capturedTargetXf_.getBasis() * btVector3_forward;
-            return btPlaneMake(capturedTargetXf_.getOrigin(), v);
+            auto v = txf.getBasis() * btVector3_forward;
+            return btPlaneMake(txf.getOrigin(), v);
         } else if ((rc_->rotateType() == RotateType::PlaneCurrent) ||
             rc_->rotateType() == RotateType::Trackball) {
-            return btPlaneMake(capturedTargetXf_.getOrigin(),
+            return btPlaneMake(txf.getOrigin(),
                 frustum.plane(Frustum::Plane::Far).normal);
         } else {
             btAssert(false);
             return btPlane();
+        }
+    }
+
+    btTransform ToolRotate::capturedTargetXfOriented() const
+    {
+        switch (orientation()) {
+        case TransformOrientation::Global:
+            return toTransform(capturedTargetXf_.getOrigin());
+        default:
+            btAssert(false);
+        case TransformOrientation::Local:
+            return capturedTargetXf_;
         }
     }
 } }

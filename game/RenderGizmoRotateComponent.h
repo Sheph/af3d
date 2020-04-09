@@ -27,6 +27,7 @@
 #define _RENDERGIZMOROTATECOMPONENT_H_
 
 #include "RenderComponent.h"
+#include "Utils.h"
 
 namespace af3d
 {
@@ -60,6 +61,9 @@ namespace af3d
         std::pair<AObjectPtr, float> testRay(const Frustum& frustum, const Ray& ray, void* part) override;
 
         void debugDraw() override;
+
+        inline TransformOrientation orientation() const { return orientation_; }
+        inline void setOrientation(TransformOrientation value) { orientation_ = value; }
 
         inline const AObjectPtr& target() const { return target_; }
         inline void setTarget(const AObjectPtr& value) { target_ = value; }
@@ -95,7 +99,11 @@ namespace af3d
 
         inline float alpha(RotateType rt) const { return (rt == rotateType_) ? alpha_[1] : alpha_[0]; }
 
+        btTransform targetXfOriented() const;
+
         MaterialPtr material_;
+
+        TransformOrientation orientation_ = TransformOrientation::Local;
 
         AObjectPtr target_;
         RotateType rotateType_ = RotateType::None;

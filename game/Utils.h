@@ -37,6 +37,13 @@
 
 namespace af3d
 {
+    enum class TransformOrientation
+    {
+        Local = 0,
+        Global,
+        Max = Global
+    };
+
     using AssimpScenePtr = std::unique_ptr<aiScene>;
 
     AssimpScenePtr assimpImport(Assimp::Importer& importer,

@@ -102,7 +102,9 @@ namespace editor {
             ImGui::EndMenuBar();
         }
 
+        ImGui::PushID(curTool->name().c_str());
         curTool->options();
+        ImGui::PopID();
 
         ImGui::EndChild();
         ImGui::PopStyleVar();

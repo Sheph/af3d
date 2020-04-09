@@ -55,10 +55,6 @@ namespace af3d { namespace editor
         selTool_.update(dt);
     }
 
-    void ToolMove::doOptions()
-    {
-    }
-
     bool ToolMove::gizmoCreate(const AObjectPtr& obj)
     {
         if (!obj->propertyCanGet(AProperty_WorldTransform)) {
@@ -66,6 +62,7 @@ namespace af3d { namespace editor
         }
 
         rc_ = std::make_shared<RenderGizmoAxesComponent>();
+        rc_->setOrientation(orientation());
         rc_->setTarget(obj);
         rc_->setAlphaInactive(0.4f);
         rc_->setAlphaActive(0.7f);
@@ -82,6 +79,7 @@ namespace af3d { namespace editor
 
     bool ToolMove::gizmoCapture(const Frustum& frustum, const Ray& ray)
     {
+        rc_->setOrientation(orientation());
         auto res = rc_->testRay(frustum, ray);
         if (res != MoveType::None) {
             rc_->setMoveType(res);
@@ -101,6 +99,7 @@ namespace af3d { namespace editor
         if (!canceled) {
             workspace().setProperty(rc_->target(), AProperty_WorldTransform, xf, false);
         }
+        rc_->setOrientation(orientation());
         rc_->setMoveType(MoveType::None);
         rc_->setAlphaActive(0.7f);
         selTool_.activate(true);
@@ -108,6 +107,8 @@ namespace af3d { namespace editor
 
     void ToolMove::gizmoMove(const Frustum& frustum, const Ray& ray)
     {
+        rc_->setOrientation(orientation());
+
         if (!captured()) {
             rc_->setMoveType(rc_->testRay(frustum, ray));
             return;
@@ -135,17 +136,17 @@ namespace af3d { namespace editor
                 auto xf = capturedTargetXf_;
                 switch (rc_->moveType()) {
                 case MoveType::AxisX: {
-                    auto v = capturedTargetXf_.getBasis() * btVector3_right;
+                    auto v = capturedTargetXfOriented().getBasis() * btVector3_right;
                     xf.getOrigin() += v * (p2 - p1).dot(v);
                     break;
                 }
                 case MoveType::AxisY: {
-                    auto v = capturedTargetXf_.getBasis() * btVector3_up;
+                    auto v = capturedTargetXfOriented().getBasis() * btVector3_up;
                     xf.getOrigin() += v * (p2 - p1).dot(v);
                     break;
                 }
                 case MoveType::AxisZ: {
-                    auto v = capturedTargetXf_.getBasis() * btVector3_forward;
+                    auto v = capturedTargetXfOriented().getBasis() * btVector3_forward;
                     xf.getOrigin() += v * (p2 - p1).dot(v);
                     break;
                 }
@@ -160,13 +161,15 @@ namespace af3d { namespace editor
 
     btPlane ToolMove::getMovePlane(const Frustum& frustum)
     {
-        auto vRight = capturedTargetXf_.getBasis() * btVector3_right;
-        auto vUp = capturedTargetXf_.getBasis() * btVector3_up;
-        auto vForward = capturedTargetXf_.getBasis() * btVector3_forward;
+        auto txf = capturedTargetXfOriented();
 
-        auto planeX = btPlaneMake(capturedTargetXf_.getOrigin(), vRight);
-        auto planeY = btPlaneMake(capturedTargetXf_.getOrigin(), vUp);
-        auto planeZ = btPlaneMake(capturedTargetXf_.getOrigin(), vForward);
+        auto vRight = txf.getBasis() * btVector3_right;
+        auto vUp = txf.getBasis() * btVector3_up;
+        auto vForward = txf.getBasis() * btVector3_forward;
+
+        auto planeX = btPlaneMake(txf.getOrigin(), vRight);
+        auto planeY = btPlaneMake(txf.getOrigin(), vUp);
+        auto planeZ = btPlaneMake(txf.getOrigin(), vForward);
 
         if (rc_->moveType() == MoveType::PlaneX) {
             return planeX;
@@ -175,7 +178,7 @@ namespace af3d { namespace editor
         } else if (rc_->moveType() == MoveType::PlaneZ) {
             return planeZ;
         } else if (rc_->moveType() == MoveType::PlaneCurrent) {
-            return btPlaneMake(capturedTargetXf_.getOrigin(),
+            return btPlaneMake(txf.getOrigin(),
                 frustum.plane(Frustum::Plane::Far).normal);
         }
 
@@ -190,6 +193,18 @@ namespace af3d { namespace editor
         } else {
             btAssert(rc_->moveType() == MoveType::AxisZ);
             return (px > py) ? planeX : planeY;
+        }
+    }
+
+    btTransform ToolMove::capturedTargetXfOriented() const
+    {
+        switch (orientation()) {
+        case TransformOrientation::Global:
+            return toTransform(capturedTargetXf_.getOrigin());
+        default:
+            btAssert(false);
+        case TransformOrientation::Local:
+            return capturedTargetXf_;
         }
     }
 } }

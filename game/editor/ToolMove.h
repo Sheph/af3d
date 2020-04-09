@@ -45,8 +45,6 @@ namespace af3d { namespace editor
 
         void doUpdate(float dt) override;
 
-        void doOptions() override;
-
         bool gizmoCreate(const AObjectPtr& obj) override;
         void gizmoDestroy() override;
 
@@ -55,6 +53,8 @@ namespace af3d { namespace editor
         void gizmoMove(const Frustum& frustum, const Ray& ray) override;
 
         btPlane getMovePlane(const Frustum& frustum);
+
+        btTransform capturedTargetXfOriented() const;
 
         ToolSelect selTool_;
         RenderGizmoAxesComponentPtr rc_;

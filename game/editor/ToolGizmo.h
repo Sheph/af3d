@@ -26,6 +26,7 @@
 #ifndef _EDITOR_TOOLGIZMO_H_
 #define _EDITOR_TOOLGIZMO_H_
 
+#include "Utils.h"
 #include "editor/Tool.h"
 #include "af3d/Ray.h"
 #include "af3d/Frustum.h"
@@ -45,12 +46,15 @@ namespace af3d { namespace editor
         inline bool captured() const { return !capturedRay_.empty(); }
         inline const Ray& capturedRay() const { return capturedRay_; }
         inline const Vector2f& capturedMousePos() const { return capturedMousePos_; }
+        inline TransformOrientation orientation() const { return orientation_; }
 
         void onActivate() override;
 
         void onDeactivate() override;
 
         void doUpdate(float dt) override;
+
+        void doOptions() override;
 
     private:
         void cleanup();
@@ -62,6 +66,7 @@ namespace af3d { namespace editor
         virtual void gizmoRelease(bool canceled) = 0;
         virtual void gizmoMove(const Frustum& frustum, const Ray& ray) = 0;
 
+        TransformOrientation orientation_ = TransformOrientation::Local;
         AObjectPtr target_;
         Ray capturedRay_ = Ray_empty;
         Vector2f capturedMousePos_;
