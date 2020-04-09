@@ -99,6 +99,7 @@ set(SOURCES
     editor/EditModeObjectImpl.cpp
     editor/EditModeVisualImpl.cpp
     editor/EditModeLightImpl.cpp
+    editor/EditModeSceneImpl.cpp
     editor/PropertyEditor.cpp
     editor/JsonSerializer.cpp
     editor/Toolbox.cpp

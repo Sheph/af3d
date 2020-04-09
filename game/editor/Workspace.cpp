@@ -62,6 +62,7 @@ namespace editor {
       emObject_(new EditModeObjectImpl(this)),
       emVisual_(new EditModeVisualImpl(this)),
       emLight_(new EditModeLightImpl(this)),
+      emScene_(new EditModeSceneImpl(this)),
       toolSelect_(new ToolSelect(this)),
       toolMove_(new ToolMove(this)),
       toolRotate_(new ToolRotate(this)),
@@ -72,6 +73,7 @@ namespace editor {
         ems_.push_back(emObject_.get());
         ems_.push_back(emVisual_.get());
         ems_.push_back(emLight_.get());
+        ems_.push_back(emScene_.get());
         em_ = emObject_.get();
 
         tools_.push_back(toolSelect_.get());
@@ -233,6 +235,7 @@ namespace editor {
         grid_->addComponent(std::make_shared<RenderGridComponent>());
         scene()->addObject(grid_);
 
+        emScene_->setSelected(EditMode::AWeakList{AWeakObject(scene()->sharedThis())});
         em_->enter();
         currentTool_->activate(true);
 
@@ -249,6 +252,7 @@ namespace editor {
         emObject_.reset();
         emVisual_.reset();
         emLight_.reset();
+        emScene_.reset();
         em_ = nullptr;
         ems_.clear();
 
@@ -290,10 +294,11 @@ namespace editor {
             cmdHistory_.resetDirty();
         }, assetManager.getImage("common1/scene_save.png"));
 
-        actionModeScene_ = Action("Edit scene settings", []() {
-            return Action::State(false);
-        }, []() {
-        }, assetManager.getImage("common1/mode_scene.png"));
+        actionModeScene_ = Action("Edit scene settings", [this]() {
+            return Action::State(true, emScene_->active());
+        }, [this]() {
+            emScene_->activate();
+        }, assetManager.getImage("common1/mode_scene.png"), KI_U);
 
         actionModeObject_ = Action("Edit objects", [this]() {
             return Action::State(true, emObject_->active());
