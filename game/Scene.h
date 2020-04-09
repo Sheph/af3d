@@ -112,6 +112,12 @@ namespace af3d
 
         inline float realDt() const { return realDt_; }
 
+        APropertyValue propertyClearColorGet(const std::string&) const;
+        void propertyClearColorSet(const std::string&, const APropertyValue& value);
+
+        APropertyValue propertyAmbientColorGet(const std::string&) const;
+        void propertyAmbientColorSet(const std::string&, const APropertyValue& value);
+
     private:
         void freezeThawObjects(const AABB& aabb);
 

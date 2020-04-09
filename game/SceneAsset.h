@@ -32,6 +32,8 @@
 
 namespace af3d
 {
+    class Scene;
+
     class SceneAsset : public std::enable_shared_from_this<SceneAsset>,
         public AObject
     {
@@ -45,7 +47,7 @@ namespace af3d
 
         AObjectPtr sharedThis() override { return shared_from_this(); }
 
-        inline const std::vector<SceneObjectPtr> objects() const { return objects_; }
+        void apply(Scene* scene);
 
         APropertyValue propertyChildrenGet(const std::string&) const
         {
@@ -71,13 +73,25 @@ namespace af3d
             }
         }
 
+        APropertyValue propertyClearColorGet(const std::string&) const { return clearColor_; }
+        void propertyClearColorSet(const std::string&, const APropertyValue& value) { clearColor_ = value.toColor(); }
+
+        APropertyValue propertyAmbientColorGet(const std::string&) const { return ambientColor_; }
+        void propertyAmbientColorSet(const std::string&, const APropertyValue& value) { ambientColor_ = value.toColor(); }
+
     private:
         std::vector<SceneObjectPtr> objects_;
+        Color clearColor_ = Color_zero;
+        Color ambientColor_ = Color_zero;
     };
 
     using SceneAssetPtr = std::shared_ptr<SceneAsset>;
 
     ACLASS_DECLARE(SceneAsset)
+
+    #define SCENE_PROPS(Class) \
+        ACLASS_PROPERTY(Class, ClearColor, "clear color", "Clear Color", ColorRGB, Color(0.23f, 0.23f, 0.23f, 1.0f), General, APropertyEditable) \
+        ACLASS_PROPERTY(Class, AmbientColor, "ambient color", "Ambient Color", ColorRGB, Color(0.2f, 0.2f, 0.2f, 1.0f), General, APropertyEditable)
 }
 
 #endif

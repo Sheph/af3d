@@ -25,6 +25,7 @@
 
 #include "Scene.h"
 #include "Settings.h"
+#include "SceneAsset.h"
 #include "SceneObject.h"
 #include "SceneObjectFactory.h"
 #include "Logger.h"
@@ -50,6 +51,7 @@
 namespace af3d
 {
     ACLASS_DEFINE_BEGIN(Scene, SceneObjectManager)
+    SCENE_PROPS(Scene)
     ACLASS_DEFINE_END(Scene)
 
     using TimerMap = std::map<std::int32_t, Scene::TimerFn>;
@@ -405,6 +407,26 @@ namespace af3d
         }
 
         inputMode_ = newInputMode;
+    }
+
+    APropertyValue Scene::propertyClearColorGet(const std::string&) const
+    {
+        return camera_->findComponent<CameraComponent>()->renderSettings().clearColor();
+    }
+
+    void Scene::propertyClearColorSet(const std::string&, const APropertyValue& value)
+    {
+        camera_->findComponent<CameraComponent>()->renderSettings().setClearColor(value.toColor());
+    }
+
+    APropertyValue Scene::propertyAmbientColorGet(const std::string&) const
+    {
+        return camera_->findComponent<CameraComponent>()->renderSettings().ambientColor();
+    }
+
+    void Scene::propertyAmbientColorSet(const std::string&, const APropertyValue& value)
+    {
+        camera_->findComponent<CameraComponent>()->renderSettings().setAmbientColor(value.toColor());
     }
 
     void Scene::freezeThawObjects(const AABB& aabb)

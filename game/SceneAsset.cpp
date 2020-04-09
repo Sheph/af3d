@@ -24,11 +24,13 @@
  */
 
 #include "SceneAsset.h"
+#include "Scene.h"
 
 namespace af3d
 {
     ACLASS_DEFINE_BEGIN(SceneAsset, AObject)
     ACLASS_PROPERTY(SceneAsset, Children, AProperty_Children, "Children", ArrayAObject, std::vector<APropertyValue>{}, Hierarchy, 0)
+    SCENE_PROPS(SceneAsset)
     ACLASS_DEFINE_END(SceneAsset)
 
     SceneAsset::SceneAsset()
@@ -46,5 +48,14 @@ namespace af3d
         auto obj = std::make_shared<SceneAsset>();
         obj->propertiesSet(propVals);
         return obj;
+    }
+
+    void SceneAsset::apply(Scene* scene)
+    {
+        scene->camera()->findComponent<CameraComponent>()->renderSettings().setClearColor(clearColor_);
+        scene->camera()->findComponent<CameraComponent>()->renderSettings().setAmbientColor(ambientColor_);
+        for (const auto& obj : objects_) {
+            scene->addObject(obj);
+        }
     }
 }

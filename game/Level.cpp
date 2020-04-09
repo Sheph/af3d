@@ -48,9 +48,7 @@ namespace af3d
         SceneAssetPtr asset = assetManager.getSceneAsset(scene_->assetPath(), !!scene_->workspace());
 
         if (asset) {
-            for (const auto& obj : asset->objects()) {
-                scene_->addObject(obj);
-            }
+            asset->apply(scene_.get());
         } else if (!settings.editor.enabled) {
             return false;
         }
