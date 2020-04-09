@@ -55,6 +55,19 @@ namespace af3d { namespace editor
 
     void ToolGizmo::doUpdate(float dt)
     {
+        if (inputManager.keyboard().triggered(KI_X)) {
+            switch (orientation_) {
+            case TransformOrientation::Local:
+                orientation_ = TransformOrientation::Global;
+                break;
+            default:
+                btAssert(false);
+            case TransformOrientation::Global:
+                orientation_ = TransformOrientation::Local;
+                break;
+            };
+        }
+
         const auto& sel = workspace().em()->selected();
         if (sel.empty()) {
             cleanup();
@@ -116,6 +129,11 @@ namespace af3d { namespace editor
         ImGui::SetNextItemWidth(80);
         if (ImGui::Combo("Orientation", &cur, "Local\0Global\0")) {
             orientation_ = static_cast<TransformOrientation>(cur);
+        }
+        if (ImGui::IsItemHovered()) {
+            ImGui::BeginTooltip();
+            ImGui::Text("Transform orientation (X)");
+            ImGui::EndTooltip();
         }
     }
 
