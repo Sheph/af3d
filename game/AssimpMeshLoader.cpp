@@ -72,6 +72,9 @@ namespace af3d
                     float val2;
                     mx = 1;
                     if (aiGetMaterialFloatArray(matData, AI_MATKEY_SHININESS_STRENGTH, &val2, &mx) == aiReturn_SUCCESS) {
+                        if (val * val2 <= SIMD_EPSILON) {
+                            LOG4CPLUS_WARN(logger(), "Shininess near 0! Check your model, probably it wasn't saved correctly");
+                        }
                         mat->params().setUniform(UniformName::Shininess, val * val2);
                     }
                 }
