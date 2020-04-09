@@ -96,18 +96,22 @@ namespace editor {
         }
 
         markerRc_->setVisible(showMarker);
+        axesRc_->setVisible(false);
 
         if (showMarker) {
             if (emObject->active()) {
                 if (emObject->isSelected(parent()->shared_from_this())) {
                     markerRc_->setColor(settings.editor.objMarkerColorSelected);
+                    axesRc_->setVisible(true);
                 } else if (emObject->isHovered(parent()->shared_from_this())) {
                     markerRc_->setColor(settings.editor.objMarkerColorHovered);
+                    axesRc_->setVisible(true);
                 } else {
                     markerRc_->setColor(settings.editor.objMarkerColorInactive);
                 }
             } else {
                 markerRc_->setColor(settings.editor.objMarkerColorInactive);
+                axesRc_->setVisible(true);
             }
         }
     }
@@ -123,10 +127,17 @@ namespace editor {
         markerRc_->aflagsSet(AObjectMarkerObject);
         markerRc_->setVisible(false);
         parent()->addComponent(markerRc_);
+
+        axesRc_ = std::make_shared<RenderAxesComponent>();
+        axesRc_->setVisible(false);
+        parent()->addComponent(axesRc_);
     }
 
     void ObjectComponent::onUnregister()
     {
         markerRc_->removeFromParent();
+        markerRc_.reset();
+        axesRc_->removeFromParent();
+        axesRc_.reset();
     }
 } }

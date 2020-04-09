@@ -57,8 +57,13 @@ namespace af3d
         if (markerRc_) {
             auto cc = scene()->camera()->findComponent<CameraComponent>();
             auto viewExt = cc->getFrustum().getExtents((parent()->transform() * xf_).getOrigin());
-            markerRc_->setScale(btVector3_one * viewExt.y() *
-                (static_cast<float>(settings.editor.lightMarkerSizePixels) / settings.viewHeight) / markerRc_->mesh()->aabb().getLargestSize());
+            float markerSz = markerRc_->mesh()->aabb().getLargestSize();
+            if ((markerSz * settings.viewHeight / viewExt.y()) > settings.editor.lightMarkerSizePixels) {
+                markerRc_->setScale(btVector3_one * viewExt.y() *
+                    (static_cast<float>(settings.editor.lightMarkerSizePixels) / settings.viewHeight) / markerSz);
+            } else {
+                markerRc_->setScale(btVector3_one);
+            }
             if (!usesDirection_) {
                 markerRc_->setTransform(
                     btTransform(parent()->basis().inverse() * scene()->camera()->basis(),
@@ -67,7 +72,6 @@ namespace af3d
 
             auto w = scene()->workspace();
             auto em = w->emLight();
-            markerRc_->setVisible(em->active());
             if (em->active()) {
                 if (em->isSelected(sharedThis())) {
                     setMarkerParams(settings.editor.lightMarkerAlphaSelected, false);
@@ -154,7 +158,8 @@ namespace af3d
         cookie_ = manager()->addAABB(this, prevAABB_, nullptr);
 
         if (((aflags() & AObjectEditable) != 0) && scene()->workspace()) {
-            auto mesh = meshManager.loadConvertedMesh("light_marker.fbx", MaterialTypeUnlit)->clone();
+            origMarkerMesh_ = meshManager.loadConvertedMesh("light_marker.fbx", MaterialTypeUnlit);
+            auto mesh = origMarkerMesh_->clone();
             for (const auto& sm : mesh->subMeshes()) {
                 sm->material()->setBlendingParams(BlendingParams(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
             }
@@ -181,12 +186,13 @@ namespace af3d
         if (!markerRc_) {
             return;
         }
-        for (const auto& sm : markerRc_->mesh()->subMeshes()) {
-            sm->material()->setDepthTest(depthTest);
+        for (size_t i = 0; i < origMarkerMesh_->subMeshes().size(); ++i) {
+            markerRc_->mesh()->subMeshes()[i]->material()->setDepthTest(depthTest);
             Color c;
-            if (sm->material()->params().getUniform(UniformName::MainColor, c, true)) {
+            if (origMarkerMesh_->subMeshes()[i]->material()->params().getUniform(UniformName::MainColor, c, true)) {
+                c *= color_;
                 c.setW(alpha);
-                sm->material()->params().setUniform(UniformName::MainColor, c);
+                markerRc_->mesh()->subMeshes()[i]->material()->params().setUniform(UniformName::MainColor, c);
             }
         }
     }

@@ -23,21 +23,19 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _EDITOR_OBJECTCOMPONENT_H_
-#define _EDITOR_OBJECTCOMPONENT_H_
+#ifndef _RENDERAXESCOMPONENT_H_
+#define _RENDERAXESCOMPONENT_H_
 
-#include "PhasedComponent.h"
-#include "RenderQuadComponent.h"
-#include "RenderAxesComponent.h"
+#include "RenderComponent.h"
 
-namespace af3d { namespace editor
+namespace af3d
 {
-    class ObjectComponent : public std::enable_shared_from_this<ObjectComponent>,
-        public PhasedComponent
+    class RenderAxesComponent : public std::enable_shared_from_this<RenderAxesComponent>,
+        public RenderComponent
     {
     public:
-        explicit ObjectComponent();
-        ~ObjectComponent() = default;
+        RenderAxesComponent();
+        ~RenderAxesComponent() = default;
 
         static const AClass& staticKlass();
 
@@ -45,20 +43,40 @@ namespace af3d { namespace editor
 
         AObjectPtr sharedThis() override { return shared_from_this(); }
 
-        void preRender(float dt) override;
+        void update(float dt) override;
+
+        void render(RenderList& rl, void* const* parts, size_t numParts) override;
+
+        std::pair<AObjectPtr, float> testRay(const Frustum& frustum, const Ray& ray, void* part) override;
+
+        void debugDraw() override;
+
+        inline const btTransform& transform() const { return xf_; }
+        void setTransform(const btTransform& value);
 
     private:
         void onRegister() override;
 
         void onUnregister() override;
 
-        RenderQuadComponentPtr markerRc_;
-        RenderAxesComponentPtr axesRc_;
+        AABB calcAABB() const;
+
+        MaterialPtr material_;
+
+        btTransform xf_ = btTransform::getIdentity();
+        bool dirty_ = false;
+        float radius_ = 5.0f;
+        float viewportLength_ = 0.03f;
+        float viewportRadius_ = 0.002f;
+
+        btTransform prevParentXf_ = btTransform::getIdentity();
+        AABB prevAABB_;
+        RenderCookie* cookie_ = nullptr;
     };
 
-    using ObjectComponentPtr = std::shared_ptr<ObjectComponent>;
-}
-    ACLASS_NS_DECLARE(editor, ObjectComponent)
+    using RenderAxesComponentPtr = std::shared_ptr<RenderAxesComponent>;
+
+    ACLASS_DECLARE(RenderAxesComponent)
 }
 
 #endif

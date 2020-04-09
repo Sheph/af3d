@@ -80,6 +80,7 @@ set(SOURCES
     RenderGizmoAxesComponent.cpp
     RenderGizmoRotateComponent.cpp
     RenderGridComponent.cpp
+    RenderAxesComponent.cpp
     AJsonReader.cpp
     AJsonWriter.cpp
     SceneAsset.cpp

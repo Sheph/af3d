@@ -111,6 +111,7 @@ namespace af3d
         RenderCookie* cookie_ = nullptr;
 
         RenderMeshComponentPtr markerRc_;
+        MeshPtr origMarkerMesh_;
     };
 
     ACLASS_DECLARE(Light)
