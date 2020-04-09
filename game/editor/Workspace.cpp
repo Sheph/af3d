@@ -358,8 +358,7 @@ namespace editor {
             return Action::State(!emObject_->selected().empty());
         }, [this]() {
             APropertyValueMap initVals;
-            initVals.set("mesh", APropertyValue(meshManager.loadMesh("muro.fbx")));
-            initVals.set(AProperty_Scale, btVector3(0.01f, 0.01f, 0.01f));
+            initVals.set("mesh", APropertyValue(meshManager.loadMesh("cube.fbx")));
 
             cmdHistory_.add(
                 std::make_shared<CommandAddComponent>(scene(),
