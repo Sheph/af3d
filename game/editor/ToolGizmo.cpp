@@ -138,8 +138,11 @@ namespace af3d { namespace editor
         }
         if (ImGui::IsItemHovered()) {
             ImGui::BeginTooltip();
-            ImGui::Text("Transform orientation (0)");
+            ImGui::Text("Transform orientation (%s)", InputKeyboard::kiToStr(KI_0));
             ImGui::EndTooltip();
+        }
+        if (captured()) {
+            ImGui::Text("%s - Cancel", InputKeyboard::kiToStr(KI_ESCAPE));
         }
     }
 

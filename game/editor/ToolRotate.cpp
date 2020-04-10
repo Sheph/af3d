@@ -57,6 +57,14 @@ namespace af3d { namespace editor
         selTool_.update(dt);
     }
 
+    void ToolRotate::doOptions()
+    {
+        ToolGizmo::doOptions();
+        if (captured()) {
+            ImGui::Text("%s,%s,%s - Restrict plane", InputKeyboard::kiToStr(KI_X), InputKeyboard::kiToStr(KI_Y), InputKeyboard::kiToStr(KI_Z));
+        }
+    }
+
     bool ToolRotate::gizmoCreate(const AObjectPtr& obj)
     {
         if (!obj->propertyCanGet(AProperty_WorldTransform)) {

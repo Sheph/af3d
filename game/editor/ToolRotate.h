@@ -45,6 +45,8 @@ namespace af3d { namespace editor
 
         void doUpdate(float dt) override;
 
+        void doOptions() override;
+
         bool gizmoCreate(const AObjectPtr& obj) override;
         void gizmoDestroy() override;
 

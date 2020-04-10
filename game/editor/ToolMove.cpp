@@ -55,6 +55,15 @@ namespace af3d { namespace editor
         selTool_.update(dt);
     }
 
+    void ToolMove::doOptions()
+    {
+        ToolGizmo::doOptions();
+        if (captured()) {
+            ImGui::Text("%s,%s,%s - Restrict axis", InputKeyboard::kiToStr(KI_X), InputKeyboard::kiToStr(KI_Y), InputKeyboard::kiToStr(KI_Z));
+            ImGui::Text("%s,%s,%s again - Restrict plane", InputKeyboard::kiToStr(KI_X), InputKeyboard::kiToStr(KI_Y), InputKeyboard::kiToStr(KI_Z));
+        }
+    }
+
     bool ToolMove::gizmoCreate(const AObjectPtr& obj)
     {
         if (!obj->propertyCanGet(AProperty_WorldTransform)) {
