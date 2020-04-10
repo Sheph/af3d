@@ -33,9 +33,11 @@
 #include "GameShell.h"
 #include "Renderer.h"
 #include "PhasedComponentManager.h"
+#include "PhysicsComponentManager.h"
 #include "RenderComponentManager.h"
 #include "UIComponentManager.h"
 #include "PhasedComponent.h"
+#include "PhysicsComponent.h"
 #include "RenderComponent.h"
 #include "CameraComponent.h"
 #include "UIComponent.h"
@@ -62,6 +64,7 @@ namespace af3d
         explicit Impl(Scene* scene)
         {
             phasedComponentManager_.reset(new PhasedComponentManager());
+            physicsComponentManager_.reset(new PhysicsComponentManager());
             renderComponentManager_.reset(new RenderComponentManager());
             uiComponentManager_.reset(new UIComponentManager());
 
@@ -74,6 +77,7 @@ namespace af3d
 
         VertexArrayWriter defaultVa_;
         std::unique_ptr<PhasedComponentManager> phasedComponentManager_;
+        std::unique_ptr<PhysicsComponentManager> physicsComponentManager_;
         std::unique_ptr<RenderComponentManager> renderComponentManager_;
         std::unique_ptr<UIComponentManager> uiComponentManager_;
         TimerMap timers_;
@@ -102,6 +106,7 @@ namespace af3d
         setScene(this);
 
         impl_->phasedComponentManager_->setScene(this);
+        impl_->physicsComponentManager_->setScene(this);
         impl_->renderComponentManager_->setScene(this);
         impl_->uiComponentManager_->setScene(this);
 
@@ -169,6 +174,7 @@ namespace af3d
         impl_->timers_.clear();
 
         impl_->phasedComponentManager_->cleanup();
+        impl_->physicsComponentManager_->cleanup();
         impl_->renderComponentManager_->cleanup();
         impl_->uiComponentManager_->cleanup();
     }
@@ -181,6 +187,8 @@ namespace af3d
             impl_->renderComponentManager_->addComponent(component);
         } else if (aobjectCast<UIComponent>(component)) {
             impl_->uiComponentManager_->addComponent(component);
+        } else if (aobjectCast<PhysicsComponent>(component)) {
+            impl_->physicsComponentManager_->addComponent(component);
         } else {
             runtime_assert(false);
         }

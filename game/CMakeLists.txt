@@ -84,6 +84,9 @@ set(SOURCES
     AJsonReader.cpp
     AJsonWriter.cpp
     SceneAsset.cpp
+    PhysicsComponentManager.cpp
+    PhysicsComponent.cpp
+    PhysicsBodyComponent.cpp
     editor/Action.cpp
     editor/Workspace.cpp
     editor/MainPopup.cpp
