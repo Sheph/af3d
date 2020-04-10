@@ -32,6 +32,7 @@
 #include "editor/CommandAddComponent.h"
 #include "editor/CommandSetProperty.h"
 #include "editor/CommandDelete.h"
+#include "editor/CommandDup.h"
 #include "Const.h"
 #include "InputManager.h"
 #include "AClassRegistry.h"
@@ -154,14 +155,7 @@ namespace editor {
                         break;
                     }
                 }
-                if (triggered) {
-                    // Pass.
-                } else if (inputManager.keyboard().triggered(KeySequence(KI_DELETE))) {
-                    auto sel = em_->selected();
-                    for (const auto& wobj : sel) {
-                        deleteObject(wobj.lock());
-                    }
-                } else {
+                if (!triggered) {
                     for (size_t i = 0; i < tools().size(); ++i) {
                         if (!tools()[i]->shortcut().empty() &&
                             (tools()[i] != currentTool()) &&
@@ -226,6 +220,12 @@ namespace editor {
     {
         cmdHistory_.add(
             std::make_shared<CommandDelete>(scene(), obj));
+    }
+
+    void Workspace::duplicateObject(const AObjectPtr& obj)
+    {
+        cmdHistory_.add(
+            std::make_shared<CommandDup>(scene(), obj));
     }
 
     void Workspace::onRegister()
@@ -330,6 +330,24 @@ namespace editor {
             cmdHistory_.redo(1);
         }, assetManager.getImage("common1/redo.png"), KeySequence(KM_CTRL, KI_Y));
 
+        actionDelete_ = Action("Delete", [this]() {
+            return Action::State(!em_->selected().empty());
+        }, [this]() {
+            auto sel = em_->selected();
+            for (const auto& wobj : sel) {
+                deleteObject(wobj.lock());
+            }
+        }, assetManager.getImage("common1/action_delete.png"), KeySequence(KI_DELETE));
+
+        actionDup_ = Action("Duplicate", [this]() {
+            return Action::State(!em_->selected().empty());
+        }, [this]() {
+            auto sel = em_->selected();
+            for (const auto& wobj : sel) {
+                duplicateObject(wobj.lock());
+            }
+        }, assetManager.getImage("common1/action_dup.png"), KeySequence(KM_CTRL, KI_D));
+
         actionOpMenu_ = Action("", []() {
             return Action::State(true);
         }, [this]() {
@@ -430,6 +448,8 @@ namespace editor {
         actions_.push_back(&actionModeLight_);
         actions_.push_back(&actionUndo_);
         actions_.push_back(&actionRedo_);
+        actions_.push_back(&actionDelete_);
+        actions_.push_back(&actionDup_);
         actions_.push_back(&actionOpMenu_);
         actions_.push_back(&actionOpMenuAdd_);
         actions_.push_back(&actionOpMenuAddObject_);
@@ -495,6 +515,9 @@ namespace editor {
             actionUndo().doMenuItem();
             actionRedo().doMenuItem();
             ImGui::Separator();
+            actionDelete().doMenuItem();
+            actionDup().doMenuItem();
+            ImGui::Separator();
             actionOpMenu_.trigger();
             ImGui::EndMenu();
         }
@@ -552,6 +575,11 @@ namespace editor {
 
         toolbarButton(actionUndo());
         toolbarButton(actionRedo());
+
+        toolbarSep();
+
+        toolbarButton(actionDelete());
+        toolbarButton(actionDup());
     }
 
     void Workspace::toolbarButton(Action& action)

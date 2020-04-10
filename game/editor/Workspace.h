@@ -98,11 +98,16 @@ namespace af3d { namespace editor
         inline Action& actionModeLight() { return actionModeLight_; }
         inline Action& actionUndo() { return actionUndo_; }
         inline Action& actionRedo() { return actionRedo_; }
+        inline Action& actionDelete() { return actionDelete_; }
+        inline Action& actionDup() { return actionDup_; }
 
         inline Action& actionOpMenu() { return actionOpMenu_; }
         inline Action& actionOpMenuAdd() { return actionOpMenuAdd_; }
         inline Action& actionOpMenuAddObject() { return actionOpMenuAddObject_; }
         inline Action& actionOpMenuAddMesh() { return actionOpMenuAddMesh_; }
+        inline Action& actionOpMenuAddLight() { return actionOpMenuAddLight_; }
+        inline Action& actionOpMenuAddLightDirectional() { return actionOpMenuAddLightDirectional_; }
+        inline Action& actionOpMenuAddLightPoint() { return actionOpMenuAddLightPoint_; }
 
         inline Action& actionMainPopup() { return actionMainPopup_; }
         inline Action& actionCommandHistory() { return actionCommandHistory_; }
@@ -122,6 +127,8 @@ namespace af3d { namespace editor
         void setEditMode(EditModeImpl* value);
 
         void deleteObject(const AObjectPtr& obj);
+
+        void duplicateObject(const AObjectPtr& obj);
 
     private:
         void onRegister() override;
@@ -164,6 +171,8 @@ namespace af3d { namespace editor
         Action actionModeLight_;
         Action actionUndo_;
         Action actionRedo_;
+        Action actionDelete_;
+        Action actionDup_;
 
         Action actionOpMenu_;
         Action actionOpMenuAdd_;

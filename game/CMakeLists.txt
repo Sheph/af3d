@@ -94,6 +94,7 @@ set(SOURCES
     editor/CommandHistoryWindow.cpp
     editor/CommandSetProperty.cpp
     editor/CommandDelete.cpp
+    editor/CommandDup.cpp
     editor/ObjectComponent.cpp
     editor/EditModeImpl.cpp
     editor/EditModeObjectImpl.cpp

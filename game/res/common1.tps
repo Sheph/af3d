@@ -193,6 +193,8 @@
             <filename>common1/tool_select.png</filename>
             <filename>common1/tool_rotate.png</filename>
             <filename>common1/tool_scale.png</filename>
+            <filename>common1/action_delete.png</filename>
+            <filename>common1/action_dup.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>

@@ -66,6 +66,9 @@ namespace af3d { namespace editor
             preDelete(obj);
             parentWobj_ = AWeakObject(c->parent()->sharedThis());
             c->removeFromParent();
+        } else {
+            LOG4CPLUS_ERROR(logger(), "redo: Bad object type: " << description());
+            return false;
         }
 
         redoNested();
