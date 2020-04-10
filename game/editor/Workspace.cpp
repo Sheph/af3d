@@ -322,13 +322,13 @@ namespace editor {
             return Action::State(cmdHistory_.pos() > 0);
         }, [this]() {
             cmdHistory_.undo(1);
-        }, assetManager.getImage("common1/undo.png"));
+        }, assetManager.getImage("common1/undo.png"), KeySequence(KM_CTRL, KI_Z));
 
         actionRedo_ = Action("Redo", [this]() {
             return Action::State(cmdHistory_.pos() < static_cast<int>(cmdHistory_.list().size()));
         }, [this]() {
             cmdHistory_.redo(1);
-        }, assetManager.getImage("common1/redo.png"));
+        }, assetManager.getImage("common1/redo.png"), KeySequence(KM_CTRL, KI_Y));
 
         actionOpMenu_ = Action("", []() {
             return Action::State(true);

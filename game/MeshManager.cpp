@@ -93,7 +93,7 @@ namespace af3d
         if (pos != std::string::npos) {
             actualPath = path.substr(0, pos);
             int matTypeNameInt = std::atoi(path.substr(pos + 1).c_str());
-            if ((matTypeNameInt < MaterialTypeFirst) || (matTypeNameInt >= MaterialTypeMax)) {
+            if ((matTypeNameInt < MaterialTypeFirst) || (matTypeNameInt > MaterialTypeMax)) {
                 LOG4CPLUS_ERROR(logger(), "meshManager: bad material type int");
                 return MeshPtr();
             }
