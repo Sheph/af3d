@@ -70,6 +70,7 @@ namespace af3d
 
         static const char* getClipboardText(void* userData);
         static void setClipboardText(void* userData, const char* text);
+        static int kiToChar(KeyIdentifier ki);
 
         TexturePtr fontsTex_;
         TextureCache textureCache_;

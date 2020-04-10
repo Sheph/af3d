@@ -62,8 +62,6 @@ namespace af3d
         InputKeyboard() = default;
         ~InputKeyboard() = default;
 
-        static int kiToChar(KeyIdentifier ki);
-
         static const char* kiToStr(KeyIdentifier ki);
 
         static const char* kmsToStr(std::uint32_t keyModifiers);

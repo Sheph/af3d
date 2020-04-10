@@ -82,7 +82,7 @@ namespace af3d
         io.KeyMap[ImGuiKey_Z] = KI_Z;
 
         for (int i = 0; i < ImGuiKey_COUNT; ++i) {
-            io.KeyMap[i] = InputKeyboard::kiToChar(static_cast<KeyIdentifier>(io.KeyMap[i]));
+            io.KeyMap[i] = kiToChar(static_cast<KeyIdentifier>(io.KeyMap[i]));
         }
 
         //io.SetClipboardTextFn = &ImGuiManager::setClipboardText;
@@ -164,7 +164,7 @@ namespace af3d
     void ImGuiManager::keyPress(KeyIdentifier ki, std::uint32_t keyModifiers)
     {
         ImGuiIO& io = ImGui::GetIO();
-        io.KeysDown[InputKeyboard::kiToChar(ki)] = true;
+        io.KeysDown[kiToChar(ki)] = true;
         io.KeyCtrl = (keyModifiers & KM_CTRL) != 0;
         io.KeyShift = (keyModifiers & KM_SHIFT) != 0;
         io.KeyAlt = (keyModifiers & KM_ALT) != 0;
@@ -174,7 +174,7 @@ namespace af3d
     void ImGuiManager::keyRelease(KeyIdentifier ki, std::uint32_t keyModifiers)
     {
         ImGuiIO& io = ImGui::GetIO();
-        io.KeysDown[InputKeyboard::kiToChar(ki)] = false;
+        io.KeysDown[kiToChar(ki)] = false;
         io.KeyCtrl = (keyModifiers & KM_CTRL) != 0;
         io.KeyShift = (keyModifiers & KM_SHIFT) != 0;
         io.KeyAlt = (keyModifiers & KM_ALT) != 0;
@@ -221,5 +221,42 @@ namespace af3d
     void ImGuiManager::setClipboardText(void* userData, const char* text)
     {
         //TODO: integrate with OS
+    }
+
+    int ImGuiManager::kiToChar(KeyIdentifier ki)
+    {
+        if (ki >= KI_0 && ki <= KI_9) {
+            return (ki - KI_0) + '0';
+        } else if (ki >= KI_A && ki <= KI_Z) {
+            return (ki - KI_A) + 'a';
+        } else if (ki == KI_OEM_1) {
+            return ';';
+        } else if (ki == KI_OEM_PLUS) {
+            return '=';
+        } else if (ki == KI_OEM_COMMA) {
+            return ',';
+        } else if (ki == KI_OEM_MINUS) {
+            return '-';
+        } else if (ki == KI_OEM_PERIOD) {
+            return '.';
+        } else if (ki == KI_OEM_2) {
+            return '/';
+        } else if (ki == KI_OEM_3) {
+            return '`';
+        } else if (ki == KI_OEM_4) {
+            return '[';
+        } else if (ki == KI_OEM_5) {
+            return '\\';
+        } else if (ki == KI_OEM_6) {
+            return ']';
+        } else if (ki == KI_OEM_7) {
+            return '\'';
+        } else if (ki == KI_SPACE) {
+            return ' ';
+        } else {
+            ImGuiIO& io = ImGui::GetIO();
+            runtime_assert(ki + 0xFF < static_cast<int>(sizeof(io.KeysDown) / sizeof(io.KeysDown[0])));
+            return ki + 0xFF;
+        }
     }
 }

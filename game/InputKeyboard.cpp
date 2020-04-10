@@ -182,41 +182,6 @@ namespace af3d
         return it->second;
     }
 
-    int InputKeyboard::kiToChar(KeyIdentifier ki)
-    {
-        if (ki >= KI_0 && ki <= KI_9) {
-            return (ki - KI_0) + '0';
-        } else if (ki >= KI_A && ki <= KI_Z) {
-            return (ki - KI_A) + 'a';
-        } else if (ki == KI_OEM_1) {
-            return ';';
-        } else if (ki == KI_OEM_PLUS) {
-            return '=';
-        } else if (ki == KI_OEM_COMMA) {
-            return ',';
-        } else if (ki == KI_OEM_MINUS) {
-            return '-';
-        } else if (ki == KI_OEM_PERIOD) {
-            return '.';
-        } else if (ki == KI_OEM_2) {
-            return '/';
-        } else if (ki == KI_OEM_3) {
-            return '`';
-        } else if (ki == KI_OEM_4) {
-            return '[';
-        } else if (ki == KI_OEM_5) {
-            return '\\';
-        } else if (ki == KI_OEM_6) {
-            return ']';
-        } else if (ki == KI_OEM_7) {
-            return '\'';
-        } else if (ki == KI_SPACE) {
-            return ' ';
-        } else {
-            return ki;
-        }
-    }
-
     const char* InputKeyboard::kiToStr(KeyIdentifier ki)
     {
         return ki2str[ki].c_str();
