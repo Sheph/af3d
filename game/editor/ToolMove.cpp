@@ -32,7 +32,7 @@
 namespace af3d { namespace editor
 {
     ToolMove::ToolMove(Workspace* workspace)
-    : ToolGizmo(workspace, "Move", assetManager.getImage("common1/tool_move.png"), KI_T),
+    : ToolGizmo(workspace, "Move", assetManager.getImage("common1/tool_move.png"), KeySequence(KI_T)),
       selTool_(workspace)
     {
     }
@@ -116,11 +116,11 @@ namespace af3d { namespace editor
 
         ImGuiIO& io = ImGui::GetIO();
         if (!io.WantCaptureMouse && !io.WantCaptureKeyboard) {
-            if (inputManager.keyboard().triggered(KI_X)) {
+            if (inputManager.keyboard().triggered(KeySequence(KI_X))) {
                 rc_->setMoveType((rc_->moveType() == MoveType::AxisX) ? MoveType::PlaneX : MoveType::AxisX);
-            } else if (inputManager.keyboard().triggered(KI_Y)) {
+            } else if (inputManager.keyboard().triggered(KeySequence(KI_Y))) {
                 rc_->setMoveType((rc_->moveType() == MoveType::AxisY) ? MoveType::PlaneY : MoveType::AxisY);
-            } else if (inputManager.keyboard().triggered(KI_Z)) {
+            } else if (inputManager.keyboard().triggered(KeySequence(KI_Z))) {
                 rc_->setMoveType((rc_->moveType() == MoveType::AxisZ) ? MoveType::PlaneZ : MoveType::AxisZ);
             }
         }

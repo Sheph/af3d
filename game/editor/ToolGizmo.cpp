@@ -34,7 +34,7 @@
 namespace af3d { namespace editor
 {
     ToolGizmo::ToolGizmo(Workspace* workspace, const std::string& name,
-        const Image& icon, KeyIdentifier shortcut)
+        const Image& icon, const KeySequence& shortcut)
     : Tool(workspace, name, icon, shortcut)
     {
     }
@@ -60,7 +60,7 @@ namespace af3d { namespace editor
         bool uiInput = io.WantCaptureMouse || io.WantCaptureKeyboard;
 
         if (!uiInput) {
-            if (inputManager.keyboard().triggered(KI_0)) {
+            if (inputManager.keyboard().triggered(KeySequence(KI_0))) {
                 switch (orientation_) {
                 case TransformOrientation::Local:
                     orientation_ = TransformOrientation::Global;
@@ -100,7 +100,7 @@ namespace af3d { namespace editor
         }
 
         if (captured()) {
-            bool canceled = inputManager.keyboard().triggered(KI_ESCAPE);
+            bool canceled = inputManager.keyboard().triggered(KeySequence(KI_ESCAPE));
             if (!inputManager.mouse().pressed(true) || canceled) {
                 gizmoRelease(canceled || (capturedMousePos_ == inputManager.mouse().pos()));
                 capturedRay_ = Ray_empty;

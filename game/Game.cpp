@@ -292,13 +292,13 @@ namespace af3d
 
     void Game::keyPress(KeyIdentifier ki, std::uint32_t keyModifiers)
     {
-        inputManager.keyboard().press(ki);
+        inputManager.keyboard().press(ki, keyModifiers);
         imGuiManager.keyPress(ki, keyModifiers);
     }
 
     void Game::keyRelease(KeyIdentifier ki, std::uint32_t keyModifiers)
     {
-        inputManager.keyboard().release(ki);
+        inputManager.keyboard().release(ki, keyModifiers);
         imGuiManager.keyRelease(ki, keyModifiers);
     }
 

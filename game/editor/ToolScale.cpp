@@ -31,7 +31,7 @@
 namespace af3d { namespace editor
 {
     ToolScale::ToolScale(Workspace* workspace)
-    : ToolGizmo(workspace, "Scale", assetManager.getImage("common1/tool_scale.png"), KI_G),
+    : ToolGizmo(workspace, "Scale", assetManager.getImage("common1/tool_scale.png"), KeySequence(KI_G)),
       selTool_(workspace)
     {
     }

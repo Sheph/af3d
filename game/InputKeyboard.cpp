@@ -154,6 +154,34 @@ namespace af3d
 
     static bool ki2strInitialized = ki2strInit();
 
+    const std::string& KeySequence::str() const
+    {
+        static std::mutex mtx;
+        static BHUnorderedMap<std::pair<int, int>, std::string> strCache;
+
+        if (empty()) {
+            return string_empty;
+        }
+
+        ScopedLock lock(mtx);
+
+        auto it = strCache.find(std::make_pair(ki, kms));
+        if (it == strCache.end()) {
+            std::string s;
+            if (kms > 0) {
+                const char* s1 = InputKeyboard::kmsToStr(kms);
+                if (std::strlen(s1) > 0) {
+                    s += s1;
+                    s += "+";
+                }
+            }
+            s += InputKeyboard::kiToStr(ki);
+            it = strCache.emplace(std::make_pair(ki, kms), s).first;
+        }
+
+        return it->second;
+    }
+
     int InputKeyboard::kiToChar(KeyIdentifier ki)
     {
         if (ki >= KI_0 && ki <= KI_9) {
@@ -194,32 +222,64 @@ namespace af3d
         return ki2str[ki].c_str();
     }
 
-    void InputKeyboard::press(KeyIdentifier ki)
+    const char* InputKeyboard::kmsToStr(std::uint32_t keyModifiers)
+    {
+        keyModifiers &= (KM_CTRL | KM_ALT | KM_SHIFT);
+        if (keyModifiers == (KM_CTRL | KM_ALT | KM_SHIFT)) {
+            return "CTRL+ALT+SHIFT";
+        } else if (keyModifiers == (KM_CTRL | KM_ALT)) {
+            return "CTRL+ALT";
+        } else if (keyModifiers == (KM_CTRL | KM_SHIFT)) {
+            return "CTRL+SHIFT";
+        } else if (keyModifiers == (KM_ALT | KM_SHIFT)) {
+            return "ALT+SHIFT";
+        } else if (keyModifiers == KM_CTRL) {
+            return "CTRL";
+        } else if (keyModifiers == KM_ALT) {
+            return "ALT";
+        } else if (keyModifiers == KM_SHIFT) {
+            return "SHIFT";
+        } else {
+            return "";
+        }
+    }
+
+    void InputKeyboard::press(KeyIdentifier ki, std::uint32_t keyModifiers)
     {
         if (!keyMap_[ki].pressed) {
             keyMap_[ki].triggered = true;
         }
         keyMap_[ki].pressed = true;
+        keyModifiers_ = keyModifiers;
 
         inputManager.setUsingGamepad(false);
     }
 
-    void InputKeyboard::release(KeyIdentifier ki)
+    void InputKeyboard::release(KeyIdentifier ki, std::uint32_t keyModifiers)
     {
         keyMap_[ki].pressed = false;
         keyMap_[ki].triggered = false;
+        keyModifiers_ = keyModifiers;
 
         inputManager.setUsingGamepad(false);
     }
 
-    bool InputKeyboard::pressed(KeyIdentifier ki) const
+    bool InputKeyboard::pressed(const KeySequence& ks) const
     {
-        return keyMap_[ki].pressed;
+        if (ks.kms < 0) {
+            return keyMap_[ks.ki].pressed;
+        } else {
+            return (static_cast<std::uint32_t>(ks.kms) == keyModifiers_) && keyMap_[ks.ki].pressed;
+        }
     }
 
-    bool InputKeyboard::triggered(KeyIdentifier ki) const
+    bool InputKeyboard::triggered(const KeySequence& ks) const
     {
-        return keyMap_[ki].triggered;
+        if (ks.kms < 0) {
+            return keyMap_[ks.ki].triggered;
+        } else {
+            return (static_cast<std::uint32_t>(ks.kms) == keyModifiers_) && keyMap_[ks.ki].triggered;
+        }
     }
 
     void InputKeyboard::processed()

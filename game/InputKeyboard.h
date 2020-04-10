@@ -35,6 +35,27 @@ namespace af3d
 {
     using namespace Rocket::Core::Input;
 
+    struct KeySequence
+    {
+        KeySequence() = default;
+        explicit KeySequence(KeyIdentifier ki, bool ignoreModifiers = false)
+        : ki(ki),
+          kms(ignoreModifiers ? -1 : 0) {}
+        KeySequence(KeyModifier km, KeyIdentifier ki)
+        : ki(ki),
+          kms(km) {}
+        KeySequence(KeyModifier km1, KeyModifier km2, KeyIdentifier ki)
+        : ki(ki),
+          kms(km1 | km2) {}
+
+        const std::string& str() const;
+
+        inline bool empty() const { return ki == KI_UNKNOWN; }
+
+        KeyIdentifier ki = KI_UNKNOWN;
+        int kms = -1;
+    };
+
     class InputKeyboard : boost::noncopyable
     {
     public:
@@ -45,13 +66,25 @@ namespace af3d
 
         static const char* kiToStr(KeyIdentifier ki);
 
-        void press(KeyIdentifier ki);
+        static const char* kmsToStr(std::uint32_t keyModifiers);
 
-        void release(KeyIdentifier ki);
+        void press(KeyIdentifier ki, std::uint32_t keyModifiers);
 
-        bool pressed(KeyIdentifier ki) const;
+        void release(KeyIdentifier ki, std::uint32_t keyModifiers);
 
-        bool triggered(KeyIdentifier ki) const;
+        bool pressed(const KeySequence& ks) const;
+
+        bool triggered(const KeySequence& ks) const;
+
+        inline bool pressed(KeyIdentifier ki) const
+        {
+            return pressed(KeySequence(ki, true));
+        }
+
+        inline bool triggered(KeyIdentifier ki) const
+        {
+            return triggered(KeySequence(ki, true));
+        }
 
         void processed();
 
@@ -68,6 +101,7 @@ namespace af3d
         using KeyMap = EnumUnorderedMap<KeyIdentifier, KeyState>;
 
         mutable KeyMap keyMap_;
+        std::uint32_t keyModifiers_ = 0;
     };
 }
 

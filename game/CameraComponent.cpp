@@ -66,22 +66,22 @@ namespace af3d
             moveSpeed *= 3.0f;
         }
 
-        if (inputManager.keyboard().pressed(KI_W)) {
+        if (inputManager.keyboard().pressed(KeySequence(KI_W)) || inputManager.keyboard().pressed(KeySequence(KM_SHIFT, KI_W))) {
             parent()->setPos(parent()->pos() + parent()->getForward() * dt * moveSpeed);
         }
-        if (inputManager.keyboard().pressed(KI_S)) {
+        if (inputManager.keyboard().pressed(KeySequence(KI_S)) || inputManager.keyboard().pressed(KeySequence(KM_SHIFT, KI_S))) {
             parent()->setPos(parent()->pos() - parent()->getForward() * dt * moveSpeed);
         }
-        if (inputManager.keyboard().pressed(KI_A)) {
+        if (inputManager.keyboard().pressed(KeySequence(KI_A)) || inputManager.keyboard().pressed(KeySequence(KM_SHIFT, KI_A))) {
             parent()->setPos(parent()->pos() - parent()->getRight() * dt * moveSpeed);
         }
-        if (inputManager.keyboard().pressed(KI_D)) {
+        if (inputManager.keyboard().pressed(KeySequence(KI_D)) || inputManager.keyboard().pressed(KeySequence(KM_SHIFT, KI_D))) {
             parent()->setPos(parent()->pos() + parent()->getRight() * dt * moveSpeed);
         }
-        if (inputManager.keyboard().pressed(KI_SPACE)) {
+        if (inputManager.keyboard().pressed(KeySequence(KI_SPACE)) || inputManager.keyboard().pressed(KeySequence(KM_SHIFT, KI_SPACE))) {
             parent()->setPos(parent()->pos() + parent()->getUp() * dt * moveSpeed);
         }
-        if (inputManager.keyboard().pressed(KI_C)) {
+        if (inputManager.keyboard().pressed(KeySequence(KI_C)) || inputManager.keyboard().pressed(KeySequence(KM_SHIFT, KI_C))) {
             parent()->setPos(parent()->pos() - parent()->getUp() * dt * moveSpeed);
         }
 

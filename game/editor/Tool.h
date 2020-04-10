@@ -42,7 +42,7 @@ namespace editor
     {
     public:
         explicit Tool(Workspace* workspace, const std::string& name,
-            const Image& icon, KeyIdentifier shortcut = KI_UNKNOWN);
+            const Image& icon, const KeySequence& shortcut = KeySequence());
         virtual ~Tool() = default;
 
         inline const std::string& name() const { return name_; }
@@ -51,7 +51,7 @@ namespace editor
 
         inline const Image& icon() const { return icon_; }
 
-        inline KeyIdentifier shortcut() const { return shortcut_; }
+        inline const KeySequence& shortcut() const { return shortcut_; }
 
         inline bool active() const { return active_; }
 
@@ -82,7 +82,7 @@ namespace editor
         std::string name_;
         std::string tooltip_;
         Image icon_;
-        KeyIdentifier shortcut_;
+        KeySequence shortcut_;
 
         bool active_ = false;
     };

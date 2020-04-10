@@ -36,7 +36,7 @@
 namespace af3d { namespace editor
 {
     ToolSelect::ToolSelect(Workspace* workspace)
-    : Tool(workspace, "Select", assetManager.getImage("common1/tool_select.png"), KI_Q)
+    : Tool(workspace, "Select", assetManager.getImage("common1/tool_select.png"), KeySequence(KI_Q))
     {
     }
 

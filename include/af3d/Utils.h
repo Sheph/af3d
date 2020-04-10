@@ -32,6 +32,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <memory>
+#include <boost/functional/hash.hpp>
 
 namespace af3d
 {
@@ -66,6 +67,12 @@ namespace af3d
 
     template <class KeyT>
     using EnumUnorderedSet = std::unordered_set<KeyT, EnumHash<KeyT>>;
+
+    template <class KeyT, class ValueT>
+    using BHUnorderedMap = std::unordered_map<KeyT, ValueT, boost::hash<KeyT>>;
+
+    template <class KeyT>
+    using BHUnorderedSet = std::unordered_set<KeyT, boost::hash<KeyT>>;
 
     void initTimeUs();
 

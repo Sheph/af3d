@@ -34,7 +34,7 @@
 namespace af3d { namespace editor
 {
     ToolRotate::ToolRotate(Workspace* workspace)
-    : ToolGizmo(workspace, "Rotate", assetManager.getImage("common1/tool_rotate.png"), KI_R),
+    : ToolGizmo(workspace, "Rotate", assetManager.getImage("common1/tool_rotate.png"), KeySequence(KI_R)),
       selTool_(workspace)
     {
     }
@@ -118,11 +118,11 @@ namespace af3d { namespace editor
 
         ImGuiIO& io = ImGui::GetIO();
         if (!io.WantCaptureMouse && !io.WantCaptureKeyboard) {
-            if (inputManager.keyboard().triggered(KI_X)) {
+            if (inputManager.keyboard().triggered(KeySequence(KI_X))) {
                 rc_->setRotateType(RotateType::PlaneX);
-            } else if (inputManager.keyboard().triggered(KI_Y)) {
+            } else if (inputManager.keyboard().triggered(KeySequence(KI_Y))) {
                 rc_->setRotateType(RotateType::PlaneY);
-            } else if (inputManager.keyboard().triggered(KI_Z)) {
+            } else if (inputManager.keyboard().triggered(KeySequence(KI_Z))) {
                 rc_->setRotateType(RotateType::PlaneZ);
             }
         }

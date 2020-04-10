@@ -49,13 +49,13 @@ namespace af3d { namespace editor
         using TriggerFn = std::function<void()>;
 
         Action() = default;
-        Action(const std::string& text, const StateFn& stateFn, const TriggerFn& triggerFn, const Image& icon = Image(), KeyIdentifier shortcut = KI_UNKNOWN);
+        Action(const std::string& text, const StateFn& stateFn, const TriggerFn& triggerFn, const Image& icon = Image(), const KeySequence& shortcut = KeySequence());
         ~Action() = default;
 
         inline const std::string& text() const { return text_; }
         inline const std::string& tooltip() const { return tooltip_; }
         inline const Image& icon() const { return icon_; }
-        inline KeyIdentifier shortcut() const { return shortcut_; }
+        inline const KeySequence& shortcut() const { return shortcut_; }
         inline State state() const { return stateFn_(); }
 
         void trigger();
@@ -70,7 +70,7 @@ namespace af3d { namespace editor
         std::string text_;
         std::string tooltip_;
         Image icon_;
-        KeyIdentifier shortcut_;
+        KeySequence shortcut_;
 
         StateFn stateFn_;
         TriggerFn triggerFn_;

@@ -148,7 +148,7 @@ namespace editor {
             if (!io.WantCaptureMouse && !io.WantCaptureKeyboard) {
                 bool triggered = false;
                 for (auto action : actions_) {
-                    if ((action->shortcut() != KI_UNKNOWN) && inputManager.keyboard().triggered(action->shortcut())) {
+                    if (!action->shortcut().empty() && inputManager.keyboard().triggered(action->shortcut())) {
                         action->trigger();
                         triggered = true;
                         break;
@@ -156,14 +156,14 @@ namespace editor {
                 }
                 if (triggered) {
                     // Pass.
-                } else if (inputManager.keyboard().triggered(KI_DELETE)) {
+                } else if (inputManager.keyboard().triggered(KeySequence(KI_DELETE))) {
                     auto sel = em_->selected();
                     for (const auto& wobj : sel) {
                         deleteObject(wobj.lock());
                     }
                 } else {
                     for (size_t i = 0; i < tools().size(); ++i) {
-                        if ((tools()[i]->shortcut() != KI_UNKNOWN) &&
+                        if (!tools()[i]->shortcut().empty() &&
                             (tools()[i] != currentTool()) &&
                             tools()[i]->canWork() &&
                             inputManager.keyboard().triggered(tools()[i]->shortcut())) {
@@ -279,7 +279,7 @@ namespace editor {
             return Action::State(true);
         }, [this]() {
             needOpenSceneDlg_ = true;
-        }, assetManager.getImage("common1/scene_open.png"));
+        }, assetManager.getImage("common1/scene_open.png"), KeySequence(KM_CTRL, KI_O));
 
         actionSceneSave_ = Action("Save scene", [this]() {
             return Action::State(cmdHistory_.dirty());
@@ -292,31 +292,31 @@ namespace editor {
                 std::ios_base::binary | std::ios_base::out | std::ios_base::trunc);
             os << Json::StyledWriter().write(val);
             cmdHistory_.resetDirty();
-        }, assetManager.getImage("common1/scene_save.png"));
+        }, assetManager.getImage("common1/scene_save.png"), KeySequence(KM_CTRL, KI_S));
 
         actionModeScene_ = Action("Edit scene settings", [this]() {
             return Action::State(true, emScene_->active());
         }, [this]() {
             emScene_->activate();
-        }, assetManager.getImage("common1/mode_scene.png"), KI_U);
+        }, assetManager.getImage("common1/mode_scene.png"), KeySequence(KI_U));
 
         actionModeObject_ = Action("Edit objects", [this]() {
             return Action::State(true, emObject_->active());
         }, [this]() {
             emObject_->activate();
-        }, assetManager.getImage("common1/mode_object.png"), KI_O);
+        }, assetManager.getImage("common1/mode_object.png"), KeySequence(KI_O));
 
         actionModeVisual_ = Action("Edit visuals", [this]() {
             return Action::State(true, emVisual_->active());
         }, [this]() {
             emVisual_->activate();
-        }, assetManager.getImage("common1/mode_visual.png"), KI_V);
+        }, assetManager.getImage("common1/mode_visual.png"), KeySequence(KI_V));
 
         actionModeLight_ = Action("Edit lights", [this]() {
             return Action::State(true, emLight_->active());
         }, [this]() {
             emLight_->activate();
-        }, assetManager.getImage("common1/mode_light.png"), KI_L);
+        }, assetManager.getImage("common1/mode_light.png"), KeySequence(KI_L));
 
         actionUndo_ = Action("Undo", [this]() {
             return Action::State(cmdHistory_.pos() > 0);
@@ -398,7 +398,7 @@ namespace editor {
         }, [this]() {
             auto popup = std::make_shared<MainPopup>();
             parent()->addComponent(popup);
-        }, Image(), KI_I);
+        }, Image(), KeySequence(KI_I));
 
         actionCommandHistory_ = Action("Command History", [this]() {
             return Action::State(!parent()->findComponent<CommandHistoryWindow>());

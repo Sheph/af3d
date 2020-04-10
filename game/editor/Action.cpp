@@ -28,9 +28,9 @@
 
 namespace af3d { namespace editor
 {
-    Action::Action(const std::string& text, const StateFn& stateFn, const TriggerFn& triggerFn, const Image& icon, KeyIdentifier shortcut)
+    Action::Action(const std::string& text, const StateFn& stateFn, const TriggerFn& triggerFn, const Image& icon, const KeySequence& shortcut)
     : text_(text),
-      tooltip_((shortcut == KI_UNKNOWN) ? text : text + " (" + InputKeyboard::kiToStr(shortcut) + ")"),
+      tooltip_(shortcut.empty() ? text : text + " (" + shortcut.str() + ")"),
       icon_(icon),
       shortcut_(shortcut),
       stateFn_(stateFn),
@@ -58,7 +58,7 @@ namespace af3d { namespace editor
     void Action::doMenuItem()
     {
         auto s = state();
-        if (ImGui::MenuItem(text_.c_str(), ((shortcut_ == KI_UNKNOWN) ? nullptr : InputKeyboard::kiToStr(shortcut_)), false, s.enabled && !s.checked)) {
+        if (ImGui::MenuItem(text_.c_str(), (shortcut_.empty() ? nullptr : shortcut_.str().c_str()), false, s.enabled && !s.checked)) {
             trigger();
         }
     }
