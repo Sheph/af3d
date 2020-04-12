@@ -31,8 +31,15 @@ namespace af3d
     ACLASS_DEFINE_END(PhysicsBodyComponent)
 
     PhysicsBodyComponent::PhysicsBodyComponent()
-    : PhysicsComponent(AClass_PhysicsBodyComponent)
+    : PhysicsComponent(AClass_PhysicsBodyComponent),
+      compound_(std::make_shared<CollisionShapeCompound>())
     {
+        compound_->adopt(this);
+    }
+
+    PhysicsBodyComponent::~PhysicsBodyComponent()
+    {
+        compound_->abandon();
     }
 
     const AClass& PhysicsBodyComponent::staticKlass()
@@ -47,6 +54,63 @@ namespace af3d
         return obj;
     }
 
+    void PhysicsBodyComponent::addShape(const CollisionShapePtr& cs)
+    {
+        runtime_assert(!cs->parent());
+
+        cs->adopt(this);
+
+        compound_->actualShape().addChildShape(cs->transform(), cs->shape());
+        cs->assignUserPointer();
+    }
+
+    void PhysicsBodyComponent::removeShape(const CollisionShapePtr& cs)
+    {
+        runtime_assert(cs->parent() == this);
+
+        cs->abandon();
+
+        compound_->actualShape().removeChildShape(cs->shape());
+        cs->resetUserPointer();
+    }
+
+    int PhysicsBodyComponent::numShapes() const
+    {
+        return compound_->actualShape().getNumChildShapes();
+    }
+
+    CollisionShape* PhysicsBodyComponent::shape(int index)
+    {
+        return CollisionShape::fromShape(compound_->actualShape().getChildShape(index));
+    }
+
+    const CollisionShape* PhysicsBodyComponent::shape(int index) const
+    {
+        return CollisionShape::fromShape(compound_->actualShape().getChildShape(index));
+    }
+
+    CollisionShapes PhysicsBodyComponent::getShapes()
+    {
+        CollisionShapes res;
+        res.reserve(numShapes());
+        for (int i = 0; i < numShapes(); ++i) {
+            res.push_back(std::static_pointer_cast<CollisionShape>(shape(i)->sharedThis()));
+        }
+        return res;
+    }
+
+    CollisionShapes PhysicsBodyComponent::getShapes(const std::string& name)
+    {
+        CollisionShapes res;
+        res.reserve(numShapes());
+        for (int i = 0; i < numShapes(); ++i) {
+            if (shape(i)->name() == name) {
+                res.push_back(std::static_pointer_cast<CollisionShape>(shape(i)->sharedThis()));
+            }
+        }
+        return res;
+    }
+
     void PhysicsBodyComponent::onFreeze()
     {
     }
@@ -57,6 +121,9 @@ namespace af3d
 
     void PhysicsBodyComponent::onRegister()
     {
+        // get parent()->bodyCi()
+        // collect shapes
+        // make body
     }
 
     void PhysicsBodyComponent::onUnregister()

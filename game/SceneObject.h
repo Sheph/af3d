@@ -33,6 +33,13 @@
 
 namespace af3d
 {
+    struct PhysicsBodyConstructionInfo
+    {
+        btTransform xf = btTransform::getIdentity();
+        float linearDamping = 0.0f;
+        float angularDamping = 0.0f;
+    };
+
     class SceneObject : public std::enable_shared_from_this<SceneObject>,
         public SceneObjectManager
     {
@@ -123,8 +130,7 @@ namespace af3d
         inline const btRigidBody* body() const { return body_; }
         void setBody(btRigidBody* value);
 
-        const btRigidBody::btRigidBodyConstructionInfo& bodyDef() const { return bodyDef_; }
-        void setBodyDef(const btRigidBody::btRigidBodyConstructionInfo& value);
+        const PhysicsBodyConstructionInfo& bodyCi() const { return bodyCi_; }
 
         const btTransform& transform() const;
         void setTransform(const btVector3& pos, const btQuaternion& rot);
@@ -263,7 +269,7 @@ namespace af3d
 
         SceneObjectType type_;
 
-        btRigidBody::btRigidBodyConstructionInfo bodyDef_;
+        PhysicsBodyConstructionInfo bodyCi_;
         btRigidBody* body_;
 
         float freezeRadius_;

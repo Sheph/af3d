@@ -23,20 +23,19 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _PHYSICSBODYCOMPONENT_H_
-#define _PHYSICSBODYCOMPONENT_H_
+#ifndef _COLLISIONSHAPECOMPOUND_H_
+#define _COLLISIONSHAPECOMPOUND_H_
 
-#include "PhysicsComponent.h"
-#include "CollisionShapeCompound.h"
+#include "CollisionShape.h"
 
 namespace af3d
 {
-    class PhysicsBodyComponent : public std::enable_shared_from_this<PhysicsBodyComponent>,
-         public PhysicsComponent
+    class CollisionShapeCompound : public std::enable_shared_from_this<CollisionShapeCompound>,
+        public CollisionShape
     {
     public:
-        PhysicsBodyComponent();
-        ~PhysicsBodyComponent();
+        CollisionShapeCompound();
+        ~CollisionShapeCompound();
 
         static const AClass& staticKlass();
 
@@ -44,45 +43,16 @@ namespace af3d
 
         AObjectPtr sharedThis() override { return shared_from_this(); }
 
-        void addShape(const CollisionShapePtr& cs);
-
-        void removeShape(const CollisionShapePtr& cs);
-
-        int numShapes() const;
-        CollisionShape* shape(int index);
-        const CollisionShape* shape(int index) const;
-
-        CollisionShapes getShapes();
-
-        CollisionShapes getShapes(const std::string& name);
-
-        template <class T>
-        std::shared_ptr<T> getShape(const std::string& name)
-        {
-            for (int i = 0; i < numShapes(); ++i) {
-                auto s = aobjectCast<T>(shape(i));
-                if (s && (s->name() == name)) {
-                    return s->sharedThis();
-                }
-            }
-            return std::shared_ptr<T>();
-        }
-
-        void onFreeze() override;
-
-        void onThaw() override;
+        inline const btCompoundShape& actualShape() const { return actualShape_; }
+        inline btCompoundShape& actualShape() { return actualShape_; }
 
     private:
-        void onRegister() override;
-
-        void onUnregister() override;
-
-        CollisionShapeCompoundPtr compound_;
+        btCompoundShape actualShape_;
     };
 
-    using PhysicsBodyComponentPtr = std::shared_ptr<PhysicsBodyComponent>;
+    using CollisionShapeCompoundPtr = std::shared_ptr<CollisionShapeCompound>;
 
-    ACLASS_DECLARE(PhysicsBodyComponent)
+    ACLASS_DECLARE(CollisionShapeCompound)
 }
 
 #endif

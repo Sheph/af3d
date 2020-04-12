@@ -87,6 +87,10 @@ set(SOURCES
     PhysicsComponentManager.cpp
     PhysicsComponent.cpp
     PhysicsBodyComponent.cpp
+    CollisionShape.cpp
+    CollisionShapeCompound.cpp
+    CollisionShapeBox.cpp
+    CollisionShapeCapsule.cpp
     editor/Action.cpp
     editor/Workspace.cpp
     editor/MainPopup.cpp

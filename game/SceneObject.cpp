@@ -64,7 +64,6 @@ namespace af3d
     SceneObject::SceneObject()
     : SceneObjectManager(AClass_SceneObject),
       type_(SceneObjectType::Other),
-      bodyDef_(0.0f, nullptr, nullptr),
       body_(nullptr),
       freezeRadius_(0.0f),
       physicsActive_(true)
@@ -190,19 +189,12 @@ namespace af3d
         physicsActive_ = body_->isInWorld();
     }
 
-    void SceneObject::setBodyDef(const btRigidBody::btRigidBodyConstructionInfo& value)
-    {
-        bodyDef_ = value;
-        //bodyDef_.userData = this;
-        //resetSmooth();
-    }
-
     const btTransform& SceneObject::transform() const
     {
         if (body_) {
             return body_->getWorldTransform();
         } else {
-            return bodyDef_.m_startWorldTransform;
+            return bodyCi_.xf;
         }
     }
 
@@ -219,7 +211,7 @@ namespace af3d
         if (body_) {
             body_->setWorldTransform(t);
         } else {
-            bodyDef_.m_startWorldTransform = t;
+            bodyCi_.xf = t;
         }
     }
 
@@ -239,7 +231,7 @@ namespace af3d
         if (body_) {
             return body_->getWorldTransform().getOrigin();
         } else {
-            return bodyDef_.m_startWorldTransform.getOrigin();
+            return bodyCi_.xf.getOrigin();
         }
     }
 
@@ -253,7 +245,7 @@ namespace af3d
         if (body_) {
             body_->setWorldTransform(btTransform(body_->getWorldTransform().getBasis(), value));
         } else {
-            bodyDef_.m_startWorldTransform.setOrigin(value);
+            bodyCi_.xf.setOrigin(value);
         }
 
         //smoothPos_ = pos() + tmpPos;
@@ -291,7 +283,7 @@ namespace af3d
         if (body_) {
             return body_->getWorldTransform().getBasis();
         } else {
-            return bodyDef_.m_startWorldTransform.getBasis();
+            return bodyCi_.xf.getBasis();
         }
     }
 
@@ -300,7 +292,7 @@ namespace af3d
         if (body_) {
             body_->setWorldTransform(btTransform(value, body_->getWorldTransform().getOrigin()));
         } else {
-            bodyDef_.m_startWorldTransform.setBasis(value);
+            bodyCi_.xf.setBasis(value);
         }
     }
 
@@ -309,7 +301,7 @@ namespace af3d
         if (body_) {
             return body_->getWorldTransform().getRotation();
         } else {
-            return bodyDef_.m_startWorldTransform.getRotation();
+            return bodyCi_.xf.getRotation();
         }
     }
 
@@ -323,7 +315,7 @@ namespace af3d
         if (body_) {
             body_->setWorldTransform(btTransform(value, body_->getWorldTransform().getOrigin()));
         } else {
-            bodyDef_.m_startWorldTransform.setRotation(value);
+            bodyCi_.xf.setRotation(value);
         }
 
         //smoothAngle_ = angle() + tmpAng;
@@ -361,7 +353,7 @@ namespace af3d
         if (body_) {
             return body_->getWorldTransform().getOrigin();
         } else {
-            return bodyDef_.m_startWorldTransform.getOrigin();
+            return bodyCi_.xf.getOrigin();
         }
     }
 
@@ -446,7 +438,7 @@ namespace af3d
         if (body_) {
             return body_->getLinearDamping();
         } else {
-            return bodyDef_.m_linearDamping;
+            return bodyCi_.linearDamping;
         }
     }
 
@@ -457,7 +449,7 @@ namespace af3d
         if (body_) {
             body_->setDamping(value, body_->getAngularDamping());
         } else {
-            bodyDef_.m_linearDamping = value;
+            bodyCi_.linearDamping = value;
         }
     }
 
@@ -466,7 +458,7 @@ namespace af3d
         if (body_) {
             return body_->getAngularDamping();
         } else {
-            return bodyDef_.m_angularDamping;
+            return bodyCi_.angularDamping;
         }
     }
 
@@ -477,7 +469,7 @@ namespace af3d
         if (body_) {
             body_->setDamping(body_->getLinearDamping(), value);
         } else {
-            bodyDef_.m_angularDamping = value;
+            bodyCi_.angularDamping = value;
         }
     }
 
