@@ -46,6 +46,8 @@ namespace af3d
 
         static const AClass& staticKlass();
 
+        void afterCreate(const APropertyValueMap& propVals);
+
         inline const btCollisionShape* shape() const { return shape_; }
         inline btCollisionShape* shape() { return shape_; }
 
@@ -59,6 +61,9 @@ namespace af3d
         void setMass(float value);
 
         void removeFromParent();
+
+        inline const APropertyValueMap& params() const { return params_; }
+        inline void setParams(const APropertyValueMap& value) { params_ = value; }
 
         /*
          * Internal, do not call.
@@ -83,6 +88,8 @@ namespace af3d
         APropertyValue propertyWorldTransformGet(const std::string&) const;
         void propertyWorldTransformSet(const std::string&, const APropertyValue& value);
 
+        APropertyValue propertyParamGet(const std::string& key) const { return params_.get(key); }
+
     private:
         btCollisionShape* shape_;
 
@@ -91,6 +98,8 @@ namespace af3d
 
         PhysicsBodyComponent* parent_ = nullptr;
         btTransform abandonedParentXf_ = btTransform::getIdentity();
+
+        APropertyValueMap params_;
     };
 
     using CollisionShapePtr = std::shared_ptr<CollisionShape>;
@@ -98,6 +107,9 @@ namespace af3d
     using CollisionShapes = std::vector<CollisionShapePtr>;
 
     ACLASS_DECLARE(CollisionShape)
+
+    #define COLLISIONSHAPE_PARAM(SName, Name, Tooltip, Type, Def) \
+        {Name, Tooltip, APropertyType_##Type, APropertyValue(Def), APropertyCategory::Params, APropertyReadable|APropertyEditable, (APropertyGetter)&CollisionShape::propertyParamGet, nullptr},
 }
 
 #endif

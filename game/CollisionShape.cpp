@@ -26,6 +26,7 @@
 #include "CollisionShape.h"
 #include "PhysicsBodyComponent.h"
 #include "SceneObject.h"
+#include "Settings.h"
 
 namespace af3d
 {
@@ -58,6 +59,20 @@ namespace af3d
     const AClass& CollisionShape::staticKlass()
     {
         return AClass_CollisionShape;
+    }
+
+    void CollisionShape::afterCreate(const APropertyValueMap& propVals)
+    {
+        propertiesSet(propVals);
+        if (settings.editor.enabled) {
+            APropertyValueMap params;
+            for (const auto& prop : klass().thisProperties()) {
+                if (prop.category() == APropertyCategory::Params) {
+                    params.set(prop.name(), propVals.get(prop.name()));
+                }
+            }
+            setParams(params);
+        }
     }
 
     SceneObject* CollisionShape::parentObject() const
