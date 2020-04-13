@@ -102,11 +102,38 @@ namespace editor {
         bool wasSet = false;
 
         if (obj) {
+            auto sceneObj = aobjectCast<SceneObject>(obj);
+
             ImGui::PushID(std::to_string(wobj_.cookie()).c_str());
 
             for (auto& pi : properties_) {
                 if ((pi.prop.flags() & APropertyEditable) == 0) {
                     continue;
+                }
+
+                if (sceneObj && (pi.prop.name() == AProperty_PhysicsActive)) {
+                    ImGui::PushID("_body");
+                    ImGui::Separator();
+                    ImGui::Text("physics body");
+                    if (ImGui::IsItemHovered()) {
+                        ImGui::BeginTooltip();
+                        ImGui::Text("Have physics body");
+                        ImGui::EndTooltip();
+                    }
+                    ImGui::NextColumn();
+
+                    auto& actionAddBody = scene()->workspace()->actionOpMenuAddPhysicsBody();
+                    auto& actionRemoveBody = scene()->workspace()->actionOpMenuRemovePhysicsBody();
+
+                    if (actionRemoveBody.state().enabled && ImGui::Button("Remove")) {
+                        wasSet = true;
+                        actionRemoveBody.trigger();
+                    } else if (actionAddBody.state().enabled && ImGui::Button("Create")) {
+                        wasSet = true;
+                        actionAddBody.trigger();
+                    }
+                    ImGui::NextColumn();
+                    ImGui::PopID();
                 }
 
                 ImGui::PushID(pi.prop.name().c_str());

@@ -34,6 +34,26 @@ namespace af3d { namespace editor
     {
     }
 
+    EditModeObject::TList EditModeObjectImpl::hoveredTyped() const
+    {
+        TList res;
+        for (const auto& wobj : hovered()) {
+            auto obj = wobj.lock();
+            res.push_back(std::static_pointer_cast<SceneObject>(obj));
+        }
+        return res;
+    }
+
+    EditModeObject::TList EditModeObjectImpl::selectedTyped() const
+    {
+        TList res;
+        for (const auto& wobj : selected()) {
+            auto obj = wobj.lock();
+            res.push_back(std::static_pointer_cast<SceneObject>(obj));
+        }
+        return res;
+    }
+
     AObjectPtr EditModeObjectImpl::rayCast(const Frustum& frustum, const Ray& ray) const
     {
         SceneObjectPtr res;

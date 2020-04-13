@@ -28,6 +28,7 @@
 
 #include "PhysicsComponent.h"
 #include "CollisionShapeCompound.h"
+#include "Logger.h"
 
 namespace af3d
 {
@@ -71,6 +72,38 @@ namespace af3d
         void onFreeze() override;
 
         void onThaw() override;
+
+        APropertyValue propertyChildrenGet(const std::string&) const
+        {
+            std::vector<APropertyValue> res;
+            res.reserve(numShapes());
+            for (int i = 0; i < numShapes(); ++i) {
+                res.push_back(APropertyValue(
+                    CollisionShape::fromShape(compound_->actualShape().getChildShape(i))->sharedThis()));
+            }
+            return res;
+        }
+        void propertyChildrenSet(const std::string&, const APropertyValue& value)
+        {
+            {
+                auto shapes = getShapes();
+                for (const auto& s : shapes) {
+                    if ((s->aflags() & AObjectEditable) != 0) {
+                        s->removeFromParent();
+                    }
+                }
+            }
+
+            auto arr = value.toArray();
+            for (const auto& el : arr) {
+                auto obj = el.toObject();
+                if (auto shape = aobjectCast<CollisionShape>(obj)) {
+                    addShape(shape);
+                } else {
+                    LOG4CPLUS_ERROR(logger(), "Bad child object \"" << obj->name() << "\", class - \"" << obj->klass().name() << "\"");
+                }
+            }
+        }
 
     private:
         void onRegister() override;

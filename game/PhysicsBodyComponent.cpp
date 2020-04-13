@@ -30,6 +30,7 @@
 namespace af3d
 {
     ACLASS_DEFINE_BEGIN(PhysicsBodyComponent, PhysicsComponent)
+    ACLASS_PROPERTY(PhysicsBodyComponent, Children, AProperty_Children, "Children", ArrayAObject, std::vector<APropertyValue>{}, Hierarchy, 0)
     ACLASS_DEFINE_END(PhysicsBodyComponent)
 
     PhysicsBodyComponent::PhysicsBodyComponent()
@@ -123,8 +124,6 @@ namespace af3d
 
     void PhysicsBodyComponent::onRegister()
     {
-        const auto& bodyCi = parent()->bodyCi();
-
         std::vector<float> masses(numShapes());
         float totalMass = 0.0f;
         for (int i = 0; i < numShapes(); ++i) {
@@ -132,38 +131,52 @@ namespace af3d
             totalMass += masses[i];
         }
 
-        btTransform principalXf;
-        btVector3 inertia;
+        btTransform principalXf = btTransform::getIdentity();
+        btVector3 inertia = btVector3_zero;
 
-        compound_->actualShape().calculatePrincipalAxisTransform(&masses[0], principalXf, inertia);
-        for (int i = 0; i < numShapes(); ++i) {
-            compound_->actualShape().updateChildTransform(i, shape(i)->transform() * principalXf.inverse(), i == (numShapes() - 1));
+        if (numShapes() > 0) {
+            compound_->actualShape().calculatePrincipalAxisTransform(&masses[0], principalXf, inertia);
+            for (int i = 0; i < numShapes(); ++i) {
+                compound_->actualShape().updateChildTransform(i, shape(i)->transform() * principalXf.inverse(), i == (numShapes() - 1));
+            }
         }
 
-        MotionState* motionState = new MotionState(principalXf, bodyCi.xf);
+        btRigidBody* body;
 
-        btRigidBody::btRigidBodyConstructionInfo bci(totalMass, motionState, compound_->shape(), inertia);
-        bci.m_linearDamping = bodyCi.linearDamping;
-        bci.m_angularDamping = bodyCi.angularDamping;
-        bci.m_friction = bodyCi.friction;
-        bci.m_restitution = bodyCi.restitution;
+        if (parent()->body()) {
+            body = parent()->body();
+            CollisionShape::fromShape(parent()->body()->getCollisionShape())->resetUserPointer();
+            compound_->assignUserPointer(); // Inc ref count.
+            parent()->body()->setCollisionShape(compound_->shape());
+            static_cast<MotionState*>(parent()->body()->getMotionState())->centerOfMassXf = principalXf;
+            parent()->body()->setMassProps(totalMass, inertia);
+        } else {
+            MotionState* motionState = new MotionState(principalXf, parent()->transform());
 
-        compound_->assignUserPointer(); // Inc ref count.
-        btRigidBody* body = new btRigidBody(bci);
+            btRigidBody::btRigidBodyConstructionInfo bci(totalMass, motionState, compound_->shape(), inertia);
+            bci.m_linearDamping = parent()->linearDamping();
+            bci.m_angularDamping = parent()->angularDamping();
+            bci.m_friction = parent()->friction();
+            bci.m_restitution = parent()->restitution();
 
-        body->setLinearVelocity(bodyCi.linearVelocity);
-        body->setAngularVelocity(bodyCi.angularVelocity);
+            compound_->assignUserPointer(); // Inc ref count.
+            body = new btRigidBody(bci);
 
-        if (bodyCi.active) {
+            body->setLinearVelocity(parent()->linearVelocity());
+            body->setAngularVelocity(parent()->angularVelocity());
+        }
+
+        if (parent()->physicsActive()) {
             manager()->world().addRigidBody(body);
         }
 
-        parent()->setBody(body);
+        if (!parent()->body()) {
+            parent()->setBody(body);
+        }
     }
 
     void PhysicsBodyComponent::onUnregister()
     {
-        parent()->setPhysicsActive(false);
         if (parent()->body()->isInWorld()) {
             manager()->world().removeRigidBody(parent()->body());
         }

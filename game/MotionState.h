@@ -41,7 +41,7 @@ namespace af3d
 
         void setWorldTransform(const btTransform& worldTrans) override;
 
-        const btTransform centerOfMassXf;
+        btTransform centerOfMassXf;
         btTransform smoothXf;
     };
 }

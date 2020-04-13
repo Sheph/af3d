@@ -27,14 +27,21 @@
 #define _EDITOR_EDITMODE_OBJECT_H_
 
 #include "editor/EditMode.h"
+#include "SceneObjectManager.h"
 
 namespace af3d { namespace editor
 {
     class EditModeObject : public virtual EditMode
     {
     public:
+        using TList = std::list<SceneObjectPtr>;
+
         EditModeObject() = default;
         ~EditModeObject() = default;
+
+        virtual TList hoveredTyped() const = 0;
+
+        virtual TList selectedTyped() const = 0;
     };
 } }
 

@@ -33,18 +33,6 @@
 
 namespace af3d
 {
-    struct PhysicsBodyConstructionInfo
-    {
-        btTransform xf = btTransform::getIdentity();
-        bool active = true;
-        float linearDamping = 0.0f;
-        float angularDamping = 0.0f;
-        float friction = 0.5f;
-        float restitution = 0.0f;
-        btVector3 linearVelocity = btVector3_zero;
-        btVector3 angularVelocity = btVector3_zero;
-    };
-
     class SceneObject : public std::enable_shared_from_this<SceneObject>,
         public SceneObjectManager
     {
@@ -136,8 +124,6 @@ namespace af3d
         inline btRigidBody* body() { return body_; }
         inline const btRigidBody* body() const { return body_; }
         void setBody(btRigidBody* value);
-
-        const PhysicsBodyConstructionInfo& bodyCi() const { return bodyCi_; }
 
         const btTransform& transform() const;
         void setTransform(const btVector3& pos, const btQuaternion& rot);
@@ -263,6 +249,27 @@ namespace af3d
         APropertyValue propertyTypeGet(const std::string&) const { return static_cast<int>(type()); }
         void propertyTypeSet(const std::string&, const APropertyValue& value) { setType(static_cast<SceneObjectType>(value.toInt())); }
 
+        APropertyValue propertyPhysicsActiveGet(const std::string&) const { return physicsActive(); }
+        void propertyPhysicsActiveSet(const std::string&, const APropertyValue& value) { setPhysicsActive(value.toBool()); }
+
+        APropertyValue propertyFrictionGet(const std::string&) const { return friction(); }
+        void propertyFrictionSet(const std::string&, const APropertyValue& value) { setFriction(value.toFloat()); }
+
+        APropertyValue propertyRestitutionGet(const std::string&) const { return restitution(); }
+        void propertyRestitutionSet(const std::string&, const APropertyValue& value) { setRestitution(value.toFloat()); }
+
+        APropertyValue propertyLinearDampingGet(const std::string&) const { return linearDamping(); }
+        void propertyLinearDampingSet(const std::string&, const APropertyValue& value) { setLinearDamping(value.toFloat()); }
+
+        APropertyValue propertyAngularDampingGet(const std::string&) const { return angularDamping(); }
+        void propertyAngularDampingSet(const std::string&, const APropertyValue& value) { setAngularDamping(value.toFloat()); }
+
+        APropertyValue propertyLinearVelocityGet(const std::string&) const { return linearVelocity(); }
+        void propertyLinearVelocitySet(const std::string&, const APropertyValue& value) { setLinearVelocity(value.toVec3()); }
+
+        APropertyValue propertyAngularVelocityGet(const std::string&) const { return angularVelocity(); }
+        void propertyAngularVelocitySet(const std::string&, const APropertyValue& value) { setAngularVelocity(value.toVec3()); }
+
         APropertyValue propertyParamGet(const std::string& key) const { return params_.get(key); }
 
     private:
@@ -272,6 +279,18 @@ namespace af3d
             Frozen,
             FreezePhysics,
             Max = FreezePhysics
+        };
+
+        struct PhysicsBodyConstructionInfo
+        {
+            btTransform xf = btTransform::getIdentity();
+            bool active = true;
+            float linearDamping = 0.0f;
+            float angularDamping = 0.0f;
+            float friction = 0.5f;
+            float restitution = 0.0f;
+            btVector3 linearVelocity = btVector3_zero;
+            btVector3 angularVelocity = btVector3_zero;
         };
 
         using Flags = EnumSet<Flag>;
@@ -308,7 +327,12 @@ namespace af3d
             return SceneObject::createWithParams(AClass_SceneObject##Name, propVals, (AClass::CreateFn)&SceneObject##Name##create); \
         } \
         const AClass AClass_SceneObject##Name{"SceneObject" #Name, AClass_SceneObject, &SceneObject##Name##createWrapper, { \
-        ACLASS_PROPERTY_RO(SceneObject, Type, "type", "Scene object type", SceneObjectType, General, APropertyEditable|APropertyTransient)
+        ACLASS_PROPERTY_RO(SceneObject, Type, "type", "Scene object type", SceneObjectType, General, APropertyEditable|APropertyTransient) \
+        ACLASS_PROPERTY_RO(SceneObject, PhysicsActive, AProperty_PhysicsActive, "Physics is active", Bool, Physics, APropertyEditable|APropertyTransient) \
+        ACLASS_PROPERTY_RO(SceneObject, Friction, "friction", "Friction", Float, Physics, APropertyEditable|APropertyTransient) \
+        ACLASS_PROPERTY_RO(SceneObject, Restitution, "restitution", "Restitution", Float, Physics, APropertyEditable|APropertyTransient) \
+        ACLASS_PROPERTY_RO(SceneObject, LinearDamping, "linear damping", "Linear damping", Float, Physics, APropertyEditable|APropertyTransient) \
+        ACLASS_PROPERTY_RO(SceneObject, AngularDamping, "angular damping", "Angular damping", Float, Physics, APropertyEditable|APropertyTransient)
 
     #define SCENEOBJECT_PARAM(SName, Name, Tooltip, Type, Def) \
         {Name, Tooltip, APropertyType_##Type, APropertyValue(Def), APropertyCategory::Params, APropertyReadable|APropertyEditable, (APropertyGetter)&SceneObject::propertyParamGet, nullptr},

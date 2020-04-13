@@ -35,6 +35,13 @@ namespace af3d
     ACLASS_DEFINE_BEGIN(SceneObject, SceneObjectManager)
     ACLASS_PROPERTY(SceneObject, Transform, AProperty_WorldTransform, "World transform", Transform, btTransform::getIdentity(), Position, APropertyEditable)
     ACLASS_PROPERTY(SceneObject, Type, "type", "Scene object type", SceneObjectType, static_cast<int>(SceneObjectType::Other), General, APropertyEditable)
+    ACLASS_PROPERTY(SceneObject, PhysicsActive, AProperty_PhysicsActive, "Physics is active", Bool, true, Physics, APropertyEditable)
+    ACLASS_PROPERTY(SceneObject, Friction, "friction", "Friction", Float, 0.5f, Physics, APropertyEditable)
+    ACLASS_PROPERTY(SceneObject, Restitution, "restitution", "Restitution", Float, 0.0f, Physics, APropertyEditable)
+    ACLASS_PROPERTY(SceneObject, LinearDamping, "linear damping", "Linear damping", Float, 0.0f, Physics, APropertyEditable)
+    ACLASS_PROPERTY(SceneObject, AngularDamping, "angular damping", "Angular damping", Float, 0.0f, Physics, APropertyEditable)
+    ACLASS_PROPERTY(SceneObject, LinearVelocity, "linear velocity", "Linear velocity", Vec3f, btVector3(0.0f, 0.0f, 0.0f), Physics, APropertyEditable)
+    ACLASS_PROPERTY(SceneObject, AngularVelocity, "angular velocity", "Angular velocity", Vec3f, btVector3(0.0f, 0.0f, 0.0f), Physics, APropertyEditable)
     ACLASS_DEFINE_END(SceneObject)
 
     static void insertComponent(std::vector<ComponentPtr>& components,

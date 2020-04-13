@@ -42,6 +42,7 @@
 #include "RenderGridComponent.h"
 #include "DirectionalLight.h"
 #include "PointLight.h"
+#include "PhysicsBodyComponent.h"
 #include "MeshManager.h"
 #include "AssetManager.h"
 #include "ImGuiManager.h"
@@ -352,6 +353,7 @@ namespace editor {
             return Action::State(true);
         }, [this]() {
             actionOpMenuAdd_.doMenu();
+            actionOpMenuRemove_.doMenu();
         });
 
         actionOpMenuAdd_ = Action("Add", []() {
@@ -360,6 +362,7 @@ namespace editor {
             actionOpMenuAddObject_.doMenu();
             actionOpMenuAddLight_.doMenu();
             actionOpMenuAddMesh_.doMenuItem();
+            actionOpMenuAddPhysicsBody_.doMenuItem();
         });
 
         actionOpMenuAddObject_ = Action("Object", []() {
@@ -411,6 +414,28 @@ namespace editor {
                     PointLight::staticKlass(), "Point light", initVals));
         });
 
+        actionOpMenuAddPhysicsBody_ = Action("Physics body", [this]() {
+            return Action::State(!emObject_->selected().empty() && !emObject_->selectedTyped().back()->findComponent<PhysicsBodyComponent>());
+        }, [this]() {
+            APropertyValueMap initVals;
+            cmdHistory_.add(
+                std::make_shared<CommandAddComponent>(scene(),
+                    emObject_->selected().back().lock(),
+                    PhysicsBodyComponent::staticKlass(), "Physics body", initVals));
+        });
+
+        actionOpMenuRemove_ = Action("Remove", []() {
+            return Action::State(true);
+        }, [this]() {
+            actionOpMenuRemovePhysicsBody_.doMenuItem();
+        });
+
+        actionOpMenuRemovePhysicsBody_ = Action("Physics body", [this]() {
+            return Action::State(!emObject_->selected().empty() && emObject_->selectedTyped().back()->findComponent<PhysicsBodyComponent>());
+        }, [this]() {
+            deleteObject(emObject_->selectedTyped().back()->findComponent<PhysicsBodyComponent>());
+        });
+
         actionMainPopup_ = Action("", [this]() {
             return Action::State(!parent()->findComponent<MainPopup>());
         }, [this]() {
@@ -457,6 +482,9 @@ namespace editor {
         actions_.push_back(&actionOpMenuAddLight_);
         actions_.push_back(&actionOpMenuAddLightDirectional_);
         actions_.push_back(&actionOpMenuAddLightPoint_);
+        actions_.push_back(&actionOpMenuAddPhysicsBody_);
+        actions_.push_back(&actionOpMenuRemove_);
+        actions_.push_back(&actionOpMenuRemovePhysicsBody_);
         actions_.push_back(&actionMainPopup_);
         actions_.push_back(&actionCommandHistory_);
         actions_.push_back(&actionPropertyEditor_);

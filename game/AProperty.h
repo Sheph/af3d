@@ -45,7 +45,8 @@ namespace af3d
         Hierarchy,
         Position,
         Params,
-        Max = Params
+        Physics,
+        Max = Physics
     };
 
     class AProperty
@@ -100,6 +101,7 @@ namespace af3d
     #define AProperty_Size "size"
     #define AProperty_Width "width"
     #define AProperty_Height "height"
+    #define AProperty_PhysicsActive "physics active"
 }
 
 inline std::ostream& operator <<(std::ostream& os, af3d::APropertyCategory cat)
