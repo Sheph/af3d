@@ -92,6 +92,23 @@ namespace editor {
                         }
                     }
                 }
+            } else if (scene()->workspace()->emCollision()->active()) {
+                auto selected = scene()->workspace()->emCollision()->selectedTyped();
+                for (const auto& shape : selected) {
+                    if (shape->parentObject() == parent()) {
+                        showMarker = true;
+                        break;
+                    }
+                }
+                if (!showMarker) {
+                    auto hovered = scene()->workspace()->emCollision()->hoveredTyped();
+                    for (const auto& shape : hovered) {
+                        if (shape->parentObject() == parent()) {
+                            showMarker = true;
+                            break;
+                        }
+                    }
+                }
             }
         }
 

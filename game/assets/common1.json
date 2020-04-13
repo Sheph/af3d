@@ -28,8 +28,17 @@
 	"pivot": {"x":0.5,"y":0.5}
 },
 {
-	"filename": "mode_light.png",
+	"filename": "mode_collision.png",
 	"frame": {"x":128,"y":4,"w":24,"h":24},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":24,"h":24},
+	"sourceSize": {"w":24,"h":24},
+	"pivot": {"x":0.5,"y":0.5}
+},
+{
+	"filename": "mode_light.png",
+	"frame": {"x":156,"y":4,"w":24,"h":24},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":24,"h":24},
@@ -149,8 +158,8 @@
 	"version": "1.0",
 	"image": "common1.png",
 	"format": "RGBA8888",
-	"size": {"w":172,"h":128},
+	"size": {"w":184,"h":128},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:9ee207a13136e54bcc4761047fc55d83:39d188d5c2d3cb969bae978578f356f4:849a2d506a3dff356c1665b7dfafc6aa$"
+	"smartupdate": "$TexturePacker:SmartUpdate:cc506a009e2dbc8307e903c27a04037a:b06eb95d6b050937a2b9dd13599e5c5d:849a2d506a3dff356c1665b7dfafc6aa$"
 }
 }

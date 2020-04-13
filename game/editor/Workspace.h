@@ -31,6 +31,7 @@
 #include "editor/EditModeVisualImpl.h"
 #include "editor/EditModeLightImpl.h"
 #include "editor/EditModeSceneImpl.h"
+#include "editor/EditModeCollisionImpl.h"
 #include "editor/ToolSelect.h"
 #include "editor/ToolMove.h"
 #include "editor/ToolRotate.h"
@@ -81,6 +82,7 @@ namespace af3d { namespace editor
         inline EditModeObject* emObject() { return emObject_.get(); }
         inline EditModeVisual* emVisual() { return emVisual_.get(); }
         inline EditModeLight* emLight() { return emLight_.get(); }
+        inline EditModeCollision* emCollision() { return emCollision_.get(); }
         inline EditModeScene* emScene() { return emScene_.get(); }
 
         inline EditMode* em() { return em_; }
@@ -96,6 +98,7 @@ namespace af3d { namespace editor
         inline Action& actionModeObject() { return actionModeObject_; }
         inline Action& actionModeVisual() { return actionModeVisual_; }
         inline Action& actionModeLight() { return actionModeLight_; }
+        inline Action& actionModeCollision() { return actionModeCollision_; }
         inline Action& actionUndo() { return actionUndo_; }
         inline Action& actionRedo() { return actionRedo_; }
         inline Action& actionDelete() { return actionDelete_; }
@@ -159,6 +162,7 @@ namespace af3d { namespace editor
         std::unique_ptr<EditModeObjectImpl> emObject_;
         std::unique_ptr<EditModeVisualImpl> emVisual_;
         std::unique_ptr<EditModeLightImpl> emLight_;
+        std::unique_ptr<EditModeCollisionImpl> emCollision_;
         std::unique_ptr<EditModeSceneImpl> emScene_;
 
         std::vector<EditMode*> ems_;
@@ -174,6 +178,7 @@ namespace af3d { namespace editor
         Action actionModeObject_;
         Action actionModeVisual_;
         Action actionModeLight_;
+        Action actionModeCollision_;
         Action actionUndo_;
         Action actionRedo_;
         Action actionDelete_;

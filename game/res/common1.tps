@@ -195,6 +195,7 @@
             <filename>common1/tool_scale.png</filename>
             <filename>common1/action_delete.png</filename>
             <filename>common1/action_dup.png</filename>
+            <filename>common1/mode_collision.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>
