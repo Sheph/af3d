@@ -105,6 +105,8 @@ namespace af3d
             }
         }
 
+        void updateBodyCollision(bool addRemove);
+
     private:
         void onRegister() override;
 

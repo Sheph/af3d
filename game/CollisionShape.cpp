@@ -83,11 +83,17 @@ namespace af3d
     void CollisionShape::setTransform(const btTransform& value)
     {
         xf_ = value;
+        if (parent_) {
+            parent_->updateBodyCollision(false);
+        }
     }
 
     void CollisionShape::setMass(float value)
     {
         mass_ = value;
+        if (parent_) {
+            parent_->updateBodyCollision(false);
+        }
     }
 
     void CollisionShape::removeFromParent()

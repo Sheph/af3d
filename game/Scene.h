@@ -27,6 +27,7 @@
 #define _SCENE_H_
 
 #include "SceneObjectManager.h"
+#include "PhysicsComponent.h"
 #include "ImGuiComponent.h"
 #include "editor/Workspace.h"
 #include "af3d/AABB.h"
@@ -79,6 +80,8 @@ namespace af3d
         btVector3 gravity() const;
 
         void rayCastRender(const Frustum& frustum, const Ray& ray, const RayCastRenderFn& fn) const;
+
+        void rayCast(const btVector3& p1, const btVector3& p2, const RayCastFn& fn) const;
 
         inline const editor::WorkspacePtr& workspace() const { return workspace_; }
 

@@ -29,6 +29,50 @@
 
 namespace af3d
 {
+    namespace
+    {
+        struct RayResultCallback : public btCollisionWorld::RayResultCallback
+        {
+        public:
+            RayResultCallback(const btVector3& p1, const btVector3& p2, const RayCastFn& fn)
+            : p1_(p1),
+              p2_(p2),
+              fn_(fn) {}
+
+            float addSingleResult(btCollisionWorld::LocalRayResult& rayResult, bool normalInWorldSpace) override
+            {
+                btVector3 normalWorld;
+                if (normalInWorldSpace) {
+                    normalWorld = rayResult.m_hitNormalLocal;
+                } else {
+                    normalWorld = rayResult.m_collisionObject->getWorldTransform().getBasis() * rayResult.m_hitNormalLocal;
+                }
+                btVector3 pointWorld;
+                pointWorld.setInterpolate3(p1_, p2_, rayResult.m_hitFraction);
+
+                auto shape = rayResult.m_collisionObject->getCollisionShape();
+                if (shape->isCompound()) {
+                    auto cShape = static_cast<const btCompoundShape*>(shape);
+                    int childIdx = rayResult.m_localShapeInfo->m_triangleIndex;
+                    btAssert(childIdx >= 0);
+                    btAssert(childIdx < cShape->getNumChildShapes());
+                    shape = cShape->getChildShape(childIdx);
+                }
+
+                float f = fn_(const_cast<btCollisionShape*>(shape), pointWorld, normalWorld, rayResult.m_hitFraction);
+                if ((f >= 0.0f) && (f < m_closestHitFraction)) {
+                    m_closestHitFraction = f;
+                }
+                return m_closestHitFraction;
+            }
+
+        private:
+            const btVector3& p1_;
+            const btVector3& p2_;
+            const RayCastFn& fn_;
+        };
+    };
+
     PhysicsComponentManager::PhysicsComponentManager()
     : collisionDispatcher_(&collisionCfg_),
       world_(&collisionDispatcher_, &broadphase_, &solver_, &collisionCfg_)
@@ -98,5 +142,11 @@ namespace af3d
 
     void PhysicsComponentManager::debugDraw()
     {
+    }
+
+    void PhysicsComponentManager::rayCast(const btVector3& p1, const btVector3& p2, const RayCastFn& fn) const
+    {
+        RayResultCallback cb(p1, p2, fn);
+        world_.rayTest(p1, p2, cb);
     }
 }

@@ -68,6 +68,8 @@ namespace af3d
 
         compound_->actualShape().addChildShape(cs->transform(), cs->shape());
         cs->assignUserPointer();
+
+        updateBodyCollision(true);
     }
 
     void PhysicsBodyComponent::removeShape(const CollisionShapePtr& cs)
@@ -78,6 +80,8 @@ namespace af3d
 
         compound_->actualShape().removeChildShape(cs->shape());
         cs->resetUserPointer();
+
+        updateBodyCollision(true);
     }
 
     int PhysicsBodyComponent::numShapes() const
@@ -127,23 +131,6 @@ namespace af3d
 
     void PhysicsBodyComponent::onRegister()
     {
-        std::vector<float> masses(numShapes());
-        float totalMass = 0.0f;
-        for (int i = 0; i < numShapes(); ++i) {
-            masses[i] = shape(i)->mass();
-            totalMass += masses[i];
-        }
-
-        btTransform principalXf = btTransform::getIdentity();
-        btVector3 inertia = btVector3_zero;
-
-        if (numShapes() > 0) {
-            compound_->actualShape().calculatePrincipalAxisTransform(&masses[0], principalXf, inertia);
-            for (int i = 0; i < numShapes(); ++i) {
-                compound_->actualShape().updateChildTransform(i, shape(i)->transform() * principalXf.inverse(), i == (numShapes() - 1));
-            }
-        }
-
         btRigidBody* body;
 
         if (parent()->body()) {
@@ -151,9 +138,25 @@ namespace af3d
             CollisionShape::fromShape(parent()->body()->getCollisionShape())->resetUserPointer();
             compound_->assignUserPointer(); // Inc ref count.
             parent()->body()->setCollisionShape(compound_->shape());
-            static_cast<MotionState*>(parent()->body()->getMotionState())->centerOfMassXf = principalXf;
-            parent()->body()->setMassProps(totalMass, inertia);
+            updateBodyCollision(true);
         } else {
+            std::vector<float> masses(numShapes());
+            float totalMass = 0.0f;
+            for (int i = 0; i < numShapes(); ++i) {
+                masses[i] = shape(i)->mass();
+                totalMass += masses[i];
+            }
+
+            btTransform principalXf = btTransform::getIdentity();
+            btVector3 inertia = btVector3_zero;
+
+            if (numShapes() > 0) {
+                compound_->actualShape().calculatePrincipalAxisTransform(&masses[0], principalXf, inertia);
+                for (int i = 0; i < numShapes(); ++i) {
+                    compound_->actualShape().updateChildTransform(i, shape(i)->transform() * principalXf.inverse(), i == (numShapes() - 1));
+                }
+            }
+
             MotionState* motionState = new MotionState(principalXf, parent()->transform());
 
             btRigidBody::btRigidBodyConstructionInfo bci(totalMass, motionState, compound_->shape(), inertia);
@@ -182,6 +185,46 @@ namespace af3d
     {
         if (parent()->body()->isInWorld()) {
             manager()->world().removeRigidBody(parent()->body());
+        }
+    }
+
+    void PhysicsBodyComponent::updateBodyCollision(bool addRemove)
+    {
+        if (!parent()) {
+            return;
+        }
+
+        std::vector<float> masses(numShapes());
+        float totalMass = 0.0f;
+        for (int i = 0; i < numShapes(); ++i) {
+            masses[i] = shape(i)->mass();
+            totalMass += masses[i];
+        }
+
+        btTransform principalXf = btTransform::getIdentity();
+        btVector3 inertia = btVector3_zero;
+
+        if (numShapes() > 0) {
+            for (int i = 0; i < numShapes(); ++i) {
+                compound_->actualShape().updateChildTransform(i, shape(i)->transform(), false);
+            }
+            compound_->actualShape().calculatePrincipalAxisTransform(&masses[0], principalXf, inertia);
+            for (int i = 0; i < numShapes(); ++i) {
+                compound_->actualShape().updateChildTransform(i, shape(i)->transform() * principalXf.inverse(), i == (numShapes() - 1));
+            }
+        }
+
+        static_cast<MotionState*>(parent()->body()->getMotionState())->centerOfMassXf = principalXf;
+        parent()->body()->setMassProps(totalMass, inertia);
+
+        if (addRemove) {
+            parent()->body()->setCollisionShape(compound_->shape());
+            parent()->body()->setActivationState(ACTIVE_TAG);
+
+            if (parent()->body()->isInWorld()) {
+                manager()->world().removeRigidBody(parent()->body());
+                manager()->world().addRigidBody(parent()->body());
+            }
         }
     }
 }

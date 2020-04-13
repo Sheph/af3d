@@ -35,6 +35,8 @@ namespace af3d
     class PhysicsComponent;
     using PhysicsComponentPtr = std::shared_ptr<PhysicsComponent>;
 
+    using RayCastFn = std::function<float(btCollisionShape*, const btVector3&, const btVector3&, float)>;
+
     class PhysicsComponentManager : public ComponentManager
     {
     public:
@@ -56,6 +58,8 @@ namespace af3d
         bool update(float dt) override;
 
         void debugDraw() override;
+
+        void rayCast(const btVector3& p1, const btVector3& p2, const RayCastFn& fn) const;
 
         inline btDiscreteDynamicsWorld& world() { return world_; }
 

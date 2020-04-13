@@ -361,16 +361,22 @@ namespace af3d
 
     void Scene::setGravity(const btVector3& value)
     {
+        impl_->physicsComponentManager_->world().setGravity(value);
     }
 
     btVector3 Scene::gravity() const
     {
-        return btVector3_zero;
+        return impl_->physicsComponentManager_->world().getGravity();
     }
 
     void Scene::rayCastRender(const Frustum& frustum, const Ray& ray, const RayCastRenderFn& fn) const
     {
         impl_->renderComponentManager_->rayCast(frustum, ray, fn);
+    }
+
+    void Scene::rayCast(const btVector3& p1, const btVector3& p2, const RayCastFn& fn) const
+    {
+        impl_->physicsComponentManager_->rayCast(p1, p2, fn);
     }
 
     void Scene::setRespawnPoint(const btTransform& value)

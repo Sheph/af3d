@@ -58,6 +58,15 @@ namespace af3d { namespace editor
     {
         CollisionShapePtr res;
 
+        scene()->rayCast(ray.pos, ray.pos + ray.dir * 1000.0f, [&res](btCollisionShape* shape, const btVector3&, const btVector3&, float fraction) {
+            auto s = CollisionShape::fromShape(shape);
+            if ((s->aflags() & AObjectEditable) == 0) {
+                return -1.0f;
+            }
+            res = std::static_pointer_cast<CollisionShape>(s->sharedThis());
+            return fraction;
+        });
+
         return res;
     }
 
