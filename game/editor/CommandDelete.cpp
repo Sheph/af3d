@@ -28,6 +28,7 @@
 #include "editor/JsonSerializer.h"
 #include "SceneObject.h"
 #include "Scene.h"
+#include "PhysicsBodyComponent.h"
 #include "Logger.h"
 #include "AJsonWriter.h"
 #include "AJsonReader.h"
@@ -66,6 +67,15 @@ namespace af3d { namespace editor
             preDelete(obj);
             parentWobj_ = AWeakObject(c->parent()->sharedThis());
             c->removeFromParent();
+        } else if (auto shape = aobjectCast<CollisionShape>(obj)) {
+            if (!shape->parent()) {
+                LOG4CPLUS_ERROR(logger(), "redo: Collision shape not parented: " << description());
+                return false;
+            }
+            setDescription("Delete collision");
+            preDelete(obj);
+            parentWobj_ = AWeakObject(shape->parent()->sharedThis());
+            shape->removeFromParent();
         } else {
             LOG4CPLUS_ERROR(logger(), "redo: Bad object type: " << description());
             return false;
@@ -116,6 +126,16 @@ namespace af3d { namespace editor
             }
 
             parentObj->addComponent(c);
+        } else if (auto shape = aobjectCast<CollisionShape>(obj)) {
+            runtime_assert(!shape->parent());
+
+            auto parentPc = aweakObjectCast<PhysicsBodyComponent>(parentWobj_);
+            if (!parentPc) {
+                LOG4CPLUS_ERROR(logger(), "undo: Cannot get parent physics body component by cookie: " << description());
+                return false;
+            }
+
+            parentPc->addShape(shape);
         } else {
             LOG4CPLUS_ERROR(logger(), "undo: Bad object type: " << description());
             return false;

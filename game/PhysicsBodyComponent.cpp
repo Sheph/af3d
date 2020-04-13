@@ -42,6 +42,9 @@ namespace af3d
 
     PhysicsBodyComponent::~PhysicsBodyComponent()
     {
+        for (int i = 0; i < numShapes(); ++i) {
+            shape(i)->abandon();
+        }
         compound_->abandon();
     }
 

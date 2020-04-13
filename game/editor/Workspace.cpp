@@ -28,8 +28,7 @@
 #include "editor/CommandHistoryWindow.h"
 #include "editor/PropertyEditor.h"
 #include "editor/Toolbox.h"
-#include "editor/CommandAddObject.h"
-#include "editor/CommandAddComponent.h"
+#include "editor/CommandAdd.h"
 #include "editor/CommandSetProperty.h"
 #include "editor/CommandDelete.h"
 #include "editor/CommandDup.h"
@@ -42,6 +41,7 @@
 #include "RenderGridComponent.h"
 #include "DirectionalLight.h"
 #include "PointLight.h"
+#include "CollisionShapeBox.h"
 #include "PhysicsBodyComponent.h"
 #include "MeshManager.h"
 #include "AssetManager.h"
@@ -195,9 +195,12 @@ namespace editor {
             return;
         }
 
+        APropertyValueMap initVals;
+        initVals.set(AProperty_WorldTransform, scene()->camera()->transform() * toTransform(btVector3_forward * 5.0f));
+
         cmdHistory_.add(
-             std::make_shared<CommandAddObject>(scene(), *klass, kind,
-                 scene()->camera()->transform() * toTransform(btVector3_forward * 5.0f)));
+             std::make_shared<CommandAdd>(scene(), scene()->sharedThis(), *klass, "\"" + kind + "\" object",
+                 initVals));
     }
 
     void Workspace::setProperty(const AObjectPtr& obj,
@@ -361,6 +364,7 @@ namespace editor {
         }, [this]() {
             actionOpMenuAddObject_.doMenu();
             actionOpMenuAddLight_.doMenu();
+            actionOpMenuAddCollision_.doMenu();
             actionOpMenuAddMesh_.doMenuItem();
             actionOpMenuAddPhysicsBody_.doMenuItem();
         });
@@ -382,7 +386,7 @@ namespace editor {
             initVals.set("mesh", APropertyValue(meshManager.loadMesh("cube.fbx")));
 
             cmdHistory_.add(
-                std::make_shared<CommandAddComponent>(scene(),
+                std::make_shared<CommandAdd>(scene(),
                     emObject_->selected().back().lock(),
                     RenderMeshComponent::staticKlass(), "Mesh", initVals));
         });
@@ -399,7 +403,7 @@ namespace editor {
         }, [this]() {
             APropertyValueMap initVals;
             cmdHistory_.add(
-                std::make_shared<CommandAddComponent>(scene(),
+                std::make_shared<CommandAdd>(scene(),
                     emObject_->selected().back().lock(),
                     DirectionalLight::staticKlass(), "Directional light", initVals));
         });
@@ -409,9 +413,25 @@ namespace editor {
         }, [this]() {
             APropertyValueMap initVals;
             cmdHistory_.add(
-                std::make_shared<CommandAddComponent>(scene(),
+                std::make_shared<CommandAdd>(scene(),
                     emObject_->selected().back().lock(),
                     PointLight::staticKlass(), "Point light", initVals));
+        });
+
+        actionOpMenuAddCollision_ = Action("Collision", [this]() {
+            return Action::State(!emObject_->selected().empty() && emObject_->selectedTyped().back()->findComponent<PhysicsBodyComponent>());
+        }, [this]() {
+            actionOpMenuAddCollisionBox_.doMenuItem();
+        });
+
+        actionOpMenuAddCollisionBox_ = Action("Box", [this]() {
+            return Action::State(!emObject_->selected().empty() && emObject_->selectedTyped().back()->findComponent<PhysicsBodyComponent>());
+        }, [this]() {
+            APropertyValueMap initVals;
+            cmdHistory_.add(
+                std::make_shared<CommandAdd>(scene(),
+                    emObject_->selectedTyped().back()->findComponent<PhysicsBodyComponent>(),
+                    CollisionShapeBox::staticKlass(), "Box collision", initVals));
         });
 
         actionOpMenuAddPhysicsBody_ = Action("Physics body", [this]() {
@@ -419,7 +439,7 @@ namespace editor {
         }, [this]() {
             APropertyValueMap initVals;
             cmdHistory_.add(
-                std::make_shared<CommandAddComponent>(scene(),
+                std::make_shared<CommandAdd>(scene(),
                     emObject_->selected().back().lock(),
                     PhysicsBodyComponent::staticKlass(), "Physics body", initVals));
         });
@@ -482,6 +502,8 @@ namespace editor {
         actions_.push_back(&actionOpMenuAddLight_);
         actions_.push_back(&actionOpMenuAddLightDirectional_);
         actions_.push_back(&actionOpMenuAddLightPoint_);
+        actions_.push_back(&actionOpMenuAddCollision_);
+        actions_.push_back(&actionOpMenuAddCollisionBox_);
         actions_.push_back(&actionOpMenuAddPhysicsBody_);
         actions_.push_back(&actionOpMenuRemove_);
         actions_.push_back(&actionOpMenuRemovePhysicsBody_);

@@ -28,6 +28,7 @@
 #include "editor/JsonSerializer.h"
 #include "SceneObject.h"
 #include "Scene.h"
+#include "PhysicsBodyComponent.h"
 #include "Logger.h"
 #include "AJsonWriter.h"
 #include "AJsonReader.h"
@@ -111,6 +112,18 @@ namespace af3d { namespace editor
             }
             setDescription("Duplicate component");
             c->parent()->addComponent(dupC);
+        } else if (auto shape = aobjectCast<CollisionShape>(obj)) {
+            if (!shape->parent()) {
+                LOG4CPLUS_ERROR(logger(), "redo: Collision shape not parented: " << description());
+                return false;
+            }
+            auto dupShape = aobjectCast<CollisionShape>(dupObj);
+            if (!dupShape) {
+                LOG4CPLUS_ERROR(logger(), "redo: Duped object not a collision shape: " << description());
+                return false;
+            }
+            setDescription("Duplicate collision");
+            shape->parent()->addShape(dupShape);
         } else {
             LOG4CPLUS_ERROR(logger(), "redo: Bad object type: " << description());
             return false;
@@ -161,6 +174,9 @@ namespace af3d { namespace editor
         } else if (auto c = aobjectCast<Component>(dupObj)) {
             runtime_assert(c->parent());
             c->removeFromParent();
+        } else if (auto shape = aobjectCast<CollisionShape>(dupObj)) {
+            runtime_assert(shape->parent());
+            shape->removeFromParent();
         } else {
             LOG4CPLUS_ERROR(logger(), "undo: Bad object type: " << description());
             return false;

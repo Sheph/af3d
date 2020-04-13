@@ -23,29 +23,31 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _EDITOR_COMMAND_ADDOBJECT_H_
-#define _EDITOR_COMMAND_ADDOBJECT_H_
+#ifndef _EDITOR_COMMAND_ADD_H_
+#define _EDITOR_COMMAND_ADD_H_
 
 #include "editor/Command.h"
 #include "AObject.h"
 
 namespace af3d { namespace editor
 {
-    class CommandAddObject : public Command
+    class CommandAdd : public Command
     {
     public:
-        CommandAddObject(Scene* scene,
+        CommandAdd(Scene* scene,
+            const AObjectPtr& parent,
             const AClass& klass, const std::string& kind,
-            const btTransform& xf);
-        ~CommandAddObject() = default;
+            const APropertyValueMap& initVals = APropertyValueMap());
+        ~CommandAdd() = default;
 
         bool redo() override;
 
         bool undo() override;
 
     private:
+        AWeakObject parentWobj_;
         const AClass& klass_;
-        btTransform xf_;
+        APropertyValueMap initVals_;
         AWeakObject wobj_;
     };
 } }

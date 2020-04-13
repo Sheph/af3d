@@ -108,6 +108,8 @@ namespace af3d { namespace editor
         inline Action& actionOpMenuAddLight() { return actionOpMenuAddLight_; }
         inline Action& actionOpMenuAddLightDirectional() { return actionOpMenuAddLightDirectional_; }
         inline Action& actionOpMenuAddLightPoint() { return actionOpMenuAddLightPoint_; }
+        inline Action& actionOpMenuAddCollision() { return actionOpMenuAddCollision_; }
+        inline Action& actionOpMenuAddCollisionBox() { return actionOpMenuAddCollisionBox_; }
         inline Action& actionOpMenuAddPhysicsBody() { return actionOpMenuAddPhysicsBody_; }
         inline Action& actionOpMenuRemove() { return actionOpMenuRemove_; }
         inline Action& actionOpMenuRemovePhysicsBody() { return actionOpMenuRemovePhysicsBody_; }
@@ -184,6 +186,8 @@ namespace af3d { namespace editor
         Action actionOpMenuAddLight_;
         Action actionOpMenuAddLightDirectional_;
         Action actionOpMenuAddLightPoint_;
+        Action actionOpMenuAddCollision_;
+        Action actionOpMenuAddCollisionBox_;
         Action actionOpMenuAddPhysicsBody_;
         Action actionOpMenuRemove_;
         Action actionOpMenuRemovePhysicsBody_;

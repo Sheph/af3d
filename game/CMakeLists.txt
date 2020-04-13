@@ -95,8 +95,7 @@ set(SOURCES
     editor/Action.cpp
     editor/Workspace.cpp
     editor/MainPopup.cpp
-    editor/CommandAddObject.cpp
-    editor/CommandAddComponent.cpp
+    editor/CommandAdd.cpp
     editor/CommandSelect.cpp
     editor/CommandHistory.cpp
     editor/CommandHistoryWindow.cpp
@@ -109,6 +108,7 @@ set(SOURCES
     editor/EditModeVisualImpl.cpp
     editor/EditModeLightImpl.cpp
     editor/EditModeSceneImpl.cpp
+    editor/EditModeCollisionImpl.cpp
     editor/PropertyEditor.cpp
     editor/JsonSerializer.cpp
     editor/Toolbox.cpp

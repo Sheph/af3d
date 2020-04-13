@@ -23,13 +23,15 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "editor/CommandAddComponent.h"
+#include "editor/CommandAdd.h"
+#include "editor/ObjectComponent.h"
 #include "Logger.h"
 #include "SceneObject.h"
+#include "PhysicsBodyComponent.h"
 
 namespace af3d { namespace editor
 {
-    CommandAddComponent::CommandAddComponent(Scene* scene,
+    CommandAdd::CommandAdd(Scene* scene,
         const AObjectPtr& parent,
         const AClass& klass, const std::string& kind,
         const APropertyValueMap& initVals)
@@ -41,17 +43,11 @@ namespace af3d { namespace editor
         setDescription("Add " + kind);
     }
 
-    bool CommandAddComponent::redo()
+    bool CommandAdd::redo()
     {
         auto parentObj = parentWobj_.lock();
         if (!parentObj) {
             LOG4CPLUS_ERROR(logger(), "redo: Cannot get parent obj by cookie: " << description());
-            return false;
-        }
-
-        auto parentSObj = aobjectCast<SceneObject>(parentObj);
-        if (!parentSObj) {
-            LOG4CPLUS_ERROR(logger(), "redo: Parent obj not a scene object: " << description());
             return false;
         }
 
@@ -73,25 +69,45 @@ namespace af3d { namespace editor
             return false;
         }
 
-        auto c = aobjectCast<Component>(aobj);
-        if (!c) {
-            LOG4CPLUS_ERROR(logger(), "redo: Class obj not a component: " << description());
+        if (!wobj_.empty()) {
+            aobj->setCookie(wobj_.cookie());
+        } else {
+            wobj_.reset(aobj);
+        }
+
+        aobj->aflagsSet(AObjectEditable);
+
+        if (auto sObj = aobjectCast<SceneObject>(aobj)) {
+            auto parentSObj = aobjectCast<SceneObjectManager>(parentObj);
+            if (!parentSObj) {
+                LOG4CPLUS_ERROR(logger(), "redo: Parent obj not a scene object manager: " << description());
+                return false;
+            }
+            sObj->addComponent(std::make_shared<ObjectComponent>());
+            parentSObj->addObject(sObj);
+        } else if (auto c = aobjectCast<Component>(aobj)) {
+            auto parentSObj = aobjectCast<SceneObject>(parentObj);
+            if (!parentSObj) {
+                LOG4CPLUS_ERROR(logger(), "redo: Parent obj not a scene object: " << description());
+                return false;
+            }
+            parentSObj->addComponent(c);
+        } else if (auto shape = aobjectCast<CollisionShape>(aobj)) {
+            auto parentPc = aobjectCast<PhysicsBodyComponent>(parentObj);
+            if (!parentPc) {
+                LOG4CPLUS_ERROR(logger(), "redo: Parent obj not a physics object component: " << description());
+                return false;
+            }
+            parentPc->addShape(shape);
+        } else {
+            LOG4CPLUS_ERROR(logger(), "redo: Class obj not supported: " << description());
             return false;
         }
-
-        if (!wobj_.empty()) {
-            c->setCookie(wobj_.cookie());
-        } else {
-            wobj_.reset(c);
-        }
-
-        c->aflagsSet(AObjectEditable);
-        parentSObj->addComponent(c);
 
         return true;
     }
 
-    bool CommandAddComponent::undo()
+    bool CommandAdd::undo()
     {
         auto aobj = wobj_.lock();
         if (!aobj) {
@@ -99,13 +115,16 @@ namespace af3d { namespace editor
             return false;
         }
 
-        auto c = aobjectCast<Component>(aobj);
-        if (!c) {
-            LOG4CPLUS_ERROR(logger(), "undo: obj not a component: " << description());
+        if (auto sObj = aobjectCast<SceneObject>(aobj)) {
+            sObj->removeFromParent();
+        } else if (auto c = aobjectCast<Component>(aobj)) {
+            c->removeFromParent();
+        } else if (auto shape = aobjectCast<CollisionShape>(aobj)) {
+            shape->removeFromParent();
+        } else {
+            LOG4CPLUS_ERROR(logger(), "undo: obj not supported: " << description());
             return false;
         }
-
-        c->removeFromParent();
 
         return true;
     }
