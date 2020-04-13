@@ -113,7 +113,7 @@ namespace af3d
 
         if (components_.erase(physicsComponent) ||
             frozenComponents_.erase(physicsComponent)) {
-            physicsComponent->setManager(NULL);
+            physicsComponent->setManager(nullptr);
         }
     }
 
