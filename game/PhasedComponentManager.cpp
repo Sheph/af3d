@@ -102,7 +102,7 @@ namespace af3d
         component->onThaw();
     }
 
-    void PhasedComponentManager::update(float dt)
+    bool PhasedComponentManager::update(float dt)
     {
         static std::vector<PhasedComponentPtr> tmp;
 
@@ -119,6 +119,8 @@ namespace af3d
         }
 
         tmp.resize(0);
+
+        return true;
     }
 
     void PhasedComponentManager::preRender(float dt)

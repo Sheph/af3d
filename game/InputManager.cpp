@@ -47,7 +47,7 @@ namespace af3d
 
     void InputManager::update()
     {
-        if (keyboard().triggered(KI_R)) {
+        if (keyboard().triggered(KI_J)) {
             gameDebugPressed_ = !gameDebugPressed_;
         }
         if (keyboard().triggered(KI_P)) {
@@ -56,7 +56,7 @@ namespace af3d
         if (keyboard().triggered(KI_M)) {
             slowmoPressed_ = !slowmoPressed_;
         }
-        if (keyboard().triggered(KI_C)) {
+        if (keyboard().triggered(KI_B)) {
             cullPressed_ = !cullPressed_;
         }
     }

@@ -36,8 +36,13 @@ namespace af3d
     struct PhysicsBodyConstructionInfo
     {
         btTransform xf = btTransform::getIdentity();
+        bool active = true;
         float linearDamping = 0.0f;
         float angularDamping = 0.0f;
+        float friction = 0.5f;
+        float restitution = 0.0f;
+        btVector3 linearVelocity = btVector3_zero;
+        btVector3 angularVelocity = btVector3_zero;
     };
 
     class SceneObject : public std::enable_shared_from_this<SceneObject>,
@@ -54,6 +59,8 @@ namespace af3d
         static SceneObjectPtr createWithParams(const AClass& klass, const APropertyValueMap& propVals, AClass::CreateFn fn);
 
         AObjectPtr sharedThis() override { return shared_from_this(); }
+
+        static SceneObject* fromBody(btRigidBody* body);
 
         void addComponent(const ComponentPtr& component);
 
@@ -176,6 +183,12 @@ namespace af3d
         float angularDamping() const;
         void setAngularDamping(float value);
 
+        float friction() const;
+        void setFriction(float value);
+
+        float restitution() const;
+        void setRestitution(float value);
+
         void applyForce(const btVector3& force, const btVector3& point);
         void applyForceToCenter(const btVector3& force);
         void applyTorque(const btVector3& torque);
@@ -267,18 +280,18 @@ namespace af3d
 
         void setChildren(const std::vector<AObjectPtr>& value) override;
 
-        SceneObjectType type_;
+        SceneObjectType type_ = SceneObjectType::Other;
 
         PhysicsBodyConstructionInfo bodyCi_;
-        btRigidBody* body_;
+        btRigidBody* body_ = nullptr;
 
-        float freezeRadius_;
+        float freezeRadius_ = 0.0f;
 
         std::vector<ComponentPtr> components_;
 
         Flags flags_;
 
-        bool physicsActive_;
+        bool physicsActive_ = false;
 
         APropertyValueMap params_;
     };

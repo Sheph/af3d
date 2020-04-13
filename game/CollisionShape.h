@@ -55,6 +55,9 @@ namespace af3d
         inline const btTransform& transform() const { return xf_; }
         void setTransform(const btTransform& value);
 
+        inline float mass() const { return mass_; }
+        void setMass(float value);
+
         void removeFromParent();
 
         /*
@@ -84,6 +87,7 @@ namespace af3d
         btCollisionShape* shape_;
 
         btTransform xf_ = btTransform::getIdentity();
+        float mass_ = 1.0f;
 
         PhysicsBodyComponent* parent_ = nullptr;
         btTransform abandonedParentXf_ = btTransform::getIdentity();

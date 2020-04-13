@@ -24,6 +24,7 @@
  */
 
 #include "SceneObject.h"
+#include "PhysicsBodyComponent.h"
 #include "Scene.h"
 #include "Utils.h"
 #include "Settings.h"
@@ -62,11 +63,7 @@ namespace af3d
     }
 
     SceneObject::SceneObject()
-    : SceneObjectManager(AClass_SceneObject),
-      type_(SceneObjectType::Other),
-      body_(nullptr),
-      freezeRadius_(0.0f),
-      physicsActive_(true)
+    : SceneObjectManager(AClass_SceneObject)
     {
         setFreezePhysics(true);
     }
@@ -83,9 +80,16 @@ namespace af3d
 
         removeAllObjects();
 
-        //if (body_) {
-            //body_->GetWorld()->DestroyBody(body_);
-        //}
+        if (body_) {
+            runtime_assert(!body_->isInWorld());
+            CollisionShape::fromShape(body_->getCollisionShape())->resetUserPointer();
+            body_->setCollisionShape(nullptr);
+            auto ms = body_->getMotionState();
+            delete ms;
+            body_->setMotionState(nullptr);
+            delete body_;
+            body_ = nullptr;
+        }
     }
 
     const AClass& SceneObject::staticKlass()
@@ -116,6 +120,11 @@ namespace af3d
         obj->setKlass(klass);
         obj->setParams(params);
         return obj;
+    }
+
+    SceneObject* SceneObject::fromBody(btRigidBody* body)
+    {
+        return static_cast<SceneObject*>(body->getUserPointer());
     }
 
     void SceneObject::addComponent(const ComponentPtr& component)
@@ -186,6 +195,7 @@ namespace af3d
         btAssert(!body_);
 
         body_ = value;
+        body_->setUserPointer(this);
         physicsActive_ = body_->isInWorld();
     }
 
@@ -382,7 +392,7 @@ namespace af3d
         if (body_) {
             return body_->getLinearVelocity();
         } else {
-            return btVector3_zero;
+            return bodyCi_.linearVelocity;
         }
     }
 
@@ -392,6 +402,8 @@ namespace af3d
 
         if (body_) {
             body_->setLinearVelocity(value);
+        } else {
+            bodyCi_.linearVelocity = value;
         }
     }
 
@@ -410,7 +422,7 @@ namespace af3d
         if (body_) {
             return body_->getAngularVelocity();
         } else {
-            return btVector3_zero;
+            return bodyCi_.angularVelocity;
         }
     }
 
@@ -420,6 +432,8 @@ namespace af3d
 
         if (body_) {
             body_->setAngularVelocity(value);
+        } else {
+            bodyCi_.angularVelocity = value;
         }
     }
 
@@ -470,6 +484,46 @@ namespace af3d
             body_->setDamping(body_->getLinearDamping(), value);
         } else {
             bodyCi_.angularDamping = value;
+        }
+    }
+
+    float SceneObject::friction() const
+    {
+        if (body_) {
+            return body_->getFriction();
+        } else {
+            return bodyCi_.friction;
+        }
+    }
+
+    void SceneObject::setFriction(float value)
+    {
+        btAssert(btIsValid(value));
+
+        if (body_) {
+            body_->setFriction(value);
+        } else {
+            bodyCi_.friction = value;
+        }
+    }
+
+    float SceneObject::restitution() const
+    {
+        if (body_) {
+            return body_->getRestitution();
+        } else {
+            return bodyCi_.restitution;
+        }
+    }
+
+    void SceneObject::setRestitution(float value)
+    {
+        btAssert(btIsValid(value));
+
+        if (body_) {
+            body_->setRestitution(value);
+        } else {
+            bodyCi_.restitution = value;
         }
     }
 
@@ -525,7 +579,7 @@ namespace af3d
         if (body_) {
             return physicsActive_;
         } else {
-            return false;
+            return bodyCi_.active;
         }
     }
 
@@ -534,8 +588,15 @@ namespace af3d
         if (body_) {
             physicsActive_ = value;
             if (!frozen()) {
-                //body_->SetActive(value);
+                auto pc = findComponent<PhysicsBodyComponent>();
+                if (!value && body_->isInWorld() && pc && pc->manager()) {
+                    pc->manager()->world().removeRigidBody(body_);
+                } else if (value && !body_->isInWorld() && pc && pc->manager()) {
+                    pc->manager()->world().addRigidBody(body_);
+                }
             }
+        } else {
+            bodyCi_.active = value;
         }
     }
 

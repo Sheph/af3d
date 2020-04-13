@@ -132,7 +132,7 @@ namespace af3d
         component->onThaw();
     }
 
-    void RenderComponentManager::update(float dt)
+    bool RenderComponentManager::update(float dt)
     {
         cullResults_.clear();
         cc_ = nullptr;
@@ -145,6 +145,8 @@ namespace af3d
         }
 
         tree_.optimizeIncremental(1);
+
+        return true;
     }
 
     void RenderComponentManager::debugDraw()

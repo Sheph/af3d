@@ -58,7 +58,7 @@ namespace af3d
 
         virtual void thawComponent(const ComponentPtr& component) override;
 
-        virtual void update(float dt) override;
+        virtual bool update(float dt) override;
 
         virtual void debugDraw() override;
 

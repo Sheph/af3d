@@ -24,6 +24,8 @@
  */
 
 #include "PhysicsBodyComponent.h"
+#include "SceneObject.h"
+#include "MotionState.h"
 
 namespace af3d
 {
@@ -121,12 +123,49 @@ namespace af3d
 
     void PhysicsBodyComponent::onRegister()
     {
-        // get parent()->bodyCi()
-        // collect shapes
-        // make body
+        const auto& bodyCi = parent()->bodyCi();
+
+        std::vector<float> masses(numShapes());
+        float totalMass = 0.0f;
+        for (int i = 0; i < numShapes(); ++i) {
+            masses[i] = shape(i)->mass();
+            totalMass += masses[i];
+        }
+
+        btTransform principalXf;
+        btVector3 inertia;
+
+        compound_->actualShape().calculatePrincipalAxisTransform(&masses[0], principalXf, inertia);
+        for (int i = 0; i < numShapes(); ++i) {
+            compound_->actualShape().updateChildTransform(i, shape(i)->transform() * principalXf.inverse(), i == (numShapes() - 1));
+        }
+
+        MotionState* motionState = new MotionState(principalXf, bodyCi.xf);
+
+        btRigidBody::btRigidBodyConstructionInfo bci(totalMass, motionState, compound_->shape(), inertia);
+        bci.m_linearDamping = bodyCi.linearDamping;
+        bci.m_angularDamping = bodyCi.angularDamping;
+        bci.m_friction = bodyCi.friction;
+        bci.m_restitution = bodyCi.restitution;
+
+        compound_->assignUserPointer(); // Inc ref count.
+        btRigidBody* body = new btRigidBody(bci);
+
+        body->setLinearVelocity(bodyCi.linearVelocity);
+        body->setAngularVelocity(bodyCi.angularVelocity);
+
+        if (bodyCi.active) {
+            manager()->world().addRigidBody(body);
+        }
+
+        parent()->setBody(body);
     }
 
     void PhysicsBodyComponent::onUnregister()
     {
+        parent()->setPhysicsActive(false);
+        if (parent()->body()->isInWorld()) {
+            manager()->world().removeRigidBody(parent()->body());
+        }
     }
 }

@@ -25,13 +25,26 @@
 
 #include "PhysicsComponentManager.h"
 #include "PhysicsComponent.h"
+#include "Settings.h"
 
 namespace af3d
 {
+    PhysicsComponentManager::PhysicsComponentManager()
+    : collisionDispatcher_(&collisionCfg_),
+      world_(&collisionDispatcher_, &broadphase_, &solver_, &collisionCfg_)
+    {
+        world_.setWorldUserInfo(this);
+    }
+
     PhysicsComponentManager::~PhysicsComponentManager()
     {
         btAssert(components_.empty());
         btAssert(frozenComponents_.empty());
+    }
+
+    PhysicsComponentManager* PhysicsComponentManager::fromWorld(btDynamicsWorld* world)
+    {
+        return static_cast<PhysicsComponentManager*>(world->getWorldUserInfo());
     }
 
     void PhysicsComponentManager::cleanup()
@@ -78,8 +91,9 @@ namespace af3d
         component->onThaw();
     }
 
-    void PhysicsComponentManager::update(float dt)
+    bool PhysicsComponentManager::update(float dt)
     {
+        return world_.stepSimulation(dt, settings.physics.maxSteps, settings.physics.fixedTimestep) > 0;
     }
 
     void PhysicsComponentManager::debugDraw()

@@ -70,6 +70,11 @@ namespace af3d
         xf_ = value;
     }
 
+    void CollisionShape::setMass(float value)
+    {
+        mass_ = value;
+    }
+
     void CollisionShape::removeFromParent()
     {
         if (parent()) {

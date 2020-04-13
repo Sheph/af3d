@@ -119,6 +119,8 @@ namespace af3d
         void propertyAmbientColorSet(const std::string&, const APropertyValue& value);
 
     private:
+        static void worldTickCallback(btDynamicsWorld* world, btScalar timeStep);
+
         void freezeThawObjects(const AABB& aabb);
 
         void updateInputMode();
@@ -126,6 +128,8 @@ namespace af3d
         std::vector<AObjectPtr> getChildren() const override;
 
         void setChildren(const std::vector<AObjectPtr>& value) override;
+
+        void updateStep(float dt);
 
         class Impl;
         std::unique_ptr<Impl> impl_;

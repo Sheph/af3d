@@ -80,6 +80,14 @@ namespace af3d
         }
 
         /*
+         * physics.
+         */
+
+        physics.fixedTimestep = appConfig->getFloat("physics.fixedTimestep");
+        physics.maxSteps = appConfig->getInt("physics.maxSteps");
+        physics.slowmoFactor = appConfig->getFloat("physics.slowmoFactor");
+
+        /*
          * imGui.
          */
 

@@ -61,7 +61,7 @@ namespace af3d
     class Scene::Impl
     {
     public:
-        explicit Impl(Scene* scene)
+        Impl()
         {
             phasedComponentManager_.reset(new PhasedComponentManager());
             physicsComponentManager_.reset(new PhysicsComponentManager());
@@ -83,11 +83,12 @@ namespace af3d
         TimerMap timers_;
         std::uint32_t nextTimerCookie_ = 1;
         TimerMap::const_iterator timerIt_;
+        bool firstPhysicsStep_ = true;
     };
 
     Scene::Scene(const std::string& assetPath)
     : SceneObjectManager(AClass_Scene),
-      impl_(new Impl(this)),
+      impl_(new Impl()),
       inputMode_(InputMode::Game),
       playable_(false),
       paused_(false),
@@ -109,6 +110,9 @@ namespace af3d
         impl_->physicsComponentManager_->setScene(this);
         impl_->renderComponentManager_->setScene(this);
         impl_->uiComponentManager_->setScene(this);
+
+        impl_->physicsComponentManager_->world().setInternalTickCallback(&Scene::worldTickCallback,
+            impl_->physicsComponentManager_->world().getWorldUserInfo());
 
         if (settings.editor.enabled) {
             workspaceObj_ = std::make_shared<SceneObject>();
@@ -223,6 +227,10 @@ namespace af3d
             dt *= timeScale_;
         }
 
+        if (inputManager.slowmoPressed()) {
+            dt /= settings.physics.slowmoFactor;
+        }
+
         bool forceUpdateRender = false;
 
         if (!paused_ && (inputMode_ != InputMode::Menu) && inputManager.keyboard().triggered(KI_ESCAPE)) {
@@ -236,29 +244,11 @@ namespace af3d
         bool inputProcessed = true;
 
         if (!paused_) {
-            for (std::uint32_t i = 0; i < 1; ++i) {
-                if (!impl_->timers_.empty()) {
-                    auto lastCookie = impl_->timers_.rbegin()->first;
-                    for (impl_->timerIt_ = impl_->timers_.begin();
-                        impl_->timerIt_ != impl_->timers_.end();) {
-                        if (impl_->timerIt_->first > lastCookie) {
-                            break;
-                        }
-                        const Scene::TimerFn& fn = impl_->timerIt_->second;
-                        ++impl_->timerIt_;
-                        fn(0);
-                    }
-                    impl_->timerIt_ = impl_->timers_.end();
-                }
+            impl_->firstPhysicsStep_ = true;
 
-                impl_->phasedComponentManager_->update(0);
+            bool physicsStepped = impl_->physicsComponentManager_->update(dt);
 
-                if (i == 0) {
-                    inputManager.processed();
-                }
-            }
-
-            if (true) {
+            if (physicsStepped) {
                 inputManager.proceed();
             } else {
                 inputManager.processed();
@@ -271,7 +261,7 @@ namespace af3d
 
             impl_->phasedComponentManager_->preRender(dt);
 
-            if (true) {
+            if (physicsStepped) {
                 //freezeThawObjects(cc->getTrueAABB());
             }
 
@@ -320,6 +310,30 @@ namespace af3d
         renderer.swap(RenderNodeList{rn, uiRn});
 
         firstUpdate_ = false;
+    }
+
+    void Scene::updateStep(float dt)
+    {
+        if (!impl_->timers_.empty()) {
+            auto lastCookie = impl_->timers_.rbegin()->first;
+            for (impl_->timerIt_ = impl_->timers_.begin();
+                impl_->timerIt_ != impl_->timers_.end();) {
+                if (impl_->timerIt_->first > lastCookie) {
+                    break;
+                }
+                const Scene::TimerFn& fn = impl_->timerIt_->second;
+                ++impl_->timerIt_;
+                fn(dt);
+            }
+            impl_->timerIt_ = impl_->timers_.end();
+        }
+
+        impl_->phasedComponentManager_->update(dt);
+
+        if (impl_->firstPhysicsStep_) {
+            impl_->firstPhysicsStep_ = false;
+            inputManager.processed();
+        }
     }
 
     std::uint32_t Scene::addTimer(const TimerFn& fn)
@@ -435,6 +449,11 @@ namespace af3d
     void Scene::propertyAmbientColorSet(const std::string&, const APropertyValue& value)
     {
         camera_->findComponent<CameraComponent>()->renderSettings().setAmbientColor(value.toColor());
+    }
+
+    void Scene::worldTickCallback(btDynamicsWorld* world, btScalar timeStep)
+    {
+        PhysicsComponentManager::fromWorld(world)->scene()->updateStep(timeStep);
     }
 
     void Scene::freezeThawObjects(const AABB& aabb)

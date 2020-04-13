@@ -56,7 +56,7 @@ namespace af3d
 
         void thawComponent(const ComponentPtr& component) override;
 
-        void update(float dt) override;
+        bool update(float dt) override;
 
         void debugDraw() override;
 

@@ -36,6 +36,20 @@ namespace af3d
     class Settings : public Single<Settings>
     {
     public:
+        struct Physics
+        {
+            /*
+             * Physics will step with this rate.
+             */
+            float fixedTimestep;
+
+            /*
+             * Maximum number of physics steps to avoid "spiral of death".
+             */
+            std::uint32_t maxSteps;
+            float slowmoFactor;
+        };
+
         struct ImGui
         {
             bool drawCursor;
@@ -83,6 +97,7 @@ namespace af3d
         std::uint32_t viewX;
         std::uint32_t viewY;
         std::set<VideoMode> winVideoModes;
+        Physics physics;
         ImGui imGui;
         Editor editor;
     };

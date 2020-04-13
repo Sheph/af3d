@@ -76,7 +76,7 @@ namespace af3d
     {
     }
 
-    void UIComponentManager::update(float dt)
+    bool UIComponentManager::update(float dt)
     {
         static std::vector<UIComponentPtr> tmp;
 
@@ -94,6 +94,8 @@ namespace af3d
         }
 
         tmp.resize(0);
+
+        return true;
     }
 
     void UIComponentManager::debugDraw()

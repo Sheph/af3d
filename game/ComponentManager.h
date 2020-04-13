@@ -48,7 +48,7 @@ namespace af3d
 
         virtual void thawComponent(const ComponentPtr& component) = 0;
 
-        virtual void update(float dt) = 0;
+        virtual bool update(float dt) = 0;
 
         virtual void debugDraw() = 0;
 

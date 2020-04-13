@@ -23,52 +23,23 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _PHYSICSCOMPONENTMANAGER_H_
-#define _PHYSICSCOMPONENTMANAGER_H_
-
-#include "ComponentManager.h"
-#include <unordered_set>
-#include "bullet/btBulletDynamicsCommon.h"
+#include "MotionState.h"
 
 namespace af3d
 {
-    class PhysicsComponent;
-    using PhysicsComponentPtr = std::shared_ptr<PhysicsComponent>;
-
-    class PhysicsComponentManager : public ComponentManager
+    MotionState::MotionState(const btTransform& centerOfMassXf, const btTransform& startXf)
+    : centerOfMassXf(centerOfMassXf),
+      smoothXf(startXf)
     {
-    public:
-        PhysicsComponentManager();
-        ~PhysicsComponentManager();
+    }
 
-        static PhysicsComponentManager* fromWorld(btDynamicsWorld* world);
+    void MotionState::getWorldTransform(btTransform& worldTrans) const
+    {
+        worldTrans = smoothXf * centerOfMassXf;
+    }
 
-        void cleanup() override;
-
-        void addComponent(const ComponentPtr& component) override;
-
-        void removeComponent(const ComponentPtr& component) override;
-
-        void freezeComponent(const ComponentPtr& component) override;
-
-        void thawComponent(const ComponentPtr& component) override;
-
-        bool update(float dt) override;
-
-        void debugDraw() override;
-
-        inline btDiscreteDynamicsWorld& world() { return world_; }
-
-    private:
-        btDefaultCollisionConfiguration collisionCfg_;
-        btCollisionDispatcher collisionDispatcher_;
-        btDbvtBroadphase broadphase_;
-        btSequentialImpulseConstraintSolver solver_;
-        btDiscreteDynamicsWorld world_;
-
-        std::unordered_set<PhysicsComponentPtr> components_;
-        std::unordered_set<PhysicsComponentPtr> frozenComponents_;
-    };
+    void MotionState::setWorldTransform(const btTransform& worldTrans)
+    {
+        smoothXf = worldTrans * centerOfMassXf.inverse();
+    }
 }
-
-#endif
