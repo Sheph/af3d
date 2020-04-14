@@ -42,6 +42,14 @@ namespace af3d
         drawLine(PointOnB, PointOnB + normalOnB * 0.01, ncolor);
     }
 
+    void PhysicsDebugDraw::drawTransform(const btTransform& transform, btScalar orthoLen)
+    {
+        btVector3 start = transform.getOrigin();
+        drawLine(start, start + transform.getBasis() * btVector3_right * orthoLen, btVector3(btScalar(1.), btScalar(0.3), btScalar(0.3)));
+        drawLine(start, start + transform.getBasis() * btVector3_up * orthoLen, btVector3(btScalar(0.3), btScalar(1.), btScalar(0.3)));
+        drawLine(start, start + transform.getBasis() * btVector3_forward * orthoLen, btVector3(btScalar(0.3), btScalar(0.3), btScalar(1.)));
+    }
+
     void PhysicsDebugDraw::reportErrorWarning(const char* warningString)
     {
         LOG4CPLUS_WARN(logger(), "PhysicsDebugDraw: " << warningString);

@@ -45,6 +45,8 @@ namespace af3d
 
         void drawContactPoint(const btVector3& PointOnB, const btVector3& normalOnB, btScalar distance, int lifeTime, const btVector3& color) override;
 
+        void drawTransform(const btTransform& transform, btScalar orthoLen) override;
+
         void reportErrorWarning(const char* warningString) override;
 
         void draw3dText(const btVector3& location, const char* textString) override;
