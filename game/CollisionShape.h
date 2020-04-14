@@ -88,6 +88,9 @@ namespace af3d
         APropertyValue propertyWorldTransformGet(const std::string&) const;
         void propertyWorldTransformSet(const std::string&, const APropertyValue& value);
 
+        APropertyValue propertyMassGet(const std::string&) const { return mass(); }
+        void propertyMassSet(const std::string&, const APropertyValue& value) { setMass(value.toFloat()); }
+
         APropertyValue propertyParamGet(const std::string& key) const { return params_.get(key); }
 
     private:

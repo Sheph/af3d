@@ -34,6 +34,7 @@ namespace af3d
     ACLASS_PROPERTY_RO(CollisionShape, Parent, AProperty_Parent, "Parent", AObject, Hierarchy, APropertyTransient)
     ACLASS_PROPERTY(CollisionShape, LocalTransform, AProperty_LocalTransform, "Local transform", Transform, btTransform::getIdentity(), Position, APropertyEditable)
     ACLASS_PROPERTY(CollisionShape, WorldTransform, AProperty_WorldTransform, "World transform", Transform, btTransform::getIdentity(), Position, APropertyEditable|APropertyTransient)
+    ACLASS_PROPERTY(CollisionShape, Mass, "mass", "Mass", Float, 1.0f, Physics, APropertyEditable)
     ACLASS_DEFINE_END(CollisionShape)
 
     CollisionShape::CollisionShape(const AClass& klass, btCollisionShape* shape)

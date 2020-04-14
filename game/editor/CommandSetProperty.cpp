@@ -26,6 +26,7 @@
 #include "editor/CommandSetProperty.h"
 #include "editor/CommandDelete.h"
 #include "SceneObject.h"
+#include "CollisionShape.h"
 #include "Logger.h"
 
 namespace af3d { namespace editor
@@ -75,8 +76,7 @@ namespace af3d { namespace editor
         value.convertFromWeak();
 
         if (isParam_) {
-            auto sObj = aobjectCast<SceneObject>(obj);
-            if (sObj) {
+            if (auto sObj = aobjectCast<SceneObject>(obj)) {
                 auto origPvm = sObj->params();
                 auto pvm = origPvm;
                 pvm.set(name_, value);
@@ -87,6 +87,19 @@ namespace af3d { namespace editor
                 } else {
                     sObj->setParams(origPvm);
                 }
+            } else if (auto shape = aobjectCast<CollisionShape>(obj)) {
+                auto origPvm = shape->params();
+                auto pvm = origPvm;
+                pvm.set(name_, value);
+                shape->setParams(pvm);
+                auto cmd = std::make_shared<CommandDelete>(scene(), obj);
+                if (cmd->redo()) {
+                    cmd->undo();
+                } else {
+                    shape->setParams(origPvm);
+                }
+            } else {
+                LOG4CPLUS_ERROR(logger(), "Unknown param handling object: " << description());
             }
         } else {
             obj->propertySet(name_, value);
