@@ -154,7 +154,7 @@ namespace af3d
             if (numShapes() > 0) {
                 compound_->actualShape().calculatePrincipalAxisTransform(&masses[0], principalXf, inertia);
                 for (int i = 0; i < numShapes(); ++i) {
-                    compound_->actualShape().updateChildTransform(i, shape(i)->transform() * principalXf.inverse(), i == (numShapes() - 1));
+                    compound_->actualShape().updateChildTransform(i, principalXf.inverse() * shape(i)->transform(), i == (numShapes() - 1));
                 }
             }
 
@@ -227,11 +227,13 @@ namespace af3d
             }
             compound_->actualShape().calculatePrincipalAxisTransform(&masses[0], principalXf, inertia);
             for (int i = 0; i < numShapes(); ++i) {
-                compound_->actualShape().updateChildTransform(i, shape(i)->transform() * principalXf.inverse(), i == (numShapes() - 1));
+                compound_->actualShape().updateChildTransform(i, principalXf.inverse() * shape(i)->transform(), i == (numShapes() - 1));
             }
         }
 
+        auto xf = parent()->transform();
         static_cast<MotionState*>(parent()->body()->getMotionState())->centerOfMassXf = principalXf;
+        parent()->setTransform(xf);
 
         if (parent()->bodyType() == BodyType::Dynamic) {
             if (totalMass <= 0.0f) {

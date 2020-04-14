@@ -25,6 +25,7 @@
 
 #include "SceneObject.h"
 #include "PhysicsBodyComponent.h"
+#include "MotionState.h"
 #include "Scene.h"
 #include "Utils.h"
 #include "Settings.h"
@@ -101,11 +102,11 @@ namespace af3d
             runtime_assert(!body_->isInWorld());
             CollisionShape::fromShape(body_->getCollisionShape())->resetUserPointer();
             body_->setCollisionShape(nullptr);
-            auto ms = body_->getMotionState();
-            delete ms;
+            delete bodyMs_;
             body_->setMotionState(nullptr);
             delete body_;
             body_ = nullptr;
+            bodyMs_ = nullptr;
         }
     }
 
@@ -215,6 +216,7 @@ namespace af3d
 
         body_ = value;
         body_->setUserPointer(this);
+        bodyMs_ = static_cast<MotionState*>(body_->getMotionState());
         physicsActive_ = body_->isInWorld();
     }
 
@@ -257,7 +259,7 @@ namespace af3d
             }
             auto pc = findComponent<PhysicsBodyComponent>();
             if (pc) {
-                pc->updateBodyCollision(false);
+                pc->updateBodyCollision(true);
             }
         } else {
             bodyCi_.bodyType = value;
@@ -267,10 +269,9 @@ namespace af3d
     const btTransform& SceneObject::transform() const
     {
         if (body_) {
-            return body_->getWorldTransform();
-        } else {
-            return bodyCi_.xf;
+            bodyCi_.xf = worldCenter() * localCenter().inverse();
         }
+        return bodyCi_.xf;
     }
 
     void SceneObject::setTransform(const btVector3& pos, const btQuaternion& rot)
@@ -284,7 +285,7 @@ namespace af3d
     void SceneObject::setTransform(const btTransform& t)
     {
         if (body_) {
-            body_->setWorldTransform(t);
+            body_->setCenterOfMassTransform(t * localCenter());
         } else {
             bodyCi_.xf = t;
         }
@@ -303,138 +304,58 @@ namespace af3d
 
     const btVector3& SceneObject::pos() const
     {
-        if (body_) {
-            return body_->getWorldTransform().getOrigin();
-        } else {
-            return bodyCi_.xf.getOrigin();
-        }
+        return transform().getOrigin();
     }
 
     void SceneObject::setPos(const btVector3& value)
     {
-        btAssert(btIsValid(value));
-
-        //b2Vec2 tmpPos = smoothPos_ - pos();
-        //b2Vec2 tmpPrevPos = smoothPrevPos_ - pos();
-
-        if (body_) {
-            body_->setWorldTransform(btTransform(body_->getWorldTransform().getBasis(), value));
-        } else {
-            bodyCi_.xf.setOrigin(value);
-        }
-
-        //smoothPos_ = pos() + tmpPos;
-        //smoothPrevPos_ = pos() + tmpPrevPos;
+        auto xf = transform();
+        xf.setOrigin(value);
+        setTransform(xf);
     }
-
-/*    void SceneObject::setPosRecursive(const b2Vec2& value)
-    {
-        b2Vec2 tmp = value - pos();
-        setPos(value);
-        for (std::set<SceneObjectPtr>::const_iterator it = objects().begin();
-             it != objects().end();
-             ++it ) {
-            (*it)->setPosRecursive((*it)->pos() + tmp);
-        }
-    }
-
-    void SceneObject::setPosSmoothed(const b2Vec2& value)
-    {
-        assert(value.IsValid());
-
-        b2Vec2 tmpPos = smoothPos_ - pos();
-
-        if (body_) {
-            body_->SetTransform(value, body_->GetAngle());
-        } else {
-            bodyDef_.position = value;
-        }
-
-        smoothPos_ = pos() + tmpPos;
-    }*/
 
     const btMatrix3x3& SceneObject::basis() const
     {
-        if (body_) {
-            return body_->getWorldTransform().getBasis();
-        } else {
-            return bodyCi_.xf.getBasis();
-        }
+        return transform().getBasis();
     }
 
     void SceneObject::setBasis(const btMatrix3x3& value)
     {
-        if (body_) {
-            body_->setWorldTransform(btTransform(value, body_->getWorldTransform().getOrigin()));
-        } else {
-            bodyCi_.xf.setBasis(value);
-        }
+        auto xf = transform();
+        xf.setBasis(value);
+        setTransform(xf);
     }
 
     btQuaternion SceneObject::rotation() const
     {
-        if (body_) {
-            return body_->getWorldTransform().getRotation();
-        } else {
-            return bodyCi_.xf.getRotation();
-        }
+        btQuaternion ret;
+        basis().getRotation(ret);
+        return ret;
     }
 
     void SceneObject::setRotation(const btQuaternion& value)
     {
-        btAssert(btIsValid(value));
-
-        //float tmpAng = smoothAngle_ - angle();
-        //float tmpPrevAng = smoothPrevAngle_ - angle();
-
-        if (body_) {
-            body_->setWorldTransform(btTransform(value, body_->getWorldTransform().getOrigin()));
-        } else {
-            bodyCi_.xf.setRotation(value);
-        }
-
-        //smoothAngle_ = angle() + tmpAng;
-        //smoothPrevAngle_ = angle() + tmpPrevAng;
+        auto xf = transform();
+        xf.setRotation(value);
+        setTransform(xf);
     }
 
-/*    void SceneObject::setAngleRecursive(float value)
+    const btTransform& SceneObject::worldCenter() const
     {
-        float tmp = value - angle();
-        setAngle(value);
-        b2Rot rot(tmp);
-        for (std::set<SceneObjectPtr>::const_iterator it = objects().begin();
-             it != objects().end();
-             ++it ) {
-            (*it)->setPosRecursive(pos() + b2Mul(rot, (*it)->pos() - pos()));
-            (*it)->setAngleRecursive((*it)->angle() + tmp);
+        if (body_) {
+            return body_->getWorldTransform();
+        } else {
+            return bodyCi_.xf;
         }
     }
 
-    void SceneObject::setAngleSmoothed(float value)
-    {
-        float tmpAng = smoothAngle_ - angle();
-
-        if (body_) {
-            body_->SetTransform(body_->GetPosition(), value);
-        } else {
-            bodyDef_.angle = value;
-        }
-
-        smoothAngle_ = angle() + tmpAng;
-    }*/
-
-    const btVector3& SceneObject::worldCenter() const
+    const btTransform& SceneObject::localCenter() const
     {
         if (body_) {
-            return body_->getWorldTransform().getOrigin();
+            return bodyMs_->centerOfMassXf;
         } else {
-            return bodyCi_.xf.getOrigin();
+            return btTransform::getIdentity();
         }
-    }
-
-    const btVector3& SceneObject::localCenter() const
-    {
-        return btVector3_zero;
     }
 
     float SceneObject::mass() const
@@ -598,7 +519,7 @@ namespace af3d
         btAssert(btIsValid(point));
 
         if (body_) {
-            body_->applyForce(force, point);
+            body_->applyForce(force, worldCenter().inverse() * point);
         }
     }
 
@@ -626,7 +547,7 @@ namespace af3d
         btAssert(btIsValid(point));
 
         if (body_) {
-            body_->applyImpulse(impulse, point);
+            body_->applyImpulse(impulse, worldCenter().inverse() * point);
         }
     }
 
@@ -731,7 +652,7 @@ namespace af3d
     btVector3 SceneObject::getLinearVelocityFromLocalPoint(const btVector3& localPoint) const
     {
         if (body_) {
-            return body_->getVelocityInLocalPoint(localPoint);
+            return body_->getVelocityInLocalPoint(localCenter().inverse() * localPoint);
         } else {
             return btVector3_zero;
         }

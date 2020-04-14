@@ -33,6 +33,8 @@
 
 namespace af3d
 {
+    class MotionState;
+
     enum class BodyType
     {
         Static = 0,
@@ -161,8 +163,8 @@ namespace af3d
 
         //void setRotationSmoothed(const btQuaternion& value);
 
-        const btVector3& worldCenter() const;
-        const btVector3& localCenter() const;
+        const btTransform& worldCenter() const;
+        const btTransform& localCenter() const;
 
         float mass() const;
 
@@ -320,8 +322,9 @@ namespace af3d
 
         SceneObjectType type_ = SceneObjectType::Other;
 
-        PhysicsBodyConstructionInfo bodyCi_;
+        mutable PhysicsBodyConstructionInfo bodyCi_;
         btRigidBody* body_ = nullptr;
+        MotionState* bodyMs_ = nullptr;
 
         float freezeRadius_ = 0.0f;
 
