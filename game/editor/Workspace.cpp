@@ -428,13 +428,23 @@ namespace editor {
         });
 
         actionOpMenuAddCollision_ = Action("Collision", [this]() {
-            return Action::State(!emObject_->selected().empty() && emObject_->selectedTyped().back()->findComponent<PhysicsBodyComponent>());
+            bool enabled = false;
+            if (!emObject_->selected().empty()) {
+                auto pc = emObject_->selectedTyped().back()->findComponent<PhysicsBodyComponent>();
+                enabled = pc && ((pc->aflags() & AObjectEditable) != 0);
+            }
+            return Action::State(enabled);
         }, [this]() {
             actionOpMenuAddCollisionBox_.doMenuItem();
         });
 
         actionOpMenuAddCollisionBox_ = Action("Box", [this]() {
-            return Action::State(!emObject_->selected().empty() && emObject_->selectedTyped().back()->findComponent<PhysicsBodyComponent>());
+            bool enabled = false;
+            if (!emObject_->selected().empty()) {
+                auto pc = emObject_->selectedTyped().back()->findComponent<PhysicsBodyComponent>();
+                enabled = pc && ((pc->aflags() & AObjectEditable) != 0);
+            }
+            return Action::State(enabled);
         }, [this]() {
             APropertyValueMap initVals;
             cmdHistory_.add(
@@ -444,7 +454,13 @@ namespace editor {
         });
 
         actionOpMenuAddPhysicsBody_ = Action("Physics body", [this]() {
-            return Action::State(!emObject_->selected().empty() && !emObject_->selectedTyped().back()->findComponent<PhysicsBodyComponent>());
+            bool enabled = false;
+            if (!emObject_->selected().empty()) {
+                auto obj = emObject_->selectedTyped().back();
+                auto pc = obj->findComponent<PhysicsBodyComponent>();
+                enabled = !pc && (&obj->klass() == &AClass_SceneObject);
+            }
+            return Action::State(enabled);
         }, [this]() {
             APropertyValueMap initVals;
             cmdHistory_.add(
@@ -460,7 +476,12 @@ namespace editor {
         });
 
         actionOpMenuRemovePhysicsBody_ = Action("Physics body", [this]() {
-            return Action::State(!emObject_->selected().empty() && emObject_->selectedTyped().back()->findComponent<PhysicsBodyComponent>());
+            bool enabled = false;
+            if (!emObject_->selected().empty()) {
+                auto pc = emObject_->selectedTyped().back()->findComponent<PhysicsBodyComponent>();
+                enabled = pc && ((pc->aflags() & AObjectEditable) != 0);
+            }
+            return Action::State(enabled);
         }, [this]() {
             deleteObject(emObject_->selectedTyped().back()->findComponent<PhysicsBodyComponent>());
         });

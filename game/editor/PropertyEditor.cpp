@@ -29,6 +29,7 @@
 #include "Scene.h"
 #include "Settings.h"
 #include "SceneObject.h"
+#include "PhysicsBodyComponent.h"
 #include "imgui.h"
 
 namespace af3d {
@@ -125,12 +126,20 @@ namespace editor {
                     auto& actionAddBody = scene()->workspace()->actionOpMenuAddPhysicsBody();
                     auto& actionRemoveBody = scene()->workspace()->actionOpMenuRemovePhysicsBody();
 
-                    if (actionRemoveBody.state().enabled && ImGui::Button("Remove")) {
-                        wasSet = true;
-                        actionRemoveBody.trigger();
-                    } else if (actionAddBody.state().enabled && ImGui::Button("Create")) {
-                        wasSet = true;
-                        actionAddBody.trigger();
+                    if (actionRemoveBody.state().enabled) {
+                        if (ImGui::Button("Remove")) {
+                            wasSet = true;
+                            actionRemoveBody.trigger();
+                        }
+                    } else if (actionAddBody.state().enabled) {
+                        if (ImGui::Button("Create")) {
+                            wasSet = true;
+                            actionAddBody.trigger();
+                        }
+                    } else if (sceneObj->findComponent<PhysicsBodyComponent>()) {
+                        ImGui::Text("Yes");
+                    } else {
+                        ImGui::Text("No");
                     }
                     ImGui::NextColumn();
                     ImGui::PopID();

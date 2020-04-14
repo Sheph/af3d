@@ -32,10 +32,20 @@
 
 namespace af3d
 {
+    const APropertyTypeEnumImpl<BodyType> APropertyType_BodyType{"BodyType",
+        {
+            "Static",
+            "Kinematic",
+            "Dynamic"
+        }
+    };
+
     ACLASS_DEFINE_BEGIN(SceneObject, SceneObjectManager)
     ACLASS_PROPERTY(SceneObject, Transform, AProperty_WorldTransform, "World transform", Transform, btTransform::getIdentity(), Position, APropertyEditable)
     ACLASS_PROPERTY(SceneObject, Type, "type", "Scene object type", SceneObjectType, static_cast<int>(SceneObjectType::Other), General, APropertyEditable)
     ACLASS_PROPERTY(SceneObject, PhysicsActive, AProperty_PhysicsActive, "Physics is active", Bool, true, Physics, APropertyEditable)
+    ACLASS_PROPERTY(SceneObject, BodyType, "body type", "Physics body type", BodyType, static_cast<int>(BodyType::Static), Physics, APropertyEditable)
+    ACLASS_PROPERTY_RO(SceneObject, Mass, "mass", "Mass", Float, Physics, APropertyEditable|APropertyTransient)
     ACLASS_PROPERTY(SceneObject, Friction, "friction", "Friction", Float, 0.5f, Physics, APropertyEditable)
     ACLASS_PROPERTY(SceneObject, Restitution, "restitution", "Restitution", Float, 0.0f, Physics, APropertyEditable)
     ACLASS_PROPERTY(SceneObject, LinearDamping, "linear damping", "Linear damping", Float, 0.0f, Physics, APropertyEditable)
@@ -245,7 +255,10 @@ namespace af3d
                 btAssert(false);
                 break;
             }
-            findComponent<PhysicsBodyComponent>()->updateBodyCollision(false);
+            auto pc = findComponent<PhysicsBodyComponent>();
+            if (pc) {
+                pc->updateBodyCollision(false);
+            }
         } else {
             bodyCi_.bodyType = value;
         }

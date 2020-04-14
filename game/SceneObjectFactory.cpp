@@ -29,6 +29,7 @@
 #include "AssetManager.h"
 #include "RenderMeshComponent.h"
 #include "RenderQuadComponent.h"
+#include "PhysicsBodyComponent.h"
 #include "Settings.h"
 #include "Utils.h"
 #include "Logger.h"
@@ -54,20 +55,10 @@ namespace af3d
 
     SceneObjectPtr SceneObjectFactory::createDummy()
     {
-        /*b2BodyDef bodyDef;
-
-        bodyDef.type = b2_kinematicBody;
-
-        RUBEBodyPtr body = boost::make_shared<RUBEBody>("", bodyDef);
-
-        ComponentPtr component =
-            boost::make_shared<PhysicsBodyComponent>(body);*/
-
         auto obj = std::make_shared<SceneObject>();
+        obj->setBodyType(BodyType::Kinematic);
 
-        //obj->setBodyDef(body->bodyDef());
-
-        //obj->addComponent(component);
+        obj->addComponent(std::make_shared<PhysicsBodyComponent>());
 
         return obj;
     }
@@ -93,12 +84,12 @@ namespace af3d
         return obj;
     }
 
-    /*SCENEOBJECT_DEFINE_BEGIN(Dummy)
+    SCENEOBJECT_DEFINE_BEGIN(Dummy)
     {
         return sceneObjectFactory.createDummy();
     }
     SCENEOBJECT_DEFINE_PROPS(Dummy)
-    SCENEOBJECT_DEFINE_END(Dummy)*/
+    SCENEOBJECT_DEFINE_END(Dummy)
 
     SCENEOBJECT_DEFINE_BEGIN(ColoredBox)
     {
