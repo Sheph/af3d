@@ -48,6 +48,15 @@ namespace af3d
              */
             std::uint32_t maxSteps;
             float slowmoFactor;
+
+            bool debugWireframe;
+            bool debugAabb;
+            bool debugContactPoints;
+            bool debugNoDeactivation;
+            bool debugJoints;
+            bool debugJointLimits;
+            bool debugNormals;
+            bool debugFrames;
         };
 
         struct ImGui

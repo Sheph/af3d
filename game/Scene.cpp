@@ -47,6 +47,7 @@
 #include "VertexArrayWriter.h"
 #include "HardwareResourceManager.h"
 #include "Const.h"
+#include "PhysicsDebugDraw.h"
 #include <Rocket/Core/ElementDocument.h>
 #include <cmath>
 
@@ -63,8 +64,44 @@ namespace af3d
     public:
         Impl()
         {
+            int debugMode = 0;
+
+            if (settings.physics.debugWireframe) {
+                debugMode += btIDebugDraw::DBG_DrawWireframe;
+            }
+
+            if (settings.physics.debugAabb) {
+                debugMode += btIDebugDraw::DBG_DrawAabb;
+            }
+
+            if (settings.physics.debugContactPoints) {
+                debugMode += btIDebugDraw::DBG_DrawContactPoints;
+            }
+
+            if (settings.physics.debugNoDeactivation) {
+                debugMode += btIDebugDraw::DBG_NoDeactivation;
+            }
+
+            if (settings.physics.debugJoints) {
+                debugMode += btIDebugDraw::DBG_DrawConstraints;
+            }
+
+            if (settings.physics.debugJointLimits) {
+                debugMode += btIDebugDraw::DBG_DrawConstraintLimits;
+            }
+
+            if (settings.physics.debugNormals) {
+                debugMode += btIDebugDraw::DBG_DrawNormals;
+            }
+
+            if (settings.physics.debugFrames) {
+                debugMode += btIDebugDraw::DBG_DrawFrames;
+            }
+
+            debugDraw_.setDebugMode(debugMode);
+
             phasedComponentManager_.reset(new PhasedComponentManager());
-            physicsComponentManager_.reset(new PhysicsComponentManager());
+            physicsComponentManager_.reset(new PhysicsComponentManager(&debugDraw_));
             renderComponentManager_.reset(new RenderComponentManager());
             uiComponentManager_.reset(new UIComponentManager());
 
@@ -75,6 +112,7 @@ namespace af3d
         {
         }
 
+        PhysicsDebugDraw debugDraw_;
         VertexArrayWriter defaultVa_;
         std::unique_ptr<PhasedComponentManager> phasedComponentManager_;
         std::unique_ptr<PhysicsComponentManager> physicsComponentManager_;
@@ -243,6 +281,8 @@ namespace af3d
 
         bool inputProcessed = true;
 
+        auto cc = camera_->findComponent<CameraComponent>();
+
         if (!paused_) {
             impl_->firstPhysicsStep_ = true;
 
@@ -261,7 +301,6 @@ namespace af3d
                 inputProcessed = false;
             }
 
-            auto cc = camera_->findComponent<CameraComponent>();
             cc->setViewport(AABB2i(Vector2i(settings.viewX, settings.viewY),
                 Vector2i(settings.viewX + settings.viewWidth, settings.viewY + settings.viewHeight)));
 
@@ -288,7 +327,6 @@ namespace af3d
             impl_->renderComponentManager_->update(dt);
             impl_->renderComponentManager_->cull(cc);
         } else {
-            auto cc = camera_->findComponent<CameraComponent>();
             cc->setViewport(AABB2i(Vector2i(settings.viewX, settings.viewY),
                 Vector2i(settings.viewX + settings.viewWidth, settings.viewY + settings.viewHeight)));
 
@@ -299,9 +337,30 @@ namespace af3d
             }
         }
 
-        auto rn = impl_->renderComponentManager_->render(impl_->defaultVa_);
+        RenderNodeList rnList;
+        rnList.reserve(2);
 
-        auto uiRn = impl_->uiComponentManager_->render(impl_->defaultVa_);
+        {
+            RenderList rl(cc->viewport(), cc->getFrustum(), cc->renderSettings(), impl_->defaultVa_);
+
+            impl_->renderComponentManager_->render(rl);
+
+            if (inputManager.physicsDebugPressed()) {
+                impl_->debugDraw_.setRenderList(&rl);
+                impl_->physicsComponentManager_->world().debugDrawWorld();
+                impl_->debugDraw_.setRenderList(nullptr);
+            }
+
+            if (inputManager.gameDebugPressed()) {
+                impl_->physicsComponentManager_->debugDraw(rl);
+                impl_->phasedComponentManager_->debugDraw(rl);
+                impl_->renderComponentManager_->debugDraw(rl);
+            }
+
+            rnList.push_back(rl.compile());
+        }
+
+        rnList.push_back(impl_->uiComponentManager_->render(impl_->defaultVa_));
 
         impl_->defaultVa_.upload();
 
@@ -313,7 +372,7 @@ namespace af3d
             inputManager.proceed();
         }
 
-        renderer.swap(RenderNodeList{rn, uiRn});
+        renderer.swap(std::move(rnList));
 
         firstUpdate_ = false;
     }

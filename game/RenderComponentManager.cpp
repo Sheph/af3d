@@ -135,7 +135,6 @@ namespace af3d
     bool RenderComponentManager::update(float dt)
     {
         cullResults_.clear();
-        cc_ = nullptr;
 
         for (const auto& c : components_) {
             c->update(dt);
@@ -149,10 +148,10 @@ namespace af3d
         return true;
     }
 
-    void RenderComponentManager::debugDraw()
+    void RenderComponentManager::debugDraw(RenderList& rl)
     {
         for (const auto& c : components_) {
-            c->debugDraw();
+            c->debugDraw(rl);
         }
     }
 
@@ -208,20 +207,15 @@ namespace af3d
         CollideCull collide(cc->getFrustum(), cullResults_);
 
         btDbvt::collideTU(tree_.m_root, collide);
-        cc_ = cc.get();
     }
 
-    RenderNodePtr RenderComponentManager::render(VertexArrayWriter& defaultVa)
+    void RenderComponentManager::render(RenderList& rl)
     {
-        RenderList rl(cc_->viewport(), cc_->getFrustum(), cc_->renderSettings(), defaultVa);
-
         for (const auto& kv : cullResults_) {
             if (kv.first->visible()) {
                 kv.first->render(rl, &kv.second[0], kv.second.size());
             }
         }
-
-        return rl.compile();
     }
 
     void RenderComponentManager::rayCast(const Frustum& frustum, const Ray& ray, const RayCastRenderFn& fn) const

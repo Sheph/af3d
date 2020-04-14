@@ -60,8 +60,6 @@ namespace af3d
 
         std::pair<AObjectPtr, float> testRay(const Frustum& frustum, const Ray& ray, void* part) override;
 
-        void debugDraw() override;
-
         inline TransformOrientation orientation() const { return orientation_; }
         inline void setOrientation(TransformOrientation value) { orientation_ = value; }
 

@@ -104,10 +104,6 @@ namespace af3d
         }
     }
 
-    void RenderGizmoRotateComponent::debugDraw()
-    {
-    }
-
     RotateType RenderGizmoRotateComponent::testRay(const Frustum& frustum, const Ray& ray) const
     {
         auto txf = targetXfOriented();

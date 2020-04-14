@@ -49,8 +49,6 @@ namespace af3d
 
         std::pair<AObjectPtr, float> testRay(const Frustum& frustum, const Ray& ray, void* part) override;
 
-        void debugDraw() override;
-
         inline const btTransform& transform() const { return xf_; }
         void setTransform(const btTransform& value);
 

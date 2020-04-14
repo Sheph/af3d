@@ -68,8 +68,6 @@ namespace af3d
 
         std::pair<AObjectPtr, float> testRay(const Frustum& frustum, const Ray& ray, void* part) override;
 
-        void debugDraw() override;
-
         inline Kind kind() const { return kind_; }
         inline void setKind(Kind value) { kind_ = value; }
 

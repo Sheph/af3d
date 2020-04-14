@@ -28,8 +28,6 @@
 
 #include "ComponentManager.h"
 #include "CameraComponent.h"
-#include "RenderNode.h"
-#include "VertexArrayWriter.h"
 #include "af3d/Ray.h"
 #include "bullet/BulletCollision/BroadphaseCollision/btDbvt.h"
 #include <unordered_set>
@@ -62,7 +60,7 @@ namespace af3d
 
         virtual bool update(float dt) override;
 
-        virtual void debugDraw() override;
+        virtual void debugDraw(RenderList& rl) override;
 
         RenderCookie* addAABB(RenderComponent* component,
             const AABB& aabb,
@@ -77,7 +75,7 @@ namespace af3d
 
         void cull(const CameraComponentPtr& cc);
 
-        RenderNodePtr render(VertexArrayWriter& defaultVa);
+        void render(RenderList& rl);
 
         void rayCast(const Frustum& frustum, const Ray& ray, const RayCastRenderFn& fn) const;
 
@@ -129,7 +127,6 @@ namespace af3d
 
         btDbvt tree_;
 
-        CameraComponent* cc_ = nullptr;
         CullResultList cullResults_;
     };
 }

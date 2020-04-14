@@ -60,7 +60,7 @@ namespace af3d
 
         virtual bool update(float dt) override;
 
-        virtual void debugDraw() override;
+        virtual void debugDraw(RenderList& rl) override;
 
         RenderNodePtr render(VertexArrayWriter& defaultVa);
 

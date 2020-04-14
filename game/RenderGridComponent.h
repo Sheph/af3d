@@ -50,8 +50,6 @@ namespace af3d
 
         std::pair<AObjectPtr, float> testRay(const Frustum& frustum, const Ray& ray, void* part) override;
 
-        void debugDraw() override;
-
         inline float step() const { return step_; }
         inline void setStep(float value) { step_ = value; }
 

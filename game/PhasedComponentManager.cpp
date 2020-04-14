@@ -142,13 +142,13 @@ namespace af3d
         tmp.resize(0);
     }
 
-    void PhasedComponentManager::debugDraw()
+    void PhasedComponentManager::debugDraw(RenderList& rl)
     {
         for (const auto& c : thinkComponents_) {
-            c->debugDraw();
+            c->debugDraw(rl);
         }
         for (const auto& c : preRenderComponents_) {
-            c->debugDraw();
+            c->debugDraw(rl);
         }
     }
 }

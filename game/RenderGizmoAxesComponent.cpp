@@ -127,10 +127,6 @@ namespace af3d
         }
     }
 
-    void RenderGizmoAxesComponent::debugDraw()
-    {
-    }
-
     MoveType RenderGizmoAxesComponent::testRay(const Frustum& frustum, const Ray& ray) const
     {
         auto sz = getSizes(frustum);

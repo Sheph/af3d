@@ -109,10 +109,6 @@ namespace af3d
         }
     }
 
-    void RenderGridComponent::debugDraw()
-    {
-    }
-
     void RenderGridComponent::setXAxisColor(const Color& value)
     {
         xAxisColor_ = value;

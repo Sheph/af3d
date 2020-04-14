@@ -86,6 +86,14 @@ namespace af3d
         physics.fixedTimestep = appConfig->getFloat("physics.fixedTimestep");
         physics.maxSteps = appConfig->getInt("physics.maxSteps");
         physics.slowmoFactor = appConfig->getFloat("physics.slowmoFactor");
+        physics.debugWireframe = appConfig->getBool("physics.debug.wireframe");
+        physics.debugAabb = appConfig->getBool("physics.debug.aabb");
+        physics.debugContactPoints = appConfig->getBool("physics.debug.contactPoints");
+        physics.debugNoDeactivation = appConfig->getBool("physics.debug.noDeactivation");
+        physics.debugJoints = appConfig->getBool("physics.debug.joints");
+        physics.debugJointLimits = appConfig->getBool("physics.debug.jointLimits");
+        physics.debugNormals = appConfig->getBool("physics.debug.normals");
+        physics.debugFrames = appConfig->getBool("physics.debug.frames");
 
         /*
          * imGui.

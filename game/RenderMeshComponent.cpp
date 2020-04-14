@@ -110,10 +110,6 @@ namespace af3d
         }
     }
 
-    void RenderMeshComponent::debugDraw()
-    {
-    }
-
     void RenderMeshComponent::setMesh(const MeshPtr& value)
     {
         mesh_ = value;

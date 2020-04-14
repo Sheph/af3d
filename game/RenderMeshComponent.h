@@ -51,8 +51,6 @@ namespace af3d
 
         std::pair<AObjectPtr, float> testRay(const Frustum& frustum, const Ray& ray, void* part) override;
 
-        void debugDraw() override;
-
         inline const MeshPtr& mesh() const { return mesh_; }
         void setMesh(const MeshPtr& value);
 

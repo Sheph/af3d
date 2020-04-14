@@ -23,44 +23,59 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _COMPONENTMANAGER_H_
-#define _COMPONENTMANAGER_H_
+#ifndef _PHYSICS_DEBUG_DRAW_H_
+#define _PHYSICS_DEBUG_DRAW_H_
 
-#include "Component.h"
+#include "af3d/Types.h"
+#include <boost/noncopyable.hpp>
+#include "bullet/LinearMath/btIDebugDraw.h"
 
 namespace af3d
 {
-    class Scene;
     class RenderList;
 
-    class ComponentManager : boost::noncopyable
+    class PhysicsDebugDraw : public btIDebugDraw,
+        boost::noncopyable
     {
     public:
-        ComponentManager() = default;
-        virtual ~ComponentManager() = default;
+        PhysicsDebugDraw() = default;
+        ~PhysicsDebugDraw() = default;
 
-        virtual void cleanup() = 0;
+        void drawLine(const btVector3& from, const btVector3& to, const btVector3& color) override;
 
-        virtual void addComponent(const ComponentPtr& component) = 0;
+        void drawContactPoint(const btVector3& PointOnB, const btVector3& normalOnB, btScalar distance, int lifeTime, const btVector3& color) override;
 
-        virtual void removeComponent(const ComponentPtr& component) = 0;
+        void reportErrorWarning(const char* warningString) override;
 
-        virtual void freezeComponent(const ComponentPtr& component) = 0;
+        void draw3dText(const btVector3& location, const char* textString) override;
 
-        virtual void thawComponent(const ComponentPtr& component) = 0;
+        void setDebugMode(int debugMode) override;
 
-        virtual bool update(float dt) = 0;
+        int getDebugMode() const override;
 
-        virtual void debugDraw(RenderList& rl) = 0;
+        void clearLines() override;
 
-        inline Scene* scene() { return scene_; }
-        inline void setScene(Scene* value) { scene_ = value; }
+        void flushLines() override;
+
+        inline void setRenderList(RenderList* value) { rl_ = value; }
 
     private:
-        Scene* scene_ = nullptr;
-    };
+        struct Line
+        {
+            Line(const btVector3& from, const btVector3& to, const btVector3& color)
+            : from(from),
+              to(to),
+              color(color) {}
 
-    using ComponentManagerPtr = std::shared_ptr<ComponentManager>;
+            btVector3 from;
+            btVector3 to;
+            btVector3 color;
+        };
+
+        int debugMode_ = 0;
+        std::vector<Line> lines_;
+        RenderList* rl_ = nullptr;
+    };
 }
 
 #endif

@@ -73,11 +73,13 @@ namespace af3d
         };
     };
 
-    PhysicsComponentManager::PhysicsComponentManager()
+    PhysicsComponentManager::PhysicsComponentManager(btIDebugDraw* debugDraw)
     : collisionDispatcher_(&collisionCfg_),
       world_(&collisionDispatcher_, &broadphase_, &solver_, &collisionCfg_)
     {
         world_.setWorldUserInfo(this);
+
+        world_.setDebugDrawer(debugDraw);
     }
 
     PhysicsComponentManager::~PhysicsComponentManager()
@@ -140,8 +142,11 @@ namespace af3d
         return world_.stepSimulation(dt, settings.physics.maxSteps, settings.physics.fixedTimestep) > 0;
     }
 
-    void PhysicsComponentManager::debugDraw()
+    void PhysicsComponentManager::debugDraw(RenderList& rl)
     {
+        for (const auto& c : components_) {
+            c->debugDraw(rl);
+        }
     }
 
     void PhysicsComponentManager::rayCast(const btVector3& p1, const btVector3& p2, const RayCastFn& fn) const

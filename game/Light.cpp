@@ -117,10 +117,6 @@ namespace af3d
         }
     }
 
-    void Light::debugDraw()
-    {
-    }
-
     void Light::setTransform(const btTransform& value)
     {
         xf_ = value;

@@ -135,10 +135,6 @@ namespace af3d
         }
     }
 
-    void RenderQuadComponent::debugDraw()
-    {
-    }
-
     void RenderQuadComponent::setDrawable(const DrawablePtr& value)
     {
         drawable_ = value;

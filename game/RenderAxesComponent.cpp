@@ -99,10 +99,6 @@ namespace af3d
         }
     }
 
-    void RenderAxesComponent::debugDraw()
-    {
-    }
-
     void RenderAxesComponent::setTransform(const btTransform& value)
     {
         xf_ = value;

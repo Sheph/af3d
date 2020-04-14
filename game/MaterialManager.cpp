@@ -71,6 +71,7 @@ namespace af3d
     void MaterialManager::shutdown()
     {
         LOG4CPLUS_DEBUG(logger(), "materialManager: shutdown...");
+        matImmDefault_.reset();
         matUnlitVCDefault_.reset();
         matOutlineInactive_.reset();
         matOutlineHovered_.reset();
@@ -125,6 +126,11 @@ namespace af3d
         }
 
         if (!matUnlitVCDefault_) {
+            matImmDefault_ = createMaterial(MaterialTypeImm);
+            matImmDefault_->setBlendingParams(BlendingParams(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+            matImmDefault_->setDepthTest(false);
+            matImmDefault_->setCullFaceMode(0);
+
             matUnlitVCDefault_ = createMaterial(MaterialTypeUnlitVC);
 
             matOutlineInactive_ = createMaterial(MaterialTypeOutline);

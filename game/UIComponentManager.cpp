@@ -98,10 +98,10 @@ namespace af3d
         return true;
     }
 
-    void UIComponentManager::debugDraw()
+    void UIComponentManager::debugDraw(RenderList& rl)
     {
         for (const auto& c : components_) {
-            c->debugDraw();
+            c->debugDraw(rl);
         }
     }
 
@@ -131,6 +131,10 @@ namespace af3d
             if (c->visible()) {
                 c->render(rl);
             }
+        }
+
+        if (inputManager.gameDebugPressed()) {
+            debugDraw(rl);
         }
 
         return rl.compile();

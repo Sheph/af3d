@@ -40,7 +40,7 @@ namespace af3d
     class PhysicsComponentManager : public ComponentManager
     {
     public:
-        PhysicsComponentManager();
+        explicit PhysicsComponentManager(btIDebugDraw* debugDraw);
         ~PhysicsComponentManager();
 
         static PhysicsComponentManager* fromWorld(btDynamicsWorld* world);
@@ -57,7 +57,7 @@ namespace af3d
 
         bool update(float dt) override;
 
-        void debugDraw() override;
+        void debugDraw(RenderList& rl) override;
 
         void rayCast(const btVector3& p1, const btVector3& p2, const RayCastFn& fn) const;
 

@@ -37,6 +37,7 @@ namespace af3d
     class Scene;
     class SceneObject;
     class ComponentManager;
+    class RenderList;
 
     class Component;
     using ComponentPtr = std::shared_ptr<Component>;
@@ -51,7 +52,7 @@ namespace af3d
 
         virtual ComponentManager* manager() = 0;
 
-        virtual void debugDraw();
+        virtual void debugDraw(RenderList& rl);
 
         virtual void onFreeze();
 

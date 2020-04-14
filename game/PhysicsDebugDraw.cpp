@@ -23,60 +23,61 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Component.h"
-#include "SceneObject.h"
+#include "PhysicsDebugDraw.h"
+#include "MaterialManager.h"
+#include "RenderList.h"
+#include "Logger.h"
 
 namespace af3d
 {
-    ACLASS_DEFINE_BEGIN_ABSTRACT(Component, AObject)
-    ACLASS_PROPERTY_RO(Component, Parent, AProperty_Parent, "Parent", AObject, Hierarchy, APropertyTransient)
-    ACLASS_DEFINE_END(Component)
-
-    Component::Component(const AClass& klass)
-    : AObject(klass)
+    void PhysicsDebugDraw::drawLine(const btVector3& from, const btVector3& to, const btVector3& color)
     {
+        lines_.emplace_back(from, to, color);
     }
 
-    const AClass& Component::staticKlass()
+    void PhysicsDebugDraw::drawContactPoint(const btVector3& PointOnB, const btVector3& normalOnB, btScalar distance, int lifeTime, const btVector3& color)
     {
-        return AClass_Component;
+        drawLine(PointOnB, PointOnB + normalOnB * distance, color);
+        btVector3 ncolor(0, 0, 0);
+        drawLine(PointOnB, PointOnB + normalOnB * 0.01, ncolor);
     }
 
-    void Component::removeFromParent()
+    void PhysicsDebugDraw::reportErrorWarning(const char* warningString)
     {
-        if (parent_) {
-            parent_->removeComponent(std::static_pointer_cast<Component>(sharedThis()));
+        LOG4CPLUS_WARN(logger(), "PhysicsDebugDraw: " << warningString);
+    }
+
+    void PhysicsDebugDraw::draw3dText(const btVector3& location, const char* textString)
+    {
+        LOG4CPLUS_DEBUG(logger(), "draw3dText: " << location << ", " << textString);
+    }
+
+    void PhysicsDebugDraw::setDebugMode(int debugMode)
+    {
+        debugMode_ = debugMode;
+    }
+
+    int PhysicsDebugDraw::getDebugMode() const
+    {
+        return debugMode_;
+    }
+
+    void PhysicsDebugDraw::clearLines()
+    {
+        lines_.clear();
+    }
+
+    void PhysicsDebugDraw::flushLines()
+    {
+        btAssert(rl_);
+
+        auto rop = rl_->addGeometry(materialManager.matImmDefault(), GL_LINES);
+
+        for (const auto& line : lines_) {
+            rop.addVertex(line.from, Vector2f_zero, Color(line.color, 1.0f));
+            rop.addVertex(line.to, Vector2f_zero, Color(line.color, 1.0f));
         }
-    }
 
-    void Component::debugDraw(RenderList& rl)
-    {
-    }
-
-    void Component::onFreeze()
-    {
-    }
-
-    void Component::onThaw()
-    {
-    }
-
-    Scene* Component::scene()
-    {
-        return parent_ ? parent_->scene() : nullptr;
-    }
-
-    std::shared_ptr<SceneObject> Component::script_parent() const
-    {
-        if (parent_) {
-            return parent_->shared_from_this();
-        } else {
-            return SceneObjectPtr();
-        }
-    }
-
-    APropertyValue Component::propertyParentGet(const std::string&) const
-    {
-        return APropertyValue(script_parent());
+        lines_.clear();
     }
 }

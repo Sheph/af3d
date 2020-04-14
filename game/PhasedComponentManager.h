@@ -58,7 +58,7 @@ namespace af3d
 
         bool update(float dt) override;
 
-        void debugDraw() override;
+        void debugDraw(RenderList& rl) override;
 
         void preRender(float dt);
 
