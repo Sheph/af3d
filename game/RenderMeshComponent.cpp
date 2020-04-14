@@ -55,7 +55,7 @@ namespace af3d
 
     void RenderMeshComponent::update(float dt)
     {
-        if ((parent()->transform() == prevParentXf_) && !dirty_) {
+        if ((parent()->smoothTransform() == prevParentXf_) && !dirty_) {
             return;
         }
 
@@ -63,17 +63,17 @@ namespace af3d
 
         AABB aabb = calcAABB();
 
-        btVector3 displacement = parent()->transform().getOrigin() - prevParentXf_.getOrigin();
+        btVector3 displacement = parent()->smoothTransform().getOrigin() - prevParentXf_.getOrigin();
 
         manager()->moveAABB(cookie_, prevAABB_, aabb, displacement);
 
-        prevParentXf_ = parent()->transform();
+        prevParentXf_ = parent()->smoothTransform();
         prevAABB_ = aabb;
     }
 
     void RenderMeshComponent::render(RenderList& rl, void* const* parts, size_t numParts)
     {
-        auto modelMat = Matrix4f(parent()->transform() * xf_).scaled(scale_);
+        auto modelMat = Matrix4f(parent()->smoothTransform() * xf_).scaled(scale_);
 
         render(rl, modelMat, MaterialPtr());
 
@@ -130,7 +130,7 @@ namespace af3d
 
     void RenderMeshComponent::onRegister()
     {
-        prevParentXf_ = parent()->transform();
+        prevParentXf_ = parent()->smoothTransform();
         prevAABB_ = calcAABB();
         cookie_ = manager()->addAABB(this, prevAABB_, nullptr);
     }
@@ -142,7 +142,7 @@ namespace af3d
 
     AABB RenderMeshComponent::calcAABB() const
     {
-        return mesh_->aabb().scaledAt0(scale_).getTransformed(parent()->transform() * xf_);
+        return mesh_->aabb().scaledAt0(scale_).getTransformed(parent()->smoothTransform() * xf_);
     }
 
     void RenderMeshComponent::render(RenderList& rl, const Matrix4f& modelMat, const MaterialPtr& material)

@@ -231,9 +231,7 @@ namespace af3d
             }
         }
 
-        auto xf = parent()->transform();
-        static_cast<MotionState*>(parent()->body()->getMotionState())->centerOfMassXf = principalXf;
-        parent()->setTransform(xf);
+        parent()->setLocalCenter(principalXf);
 
         if (parent()->bodyType() == BodyType::Dynamic) {
             if (totalMass <= 0.0f) {

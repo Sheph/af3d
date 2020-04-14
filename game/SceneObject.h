@@ -144,27 +144,26 @@ namespace af3d
         void setTransform(const btVector3& pos, const btQuaternion& rot);
         void setTransform(const btTransform& t);
 
-        //void setTransformRecursive(const btVector3& pos, const btQuaternion& rot);
-
-        //void setTransformRecursive(const btTransform& t);
+        const btTransform& smoothTransform() const;
 
         const btVector3& pos() const;
         void setPos(const btVector3& value);
-        //void setPosRecursive(const btVector3& value);
 
-        //void setPosSmoothed(const btVector3& value);
+        const btVector3& smoothPos() const;
 
         const btMatrix3x3& basis() const;
         void setBasis(const btMatrix3x3& value);
 
+        const btMatrix3x3& smoothBasis() const;
+
         btQuaternion rotation() const;
         void setRotation(const btQuaternion& value);
-        //void setRotationRecursive(const btQuaternion& value);
 
-        //void setRotationSmoothed(const btQuaternion& value);
+        btQuaternion smoothRotation() const;
 
         const btTransform& worldCenter() const;
         const btTransform& localCenter() const;
+        void setLocalCenter(const btTransform& t);
 
         float mass() const;
 
@@ -172,11 +171,9 @@ namespace af3d
 
         const btVector3& linearVelocity() const;
         void setLinearVelocity(const btVector3& value);
-        //void setLinearVelocityRecursive(const btVector3& value);
 
         const btVector3& angularVelocity() const;
         void setAngularVelocity(const btVector3& value);
-        //void setAngularVelocityRecursive(const btVector3& value);
 
         float linearDamping() const;
         void setLinearDamping(float value);
@@ -198,15 +195,14 @@ namespace af3d
 
         bool physicsActive() const;
         void setPhysicsActive(bool value);
-        //void setActiveRecursive(bool value);
 
         btVector3 getWorldPoint(const btVector3& localPoint) const;
 
         btVector3 getLocalPoint(const btVector3& worldPoint) const;
 
-        //b2Vec2 getSmoothWorldPoint(const b2Vec2& localPoint) const;
+        btVector3 getSmoothWorldPoint(const btVector3& localPoint) const;
 
-        //b2Vec2 getSmoothLocalPoint(const b2Vec2& worldPoint) const;
+        btVector3 getSmoothLocalPoint(const btVector3& worldPoint) const;
 
         btVector3 getForward() const;
 
@@ -214,20 +210,15 @@ namespace af3d
 
         btVector3 getUp() const;
 
-        //b2Vec2 getSmoothDirection(float length) const;
+        btVector3 getSmoothForward() const;
+
+        btVector3 getSmoothRight() const;
+
+        btVector3 getSmoothUp() const;
 
         btVector3 getLinearVelocityFromWorldPoint(const btVector3& worldPoint) const;
 
         btVector3 getLinearVelocityFromLocalPoint(const btVector3& localPoint) const;
-
-        //void resetSmooth();
-        //void updateSmooth(float fixedTimestepAccumulatorRatio);
-
-        //b2Transform getSmoothTransform() const;
-
-        //b2Vec2 smoothPos() const;
-
-        //float smoothAngle() const;
 
         inline bool freezable() const { return flags_[Flag::Freezable]; }
         inline void setFreezable(bool value) { flags_[Flag::Freezable] = value; }

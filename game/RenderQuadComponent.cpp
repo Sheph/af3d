@@ -56,17 +56,17 @@ namespace af3d
 
     void RenderQuadComponent::update(float dt)
     {
-        if ((parent()->transform() == prevParentXf_) && !dirty_) {
+        if ((parent()->smoothTransform() == prevParentXf_) && !dirty_) {
             return;
         }
 
         AABB aabb = updateAABB();
 
-        btVector3 displacement = parent()->transform().getOrigin() - prevParentXf_.getOrigin();
+        btVector3 displacement = parent()->smoothTransform().getOrigin() - prevParentXf_.getOrigin();
 
         manager()->moveAABB(cookie_, prevAABB_, aabb, displacement);
 
-        prevParentXf_ = parent()->transform();
+        prevParentXf_ = parent()->smoothTransform();
         prevAABB_ = aabb;
         dirty_ = false;
     }
@@ -211,7 +211,7 @@ namespace af3d
 
     void RenderQuadComponent::onRegister()
     {
-        prevParentXf_ = parent()->transform();
+        prevParentXf_ = parent()->smoothTransform();
         prevAABB_ = updateAABB();
         cookie_ = manager()->addAABB(this, prevAABB_, nullptr);
         dirty_ = false;
@@ -234,7 +234,7 @@ namespace af3d
 
     AABB RenderQuadComponent::updateAABB()
     {
-        auto xf = parent()->transform();
+        auto xf = parent()->smoothTransform();
 
         if (fixedPos_) {
             xf.getBasis().setIdentity();

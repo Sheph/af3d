@@ -57,19 +57,19 @@ namespace af3d
 
     void RenderGridComponent::update(float dt)
     {
-        plane_ = btPlaneMake(parent()->transform().getOrigin(), parent()->transform().getBasis() * btVector3_forward);
+        plane_ = btPlaneMake(parent()->smoothTransform().getOrigin(), parent()->smoothTransform().getBasis() * btVector3_forward);
 
-        material_->params().setUniform(UniformName::GridPos, parent()->transform().getOrigin());
-        material_->params().setUniform(UniformName::GridRight, parent()->getRight());
-        material_->params().setUniform(UniformName::GridUp, parent()->getUp());
+        material_->params().setUniform(UniformName::GridPos, parent()->smoothTransform().getOrigin());
+        material_->params().setUniform(UniformName::GridRight, parent()->getSmoothRight());
+        material_->params().setUniform(UniformName::GridUp, parent()->getSmoothUp());
     }
 
     void RenderGridComponent::render(RenderList& rl, void* const* parts, size_t numParts)
     {
         auto p = btPlaneProject(plane_, rl.frustum().transform().getOrigin());
         float dist = (p - rl.frustum().transform().getOrigin()).length();
-        auto vRight = parent()->getRight();
-        auto vUp = parent()->getUp();
+        auto vRight = parent()->getSmoothRight();
+        auto vUp = parent()->getSmoothUp();
 
         int power = dist > 0.0f ? btLog(dist / step_ / 5.0f) / btLog(10.0f) : 0;
         if (power < 0) {
@@ -123,7 +123,7 @@ namespace af3d
 
     void RenderGridComponent::onRegister()
     {
-        plane_ = btPlaneMake(parent()->transform().getOrigin(), parent()->transform().getBasis() * btVector3_forward);
+        plane_ = btPlaneMake(parent()->smoothTransform().getOrigin(), parent()->smoothTransform().getBasis() * btVector3_forward);
     }
 
     void RenderGridComponent::onUnregister()

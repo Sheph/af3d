@@ -85,20 +85,20 @@ namespace af3d
             }
         }
 
-        if ((parent()->transform() == prevParentXf_) && !dirty_) {
+        if ((parent()->smoothTransform() == prevParentXf_) && !dirty_) {
             return;
         }
 
-        worldXf_ = parent()->transform() * xf_;
+        worldXf_ = parent()->smoothTransform() * xf_;
         dirty_ = false;
 
         AABB aabb = getWorldAABB();
 
-        btVector3 displacement = parent()->transform().getOrigin() - prevParentXf_.getOrigin();
+        btVector3 displacement = parent()->smoothTransform().getOrigin() - prevParentXf_.getOrigin();
 
         manager()->moveAABB(cookie_, prevAABB_, aabb, displacement);
 
-        prevParentXf_ = parent()->transform();
+        prevParentXf_ = parent()->smoothTransform();
         prevAABB_ = aabb;
     }
 
@@ -148,7 +148,7 @@ namespace af3d
 
     void Light::onRegister()
     {
-        prevParentXf_ = parent()->transform();
+        prevParentXf_ = parent()->smoothTransform();
         worldXf_ = prevParentXf_ * xf_;
         prevAABB_ = getWorldAABB();
         cookie_ = manager()->addAABB(this, prevAABB_, nullptr);

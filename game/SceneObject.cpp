@@ -285,22 +285,22 @@ namespace af3d
     void SceneObject::setTransform(const btTransform& t)
     {
         if (body_) {
+            auto relXf = worldCenter().inverse() * bodyMs_->smoothXf;
             body_->setCenterOfMassTransform(t * localCenter());
+            bodyMs_->smoothXf = worldCenter() * relXf;
         } else {
             bodyCi_.xf = t;
         }
     }
 
-/*    void SceneObject::setTransformRecursive(const b2Vec2& pos, float32 angle)
+    const btTransform& SceneObject::smoothTransform() const
     {
-        setPosRecursive(pos);
-        setAngleRecursive(angle);
+        if (body_) {
+            return bodyMs_->smoothXf;
+        } else {
+            return bodyCi_.xf;
+        }
     }
-
-    void SceneObject::setTransformRecursive(const b2Transform& t)
-    {
-        setTransformRecursive(t.p, t.q.GetAngle());
-    }*/
 
     const btVector3& SceneObject::pos() const
     {
@@ -312,6 +312,11 @@ namespace af3d
         auto xf = transform();
         xf.setOrigin(value);
         setTransform(xf);
+    }
+
+    const btVector3& SceneObject::smoothPos() const
+    {
+        return smoothTransform().getOrigin();
     }
 
     const btMatrix3x3& SceneObject::basis() const
@@ -326,6 +331,11 @@ namespace af3d
         setTransform(xf);
     }
 
+    const btMatrix3x3& SceneObject::smoothBasis() const
+    {
+        return smoothTransform().getBasis();
+    }
+
     btQuaternion SceneObject::rotation() const
     {
         btQuaternion ret;
@@ -338,6 +348,13 @@ namespace af3d
         auto xf = transform();
         xf.setRotation(value);
         setTransform(xf);
+    }
+
+    btQuaternion SceneObject::smoothRotation() const
+    {
+        btQuaternion ret;
+        smoothBasis().getRotation(ret);
+        return ret;
     }
 
     const btTransform& SceneObject::worldCenter() const
@@ -355,6 +372,17 @@ namespace af3d
             return bodyMs_->centerOfMassXf;
         } else {
             return btTransform::getIdentity();
+        }
+    }
+
+    void SceneObject::setLocalCenter(const btTransform& t)
+    {
+        if (body_) {
+            auto xf = transform();
+            auto smoothXf = bodyMs_->smoothXf;
+            bodyMs_->centerOfMassXf = t;
+            setTransform(xf);
+            bodyMs_->smoothXf = smoothXf;
         }
     }
 
@@ -393,16 +421,6 @@ namespace af3d
         }
     }
 
-/*    void SceneObject::setLinearVelocityRecursive(const b2Vec2& value)
-    {
-        setLinearVelocity(value);
-        for (std::set<SceneObjectPtr>::const_iterator it = objects().begin();
-             it != objects().end();
-             ++it ) {
-            (*it)->setLinearVelocityRecursive(value);
-        }
-    }*/
-
     const btVector3& SceneObject::angularVelocity() const
     {
         if (body_) {
@@ -422,16 +440,6 @@ namespace af3d
             bodyCi_.angularVelocity = value;
         }
     }
-
-/*    void SceneObject::setAngularVelocityRecursive(float value)
-    {
-        setAngularVelocity(value);
-        for (std::set<SceneObjectPtr>::const_iterator it = objects().begin();
-             it != objects().end();
-             ++it ) {
-            (*it)->setAngularVelocityRecursive(value);
-        }
-    }*/
 
     float SceneObject::linearDamping() const
     {
@@ -586,16 +594,6 @@ namespace af3d
         }
     }
 
-/*    void SceneObject::setActiveRecursive(bool value)
-    {
-        setActive(value);
-        for (std::set<SceneObjectPtr>::const_iterator it = objects().begin();
-             it != objects().end();
-             ++it ) {
-            (*it)->setActiveRecursive(value);
-        }
-    }*/
-
     btVector3 SceneObject::getWorldPoint(const btVector3& localPoint) const
     {
         return transform() * localPoint;
@@ -606,23 +604,15 @@ namespace af3d
         return transform().inverse() * worldPoint;
     }
 
-/*    b2Vec2 SceneObject::getSmoothWorldPoint(const b2Vec2& localPoint) const
+    btVector3 SceneObject::getSmoothWorldPoint(const btVector3& localPoint) const
     {
-        if (body_) {
-            return b2Mul(getSmoothTransform(), localPoint);
-        } else {
-            return getWorldPoint(localPoint);
-        }
+        return smoothTransform() * localPoint;
     }
 
-    b2Vec2 SceneObject::getSmoothLocalPoint(const b2Vec2& worldPoint) const
+    btVector3 SceneObject::getSmoothLocalPoint(const btVector3& worldPoint) const
     {
-        if (body_) {
-            return b2MulT(getSmoothTransform(), worldPoint);
-        } else {
-            return getLocalPoint(worldPoint);
-        }
-    }*/
+        return smoothTransform().inverse() * worldPoint;
+    }
 
     btVector3 SceneObject::getForward() const
     {
@@ -639,10 +629,20 @@ namespace af3d
         return transform().getBasis() * btVector3_up;
     }
 
-/*    b2Vec2 SceneObject::getSmoothDirection(float length) const
+    btVector3 SceneObject::getSmoothForward() const
     {
-        return b2Mul(getSmoothTransform().q, b2Vec2(length, 0.0f));
-    }*/
+        return smoothTransform().getBasis() * btVector3_forward;
+    }
+
+    btVector3 SceneObject::getSmoothRight() const
+    {
+        return smoothTransform().getBasis() * btVector3_right;
+    }
+
+    btVector3 SceneObject::getSmoothUp() const
+    {
+        return smoothTransform().getBasis() * btVector3_up;
+    }
 
     btVector3 SceneObject::getLinearVelocityFromWorldPoint(const btVector3& worldPoint) const
     {
@@ -658,181 +658,6 @@ namespace af3d
         }
     }
 
-/*    void SceneObject::resetSmooth()
-    {
-        if (body_) {
-            smoothPos_ = smoothPrevPos_ = body_->GetPosition();
-            smoothAngle_ = smoothPrevAngle_ = body_->GetAngle();
-        } else {
-            smoothPos_ = smoothPrevPos_ = bodyDef_.position;
-            smoothAngle_ = smoothPrevAngle_ = bodyDef_.angle;
-        }
-    }
-
-    void SceneObject::updateSmooth(float fixedTimestepAccumulatorRatio)
-    {
-        if (body_) {
-            const float oneMinusRatio = 1.0f - fixedTimestepAccumulatorRatio;
-
-            if (body_->GetPosition() != smoothPrevPos_) {
-                smoothPos_ = fixedTimestepAccumulatorRatio * body_->GetPosition() +
-                    oneMinusRatio * smoothPrevPos_;
-            } else {
-                smoothPos_ = body_->GetPosition();
-            }
-
-            if (body_->GetAngle() != smoothPrevAngle_) {
-                smoothAngle_ = fixedTimestepAccumulatorRatio * body_->GetAngle() +
-                    oneMinusRatio * smoothPrevAngle_;
-            } else {
-                smoothAngle_ = body_->GetAngle();
-            }
-        }
-    }
-
-    b2Transform SceneObject::getSmoothTransform() const
-    {
-        if (smoothOverrideJoint_) {
-            if (smoothOverrideJoint_->valid()) {
-                if (smoothOverrideJoint_->referenceAngle() != smoothRotAngle_) {
-                    smoothRotAngle_ = smoothOverrideJoint_->referenceAngle();
-                    smoothRot_.Set(smoothOverrideJoint_->referenceAngle());
-                }
-
-                b2Transform xf = smoothOverrideJoint_->objectA()->getSmoothTransform();
-                b2Rot idR;
-                idR.SetIdentity();
-                xf = b2Mul(xf, b2Transform(smoothOverrideJoint_->localAnchorA(), idR));
-                xf = b2Mul(xf, b2Transform(b2Vec2_zero, smoothRot_));
-                xf = b2Mul(xf, b2Transform(-smoothOverrideJoint_->localAnchorB(), idR));
-                return xf;
-            }
-            smoothOverrideJoint_.reset();
-        }
-
-        if (smoothAngle_ != smoothRotAngle_) {
-            smoothRotAngle_ = smoothAngle_;
-            smoothRot_.Set(smoothRotAngle_);
-        }
-
-        return b2Transform(smoothPos_, smoothRot_);
-    }
-
-    b2Vec2 SceneObject::smoothPos() const
-    {
-        if (smoothOverrideJoint_) {
-            if (smoothOverrideJoint_->valid()) {
-                return smoothOverrideJoint_->objectA()->getSmoothWorldPoint(smoothOverrideJoint_->localAnchorA()) - smoothOverrideJoint_->localAnchorB();
-            }
-            smoothOverrideJoint_.reset();
-        }
-        return smoothPos_;
-    }
-
-    float SceneObject::smoothAngle() const
-    {
-        if (smoothOverrideJoint_) {
-            if (smoothOverrideJoint_->valid()) {
-                return smoothOverrideJoint_->objectA()->smoothAngle() + smoothOverrideJoint_->referenceAngle();
-            }
-            smoothOverrideJoint_.reset();
-        }
-        return smoothAngle_;
-    }
-
-    void SceneObject::setLife(float value)
-    {
-        if ((maxLife_ >= 0) && (value > maxLife_)) {
-            life_ = maxLife_;
-        } else {
-            life_ = value;
-        }
-    }
-
-    bool SceneObject::changeLife(float value, bool shock)
-    {
-        SceneObject* pobj;
-
-        if (propagateDamage_ && (pobj = parentObject())) {
-            return pobj->changeLife(value, shock);
-        }
-
-        if (dead() ||
-            ((value < 0.0f) && (type_ == SceneObjectTypePlayer) && scene() && scene()->cutscene()) ||
-            ((value < 0.0f) && (flags_[FlagInvulnerable] || findComponent<ShockedComponent>()))) {
-            return false;
-        }
-
-        setLife(life_ + value);
-
-        if (shock && (value < 0.0f) && !dead()) {
-            addComponent(boost::make_shared<ShockedComponent>(shockDuration_));
-        } else if (dead()) {
-            ShockedComponentPtr c = findComponent<ShockedComponent>();
-            if (c) {
-                c->removeFromParent();
-            }
-        }
-
-        return true;
-    }
-
-    bool SceneObject::changeLife2(SceneObject* missile, float value, bool shock)
-    {
-        return changeLife2(missile->type(), value, shock);
-    }
-
-    bool SceneObject::changeLife2(SceneObjectType missileType, float value, bool shock)
-    {
-        if (missileType == SceneObjectTypeNeutralMissile) {
-            return changeLife(value);
-        } else if (missileType == SceneObjectTypeEnemyMissile) {
-            if ((type_ != SceneObjectTypeEnemy) && (type_ != SceneObjectTypeEnemyBuilding)) {
-                return changeLife(value, shock);
-            }
-        } else {
-            if ((type_ != SceneObjectTypePlayer) && (type_ != SceneObjectTypeAlly)) {
-                return changeLife(value, shock);
-            }
-        }
-        return false;
-    }
-
-    void SceneObject::setMaxLife(float value)
-    {
-        maxLife_ = value;
-
-        if ((maxLife_ >= 0) && (life_ > maxLife_)) {
-            life_ = maxLife_;
-        }
-    }
-
-    float SceneObject::lifePercent() const
-    {
-        if (dead()) {
-            return 0.0f;
-        }
-
-        if (maxLife_ < 0) {
-            return 1.0f;
-        }
-
-        assert(life_ <= maxLife_);
-
-        return static_cast<float>(life_) / maxLife_;
-    }
-
-    SceneObject* SceneObject::damageReceiver()
-    {
-        SceneObject* pobj = this;
-
-        while (pobj->propagateDamage_ && pobj->parentObject()) {
-            pobj = pobj->parentObject();
-        }
-
-        return pobj;
-    }*/
-
     void SceneObject::collectIslandObjects(std::unordered_set<SceneObjectPtr>& objs)
     {
         if (!body_) {
@@ -841,23 +666,6 @@ namespace af3d
 
         objs.insert(shared_from_this());
     }
-
-/*    void SceneObject::becomeDeadbody()
-    {
-        static CollisionFilterPtr deadbodyFilter;
-
-        if (!deadbodyFilter) {
-            deadbodyFilter = boost::make_shared<CollisionDeadbodyFilter>();
-        }
-
-        type_ = SceneObjectTypeDeadbody;
-        setCollisionFilter(deadbodyFilter);
-
-        PhysicsBodyComponentPtr pc = findComponent<PhysicsBodyComponent>();
-        if (pc) {
-            pc->refilter();
-        }
-    }*/
 
     bool SceneObject::collidesWith(btCollisionObject* other)
     {
@@ -871,218 +679,6 @@ namespace af3d
 
         return filter->needBroadphaseCollision(body_->getBroadphaseHandle(), other->getBroadphaseHandle());
     }
-
-/*    bool SceneObject::visible() const
-    {
-        for (std::vector<ComponentPtr>::const_iterator it = components_.begin();
-             it != components_.end();
-             ++it ) {
-            const RenderComponentPtr& rc =
-                boost::dynamic_pointer_cast<RenderComponent>(*it);
-            if (rc && rc->visible()) {
-                return true;
-            }
-            const LightComponentPtr& lc =
-                boost::dynamic_pointer_cast<LightComponent>(*it);
-            if (lc) {
-                for (std::vector<LightPtr>::const_iterator jt = lc->lights().begin();
-                     jt != lc->lights().end();
-                     ++jt ) {
-                    if ((*jt)->visible()) {
-                        return true;
-                    }
-                }
-            }
-        }
-
-        return false;
-    }
-
-    void SceneObject::setVisible(bool value)
-    {
-        for (std::vector<ComponentPtr>::const_iterator it = components_.begin();
-             it != components_.end();
-             ++it ) {
-            const RenderComponentPtr& rc =
-                boost::dynamic_pointer_cast<RenderComponent>(*it);
-            if (rc) {
-                rc->setVisible(value);
-            }
-            const LightComponentPtr& lc =
-                boost::dynamic_pointer_cast<LightComponent>(*it);
-            if (lc) {
-                for (std::vector<LightPtr>::const_iterator jt = lc->lights().begin();
-                     jt != lc->lights().end();
-                     ++jt ) {
-                    (*jt)->setVisible(value);
-                }
-            }
-        }
-    }
-
-    void SceneObject::setVisibleRecursive(bool value)
-    {
-        setVisible(value);
-        for (std::set<SceneObjectPtr>::const_iterator it = objects().begin();
-             it != objects().end();
-             ++it ) {
-            (*it)->setVisibleRecursive(value);
-        }
-    }
-
-    Color SceneObject::color() const
-    {
-        for (std::vector<ComponentPtr>::const_iterator it = components_.begin();
-             it != components_.end();
-             ++it ) {
-            const RenderComponentPtr& rc =
-                boost::dynamic_pointer_cast<RenderComponent>(*it);
-            if (rc) {
-                return rc->color();
-            }
-            const LightComponentPtr& lc =
-                boost::dynamic_pointer_cast<LightComponent>(*it);
-            if (lc) {
-                for (std::vector<LightPtr>::const_iterator jt = lc->lights().begin();
-                     jt != lc->lights().end();
-                     ++jt ) {
-                    return (*jt)->color();
-                }
-            }
-        }
-
-        return Color(1.0f, 1.0f, 1.0f, 1.0f);
-    }
-
-    void SceneObject::setColor(const Color& value)
-    {
-        for (std::vector<ComponentPtr>::const_iterator it = components_.begin();
-             it != components_.end();
-             ++it ) {
-            const RenderComponentPtr& rc =
-                boost::dynamic_pointer_cast<RenderComponent>(*it);
-            if (rc) {
-                rc->setColor(value);
-            }
-            const LightComponentPtr& lc =
-                boost::dynamic_pointer_cast<LightComponent>(*it);
-            if (lc) {
-                for (std::vector<LightPtr>::const_iterator jt = lc->lights().begin();
-                     jt != lc->lights().end();
-                     ++jt ) {
-                    (*jt)->setColor(value);
-                }
-            }
-        }
-    }
-
-    void SceneObject::setColorRecursive(const Color& value)
-    {
-        setColor(value);
-        for (std::set<SceneObjectPtr>::const_iterator it = objects().begin();
-             it != objects().end();
-             ++it ) {
-            (*it)->setColorRecursive(value);
-        }
-    }
-
-    float SceneObject::alpha() const
-    {
-        for (std::vector<ComponentPtr>::const_iterator it = components_.begin();
-             it != components_.end();
-             ++it ) {
-            const RenderComponentPtr& rc =
-                boost::dynamic_pointer_cast<RenderComponent>(*it);
-            if (rc) {
-                return rc->color().rgba[3];
-            }
-            const LightComponentPtr& lc =
-                boost::dynamic_pointer_cast<LightComponent>(*it);
-            if (lc) {
-                for (std::vector<LightPtr>::const_iterator jt = lc->lights().begin();
-                     jt != lc->lights().end();
-                     ++jt ) {
-                    return (*jt)->color().rgba[3];
-                }
-            }
-        }
-
-        return 1.0f;
-    }
-
-    void SceneObject::setAlpha(float value)
-    {
-        for (std::vector<ComponentPtr>::const_iterator it = components_.begin();
-             it != components_.end();
-             ++it ) {
-            const RenderComponentPtr& rc =
-                boost::dynamic_pointer_cast<RenderComponent>(*it);
-            if (rc) {
-                Color c = rc->color();
-                c.rgba[3] = value;
-                rc->setColor(c);
-            }
-            const LightComponentPtr& lc =
-                boost::dynamic_pointer_cast<LightComponent>(*it);
-            if (lc) {
-                for (std::vector<LightPtr>::const_iterator jt = lc->lights().begin();
-                     jt != lc->lights().end();
-                     ++jt ) {
-                    Color c = (*jt)->color();
-                    c.rgba[3] = value;
-                    (*jt)->setColor(c);
-                }
-            }
-        }
-    }
-
-    void SceneObject::setAlphaRecursive(float value)
-    {
-        setAlpha(value);
-        for (std::set<SceneObjectPtr>::const_iterator it = objects().begin();
-             it != objects().end();
-             ++it ) {
-            (*it)->setAlphaRecursive(value);
-        }
-    }
-
-    void SceneObject::setZOrder(int value)
-    {
-        std::vector<RenderComponentPtr> rcs = findComponents<RenderComponent>();
-
-        int minZ = (std::numeric_limits<int>::max)();
-        for (size_t i = 0; i < rcs.size(); ++i) {
-            if (rcs[i]->zOrder() < minZ) {
-                minZ = rcs[i]->zOrder();
-            }
-        }
-        for (size_t i = 0; i < rcs.size(); ++i) {
-            rcs[i]->setZOrder(rcs[i]->zOrder() - minZ + value);
-        }
-    }
-
-    b2BodyType SceneObject::script_bodyType() const
-    {
-        if (body_) {
-            return body_->GetType();
-        } else {
-            return bodyDef_.type;
-        }
-    }
-
-    void SceneObject::script_setBodyType(b2BodyType value)
-    {
-        if (body_) {
-            body_->SetType(value);
-        } else {
-            bodyDef_.type = value;
-        }
-    }
-
-    void SceneObject::script_changePosSmoothed(float x, float y)
-    {
-        setPosSmoothed(pos() + b2Vec2(x, y));
-    }*/
 
     void SceneObject::freeze()
     {

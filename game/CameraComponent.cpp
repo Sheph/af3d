@@ -110,7 +110,7 @@ namespace af3d
 
     const Frustum& CameraComponent::getFrustum() const
     {
-        frustum_.setTransform(parent()->transform() * xf_);
+        frustum_.setTransform(parent()->smoothTransform() * xf_);
         return frustum_;
     }
 

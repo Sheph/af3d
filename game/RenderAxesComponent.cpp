@@ -54,7 +54,7 @@ namespace af3d
 
     void RenderAxesComponent::update(float dt)
     {
-        if ((parent()->transform() == prevParentXf_) && !dirty_) {
+        if ((parent()->smoothTransform() == prevParentXf_) && !dirty_) {
             return;
         }
 
@@ -62,17 +62,17 @@ namespace af3d
 
         AABB aabb = calcAABB();
 
-        btVector3 displacement = parent()->transform().getOrigin() - prevParentXf_.getOrigin();
+        btVector3 displacement = parent()->smoothTransform().getOrigin() - prevParentXf_.getOrigin();
 
         manager()->moveAABB(cookie_, prevAABB_, aabb, displacement);
 
-        prevParentXf_ = parent()->transform();
+        prevParentXf_ = parent()->smoothTransform();
         prevAABB_ = aabb;
     }
 
     void RenderAxesComponent::render(RenderList& rl, void* const* parts, size_t numParts)
     {
-        auto xf = parent()->transform() * xf_;
+        auto xf = parent()->smoothTransform() * xf_;
 
         auto vForward = xf.getBasis() * btVector3_forward;
         auto vUp = xf.getBasis() * btVector3_up;
@@ -107,7 +107,7 @@ namespace af3d
 
     void RenderAxesComponent::onRegister()
     {
-        prevParentXf_ = parent()->transform();
+        prevParentXf_ = parent()->smoothTransform();
         prevAABB_ = calcAABB();
         cookie_ = manager()->addAABB(this, prevAABB_, nullptr);
         dirty_ = false;
@@ -120,7 +120,7 @@ namespace af3d
 
     AABB RenderAxesComponent::calcAABB() const
     {
-        auto xf = parent()->transform() * xf_;
+        auto xf = parent()->smoothTransform() * xf_;
 
         auto sz = btVector3(radius_, radius_, radius_);
 
