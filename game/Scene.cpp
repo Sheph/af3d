@@ -286,13 +286,7 @@ namespace af3d
         if (!paused_) {
             impl_->firstPhysicsStep_ = true;
 
-            bool physicsStepped = true;
-
-            if (workspace_) {
-                inputManager.processed();
-            } else {
-                physicsStepped = impl_->physicsComponentManager_->update(dt);
-            }
+            bool physicsStepped = impl_->physicsComponentManager_->update(dt);
 
             if (physicsStepped) {
                 inputManager.proceed();

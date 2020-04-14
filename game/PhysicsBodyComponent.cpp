@@ -25,6 +25,7 @@
 
 #include "PhysicsBodyComponent.h"
 #include "SceneObject.h"
+#include "Scene.h"
 #include "MotionState.h"
 
 namespace af3d
@@ -159,6 +160,14 @@ namespace af3d
 
             MotionState* motionState = new MotionState(principalXf, parent()->transform());
 
+            if (parent()->bodyType() == BodyType::Dynamic) {
+                if (totalMass <= 0.0f) {
+                    totalMass = 1.0f;
+                }
+            } else {
+                totalMass = 0.0f;
+            }
+
             btRigidBody::btRigidBodyConstructionInfo bci(totalMass, motionState, compound_->shape(), inertia);
             bci.m_linearDamping = parent()->linearDamping();
             bci.m_angularDamping = parent()->angularDamping();
@@ -167,6 +176,14 @@ namespace af3d
 
             compound_->assignUserPointer(); // Inc ref count.
             body = new btRigidBody(bci);
+            if (parent()->bodyType() == BodyType::Static) {
+                body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_STATIC_OBJECT);
+            } else if (parent()->bodyType() == BodyType::Kinematic) {
+                body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
+            }
+            if (scene()->workspace()) {
+                body->setActivationState(DISABLE_SIMULATION);
+            }
 
             body->setLinearVelocity(parent()->linearVelocity());
             body->setAngularVelocity(parent()->angularVelocity());
@@ -215,6 +232,15 @@ namespace af3d
         }
 
         static_cast<MotionState*>(parent()->body()->getMotionState())->centerOfMassXf = principalXf;
+
+        if (parent()->bodyType() == BodyType::Dynamic) {
+            if (totalMass <= 0.0f) {
+                totalMass = 1.0f;
+            }
+        } else {
+            totalMass = 0.0f;
+        }
+
         parent()->body()->setMassProps(totalMass, inertia);
 
         if (addRemove) {

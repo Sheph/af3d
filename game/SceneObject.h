@@ -33,6 +33,13 @@
 
 namespace af3d
 {
+    enum class BodyType
+    {
+        Static = 0,
+        Kinematic = 1,
+        Dynamic = 2
+    };
+
     class SceneObject : public std::enable_shared_from_this<SceneObject>,
         public SceneObjectManager
     {
@@ -124,6 +131,9 @@ namespace af3d
         inline btRigidBody* body() { return body_; }
         inline const btRigidBody* body() const { return body_; }
         void setBody(btRigidBody* value);
+
+        BodyType bodyType() const;
+        void setBodyType(BodyType value);
 
         const btTransform& transform() const;
         void setTransform(const btVector3& pos, const btQuaternion& rot);
@@ -283,6 +293,7 @@ namespace af3d
 
         struct PhysicsBodyConstructionInfo
         {
+            BodyType bodyType = BodyType::Static;
             btTransform xf = btTransform::getIdentity();
             bool active = true;
             float linearDamping = 0.0f;

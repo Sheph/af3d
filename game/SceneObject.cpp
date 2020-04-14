@@ -208,6 +208,49 @@ namespace af3d
         physicsActive_ = body_->isInWorld();
     }
 
+    BodyType SceneObject::bodyType() const
+    {
+        if (body_) {
+            if (body_->isKinematicObject()) {
+                return BodyType::Kinematic;
+            } else if (body_->isStaticObject()) {
+                return BodyType::Static;
+            } else {
+                return BodyType::Dynamic;
+            }
+        } else {
+            return bodyCi_.bodyType;
+        }
+    }
+
+    void SceneObject::setBodyType(BodyType value)
+    {
+        if (body_) {
+            if (value == bodyType()) {
+                return;
+            }
+            switch (value) {
+            case BodyType::Static:
+                body_->setCollisionFlags((body_->getCollisionFlags() & ~btCollisionObject::CF_KINEMATIC_OBJECT) |
+                    btCollisionObject::CF_STATIC_OBJECT);
+                break;
+            case BodyType::Kinematic:
+                body_->setCollisionFlags(body_->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
+                break;
+            case BodyType::Dynamic:
+                body_->setCollisionFlags((body_->getCollisionFlags() &
+                    ~(btCollisionObject::CF_KINEMATIC_OBJECT | btCollisionObject::CF_STATIC_OBJECT)));
+                break;
+            default:
+                btAssert(false);
+                break;
+            }
+            findComponent<PhysicsBodyComponent>()->updateBodyCollision(false);
+        } else {
+            bodyCi_.bodyType = value;
+        }
+    }
+
     const btTransform& SceneObject::transform() const
     {
         if (body_) {
