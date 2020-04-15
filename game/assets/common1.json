@@ -19,8 +19,26 @@
 	"pivot": {"x":0.5,"y":0.5}
 },
 {
+	"filename": "action_play.png",
+	"frame": {"x":60,"y":4,"w":24,"h":24},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":24,"h":24},
+	"sourceSize": {"w":24,"h":24},
+	"pivot": {"x":0.5,"y":0.5}
+},
+{
+	"filename": "action_stop.png",
+	"frame": {"x":88,"y":4,"w":24,"h":24},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":24,"h":24},
+	"sourceSize": {"w":24,"h":24},
+	"pivot": {"x":0.5,"y":0.5}
+},
+{
 	"filename": "marker1.png",
-	"frame": {"x":60,"y":4,"w":64,"h":64},
+	"frame": {"x":116,"y":4,"w":64,"h":64},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":64,"h":64},
@@ -29,24 +47,6 @@
 },
 {
 	"filename": "mode_collision.png",
-	"frame": {"x":128,"y":4,"w":24,"h":24},
-	"rotated": false,
-	"trimmed": false,
-	"spriteSourceSize": {"x":0,"y":0,"w":24,"h":24},
-	"sourceSize": {"w":24,"h":24},
-	"pivot": {"x":0.5,"y":0.5}
-},
-{
-	"filename": "mode_light.png",
-	"frame": {"x":156,"y":4,"w":24,"h":24},
-	"rotated": false,
-	"trimmed": false,
-	"spriteSourceSize": {"x":0,"y":0,"w":24,"h":24},
-	"sourceSize": {"w":24,"h":24},
-	"pivot": {"x":0.5,"y":0.5}
-},
-{
-	"filename": "mode_object.png",
 	"frame": {"x":4,"y":72,"w":24,"h":24},
 	"rotated": false,
 	"trimmed": false,
@@ -55,7 +55,7 @@
 	"pivot": {"x":0.5,"y":0.5}
 },
 {
-	"filename": "mode_scene.png",
+	"filename": "mode_light.png",
 	"frame": {"x":32,"y":72,"w":24,"h":24},
 	"rotated": false,
 	"trimmed": false,
@@ -64,7 +64,7 @@
 	"pivot": {"x":0.5,"y":0.5}
 },
 {
-	"filename": "mode_visual.png",
+	"filename": "mode_object.png",
 	"frame": {"x":60,"y":72,"w":24,"h":24},
 	"rotated": false,
 	"trimmed": false,
@@ -73,7 +73,7 @@
 	"pivot": {"x":0.5,"y":0.5}
 },
 {
-	"filename": "redo.png",
+	"filename": "mode_scene.png",
 	"frame": {"x":88,"y":72,"w":24,"h":24},
 	"rotated": false,
 	"trimmed": false,
@@ -82,7 +82,7 @@
 	"pivot": {"x":0.5,"y":0.5}
 },
 {
-	"filename": "scene_new.png",
+	"filename": "mode_visual.png",
 	"frame": {"x":116,"y":72,"w":24,"h":24},
 	"rotated": false,
 	"trimmed": false,
@@ -91,7 +91,7 @@
 	"pivot": {"x":0.5,"y":0.5}
 },
 {
-	"filename": "scene_open.png",
+	"filename": "redo.png",
 	"frame": {"x":144,"y":72,"w":24,"h":24},
 	"rotated": false,
 	"trimmed": false,
@@ -100,7 +100,16 @@
 	"pivot": {"x":0.5,"y":0.5}
 },
 {
-	"filename": "scene_save.png",
+	"filename": "scene_new.png",
+	"frame": {"x":172,"y":72,"w":24,"h":24},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":24,"h":24},
+	"sourceSize": {"w":24,"h":24},
+	"pivot": {"x":0.5,"y":0.5}
+},
+{
+	"filename": "scene_open.png",
 	"frame": {"x":4,"y":100,"w":24,"h":24},
 	"rotated": false,
 	"trimmed": false,
@@ -109,7 +118,7 @@
 	"pivot": {"x":0.5,"y":0.5}
 },
 {
-	"filename": "tool_move.png",
+	"filename": "scene_save.png",
 	"frame": {"x":32,"y":100,"w":24,"h":24},
 	"rotated": false,
 	"trimmed": false,
@@ -118,7 +127,7 @@
 	"pivot": {"x":0.5,"y":0.5}
 },
 {
-	"filename": "tool_rotate.png",
+	"filename": "tool_move.png",
 	"frame": {"x":60,"y":100,"w":24,"h":24},
 	"rotated": false,
 	"trimmed": false,
@@ -127,7 +136,7 @@
 	"pivot": {"x":0.5,"y":0.5}
 },
 {
-	"filename": "tool_scale.png",
+	"filename": "tool_rotate.png",
 	"frame": {"x":88,"y":100,"w":24,"h":24},
 	"rotated": false,
 	"trimmed": false,
@@ -136,7 +145,7 @@
 	"pivot": {"x":0.5,"y":0.5}
 },
 {
-	"filename": "tool_select.png",
+	"filename": "tool_scale.png",
 	"frame": {"x":116,"y":100,"w":24,"h":24},
 	"rotated": false,
 	"trimmed": false,
@@ -145,8 +154,17 @@
 	"pivot": {"x":0.5,"y":0.5}
 },
 {
-	"filename": "undo.png",
+	"filename": "tool_select.png",
 	"frame": {"x":144,"y":100,"w":24,"h":24},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":24,"h":24},
+	"sourceSize": {"w":24,"h":24},
+	"pivot": {"x":0.5,"y":0.5}
+},
+{
+	"filename": "undo.png",
+	"frame": {"x":172,"y":100,"w":24,"h":24},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":24,"h":24},
@@ -158,8 +176,8 @@
 	"version": "1.0",
 	"image": "common1.png",
 	"format": "RGBA8888",
-	"size": {"w":184,"h":128},
+	"size": {"w":200,"h":128},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:cc506a009e2dbc8307e903c27a04037a:b06eb95d6b050937a2b9dd13599e5c5d:849a2d506a3dff356c1665b7dfafc6aa$"
+	"smartupdate": "$TexturePacker:SmartUpdate:8c7468ddd355dd985670f6fc8ef82a9b:c7b142a627e889ba7bd3ca07755eb2c7:849a2d506a3dff356c1665b7dfafc6aa$"
 }
 }

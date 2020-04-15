@@ -89,6 +89,7 @@ namespace af3d
         void writeUserConfig(bool controlsOnly);
 
         LevelPtr level_;
+        LevelPtr editorLevel_;
 
         std::uint64_t lastTimeUs_ = 0;
         std::uint32_t numFrames_ = 0;

@@ -119,6 +119,7 @@ set(SOURCES
     editor/ToolMove.cpp
     editor/ToolRotate.cpp
     editor/ToolScale.cpp
+    editor/Playbar.cpp
 )
 
 include_directories(.)

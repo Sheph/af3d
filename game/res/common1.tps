@@ -196,6 +196,8 @@
             <filename>common1/action_delete.png</filename>
             <filename>common1/action_dup.png</filename>
             <filename>common1/mode_collision.png</filename>
+            <filename>common1/action_play.png</filename>
+            <filename>common1/action_stop.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>

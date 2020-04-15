@@ -50,6 +50,7 @@
 #include "AJsonWriter.h"
 #include "Logger.h"
 #include "Platform.h"
+#include "Settings.h"
 #include "imgui.h"
 #include <set>
 #include <fstream>
@@ -291,13 +292,7 @@ namespace editor {
         actionSceneSave_ = Action("Save scene", [this]() {
             return Action::State(cmdHistory_.dirty());
         }, [this]() {
-            Json::Value val(Json::arrayValue);
-            AJsonSerializerDefault defS;
-            AJsonWriter writer(val, defS);
-            writer.write(scene()->sharedThis());
-            std::ofstream os(platform->assetsPath() + "/" + scene()->assetPath(),
-                std::ios_base::binary | std::ios_base::out | std::ios_base::trunc);
-            os << Json::StyledWriter().write(val);
+            saveAs(scene()->assetPath());
             cmdHistory_.resetDirty();
         }, assetManager.getImage("common1/scene_save.png"), KeySequence(KM_CTRL, KI_S));
 
@@ -360,6 +355,14 @@ namespace editor {
                 duplicateObject(wobj.lock());
             }
         }, assetManager.getImage("common1/action_dup.png"), KeySequence(KM_CTRL, KI_D));
+
+        actionPlay_ = Action("Play", []() {
+            return Action::State(true);
+        }, [this]() {
+            settings.editor.playing = true;
+            saveAs("_play.af3");
+            scene()->setNextLevel("_play.af3");
+        }, assetManager.getImage("common1/action_play.png"), KeySequence(KM_CTRL, KI_R));
 
         actionOpMenu_ = Action("", []() {
             return Action::State(true);
@@ -526,6 +529,7 @@ namespace editor {
         actions_.push_back(&actionRedo_);
         actions_.push_back(&actionDelete_);
         actions_.push_back(&actionDup_);
+        actions_.push_back(&actionPlay_);
         actions_.push_back(&actionOpMenu_);
         actions_.push_back(&actionOpMenuAdd_);
         actions_.push_back(&actionOpMenuAddObject_);
@@ -600,6 +604,8 @@ namespace editor {
             actionDelete().doMenuItem();
             actionDup().doMenuItem();
             ImGui::Separator();
+            actionPlay().doMenuItem();
+            ImGui::Separator();
             actionOpMenu_.trigger();
             ImGui::EndMenu();
         }
@@ -663,6 +669,21 @@ namespace editor {
 
         toolbarButton(actionDelete());
         toolbarButton(actionDup());
+
+        toolbarSep();
+
+        toolbarButton(actionPlay());
+    }
+
+    void Workspace::saveAs(const std::string& path)
+    {
+        Json::Value val(Json::arrayValue);
+        AJsonSerializerDefault defS;
+        AJsonWriter writer(val, defS);
+        writer.write(scene()->sharedThis());
+        std::ofstream os(platform->assetsPath() + "/" + path,
+            std::ios_base::binary | std::ios_base::out | std::ios_base::trunc);
+        os << Json::StyledWriter().write(val);
     }
 
     void Workspace::toolbarButton(Action& action)

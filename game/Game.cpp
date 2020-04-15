@@ -237,8 +237,16 @@ namespace af3d
         }
 
         if (level_->scene()->quit()) {
-            level_->scene()->setQuit(false);
-            return false;
+            if (settings.editor.playing && editorLevel_) {
+                level_.reset();
+                level_ = editorLevel_;
+                editorLevel_.reset();
+                settings.editor.playing = false;
+                return true;
+            } else {
+                level_->scene()->setQuit(false);
+                return false;
+            }
         }
 
         if (level_->scene()->getNextLevel(assetPath)) {
@@ -270,6 +278,7 @@ namespace af3d
         writeUserConfig(false);
 
         level_.reset();
+        editorLevel_.reset();
 
         sceneObjectFactory.shutdown();
 
@@ -354,6 +363,10 @@ namespace af3d
 
         if (level_) {
             cp = level_->scene()->checkpoint();
+        }
+
+        if (settings.editor.playing && !editorLevel_) {
+            editorLevel_ = level_;
         }
 
         level_.reset();

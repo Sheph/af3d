@@ -48,6 +48,7 @@
 #include "HardwareResourceManager.h"
 #include "Const.h"
 #include "PhysicsDebugDraw.h"
+#include "editor/Playbar.h"
 #include <Rocket/Core/ElementDocument.h>
 #include <cmath>
 
@@ -153,10 +154,17 @@ namespace af3d
             impl_->physicsComponentManager_->world().getWorldUserInfo());
 
         if (settings.editor.enabled) {
-            workspaceObj_ = std::make_shared<SceneObject>();
-            workspace_ = std::make_shared<editor::Workspace>();
-            workspaceObj_->addComponent(workspace_);
-            addObject(workspaceObj_);
+            if (settings.editor.playing) {
+                auto playbarObj = std::make_shared<SceneObject>();
+                auto playbarC = std::make_shared<editor::Playbar>();
+                playbarObj->addComponent(playbarC);
+                addObject(playbarObj);
+            } else {
+                workspaceObj_ = std::make_shared<SceneObject>();
+                workspace_ = std::make_shared<editor::Workspace>();
+                workspaceObj_->addComponent(workspace_);
+                addObject(workspaceObj_);
+            }
         }
 
         camera_ = std::make_shared<SceneObject>();
@@ -467,6 +475,7 @@ namespace af3d
         }
 
         assetPath = nextAssetPath_;
+        nextAssetPath_.clear();
 
         return true;
     }

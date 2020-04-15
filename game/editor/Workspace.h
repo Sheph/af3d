@@ -103,6 +103,7 @@ namespace af3d { namespace editor
         inline Action& actionRedo() { return actionRedo_; }
         inline Action& actionDelete() { return actionDelete_; }
         inline Action& actionDup() { return actionDup_; }
+        inline Action& actionPlay() { return actionPlay_; }
 
         inline Action& actionOpMenu() { return actionOpMenu_; }
         inline Action& actionOpMenuAdd() { return actionOpMenuAdd_; }
@@ -153,6 +154,8 @@ namespace af3d { namespace editor
 
         void mainToolbarContents();
 
+        void saveAs(const std::string& path);
+
         static void toolbarButton(Action& action);
 
         static void toolbarSep();
@@ -183,6 +186,7 @@ namespace af3d { namespace editor
         Action actionRedo_;
         Action actionDelete_;
         Action actionDup_;
+        Action actionPlay_;
 
         Action actionOpMenu_;
         Action actionOpMenuAdd_;

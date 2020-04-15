@@ -67,6 +67,7 @@ namespace af3d
         struct Editor
         {
             bool enabled;
+            bool playing;
             float objMarkerSizeWorld;
             int objMarkerSizePixels;
             Color objMarkerColorInactive;
