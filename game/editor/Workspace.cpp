@@ -42,6 +42,7 @@
 #include "DirectionalLight.h"
 #include "PointLight.h"
 #include "CollisionShapeBox.h"
+#include "CollisionShapeCapsule.h"
 #include "PhysicsBodyComponent.h"
 #include "MeshManager.h"
 #include "AssetManager.h"
@@ -439,6 +440,7 @@ namespace editor {
             return Action::State(enabled);
         }, [this]() {
             actionOpMenuAddCollisionBox_.doMenuItem();
+            actionOpMenuAddCollisionCapsule_.doMenuItem();
         });
 
         actionOpMenuAddCollisionBox_ = Action("Box", [this]() {
@@ -454,6 +456,21 @@ namespace editor {
                 std::make_shared<CommandAdd>(scene(),
                     emObject_->selectedTyped().back()->findComponent<PhysicsBodyComponent>(),
                     CollisionShapeBox::staticKlass(), "Box collision", initVals));
+        });
+
+        actionOpMenuAddCollisionCapsule_ = Action("Capsule", [this]() {
+            bool enabled = false;
+            if (!emObject_->selected().empty()) {
+                auto pc = emObject_->selectedTyped().back()->findComponent<PhysicsBodyComponent>();
+                enabled = pc && ((pc->aflags() & AObjectEditable) != 0);
+            }
+            return Action::State(enabled);
+        }, [this]() {
+            APropertyValueMap initVals;
+            cmdHistory_.add(
+                std::make_shared<CommandAdd>(scene(),
+                    emObject_->selectedTyped().back()->findComponent<PhysicsBodyComponent>(),
+                    CollisionShapeCapsule::staticKlass(), "Capsule collision", initVals));
         });
 
         actionOpMenuAddPhysicsBody_ = Action("Physics body", [this]() {
@@ -539,6 +556,7 @@ namespace editor {
         actions_.push_back(&actionOpMenuAddLightPoint_);
         actions_.push_back(&actionOpMenuAddCollision_);
         actions_.push_back(&actionOpMenuAddCollisionBox_);
+        actions_.push_back(&actionOpMenuAddCollisionCapsule_);
         actions_.push_back(&actionOpMenuAddPhysicsBody_);
         actions_.push_back(&actionOpMenuRemove_);
         actions_.push_back(&actionOpMenuRemovePhysicsBody_);
