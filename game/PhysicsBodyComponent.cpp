@@ -151,9 +151,7 @@ namespace af3d
             btTransform principalXf = btTransform::getIdentity();
             btVector3 inertia = btVector3_zero;
 
-            if ((numShapes() > 0) && (parent()->bodyType() == BodyType::Dynamic)) {
-                compound_->shape()->calculatePrincipalAxisTransform(&masses[0], principalXf, inertia);
-            }
+            calculatePrincipalAxisTransform(&masses[0], principalXf, inertia);
             for (int i = 0; i < numShapes(); ++i) {
                 compound_->shape()->updateChildTransform(i, principalXf.inverse() * shape(i)->transform(), i == (numShapes() - 1));
             }
@@ -224,9 +222,7 @@ namespace af3d
         for (int i = 0; i < numShapes(); ++i) {
             compound_->shape()->updateChildTransform(i, shape(i)->transform(), false);
         }
-        if ((numShapes() > 0) && (parent()->bodyType() == BodyType::Dynamic)) {
-            compound_->shape()->calculatePrincipalAxisTransform(&masses[0], principalXf, inertia);
-        }
+        calculatePrincipalAxisTransform(&masses[0], principalXf, inertia);
         for (int i = 0; i < numShapes(); ++i) {
             compound_->shape()->updateChildTransform(i, principalXf.inverse() * shape(i)->transform(), i == (numShapes() - 1));
         }
@@ -252,5 +248,21 @@ namespace af3d
                 manager()->world().addRigidBody(parent()->body());
             }
         }
+    }
+
+    void PhysicsBodyComponent::calculatePrincipalAxisTransform(const btScalar* masses, btTransform& principal, btVector3& inertia)
+    {
+        if (numShapes() <= 0) {
+            return;
+        }
+
+        for (int i = 0; i < numShapes(); ++i) {
+            if (shape(i)->shape()->isConcave()) {
+                // Concave shapes cannot be moved.
+                return;
+            }
+        }
+
+        compound_->shape()->calculatePrincipalAxisTransform(masses, principal, inertia);
     }
 }

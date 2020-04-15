@@ -112,6 +112,8 @@ namespace af3d
 
         void onUnregister() override;
 
+        void calculatePrincipalAxisTransform(const btScalar* masses, btTransform& principal, btVector3& inertia);
+
         CollisionShapeCompoundPtr compound_;
     };
 
