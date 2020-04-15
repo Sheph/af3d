@@ -24,12 +24,13 @@
  */
 
 #include "CollisionShapeStaticMesh.h"
+#include "Logger.h"
 
 namespace af3d
 {
     ACLASS_DEFINE_BEGIN(CollisionShapeStaticMesh, CollisionShape)
     COLLISIONSHAPE_PARAM(CollisionShapeStaticMesh, "mesh", "Mesh", Mesh, MeshPtr())
-    COLLISIONSHAPE_PARAM(CollisionShapeStaticMesh, "submesh index", "SubMesh index", Int, -1)
+    COLLISIONSHAPE_PARAM(CollisionShapeStaticMesh, "submesh index", "SubMesh index (< 0 - use all)", Int, -1)
     ACLASS_DEFINE_END(CollisionShapeStaticMesh)
 
     CollisionShapeStaticMesh::CollisionShapeStaticMesh(const MeshPtr& mesh, int subMeshIndex)
@@ -53,13 +54,34 @@ namespace af3d
     btTriangleMesh* CollisionShapeStaticMesh::initMesh(const MeshPtr& mesh, int subMeshIndex)
     {
         // TODO: cache btBvhTriangleMeshShape, use from cache.
-        auto data = mesh->getSubMeshData(0);
-        for (const auto& v : data->vertices()) {
-            mesh_.findOrAddVertex(fromVector3f(v), false);
+
+        if (subMeshIndex >= static_cast<int>(mesh->subMeshes().size())) {
+            LOG4CPLUS_WARN(logger(), "subMeshIndex " << subMeshIndex << " too high, resetting to 0");
+            subMeshIndex = 0;
         }
-        for (const auto& f : data->faces()) {
-            mesh_.addTriangleIndices(f[0], f[1], f[2]);
+
+        if (subMeshIndex < 0) {
+            int base = 0;
+            for (size_t i = 0; i < mesh->subMeshes().size(); ++i) {
+                auto data = mesh->getSubMeshData(i);
+                for (const auto& v : data->vertices()) {
+                    mesh_.findOrAddVertex(fromVector3f(v), false);
+                }
+                for (const auto& f : data->faces()) {
+                    mesh_.addTriangleIndices(base + f[0], base + f[1], base + f[2]);
+                }
+                base += data->vertices().size();
+            }
+        } else {
+            auto data = mesh->getSubMeshData(subMeshIndex);
+            for (const auto& v : data->vertices()) {
+                mesh_.findOrAddVertex(fromVector3f(v), false);
+            }
+            for (const auto& f : data->faces()) {
+                mesh_.addTriangleIndices(f[0], f[1], f[2]);
+            }
         }
+
         return &mesh_;
     }
 }
