@@ -47,12 +47,14 @@ namespace af3d
     {
         auto obj = std::make_shared<SceneAsset>();
         obj->propertiesSet(propVals);
+        obj->cameraXf_ = propVals.get(AProperty_CameraTransform).toTransform();
         return obj;
     }
 
     void SceneAsset::apply(Scene* scene)
     {
         scene->setName(name());
+        scene->camera()->setTransform(cameraXf_);
         scene->camera()->findComponent<CameraComponent>()->renderSettings().setClearColor(clearColor_);
         scene->camera()->findComponent<CameraComponent>()->renderSettings().setAmbientColor(ambientColor_);
         for (const auto& obj : objects_) {

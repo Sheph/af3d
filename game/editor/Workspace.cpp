@@ -290,7 +290,7 @@ namespace editor {
         }, assetManager.getImage("common1/scene_open.png"), KeySequence(KM_CTRL, KI_O));
 
         actionSceneSave_ = Action("Save scene", [this]() {
-            return Action::State(cmdHistory_.dirty());
+            return Action::State(true);
         }, [this]() {
             saveAs(scene()->assetPath());
             cmdHistory_.resetDirty();
@@ -566,7 +566,7 @@ namespace editor {
             mainMenuContents();
 
             ImGui::SameLine();
-            ImGui::Text("| %s%s", scene()->assetPath().c_str(), (actionSceneSave().state().enabled ? "*" : ""));
+            ImGui::Text("| %s%s", scene()->assetPath().c_str(), (cmdHistory_.dirty() ? "*" : ""));
 
             h = ImGui::GetWindowHeight();
 

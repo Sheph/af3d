@@ -79,10 +79,13 @@ namespace af3d
         APropertyValue propertyAmbientColorGet(const std::string&) const { return ambientColor_; }
         void propertyAmbientColorSet(const std::string&, const APropertyValue& value) { ambientColor_ = value.toColor(); }
 
+        APropertyValue propertyCameraTransformGet(const std::string&) const { return cameraXf_; }
+
     private:
         std::vector<SceneObjectPtr> objects_;
         Color clearColor_ = Color_zero;
         Color ambientColor_ = Color_zero;
+        btTransform cameraXf_;
     };
 
     using SceneAssetPtr = std::shared_ptr<SceneAsset>;
@@ -91,7 +94,8 @@ namespace af3d
 
     #define SCENE_PROPS(Class) \
         ACLASS_PROPERTY(Class, ClearColor, "clear color", "Clear Color", ColorRGB, Color(0.23f, 0.23f, 0.23f, 1.0f), General, APropertyEditable) \
-        ACLASS_PROPERTY(Class, AmbientColor, "ambient color", "Ambient Color", ColorRGB, Color(0.2f, 0.2f, 0.2f, 1.0f), General, APropertyEditable)
+        ACLASS_PROPERTY(Class, AmbientColor, "ambient color", "Ambient Color", ColorRGB, Color(0.2f, 0.2f, 0.2f, 1.0f), General, APropertyEditable) \
+        ACLASS_PROPERTY_RO(Class, CameraTransform, AProperty_CameraTransform, "Camera transform", Transform, Position, APropertyEditable)
 }
 
 #endif

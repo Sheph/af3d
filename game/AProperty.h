@@ -102,6 +102,7 @@ namespace af3d
     #define AProperty_Width "width"
     #define AProperty_Height "height"
     #define AProperty_PhysicsActive "physics active"
+    #define AProperty_CameraTransform "camera transform"
 }
 
 inline std::ostream& operator <<(std::ostream& os, af3d::APropertyCategory cat)

@@ -121,6 +121,8 @@ namespace af3d
         APropertyValue propertyAmbientColorGet(const std::string&) const;
         void propertyAmbientColorSet(const std::string&, const APropertyValue& value);
 
+        APropertyValue propertyCameraTransformGet(const std::string&) const;
+
     private:
         static void worldTickCallback(btDynamicsWorld* world, btScalar timeStep);
 

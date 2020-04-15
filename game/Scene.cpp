@@ -525,6 +525,11 @@ namespace af3d
         camera_->findComponent<CameraComponent>()->renderSettings().setAmbientColor(value.toColor());
     }
 
+    APropertyValue Scene::propertyCameraTransformGet(const std::string&) const
+    {
+        return camera_->transform();
+    }
+
     void Scene::worldTickCallback(btDynamicsWorld* world, btScalar timeStep)
     {
         PhysicsComponentManager::fromWorld(world)->scene()->updateStep(timeStep);
