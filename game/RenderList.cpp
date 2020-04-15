@@ -475,7 +475,6 @@ namespace af3d
                 setAutoParams(geom, params);
                 light->setupMaterial(frustum_.transform().getOrigin(), params);
             }
-            ++pass;
         }
 
         return rn;
