@@ -44,6 +44,8 @@ namespace af3d
 
         static GLsizeiptr dataTypeSize(DataType dataType);
 
+        inline DataType dataType() const { return dataType_; }
+
         GLenum glDataType() const;
 
     private:

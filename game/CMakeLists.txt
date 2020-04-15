@@ -91,6 +91,7 @@ set(SOURCES
     CollisionShapeCompound.cpp
     CollisionShapeBox.cpp
     CollisionShapeCapsule.cpp
+    CollisionShapeStaticMesh.cpp
     PhysicsDebugDraw.cpp
     MotionState.cpp
     editor/Action.cpp

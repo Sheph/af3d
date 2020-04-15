@@ -43,6 +43,7 @@
 #include "PointLight.h"
 #include "CollisionShapeBox.h"
 #include "CollisionShapeCapsule.h"
+#include "CollisionShapeStaticMesh.h"
 #include "PhysicsBodyComponent.h"
 #include "MeshManager.h"
 #include "AssetManager.h"
@@ -432,24 +433,15 @@ namespace editor {
         });
 
         actionOpMenuAddCollision_ = Action("Collision", [this]() {
-            bool enabled = false;
-            if (!emObject_->selected().empty()) {
-                auto pc = emObject_->selectedTyped().back()->findComponent<PhysicsBodyComponent>();
-                enabled = pc && ((pc->aflags() & AObjectEditable) != 0);
-            }
-            return Action::State(enabled);
+            return Action::State(objectWithPhysicsBodySelected());
         }, [this]() {
             actionOpMenuAddCollisionBox_.doMenuItem();
             actionOpMenuAddCollisionCapsule_.doMenuItem();
+            actionOpMenuAddCollisionStaticMesh_.doMenuItem();
         });
 
         actionOpMenuAddCollisionBox_ = Action("Box", [this]() {
-            bool enabled = false;
-            if (!emObject_->selected().empty()) {
-                auto pc = emObject_->selectedTyped().back()->findComponent<PhysicsBodyComponent>();
-                enabled = pc && ((pc->aflags() & AObjectEditable) != 0);
-            }
-            return Action::State(enabled);
+            return Action::State(objectWithPhysicsBodySelected());
         }, [this]() {
             APropertyValueMap initVals;
             cmdHistory_.add(
@@ -459,18 +451,24 @@ namespace editor {
         });
 
         actionOpMenuAddCollisionCapsule_ = Action("Capsule", [this]() {
-            bool enabled = false;
-            if (!emObject_->selected().empty()) {
-                auto pc = emObject_->selectedTyped().back()->findComponent<PhysicsBodyComponent>();
-                enabled = pc && ((pc->aflags() & AObjectEditable) != 0);
-            }
-            return Action::State(enabled);
+            return Action::State(objectWithPhysicsBodySelected());
         }, [this]() {
             APropertyValueMap initVals;
             cmdHistory_.add(
                 std::make_shared<CommandAdd>(scene(),
                     emObject_->selectedTyped().back()->findComponent<PhysicsBodyComponent>(),
                     CollisionShapeCapsule::staticKlass(), "Capsule collision", initVals));
+        });
+
+        actionOpMenuAddCollisionStaticMesh_ = Action("Static Mesh", [this]() {
+            return Action::State(objectWithPhysicsBodySelected());
+        }, [this]() {
+            APropertyValueMap initVals;
+            initVals.set("mesh", APropertyValue(meshManager.loadMesh("cube.fbx")));
+            cmdHistory_.add(
+                std::make_shared<CommandAdd>(scene(),
+                    emObject_->selectedTyped().back()->findComponent<PhysicsBodyComponent>(),
+                    CollisionShapeStaticMesh::staticKlass(), "Static mesh collision", initVals));
         });
 
         actionOpMenuAddPhysicsBody_ = Action("Physics body", [this]() {
@@ -496,12 +494,7 @@ namespace editor {
         });
 
         actionOpMenuRemovePhysicsBody_ = Action("Physics body", [this]() {
-            bool enabled = false;
-            if (!emObject_->selected().empty()) {
-                auto pc = emObject_->selectedTyped().back()->findComponent<PhysicsBodyComponent>();
-                enabled = pc && ((pc->aflags() & AObjectEditable) != 0);
-            }
-            return Action::State(enabled);
+            return Action::State(objectWithPhysicsBodySelected());
         }, [this]() {
             deleteObject(emObject_->selectedTyped().back()->findComponent<PhysicsBodyComponent>());
         });
@@ -557,6 +550,7 @@ namespace editor {
         actions_.push_back(&actionOpMenuAddCollision_);
         actions_.push_back(&actionOpMenuAddCollisionBox_);
         actions_.push_back(&actionOpMenuAddCollisionCapsule_);
+        actions_.push_back(&actionOpMenuAddCollisionStaticMesh_);
         actions_.push_back(&actionOpMenuAddPhysicsBody_);
         actions_.push_back(&actionOpMenuRemove_);
         actions_.push_back(&actionOpMenuRemovePhysicsBody_);
@@ -702,6 +696,16 @@ namespace editor {
         std::ofstream os(platform->assetsPath() + "/" + path,
             std::ios_base::binary | std::ios_base::out | std::ios_base::trunc);
         os << Json::StyledWriter().write(val);
+    }
+
+    bool Workspace::objectWithPhysicsBodySelected() const
+    {
+        bool res = false;
+        if (!emObject_->selected().empty()) {
+            auto pc = emObject_->selectedTyped().back()->findComponent<PhysicsBodyComponent>();
+            res = pc && ((pc->aflags() & AObjectEditable) != 0);
+        }
+        return res;
     }
 
     void Workspace::toolbarButton(Action& action)

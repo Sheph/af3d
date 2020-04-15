@@ -43,8 +43,10 @@ namespace af3d
 
         AObjectPtr sharedThis() override { return shared_from_this(); }
 
+        btBoxShape* shape() override { return &shape_; }
+
     private:
-        btBoxShape actualShape_;
+        btBoxShape shape_;
     };
 
     using CollisionShapeBoxPtr = std::shared_ptr<CollisionShapeBox>;

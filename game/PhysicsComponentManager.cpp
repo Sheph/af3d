@@ -53,10 +53,9 @@ namespace af3d
                 auto shape = rayResult.m_collisionObject->getCollisionShape();
                 if (shape->isCompound()) {
                     auto cShape = static_cast<const btCompoundShape*>(shape);
-                    int childIdx = rayResult.m_localShapeInfo->m_triangleIndex;
-                    btAssert(childIdx >= 0);
-                    btAssert(childIdx < cShape->getNumChildShapes());
-                    shape = cShape->getChildShape(childIdx);
+                    btAssert(m_childIdx >= 0);
+                    btAssert(m_childIdx < cShape->getNumChildShapes());
+                    shape = cShape->getChildShape(m_childIdx);
                 }
 
                 float f = fn_(const_cast<btCollisionShape*>(shape), pointWorld, normalWorld, rayResult.m_hitFraction);

@@ -79,7 +79,7 @@ namespace af3d
             res.reserve(numShapes());
             for (int i = 0; i < numShapes(); ++i) {
                 res.push_back(APropertyValue(
-                    CollisionShape::fromShape(compound_->actualShape().getChildShape(i))->sharedThis()));
+                    CollisionShape::fromShape(compound_->shape()->getChildShape(i))->sharedThis()));
             }
             return res;
         }

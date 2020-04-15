@@ -149,6 +149,17 @@ namespace af3d
         return mesh;
     }
 
+    MeshPtr MeshManager::createMesh(const AABB& aabb,
+        const std::vector<SubMeshPtr>& subMeshes,
+        const std::vector<SubMeshDataPtr>& subMeshesData,
+        const ResourceLoaderPtr& loader)
+    {
+        auto mesh = std::make_shared<Mesh>(this, "", aabb, subMeshes, subMeshesData, loader);
+        mesh->load();
+        immediateMeshes_.insert(mesh.get());
+        return mesh;
+    }
+
     MeshPtr MeshManager::createBoxMesh(const btVector3& size,
         const MaterialPtr& material, const std::array<Color, 6>& colors)
     {

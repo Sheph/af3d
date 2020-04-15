@@ -38,7 +38,7 @@ namespace af3d
     class CollisionShape : public AObject
     {
     public:
-        CollisionShape(const AClass& klass, btCollisionShape* shape);
+        explicit CollisionShape(const AClass& klass);
         ~CollisionShape();
 
         // btCollisionShape's userPointer is CollisionShapePtr* unless
@@ -46,10 +46,9 @@ namespace af3d
 
         static const AClass& staticKlass();
 
-        void afterCreate(const APropertyValueMap& propVals);
+        virtual btCollisionShape* shape() = 0;
 
-        inline const btCollisionShape* shape() const { return shape_; }
-        inline btCollisionShape* shape() { return shape_; }
+        void afterCreate(const APropertyValueMap& propVals);
 
         inline PhysicsBodyComponent* parent() const { return parent_; }
         SceneObject* parentObject() const;
@@ -94,8 +93,6 @@ namespace af3d
         APropertyValue propertyParamGet(const std::string& key) const { return params_.get(key); }
 
     private:
-        btCollisionShape* shape_;
-
         btTransform xf_ = btTransform::getIdentity();
         float mass_ = 1.0f;
 

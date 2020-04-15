@@ -23,31 +23,43 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "CollisionShapeCapsule.h"
+#include "CollisionShapeStaticMesh.h"
 
 namespace af3d
 {
-    ACLASS_DEFINE_BEGIN(CollisionShapeCapsule, CollisionShape)
-    COLLISIONSHAPE_PARAM(CollisionShapeCapsule, "radius", "Capsule radius", Float, 1.0f)
-    COLLISIONSHAPE_PARAM(CollisionShapeCapsule, "height", "Capsule height", Float, 1.0f)
-    ACLASS_DEFINE_END(CollisionShapeCapsule)
+    ACLASS_DEFINE_BEGIN(CollisionShapeStaticMesh, CollisionShape)
+    COLLISIONSHAPE_PARAM(CollisionShapeStaticMesh, "mesh", "Mesh", Mesh, MeshPtr())
+    COLLISIONSHAPE_PARAM(CollisionShapeStaticMesh, "submesh index", "SubMesh index", Int, -1)
+    ACLASS_DEFINE_END(CollisionShapeStaticMesh)
 
-    CollisionShapeCapsule::CollisionShapeCapsule(float radius, float height)
-    : CollisionShape(AClass_CollisionShapeCapsule),
-      shape_(radius, height)
+    CollisionShapeStaticMesh::CollisionShapeStaticMesh(const MeshPtr& mesh, int subMeshIndex)
+    : CollisionShape(AClass_CollisionShapeStaticMesh),
+      shape_(initMesh(mesh, subMeshIndex), true, true)
     {
     }
 
-    const AClass& CollisionShapeCapsule::staticKlass()
+    const AClass& CollisionShapeStaticMesh::staticKlass()
     {
-        return AClass_CollisionShapeCapsule;
+        return AClass_CollisionShapeStaticMesh;
     }
 
-    AObjectPtr CollisionShapeCapsule::create(const APropertyValueMap& propVals)
+    AObjectPtr CollisionShapeStaticMesh::create(const APropertyValueMap& propVals)
     {
-        auto obj = std::make_shared<CollisionShapeCapsule>(propVals.get("radius").toFloat(),
-            propVals.get("height").toFloat());
+        auto obj = std::make_shared<CollisionShapeStaticMesh>(propVals.get("mesh").toObject<Mesh>(), propVals.get("submesh index").toInt());
         obj->afterCreate(propVals);
         return obj;
+    }
+
+    btTriangleMesh* CollisionShapeStaticMesh::initMesh(const MeshPtr& mesh, int subMeshIndex)
+    {
+        // TODO: cache btBvhTriangleMeshShape, use from cache.
+        auto data = mesh->getSubMeshData(0);
+        for (const auto& v : data->vertices()) {
+            mesh_.findOrAddVertex(fromVector3f(v), false);
+        }
+        for (const auto& f : data->faces()) {
+            mesh_.addTriangleIndices(f[0], f[1], f[2]);
+        }
+        return &mesh_;
     }
 }

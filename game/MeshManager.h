@@ -57,6 +57,11 @@ namespace af3d
             const std::vector<SubMeshPtr>& subMeshes,
             const ResourceLoaderPtr& loader = ResourceLoaderPtr());
 
+        MeshPtr createMesh(const AABB& aabb,
+            const std::vector<SubMeshPtr>& subMeshes,
+            const std::vector<SubMeshDataPtr>& subMeshesData,
+            const ResourceLoaderPtr& loader = ResourceLoaderPtr());
+
         MeshPtr createBoxMesh(const btVector3& size,
             const MaterialPtr& material, const std::array<Color, 6>& colors);
 

@@ -32,6 +32,49 @@
 
 namespace af3d
 {
+    namespace
+    {
+        class SyncHwOp
+        {
+        public:
+            SyncHwOp(std::mutex& mtx,
+                std::condition_variable& cond,
+                Renderer::HwOpFn& fn)
+            : mtx_(mtx),
+              cond_(cond),
+              fn_(fn)
+            {
+            }
+
+            ~SyncHwOp()
+            {
+                if (!done_) {
+                    ScopedLockA lock(mtx_);
+                    fn_ = Renderer::HwOpFn();
+                    cond_.notify_one();
+                }
+            }
+
+            bool run(HardwareContext& ctx)
+            {
+                fn_(ctx);
+
+                ScopedLockA lock(mtx_);
+                done_ = true;
+                fn_ = Renderer::HwOpFn();
+                cond_.notify_one();
+
+                return false;
+            }
+
+        private:
+            std::mutex& mtx_;
+            std::condition_variable& cond_;
+            Renderer::HwOpFn& fn_;
+            bool done_ = false;
+        };
+    }
+
     Renderer renderer;
 
     template <>
@@ -90,6 +133,29 @@ namespace af3d
         }
 
         cond_.notify_one();
+    }
+
+    void Renderer::scheduleHwOpSync(HwOpFn hwOp)
+    {
+        std::condition_variable c;
+
+        {
+            ScopedLockA lock(mtx_);
+
+            if (cancelSwap_) {
+                return;
+            }
+
+            ops_.push_back(std::bind(&SyncHwOp::run,
+                std::make_shared<SyncHwOp>(mtx_, c, hwOp), std::placeholders::_1));
+        }
+
+        cond_.notify_one();
+
+        ScopedLockA lock(mtx_);
+        while (hwOp) {
+            c.wait(lock);
+        }
     }
 
     void Renderer::swap(const RenderNodeList& rnl)

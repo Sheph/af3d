@@ -43,11 +43,10 @@ namespace af3d
 
         AObjectPtr sharedThis() override { return shared_from_this(); }
 
-        inline const btCompoundShape& actualShape() const { return actualShape_; }
-        inline btCompoundShape& actualShape() { return actualShape_; }
+        btCompoundShape* shape() override { return &shape_; }
 
     private:
-        btCompoundShape actualShape_;
+        btCompoundShape shape_;
     };
 
     using CollisionShapeCompoundPtr = std::shared_ptr<CollisionShapeCompound>;

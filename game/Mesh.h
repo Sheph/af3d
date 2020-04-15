@@ -37,6 +37,28 @@ namespace af3d
 
     using MeshPtr = std::shared_ptr<Mesh>;
 
+    class SubMeshData : boost::noncopyable
+    {
+    public:
+        explicit SubMeshData();
+        ~SubMeshData() = default;
+
+        void invalidate();
+
+        void load(const VertexArraySlice& vaSlice);
+
+        inline const std::vector<Vector3f>& vertices() const { return vertices_; }
+
+        inline const std::vector<TriFace>& faces() const { return faces_; }
+
+    private:
+        std::atomic<bool> loaded_;
+        std::vector<Vector3f> vertices_;
+        std::vector<TriFace> faces_;
+    };
+
+    using SubMeshDataPtr = std::shared_ptr<SubMeshData>;
+
     class Mesh : public std::enable_shared_from_this<Mesh>,
         public Resource
     {
@@ -45,6 +67,12 @@ namespace af3d
             const std::string& name,
             const AABB& aabb,
             const std::vector<SubMeshPtr>& subMeshes,
+            const ResourceLoaderPtr& loader = ResourceLoaderPtr());
+        Mesh(MeshManager* mgr,
+            const std::string& name,
+            const AABB& aabb,
+            const std::vector<SubMeshPtr>& subMeshes,
+            const std::vector<SubMeshDataPtr>& subMeshesData,
             const ResourceLoaderPtr& loader = ResourceLoaderPtr());
         ~Mesh();
 
@@ -61,10 +89,13 @@ namespace af3d
 
         const std::vector<SubMeshPtr>& subMeshes() const { return subMeshes_; }
 
+        SubMeshDataPtr getSubMeshData(int idx);
+
     private:
         MeshManager* mgr_;
         AABB aabb_;
         std::vector<SubMeshPtr> subMeshes_;
+        std::vector<SubMeshDataPtr> subMeshesData_;
     };
 
     extern const APropertyTypeObject APropertyType_Mesh;

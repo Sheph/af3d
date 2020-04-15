@@ -23,56 +23,39 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _RENDERER_H_
-#define _RENDERER_H_
+#ifndef _COLLISIONSHAPESTATICMESH_H_
+#define _COLLISIONSHAPESTATICMESH_H_
 
-#include "HardwareContext.h"
-#include "RenderNode.h"
-#include "af3d/Single.h"
-#include <mutex>
-#include <condition_variable>
-#include <list>
+#include "CollisionShape.h"
+#include "Mesh.h"
 
 namespace af3d
 {
-    class Renderer : public Single<Renderer>
+    class CollisionShapeStaticMesh : public std::enable_shared_from_this<CollisionShapeStaticMesh>,
+        public CollisionShape
     {
     public:
-        using HwOpFn = std::function<void(HardwareContext&)>;
+        CollisionShapeStaticMesh(const MeshPtr& mesh, int subMeshIndex);
+        ~CollisionShapeStaticMesh() = default;
 
-        Renderer() = default;
-        ~Renderer();
+        static const AClass& staticKlass();
 
-        bool init();
+        static AObjectPtr create(const APropertyValueMap& propVals);
 
-        void shutdown();
+        AObjectPtr sharedThis() override { return shared_from_this(); }
 
-        bool reload(HardwareContext& ctx);
-
-        void scheduleHwOp(const HwOpFn& hwOp); // Will get executed in 'render'.
-        void scheduleHwOpSync(HwOpFn hwOp); // Will get executed in 'render'.
-        void swap(const RenderNodeList& rnl);
-        void cancelSwap(HardwareContext& ctx);
-
-        bool render(HardwareContext& ctx);
-        void cancelRender();
+        btBvhTriangleMeshShape* shape() override { return &shape_; }
 
     private:
-        using RenderOpFn = std::function<bool(HardwareContext&)>;
-        using RenderOpList = std::list<RenderOpFn>;
+        btTriangleMesh* initMesh(const MeshPtr& mesh, int subMeshIndex);
 
-        void doRender(const RenderNodePtr& rn, HardwareContext& ctx);
-
-        std::mutex mtx_;
-        std::condition_variable cond_;
-        bool cancelSwap_ = false;
-        bool cancelRender_ = false;
-        bool rendering_ = false;
-        RenderOpList ops_;
-        std::uint64_t lastTimeUs_ = 0;
+        btTriangleMesh mesh_;
+        btBvhTriangleMeshShape shape_;
     };
 
-    extern Renderer renderer;
+    using CollisionShapeStaticMeshPtr = std::shared_ptr<CollisionShapeStaticMesh>;
+
+    ACLASS_DECLARE(CollisionShapeStaticMesh)
 }
 
 #endif

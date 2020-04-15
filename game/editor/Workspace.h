@@ -115,6 +115,7 @@ namespace af3d { namespace editor
         inline Action& actionOpMenuAddCollision() { return actionOpMenuAddCollision_; }
         inline Action& actionOpMenuAddCollisionBox() { return actionOpMenuAddCollisionBox_; }
         inline Action& actionOpMenuAddCollisionCapsule() { return actionOpMenuAddCollisionCapsule_; }
+        inline Action& actionOpMenuAddCollisionStaticMesh() { return actionOpMenuAddCollisionStaticMesh_; }
         inline Action& actionOpMenuAddPhysicsBody() { return actionOpMenuAddPhysicsBody_; }
         inline Action& actionOpMenuRemove() { return actionOpMenuRemove_; }
         inline Action& actionOpMenuRemovePhysicsBody() { return actionOpMenuRemovePhysicsBody_; }
@@ -156,6 +157,8 @@ namespace af3d { namespace editor
         void mainToolbarContents();
 
         void saveAs(const std::string& path);
+
+        bool objectWithPhysicsBodySelected() const;
 
         static void toolbarButton(Action& action);
 
@@ -199,6 +202,7 @@ namespace af3d { namespace editor
         Action actionOpMenuAddCollision_;
         Action actionOpMenuAddCollisionBox_;
         Action actionOpMenuAddCollisionCapsule_;
+        Action actionOpMenuAddCollisionStaticMesh_;
         Action actionOpMenuAddPhysicsBody_;
         Action actionOpMenuRemove_;
         Action actionOpMenuRemovePhysicsBody_;

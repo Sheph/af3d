@@ -53,6 +53,8 @@ namespace af3d
             btAssert(false);
         case WriteOnly:
             return GL_MAP_WRITE_BIT;
+        case ReadOnly:
+            return GL_MAP_READ_BIT;
         }
     }
 

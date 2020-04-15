@@ -31,15 +31,15 @@ namespace af3d
     ACLASS_DEFINE_END(CollisionShapeCompound)
 
     CollisionShapeCompound::CollisionShapeCompound()
-    : CollisionShape(AClass_CollisionShapeCompound, &actualShape_),
-      actualShape_(false)
+    : CollisionShape(AClass_CollisionShapeCompound),
+      shape_(false)
     {
     }
 
     CollisionShapeCompound::~CollisionShapeCompound()
     {
-        for (int i = 0; i < actualShape_.getNumChildShapes(); ++i) {
-            CollisionShape::fromShape(actualShape_.getChildShape(i))->resetUserPointer();
+        for (int i = 0; i < shape_.getNumChildShapes(); ++i) {
+            CollisionShape::fromShape(shape_.getChildShape(i))->resetUserPointer();
         }
     }
 

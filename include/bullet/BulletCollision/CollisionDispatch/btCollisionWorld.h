@@ -200,6 +200,7 @@ public:
 		int m_collisionFilterMask;
 		//@BP Mod - Custom flags, currently used to enable backface culling on tri-meshes, see btRaycastCallback.h. Apply any of the EFlags defined there on m_flags here to invoke.
 		unsigned int m_flags;
+		int m_childIdx;
 
 		virtual ~RayResultCallback()
 		{
@@ -215,7 +216,8 @@ public:
 			  m_collisionFilterGroup(btBroadphaseProxy::DefaultFilter),
 			  m_collisionFilterMask(btBroadphaseProxy::AllFilter),
 			  //@BP Mod
-			  m_flags(0)
+			  m_flags(0),
+			  m_childIdx(0)
 		{
 		}
 
@@ -332,11 +334,13 @@ public:
 		btScalar m_closestHitFraction;
 		int m_collisionFilterGroup;
 		int m_collisionFilterMask;
+		int m_childIdx;
 
 		ConvexResultCallback()
 			: m_closestHitFraction(btScalar(1.)),
 			  m_collisionFilterGroup(btBroadphaseProxy::DefaultFilter),
-			  m_collisionFilterMask(btBroadphaseProxy::AllFilter)
+			  m_collisionFilterMask(btBroadphaseProxy::AllFilter),
+			  m_childIdx(0)
 		{
 		}
 

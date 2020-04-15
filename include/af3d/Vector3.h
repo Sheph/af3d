@@ -414,6 +414,10 @@ namespace af3d
     static_assert(sizeof(Vector3f) == 12, "Bad Vector3f size");
     static_assert(sizeof(Vector3i) == 12, "Bad Vector3i size");
 
+    using TriFace = Vector3i;
+
+    static_assert(std::is_pod<TriFace>::value, "TriFace must be POD type");
+
     extern const Vector3f Vector3f_zero;
     extern const Vector3i Vector3i_zero;
     extern const btVector3 btVector3_zero;

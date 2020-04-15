@@ -32,8 +32,8 @@ namespace af3d
     ACLASS_DEFINE_END(CollisionShapeBox)
 
     CollisionShapeBox::CollisionShapeBox(const btVector3& size)
-    : CollisionShape(AClass_CollisionShapeBox, &actualShape_),
-      actualShape_(size * 0.5f)
+    : CollisionShape(AClass_CollisionShapeBox),
+      shape_(size * 0.5f)
     {
     }
 

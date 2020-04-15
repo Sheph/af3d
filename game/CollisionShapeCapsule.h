@@ -43,8 +43,10 @@ namespace af3d
 
         AObjectPtr sharedThis() override { return shared_from_this(); }
 
+        btCapsuleShape* shape() override { return &shape_; }
+
     private:
-        btCapsuleShape actualShape_;
+        btCapsuleShape shape_;
     };
 
     using CollisionShapeCapsulePtr = std::shared_ptr<CollisionShapeCapsule>;

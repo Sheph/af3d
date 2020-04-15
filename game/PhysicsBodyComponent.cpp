@@ -67,7 +67,7 @@ namespace af3d
 
         cs->adopt(this);
 
-        compound_->actualShape().addChildShape(cs->transform(), cs->shape());
+        compound_->shape()->addChildShape(cs->transform(), cs->shape());
         cs->assignUserPointer();
 
         updateBodyCollision(true);
@@ -79,7 +79,7 @@ namespace af3d
 
         cs->abandon();
 
-        compound_->actualShape().removeChildShape(cs->shape());
+        compound_->shape()->removeChildShape(cs->shape());
         cs->resetUserPointer();
 
         updateBodyCollision(true);
@@ -87,17 +87,17 @@ namespace af3d
 
     int PhysicsBodyComponent::numShapes() const
     {
-        return compound_->actualShape().getNumChildShapes();
+        return compound_->shape()->getNumChildShapes();
     }
 
     CollisionShape* PhysicsBodyComponent::shape(int index)
     {
-        return CollisionShape::fromShape(compound_->actualShape().getChildShape(index));
+        return CollisionShape::fromShape(compound_->shape()->getChildShape(index));
     }
 
     const CollisionShape* PhysicsBodyComponent::shape(int index) const
     {
-        return CollisionShape::fromShape(compound_->actualShape().getChildShape(index));
+        return CollisionShape::fromShape(compound_->shape()->getChildShape(index));
     }
 
     CollisionShapes PhysicsBodyComponent::getShapes()
@@ -151,11 +151,11 @@ namespace af3d
             btTransform principalXf = btTransform::getIdentity();
             btVector3 inertia = btVector3_zero;
 
-            if (numShapes() > 0) {
-                compound_->actualShape().calculatePrincipalAxisTransform(&masses[0], principalXf, inertia);
-                for (int i = 0; i < numShapes(); ++i) {
-                    compound_->actualShape().updateChildTransform(i, principalXf.inverse() * shape(i)->transform(), i == (numShapes() - 1));
-                }
+            if ((numShapes() > 0) && (parent()->bodyType() == BodyType::Dynamic)) {
+                compound_->shape()->calculatePrincipalAxisTransform(&masses[0], principalXf, inertia);
+            }
+            for (int i = 0; i < numShapes(); ++i) {
+                compound_->shape()->updateChildTransform(i, principalXf.inverse() * shape(i)->transform(), i == (numShapes() - 1));
             }
 
             MotionState* motionState = new MotionState(principalXf, parent()->transform());
@@ -221,14 +221,14 @@ namespace af3d
         btTransform principalXf = btTransform::getIdentity();
         btVector3 inertia = btVector3_zero;
 
-        if (numShapes() > 0) {
-            for (int i = 0; i < numShapes(); ++i) {
-                compound_->actualShape().updateChildTransform(i, shape(i)->transform(), false);
-            }
-            compound_->actualShape().calculatePrincipalAxisTransform(&masses[0], principalXf, inertia);
-            for (int i = 0; i < numShapes(); ++i) {
-                compound_->actualShape().updateChildTransform(i, principalXf.inverse() * shape(i)->transform(), i == (numShapes() - 1));
-            }
+        for (int i = 0; i < numShapes(); ++i) {
+            compound_->shape()->updateChildTransform(i, shape(i)->transform(), false);
+        }
+        if ((numShapes() > 0) && (parent()->bodyType() == BodyType::Dynamic)) {
+            compound_->shape()->calculatePrincipalAxisTransform(&masses[0], principalXf, inertia);
+        }
+        for (int i = 0; i < numShapes(); ++i) {
+            compound_->shape()->updateChildTransform(i, principalXf.inverse() * shape(i)->transform(), i == (numShapes() - 1));
         }
 
         parent()->setLocalCenter(principalXf);

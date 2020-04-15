@@ -25,6 +25,7 @@
 
 #include "Mesh.h"
 #include "MeshManager.h"
+#include "Renderer.h"
 
 namespace af3d
 {
@@ -32,6 +33,85 @@ namespace af3d
 
     ACLASS_DEFINE_BEGIN(Mesh, Resource)
     ACLASS_DEFINE_END(Mesh)
+
+    SubMeshData::SubMeshData()
+    : loaded_(false)
+    {
+    }
+
+    void SubMeshData::invalidate()
+    {
+        loaded_ = false;
+        vertices_.clear();
+        faces_.clear();
+    }
+
+    void SubMeshData::load(const VertexArraySlice& vaSlice)
+    {
+        bool old = false;
+        if (loaded_.compare_exchange_strong(old, true)) {
+            renderer.scheduleHwOpSync([this, &vaSlice](HardwareContext& ctx) {
+                const auto& entries = vaSlice.va()->layout().entries();
+                for (const auto& entry : entries) {
+                    if (entry.name == VertexAttribName::Pos) {
+                        const auto& vbo = vaSlice.va()->vbos()[entry.bufferIdx];
+                        const auto& ebo = vaSlice.va()->ebo();
+
+                        int minIdx = std::numeric_limits<int>::max();
+                        int maxIdx = 0;
+
+                        if (ebo) {
+                            std::uint32_t cnt = vaSlice.count() ? vaSlice.count() : (ebo->count(ctx) - vaSlice.start());
+                            std::uint16_t* indices = (std::uint16_t*)ebo->lock(vaSlice.start(), cnt, HardwareBuffer::ReadOnly, ctx);
+                            if (ebo->dataType() == HardwareIndexBuffer::UInt16) {
+                                for (std::uint32_t i = 0; i < cnt; i += 3) {
+                                    faces_.emplace_back(vaSlice.baseVertex() + *indices,
+                                        vaSlice.baseVertex() + *(indices + 1),
+                                        vaSlice.baseVertex() + *(indices + 2));
+                                    minIdx = btMin(minIdx, faces_.back().x());
+                                    minIdx = btMin(minIdx, faces_.back().y());
+                                    minIdx = btMin(minIdx, faces_.back().z());
+                                    maxIdx = btMax(maxIdx, faces_.back().x());
+                                    maxIdx = btMax(maxIdx, faces_.back().y());
+                                    maxIdx = btMax(maxIdx, faces_.back().z());
+                                    indices += 3;
+                                }
+                            } else {
+                                runtime_assert(false);
+                            }
+                            ebo->unlock(ctx);
+                            for (auto& face : faces_) {
+                                face.setValue(face.x() - minIdx,
+                                    face.y() - minIdx,
+                                    face.z() - minIdx);
+                            }
+                        } else {
+                            minIdx = vaSlice.start();
+                            maxIdx = vaSlice.count() ? (vaSlice.start() + vaSlice.count()) : vbo->count(ctx);
+                            --maxIdx;
+                            for (int i = 0; i < (maxIdx - minIdx + 1); i += 3) {
+                                faces_.emplace_back(i, i + 1, i + 2);
+                            }
+                        }
+
+                        char* verts = (char*)vbo->lock(minIdx, maxIdx - minIdx + 1, HardwareBuffer::ReadOnly, ctx);
+                        if (entry.type == GL_FLOAT_VEC3) {
+                            for (int i = minIdx; i <= maxIdx; ++i) {
+                                float* pos = (float*)(verts + entry.offset);
+                                vertices_.emplace_back(*pos, *(pos + 1), *(pos + 2));
+                                verts += vbo->elementSize();
+                            }
+                        } else {
+                            runtime_assert(false);
+                        }
+                        vbo->unlock(ctx);
+
+                        break;
+                    }
+                }
+            });
+        }
+    }
 
     Mesh::Mesh(MeshManager* mgr,
         const std::string& name,
@@ -41,7 +121,25 @@ namespace af3d
     : Resource(AClass_Mesh, name, loader),
       mgr_(mgr),
       aabb_(aabb),
-      subMeshes_(subMeshes)
+      subMeshes_(subMeshes),
+      subMeshesData_(subMeshes.size())
+    {
+        for (size_t i = 0; i < subMeshesData_.size(); ++i) {
+            subMeshesData_[i] = std::make_shared<SubMeshData>();
+        }
+    }
+
+    Mesh::Mesh(MeshManager* mgr,
+        const std::string& name,
+        const AABB& aabb,
+        const std::vector<SubMeshPtr>& subMeshes,
+        const std::vector<SubMeshDataPtr>& subMeshesData,
+        const ResourceLoaderPtr& loader)
+    : Resource(AClass_Mesh, name, loader),
+      mgr_(mgr),
+      aabb_(aabb),
+      subMeshes_(subMeshes),
+      subMeshesData_(subMeshesData)
     {
     }
 
@@ -68,6 +166,13 @@ namespace af3d
             subMeshes.push_back(std::make_shared<SubMesh>(
                 subMesh->material()->clone(), subMesh->vaSlice()));
         }
-        return meshManager.createMesh(aabb(), subMeshes);
+        return meshManager.createMesh(aabb(), subMeshes, subMeshesData_);
+    }
+
+    SubMeshDataPtr Mesh::getSubMeshData(int idx)
+    {
+        btAssert(idx >= 0 && idx < static_cast<int>(subMeshesData_.size()));
+        subMeshesData_[idx]->load(subMeshes_[idx]->vaSlice());
+        return subMeshesData_[idx];
     }
 }

@@ -37,9 +37,8 @@ namespace af3d
     ACLASS_PROPERTY(CollisionShape, Mass, "mass", "Mass", Float, 1.0f, Physics, APropertyEditable)
     ACLASS_DEFINE_END(CollisionShape)
 
-    CollisionShape::CollisionShape(const AClass& klass, btCollisionShape* shape)
-    : AObject(klass),
-      shape_(shape)
+    CollisionShape::CollisionShape(const AClass& klass)
+    : AObject(klass)
     {
     }
 
@@ -145,19 +144,19 @@ namespace af3d
 
     void CollisionShape::assignUserPointer()
     {
-        runtime_assert(shape_->getUserPointer() == nullptr);
+        runtime_assert(shape()->getUserPointer() == nullptr);
         CollisionShapePtr s = std::static_pointer_cast<CollisionShape>(sharedThis());
         CollisionShapePtr* ptr = new CollisionShapePtr(s);
-        shape_->setUserPointer(ptr);
+        shape()->setUserPointer(ptr);
     }
 
     void CollisionShape::resetUserPointer()
     {
-        CollisionShapePtr* ptr = static_cast<CollisionShapePtr*>(shape_->getUserPointer());
+        CollisionShapePtr* ptr = static_cast<CollisionShapePtr*>(shape()->getUserPointer());
         if (!ptr) {
             return;
         }
-        shape_->setUserPointer(nullptr);
+        shape()->setUserPointer(nullptr);
         delete ptr;
     }
 }

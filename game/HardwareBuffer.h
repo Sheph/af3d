@@ -42,7 +42,8 @@ namespace af3d
 
         enum Access
         {
-            WriteOnly = 0
+            WriteOnly = 0,
+            ReadOnly
         };
 
         HardwareBuffer(HardwareResourceManager* mgr, Usage usage, GLsizeiptr elementSize);
