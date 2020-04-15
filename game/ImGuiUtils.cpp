@@ -60,6 +60,18 @@ namespace af3d { namespace ImGuiUtils
 
         void visitInt(const APropertyTypeInt& type) override
         {
+            ImGuiInputTextFlags flags = ImGuiInputTextFlags_EnterReturnsTrue;
+
+            if (readOnly_) {
+                flags |= ImGuiInputTextFlags_ReadOnly;
+            }
+
+            int v = value_.toInt();
+
+            if (ImGui::InputInt("##val", &v, 0, 0, flags) && !readOnly_) {
+                ret_ = true;
+                value_ = APropertyValue(v);
+            }
         }
 
         void visitFloat(const APropertyTypeFloat& type) override
