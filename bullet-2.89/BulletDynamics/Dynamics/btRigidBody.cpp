@@ -143,6 +143,7 @@ void btRigidBody::setDamping(btScalar lin_damping, btScalar ang_damping)
 ///applyDamping damps the velocity, using the given m_linearDamping and m_angularDamping
 void btRigidBody::applyDamping(btScalar timeStep)
 {
+	if (getActivationState() == DISABLE_SIMULATION) { return; }
 	//On new damping: see discussion/issue report here: http://code.google.com/p/bullet/issues/detail?id=74
 	//todo: do some performance comparisons (but other parts of the engine are probably bottleneck anyway
 
