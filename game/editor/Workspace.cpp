@@ -44,6 +44,7 @@
 #include "CollisionShapeBox.h"
 #include "CollisionShapeCapsule.h"
 #include "CollisionShapeStaticMesh.h"
+#include "CollisionShapeConvexMesh.h"
 #include "PhysicsBodyComponent.h"
 #include "MeshManager.h"
 #include "AssetManager.h"
@@ -438,6 +439,7 @@ namespace editor {
             actionOpMenuAddCollisionBox_.doMenuItem();
             actionOpMenuAddCollisionCapsule_.doMenuItem();
             actionOpMenuAddCollisionStaticMesh_.doMenuItem();
+            actionOpMenuAddCollisionConvexMesh_.doMenuItem();
         });
 
         actionOpMenuAddCollisionBox_ = Action("Box", [this]() {
@@ -469,6 +471,17 @@ namespace editor {
                 std::make_shared<CommandAdd>(scene(),
                     emObject_->selectedTyped().back()->findComponent<PhysicsBodyComponent>(),
                     CollisionShapeStaticMesh::staticKlass(), "Static mesh collision", initVals));
+        });
+
+        actionOpMenuAddCollisionConvexMesh_ = Action("Convex Mesh", [this]() {
+            return Action::State(objectWithPhysicsBodySelected());
+        }, [this]() {
+            APropertyValueMap initVals;
+            initVals.set("mesh", APropertyValue(meshManager.loadMesh("cube.fbx")));
+            cmdHistory_.add(
+                std::make_shared<CommandAdd>(scene(),
+                    emObject_->selectedTyped().back()->findComponent<PhysicsBodyComponent>(),
+                    CollisionShapeConvexMesh::staticKlass(), "Convex mesh collision", initVals));
         });
 
         actionOpMenuAddPhysicsBody_ = Action("Physics body", [this]() {
@@ -551,6 +564,7 @@ namespace editor {
         actions_.push_back(&actionOpMenuAddCollisionBox_);
         actions_.push_back(&actionOpMenuAddCollisionCapsule_);
         actions_.push_back(&actionOpMenuAddCollisionStaticMesh_);
+        actions_.push_back(&actionOpMenuAddCollisionConvexMesh_);
         actions_.push_back(&actionOpMenuAddPhysicsBody_);
         actions_.push_back(&actionOpMenuRemove_);
         actions_.push_back(&actionOpMenuRemovePhysicsBody_);

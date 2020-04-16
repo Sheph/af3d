@@ -92,6 +92,7 @@ namespace af3d
     void CollisionShape::setScale(const btVector3& value)
     {
         shape()->setLocalScaling(value);
+        doSetScale(value);
         if (parent_) {
             parent_->updateBodyCollision(false);
         }
@@ -167,5 +168,9 @@ namespace af3d
         }
         shape()->setUserPointer(nullptr);
         delete ptr;
+    }
+
+    void CollisionShape::doSetScale(const btVector3& value)
+    {
     }
 }

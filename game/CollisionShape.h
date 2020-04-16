@@ -101,6 +101,8 @@ namespace af3d
         APropertyValue propertyParamGet(const std::string& key) const { return params_.get(key); }
 
     private:
+        virtual void doSetScale(const btVector3& value);
+
         btTransform xf_ = btTransform::getIdentity();
         float mass_ = 1.0f;
 
