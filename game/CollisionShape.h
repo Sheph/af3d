@@ -48,6 +48,8 @@ namespace af3d
 
         virtual btCollisionShape* shape() = 0;
 
+        inline const btCollisionShape* shape() const { return const_cast<CollisionShape*>(this)->shape(); }
+
         void afterCreate(const APropertyValueMap& propVals);
 
         inline PhysicsBodyComponent* parent() const { return parent_; }
@@ -55,6 +57,9 @@ namespace af3d
 
         inline const btTransform& transform() const { return xf_; }
         void setTransform(const btTransform& value);
+
+        inline const btVector3& scale() const { return shape()->getLocalScaling(); }
+        void setScale(const btVector3& value);
 
         inline float mass() const { return mass_; }
         void setMass(float value);
@@ -86,6 +91,9 @@ namespace af3d
 
         APropertyValue propertyWorldTransformGet(const std::string&) const;
         void propertyWorldTransformSet(const std::string&, const APropertyValue& value);
+
+        APropertyValue propertyScaleGet(const std::string&) const { return scale(); }
+        void propertyScaleSet(const std::string&, const APropertyValue& value) { setScale(value.toVec3()); }
 
         APropertyValue propertyMassGet(const std::string&) const { return mass(); }
         void propertyMassSet(const std::string&, const APropertyValue& value) { setMass(value.toFloat()); }

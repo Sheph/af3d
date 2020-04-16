@@ -34,6 +34,7 @@ namespace af3d
     ACLASS_PROPERTY_RO(CollisionShape, Parent, AProperty_Parent, "Parent", AObject, Hierarchy, APropertyTransient)
     ACLASS_PROPERTY(CollisionShape, LocalTransform, AProperty_LocalTransform, "Local transform", Transform, btTransform::getIdentity(), Position, APropertyEditable)
     ACLASS_PROPERTY(CollisionShape, WorldTransform, AProperty_WorldTransform, "World transform", Transform, btTransform::getIdentity(), Position, APropertyEditable|APropertyTransient)
+    ACLASS_PROPERTY(CollisionShape, Scale, AProperty_Scale, "Scale", Vec3f, btVector3(1.0f, 1.0f, 1.0f), Position, APropertyEditable)
     ACLASS_PROPERTY(CollisionShape, Mass, "mass", "Mass", Float, 1.0f, Physics, APropertyEditable)
     ACLASS_DEFINE_END(CollisionShape)
 
@@ -83,6 +84,14 @@ namespace af3d
     void CollisionShape::setTransform(const btTransform& value)
     {
         xf_ = value;
+        if (parent_) {
+            parent_->updateBodyCollision(false);
+        }
+    }
+
+    void CollisionShape::setScale(const btVector3& value)
+    {
+        shape()->setLocalScaling(value);
         if (parent_) {
             parent_->updateBodyCollision(false);
         }

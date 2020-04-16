@@ -51,7 +51,7 @@ namespace af3d
     AObjectPtr CollisionShapeCompound::create(const APropertyValueMap& propVals)
     {
         auto obj = std::make_shared<CollisionShapeCompound>();
-        obj->propertiesSet(propVals);
+        obj->afterCreate(propVals);
         return obj;
     }
 }
