@@ -583,10 +583,8 @@ namespace af3d
             physicsActive_ = value;
             if (!frozen()) {
                 auto pc = findComponent<PhysicsBodyComponent>();
-                if (!value && body_->isInWorld() && pc && pc->manager()) {
-                    pc->manager()->world().removeRigidBody(body_);
-                } else if (value && !body_->isInWorld() && pc && pc->manager()) {
-                    pc->manager()->world().addRigidBody(body_);
+                if (pc) {
+                    pc->setActive(value);
                 }
             }
         } else {

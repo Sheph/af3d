@@ -71,11 +71,15 @@ namespace af3d
         cs->assignUserPointer();
 
         updateBodyCollision(true);
+
+        notifyShape(cs.get(), true);
     }
 
     void PhysicsBodyComponent::removeShape(const CollisionShapePtr& cs)
     {
         runtime_assert(cs->parent() == this);
+
+        notifyShape(cs.get(), false);
 
         cs->abandon();
 
@@ -194,10 +198,14 @@ namespace af3d
         if (!parent()->body()) {
             parent()->setBody(body);
         }
+
+        notifyShapes(true);
     }
 
     void PhysicsBodyComponent::onUnregister()
     {
+        notifyShapes(false);
+
         if (parent()->body()->isInWorld()) {
             manager()->world().removeRigidBody(parent()->body());
         }
@@ -250,6 +258,21 @@ namespace af3d
         }
     }
 
+    void PhysicsBodyComponent::setActive(bool value)
+    {
+        if (!parent()) {
+            return;
+        }
+
+        if (!value && parent()->body()->isInWorld()) {
+            notifyShapes(false);
+            manager()->world().removeRigidBody(parent()->body());
+        } else if (value && !parent()->body()->isInWorld()) {
+            manager()->world().addRigidBody(parent()->body());
+            notifyShapes(true);
+        }
+    }
+
     void PhysicsBodyComponent::calculatePrincipalAxisTransform(const btScalar* masses, btTransform& principal, btVector3& inertia)
     {
         if (numShapes() <= 0) {
@@ -264,5 +287,46 @@ namespace af3d
         }
 
         compound_->shape()->calculatePrincipalAxisTransform(masses, principal, inertia);
+    }
+
+    void PhysicsBodyComponent::notifyShape(CollisionShape* shape, bool added)
+    {
+        if (!parent() || !parent()->body()->isInWorld()) {
+            return;
+        }
+
+        if (added) {
+            shape->onActivate();
+        } else {
+            shape->onDeactivate();
+        }
+    }
+
+    void PhysicsBodyComponent::notifyShapes(bool active)
+    {
+        if (!parent() || !parent()->body()->isInWorld()) {
+            return;
+        }
+
+        for (int i = 0; i < numShapes(); ++i) {
+            if (active) {
+                shape(i)->onActivate();
+            } else {
+                shape(i)->onDeactivate();
+            }
+        }
+
+        if (((aflags() & AObjectEditable) != 0) && scene()->workspace()) {
+            if (active) {
+                btAssert(!markerRc_);
+                markerRc_ = std::make_shared<RenderCollisionShapeComponent>();
+                markerRc_->setShape(compound_);
+                parent()->addComponent(markerRc_);
+            } else {
+                btAssert(markerRc_);
+                markerRc_->removeFromParent();
+                markerRc_.reset();
+            }
+        }
     }
 }

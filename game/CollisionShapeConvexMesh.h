@@ -46,6 +46,8 @@ namespace af3d
 
         btConvexHullShape* shape() override { return &shape_; }
 
+        void render(PhysicsDebugDraw& dd, const btVector3& c) override;
+
     private:
         void doSetScale(const btVector3& value) override;
 

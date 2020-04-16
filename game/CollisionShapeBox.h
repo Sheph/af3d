@@ -45,6 +45,8 @@ namespace af3d
 
         btBoxShape* shape() override { return &shape_; }
 
+        void render(PhysicsDebugDraw& dd, const btVector3& c) override;
+
     private:
         btBoxShape shape_;
     };

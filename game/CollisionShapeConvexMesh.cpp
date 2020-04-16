@@ -81,4 +81,8 @@ namespace af3d
             shape_.initializePolyhedralFeatures();
         }
     }
+
+    void CollisionShapeConvexMesh::render(PhysicsDebugDraw& dd, const btVector3& c)
+    {
+    }
 }

@@ -50,4 +50,8 @@ namespace af3d
         obj->afterCreate(propVals);
         return obj;
     }
+
+    void CollisionShapeCapsule::render(PhysicsDebugDraw& dd, const btVector3& c)
+    {
+    }
 }

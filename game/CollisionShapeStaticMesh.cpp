@@ -51,6 +51,10 @@ namespace af3d
         return obj;
     }
 
+    void CollisionShapeStaticMesh::render(PhysicsDebugDraw& dd, const btVector3& c)
+    {
+    }
+
     btTriangleMesh* CollisionShapeStaticMesh::initMesh(const MeshPtr& mesh, int subMeshIndex)
     {
         // TODO: cache btBvhTriangleMeshShape, use from cache.

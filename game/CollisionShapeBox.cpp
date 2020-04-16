@@ -24,6 +24,7 @@
  */
 
 #include "CollisionShapeBox.h"
+#include "PhysicsDebugDraw.h"
 
 namespace af3d
 {
@@ -47,5 +48,11 @@ namespace af3d
         auto obj = std::make_shared<CollisionShapeBox>(propVals.get("size").toVec3());
         obj->afterCreate(propVals);
         return obj;
+    }
+
+    void CollisionShapeBox::render(PhysicsDebugDraw& dd, const btVector3& c)
+    {
+        btVector3 halfExtents = shape_.getHalfExtentsWithMargin();
+        dd.drawBox(-halfExtents, halfExtents, worldTransform(), c);
     }
 }

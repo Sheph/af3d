@@ -32,7 +32,7 @@ namespace af3d
 {
     void PhysicsDebugDraw::drawLine(const btVector3& from, const btVector3& to, const btVector3& color)
     {
-        lines_.emplace_back(from, to, color);
+        lines_.emplace_back(from, to, Color(color, alpha_));
     }
 
     void PhysicsDebugDraw::drawContactPoint(const btVector3& PointOnB, const btVector3& normalOnB, btScalar distance, int lifeTime, const btVector3& color)
@@ -82,8 +82,8 @@ namespace af3d
         auto rop = rl_->addGeometry(materialManager.matImmDefault(false, false), GL_LINES);
 
         for (const auto& line : lines_) {
-            rop.addVertex(line.from, Vector2f_zero, Color(line.color, 1.0f));
-            rop.addVertex(line.to, Vector2f_zero, Color(line.color, 1.0f));
+            rop.addVertex(line.from, Vector2f_zero, line.color);
+            rop.addVertex(line.to, Vector2f_zero, line.color);
         }
 
         lines_.clear();

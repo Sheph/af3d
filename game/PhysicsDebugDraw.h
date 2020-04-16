@@ -27,6 +27,7 @@
 #define _PHYSICS_DEBUG_DRAW_H_
 
 #include "af3d/Types.h"
+#include "af3d/Vector4.h"
 #include <boost/noncopyable.hpp>
 #include "bullet/LinearMath/btIDebugDraw.h"
 
@@ -61,22 +62,25 @@ namespace af3d
 
         inline void setRenderList(RenderList* value) { rl_ = value; }
 
+        inline void setAlpha(float value) { alpha_ = value; }
+
     private:
         struct Line
         {
-            Line(const btVector3& from, const btVector3& to, const btVector3& color)
+            Line(const btVector3& from, const btVector3& to, const Color& color)
             : from(from),
               to(to),
               color(color) {}
 
             btVector3 from;
             btVector3 to;
-            btVector3 color;
+            Color color;
         };
 
         int debugMode_ = 0;
         std::vector<Line> lines_;
         RenderList* rl_ = nullptr;
+        float alpha_ = 1.0f;
     };
 }
 

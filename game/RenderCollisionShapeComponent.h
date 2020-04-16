@@ -23,20 +23,20 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _COLLISIONSHAPESTATICMESH_H_
-#define _COLLISIONSHAPESTATICMESH_H_
+#ifndef _RENDERCOLLISIONSHAPECOMPONENT_H_
+#define _RENDERCOLLISIONSHAPECOMPONENT_H_
 
-#include "CollisionShape.h"
-#include "Mesh.h"
+#include "RenderComponent.h"
+#include "CollisionShapeCompound.h"
 
 namespace af3d
 {
-    class CollisionShapeStaticMesh : public std::enable_shared_from_this<CollisionShapeStaticMesh>,
-        public CollisionShape
+    class RenderCollisionShapeComponent : public std::enable_shared_from_this<RenderCollisionShapeComponent>,
+        public RenderComponent
     {
     public:
-        CollisionShapeStaticMesh(const MeshPtr& mesh, int subMeshIndex);
-        ~CollisionShapeStaticMesh() = default;
+        RenderCollisionShapeComponent();
+        ~RenderCollisionShapeComponent() = default;
 
         static const AClass& staticKlass();
 
@@ -44,20 +44,30 @@ namespace af3d
 
         AObjectPtr sharedThis() override { return shared_from_this(); }
 
-        btBvhTriangleMeshShape* shape() override { return &shape_; }
+        void update(float dt) override;
 
-        void render(PhysicsDebugDraw& dd, const btVector3& c) override;
+        void render(RenderList& rl, void* const* parts, size_t numParts) override;
+
+        std::pair<AObjectPtr, float> testRay(const Frustum& frustum, const Ray& ray, void* part) override;
+
+        inline const CollisionShapeCompoundPtr& shape() const { return shape_; }
+        inline void setShape(const CollisionShapeCompoundPtr& value) { shape_ = value; }
 
     private:
-        btTriangleMesh* initMesh(const MeshPtr& mesh, int subMeshIndex);
+        void onRegister() override;
 
-        btTriangleMesh mesh_;
-        btBvhTriangleMeshShape shape_;
+        void onUnregister() override;
+
+        CollisionShapeCompoundPtr shape_;
+
+        btTransform prevParentXf_ = btTransform::getIdentity();
+        AABB prevAABB_;
+        RenderCookie* cookie_ = nullptr;
     };
 
-    using CollisionShapeStaticMeshPtr = std::shared_ptr<CollisionShapeStaticMesh>;
+    using RenderCollisionShapeComponentPtr = std::shared_ptr<RenderCollisionShapeComponent>;
 
-    ACLASS_DECLARE(CollisionShapeStaticMesh)
+    ACLASS_DECLARE(RenderCollisionShapeComponent)
 }
 
 #endif

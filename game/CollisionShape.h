@@ -33,7 +33,9 @@
 namespace af3d
 {
     class PhysicsBodyComponent;
+    class Scene;
     class SceneObject;
+    class PhysicsDebugDraw;
 
     class CollisionShape : public AObject
     {
@@ -48,15 +50,25 @@ namespace af3d
 
         virtual btCollisionShape* shape() = 0;
 
+        virtual void render(PhysicsDebugDraw& dd, const btVector3& c) = 0;
+
+        virtual void onActivate();
+
+        virtual void onDeactivate();
+
         inline const btCollisionShape* shape() const { return const_cast<CollisionShape*>(this)->shape(); }
 
         void afterCreate(const APropertyValueMap& propVals);
+
+        Scene* scene() const;
 
         inline PhysicsBodyComponent* parent() const { return parent_; }
         SceneObject* parentObject() const;
 
         inline const btTransform& transform() const { return xf_; }
         void setTransform(const btTransform& value);
+
+        btTransform worldTransform() const;
 
         inline const btVector3& scale() const { return shape()->getLocalScaling(); }
         void setScale(const btVector3& value);

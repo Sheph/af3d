@@ -28,6 +28,7 @@
 
 #include "PhysicsComponent.h"
 #include "CollisionShapeCompound.h"
+#include "RenderCollisionShapeComponent.h"
 #include "Logger.h"
 
 namespace af3d
@@ -107,6 +108,8 @@ namespace af3d
 
         void updateBodyCollision(bool addRemove);
 
+        void setActive(bool value);
+
     private:
         void onRegister() override;
 
@@ -114,7 +117,12 @@ namespace af3d
 
         void calculatePrincipalAxisTransform(const btScalar* masses, btTransform& principal, btVector3& inertia);
 
+        void notifyShape(CollisionShape* shape, bool added);
+
+        void notifyShapes(bool active);
+
         CollisionShapeCompoundPtr compound_;
+        RenderCollisionShapeComponentPtr markerRc_;
     };
 
     using PhysicsBodyComponentPtr = std::shared_ptr<PhysicsBodyComponent>;

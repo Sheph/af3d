@@ -143,6 +143,17 @@ namespace af3d
             lowerBound = c - hsz;
             upperBound = c + hsz;
         }
+
+        inline bool operator==(const AABB& other) const
+        {
+            return (lowerBound == other.lowerBound) &&
+                (upperBound == other.upperBound);
+        }
+
+        inline bool operator!=(const AABB& other) const
+        {
+            return !(*this == other);
+        }
     };
 
     inline bool btIsValid(const AABB& aabb)

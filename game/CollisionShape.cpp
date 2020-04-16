@@ -26,6 +26,7 @@
 #include "CollisionShape.h"
 #include "PhysicsBodyComponent.h"
 #include "SceneObject.h"
+#include "Scene.h"
 #include "Settings.h"
 
 namespace af3d
@@ -76,6 +77,12 @@ namespace af3d
         }
     }
 
+    Scene* CollisionShape::scene() const
+    {
+        auto obj = parentObject();
+        return obj ? obj->scene() : nullptr;
+    }
+
     SceneObject* CollisionShape::parentObject() const
     {
         return parent() ? parent()->parent() : nullptr;
@@ -86,6 +93,16 @@ namespace af3d
         xf_ = value;
         if (parent_) {
             parent_->updateBodyCollision(false);
+        }
+    }
+
+    btTransform CollisionShape::worldTransform() const
+    {
+        auto obj = parentObject();
+        if (obj) {
+            return obj->transform() * xf_;
+        } else {
+            return abandonedParentXf_ * xf_;
         }
     }
 
@@ -134,12 +151,7 @@ namespace af3d
 
     APropertyValue CollisionShape::propertyWorldTransformGet(const std::string&) const
     {
-        auto obj = parentObject();
-        if (obj) {
-            return obj->transform() * xf_;
-        } else {
-            return abandonedParentXf_ * xf_;
-        }
+        return worldTransform();
     }
 
     void CollisionShape::propertyWorldTransformSet(const std::string&, const APropertyValue& value)
@@ -171,6 +183,14 @@ namespace af3d
     }
 
     void CollisionShape::doSetScale(const btVector3& value)
+    {
+    }
+
+    void CollisionShape::onActivate()
+    {
+    }
+
+    void CollisionShape::onDeactivate()
     {
     }
 }
