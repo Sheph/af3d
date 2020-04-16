@@ -33,9 +33,11 @@ namespace af3d
     COLLISIONSHAPE_PARAM(CollisionShapeConvexMesh, "mesh", "Mesh", Mesh, MeshPtr())
     COLLISIONSHAPE_PARAM(CollisionShapeConvexMesh, "submesh index", "SubMesh index (< 0 - use all)", Int, -1)
     COLLISIONSHAPE_PARAM(CollisionShapeConvexMesh, "polyhedral", "Generate polyhedral features", Bool, false)
+    COLLISIONSHAPE_PARAM(CollisionShapeConvexMesh, "offset", "Shape offset", Vec3f, btVector3(0.0f, 0.0f, 0.0f))
     ACLASS_DEFINE_END(CollisionShapeConvexMesh)
 
-    CollisionShapeConvexMesh::CollisionShapeConvexMesh(const MeshPtr& mesh, int subMeshIndex, bool polyhedral)
+    CollisionShapeConvexMesh::CollisionShapeConvexMesh(const MeshPtr& mesh, int subMeshIndex, bool polyhedral,
+        const btVector3& offset)
     : CollisionShape(AClass_CollisionShapeConvexMesh),
       polyhedral_(polyhedral)
     {
@@ -48,13 +50,13 @@ namespace af3d
             for (size_t j = 0; j < mesh->subMeshes().size(); ++j) {
                 auto data = mesh->getSubMeshData(j);
                 for (size_t i = 0; i < data->vertices().size(); ++i) {
-                    shape_.addPoint(fromVector3f(data->vertices()[i]), i == (data->vertices().size() - 1));
+                    shape_.addPoint(fromVector3f(data->vertices()[i]) + offset, i == (data->vertices().size() - 1));
                 }
             }
         } else {
             auto data = mesh->getSubMeshData(subMeshIndex);
             for (size_t i = 0; i < data->vertices().size(); ++i) {
-                shape_.addPoint(fromVector3f(data->vertices()[i]), i == (data->vertices().size() - 1));
+                shape_.addPoint(fromVector3f(data->vertices()[i]) + offset, i == (data->vertices().size() - 1));
             }
         }
 
@@ -71,7 +73,8 @@ namespace af3d
     {
         auto obj = std::make_shared<CollisionShapeConvexMesh>(propVals.get("mesh").toObject<Mesh>(),
             propVals.get("submesh index").toInt(),
-            propVals.get("polyhedral").toBool());
+            propVals.get("polyhedral").toBool(),
+            propVals.get("offset").toVec3());
         obj->afterCreate(propVals);
         return obj;
     }

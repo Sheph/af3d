@@ -35,7 +35,8 @@ namespace af3d
         public CollisionShape
     {
     public:
-        CollisionShapeConvexMesh(const MeshPtr& mesh, int subMeshIndex, bool polyhedral);
+        CollisionShapeConvexMesh(const MeshPtr& mesh, int subMeshIndex, bool polyhedral,
+            const btVector3& offset);
         ~CollisionShapeConvexMesh() = default;
 
         static const AClass& staticKlass();
