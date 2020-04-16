@@ -46,6 +46,7 @@
 #include "CollisionShapeSphere.h"
 #include "CollisionShapeCylinder.h"
 #include "CollisionShapeCone.h"
+#include "CollisionShapePlane.h"
 #include "CollisionShapeStaticMesh.h"
 #include "CollisionShapeConvexMesh.h"
 #include "PhysicsBodyComponent.h"
@@ -444,6 +445,7 @@ namespace editor {
             actionOpMenuAddCollisionSphere_.doMenuItem();
             actionOpMenuAddCollisionCylinder_.doMenuItem();
             actionOpMenuAddCollisionCone_.doMenuItem();
+            actionOpMenuAddCollisionPlane_.doMenuItem();
             actionOpMenuAddCollisionStaticMesh_.doMenuItem();
             actionOpMenuAddCollisionConvexMesh_.doMenuItem();
         });
@@ -496,6 +498,16 @@ namespace editor {
                 std::make_shared<CommandAdd>(scene(),
                     emObject_->selectedTyped().back()->findComponent<PhysicsBodyComponent>(),
                     CollisionShapeCone::staticKlass(), "Cone collision", initVals));
+        });
+
+        actionOpMenuAddCollisionPlane_ = Action("Plane", [this]() {
+            return Action::State(objectWithPhysicsBodySelected());
+        }, [this]() {
+            APropertyValueMap initVals;
+            cmdHistory_.add(
+                std::make_shared<CommandAdd>(scene(),
+                    emObject_->selectedTyped().back()->findComponent<PhysicsBodyComponent>(),
+                    CollisionShapePlane::staticKlass(), "Plane collision", initVals));
         });
 
         actionOpMenuAddCollisionStaticMesh_ = Action("Static Mesh", [this]() {
@@ -602,6 +614,7 @@ namespace editor {
         actions_.push_back(&actionOpMenuAddCollisionSphere_);
         actions_.push_back(&actionOpMenuAddCollisionCylinder_);
         actions_.push_back(&actionOpMenuAddCollisionCone_);
+        actions_.push_back(&actionOpMenuAddCollisionPlane_);
         actions_.push_back(&actionOpMenuAddCollisionStaticMesh_);
         actions_.push_back(&actionOpMenuAddCollisionConvexMesh_);
         actions_.push_back(&actionOpMenuAddPhysicsBody_);

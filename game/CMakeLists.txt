@@ -95,6 +95,7 @@ set(SOURCES
     CollisionShapeSphere.cpp
     CollisionShapeCylinder.cpp
     CollisionShapeCone.cpp
+    CollisionShapePlane.cpp
     CollisionShapeStaticMesh.cpp
     CollisionShapeConvexMesh.cpp
     PhysicsDebugDraw.cpp
