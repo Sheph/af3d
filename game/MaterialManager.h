@@ -61,7 +61,7 @@ namespace af3d
 
         void onMaterialDestroy(Material* material);
 
-        inline const MaterialPtr& matImmDefault() const { return matImmDefault_; }
+        inline const MaterialPtr& matImmDefault(bool depthTest, bool cullFace) const { return matImmDefault_[(int)depthTest][(int)cullFace]; }
         inline const MaterialPtr& matUnlitVCDefault() const { return matUnlitVCDefault_; }
         inline const MaterialPtr& matOutlineInactive() const { return matOutlineInactive_; }
         inline const MaterialPtr& matOutlineHovered() const { return matOutlineHovered_; }
@@ -76,7 +76,7 @@ namespace af3d
         CachedMaterials cachedMaterials_;
         ImmediateMaterials immediateMaterials_;
 
-        MaterialPtr matImmDefault_;
+        MaterialPtr matImmDefault_[2][2];
         MaterialPtr matUnlitVCDefault_;
         MaterialPtr matOutlineInactive_;
         MaterialPtr matOutlineHovered_;

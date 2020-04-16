@@ -35,9 +35,6 @@ namespace af3d
     RenderGizmoRotateComponent::RenderGizmoRotateComponent()
     : RenderComponent(AClass_RenderGizmoRotateComponent)
     {
-        material_ = materialManager.createMaterial(MaterialTypeImm);
-        material_->setBlendingParams(BlendingParams(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-        material_->setDepthTest(false);
     }
 
     const AClass& RenderGizmoRotateComponent::staticKlass()
@@ -75,7 +72,7 @@ namespace af3d
     {
         auto sz = getSizes(rl.frustum());
 
-        auto rop = rl.addGeometry(material_, GL_TRIANGLES, 1.0f);
+        auto rop = rl.addGeometry(materialManager.matImmDefault(false, true), GL_TRIANGLES, 1.0f);
 
         auto txf = targetXfOriented();
 

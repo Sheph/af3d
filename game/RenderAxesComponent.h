@@ -59,8 +59,6 @@ namespace af3d
 
         AABB calcAABB() const;
 
-        MaterialPtr material_;
-
         btTransform xf_ = btTransform::getIdentity();
         bool dirty_ = false;
         float radius_ = 5.0f;

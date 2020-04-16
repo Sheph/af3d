@@ -71,7 +71,10 @@ namespace af3d
     void MaterialManager::shutdown()
     {
         LOG4CPLUS_DEBUG(logger(), "materialManager: shutdown...");
-        matImmDefault_.reset();
+        matImmDefault_[0][0].reset();
+        matImmDefault_[0][1].reset();
+        matImmDefault_[1][0].reset();
+        matImmDefault_[1][1].reset();
         matUnlitVCDefault_.reset();
         matOutlineInactive_.reset();
         matOutlineHovered_.reset();
@@ -126,10 +129,21 @@ namespace af3d
         }
 
         if (!matUnlitVCDefault_) {
-            matImmDefault_ = createMaterial(MaterialTypeImm);
-            matImmDefault_->setBlendingParams(BlendingParams(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-            matImmDefault_->setDepthTest(false);
-            matImmDefault_->setCullFaceMode(0);
+            matImmDefault_[0][0] = createMaterial(MaterialTypeImm);
+            matImmDefault_[0][0]->setBlendingParams(BlendingParams(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+            matImmDefault_[0][0]->setDepthTest(false);
+            matImmDefault_[0][0]->setCullFaceMode(0);
+
+            matImmDefault_[0][1] = createMaterial(MaterialTypeImm);
+            matImmDefault_[0][1]->setBlendingParams(BlendingParams(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+            matImmDefault_[0][1]->setDepthTest(false);
+
+            matImmDefault_[1][0] = createMaterial(MaterialTypeImm);
+            matImmDefault_[1][0]->setBlendingParams(BlendingParams(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+            matImmDefault_[1][0]->setCullFaceMode(0);
+
+            matImmDefault_[1][1] = createMaterial(MaterialTypeImm);
+            matImmDefault_[1][1]->setBlendingParams(BlendingParams(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
             matUnlitVCDefault_ = createMaterial(MaterialTypeUnlitVC);
 

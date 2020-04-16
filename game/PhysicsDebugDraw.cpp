@@ -79,7 +79,7 @@ namespace af3d
     {
         btAssert(rl_);
 
-        auto rop = rl_->addGeometry(materialManager.matImmDefault(), GL_LINES);
+        auto rop = rl_->addGeometry(materialManager.matImmDefault(false, false), GL_LINES);
 
         for (const auto& line : lines_) {
             rop.addVertex(line.from, Vector2f_zero, Color(line.color, 1.0f));

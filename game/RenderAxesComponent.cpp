@@ -35,9 +35,6 @@ namespace af3d
     RenderAxesComponent::RenderAxesComponent()
     : RenderComponent(AClass_RenderAxesComponent)
     {
-        material_ = materialManager.createMaterial(MaterialTypeImm);
-        material_->setBlendingParams(BlendingParams(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-        material_->setDepthTest(false);
     }
 
     const AClass& RenderAxesComponent::staticKlass()
@@ -82,7 +79,7 @@ namespace af3d
         float lineLength = viewportLength_ * viewExt.y();
         float lineRadius = viewportRadius_ * viewExt.y();
 
-        auto rop = rl.addGeometry(material_, GL_TRIANGLES, 1.0f);
+        auto rop = rl.addGeometry(materialManager.matImmDefault(false, true), GL_TRIANGLES, 1.0f);
 
         rop.addLine(xf.getOrigin(), vRight * lineLength, vUp * lineRadius, Color(1.0f, 0.0f, 0.0f, 0.5f));
         rop.addLine(xf.getOrigin(), vUp * lineLength, vForward * lineRadius, Color(0.0f, 1.0f, 0.0f, 0.5f));

@@ -114,8 +114,6 @@ namespace af3d
 
         btTransform targetXfOriented() const;
 
-        MaterialPtr material_;
-
         Kind kind_ = KindMove;
         TransformOrientation orientation_ = TransformOrientation::Local;
 
