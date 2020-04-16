@@ -120,5 +120,9 @@ namespace af3d
         editor.lightMarkerAlphaInactive = appConfig->getFloat("editor.lightMarkerAlphaInactive");
         editor.lightMarkerAlphaHovered = appConfig->getFloat("editor.lightMarkerAlphaHovered");
         editor.lightMarkerAlphaSelected = appConfig->getFloat("editor.lightMarkerAlphaSelected");
+        editor.collisionColorOff = appConfig->getColor("editor.collisionColorOff");
+        editor.collisionColorInactive = appConfig->getColor("editor.collisionColorInactive");
+        editor.collisionColorHovered = appConfig->getColor("editor.collisionColorHovered");
+        editor.collisionColorSelected = appConfig->getColor("editor.collisionColorSelected");
     }
 }

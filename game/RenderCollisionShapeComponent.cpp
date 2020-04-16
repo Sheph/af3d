@@ -26,6 +26,7 @@
 #include "RenderCollisionShapeComponent.h"
 #include "SceneObject.h"
 #include "Scene.h"
+#include "Settings.h"
 #include "MaterialManager.h"
 #include "PhysicsDebugDraw.h"
 
@@ -72,7 +73,7 @@ namespace af3d
     {
         auto w = scene()->workspace();
         auto em = w->emCollision();
-        if (em->active()) {
+        if (em->active() || (settings.editor.collisionColorOff.w() > 0.0f)) {
             PhysicsDebugDraw dd;
             dd.setRenderList(&rl);
 
@@ -82,12 +83,16 @@ namespace af3d
                 auto s = CollisionShape::fromShape(shape_->shape()->getChildShape(i));
 
                 Color c;
-                if (em->isSelected(s->sharedThis())) {
-                    c = Color(1.0f, 1.0f, 0.0f, 1.0f);
-                } else if (em->isHovered(s->sharedThis())) {
-                    c = Color(1.0f, 1.0f, 1.0f, 0.8f);
+                if (em->active()) {
+                    if (em->isSelected(s->sharedThis())) {
+                        c = settings.editor.collisionColorSelected;
+                    } else if (em->isHovered(s->sharedThis())) {
+                        c = settings.editor.collisionColorHovered;
+                    } else {
+                        c = settings.editor.collisionColorInactive;
+                    }
                 } else {
-                    c = Color(0.6f, 0.6f, 0.6f, 0.5f);
+                    c = settings.editor.collisionColorOff;
                 }
 
                 dd.setAlpha(c.w());

@@ -81,6 +81,10 @@ namespace af3d
             float lightMarkerAlphaInactive;
             float lightMarkerAlphaHovered;
             float lightMarkerAlphaSelected;
+            Color collisionColorOff;
+            Color collisionColorInactive;
+            Color collisionColorHovered;
+            Color collisionColorSelected;
         };
 
         Settings() = default;
