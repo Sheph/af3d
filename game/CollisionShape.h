@@ -52,11 +52,13 @@ namespace af3d
 
         virtual void render(PhysicsDebugDraw& dd, const btVector3& c) = 0;
 
-        virtual void onActivate();
+        void onActivate();
 
-        virtual void onDeactivate();
+        void onDeactivate();
 
         inline const btCollisionShape* shape() const { return const_cast<CollisionShape*>(this)->shape(); }
+
+        inline bool active() const { return active_; }
 
         void afterCreate(const APropertyValueMap& propVals);
 
@@ -122,6 +124,7 @@ namespace af3d
         btTransform abandonedParentXf_ = btTransform::getIdentity();
 
         APropertyValueMap params_;
+        bool active_ = false;
     };
 
     using CollisionShapePtr = std::shared_ptr<CollisionShape>;

@@ -79,6 +79,6 @@ namespace af3d { namespace editor
     bool EditModeCollisionImpl::isAlive(const AObjectPtr& obj) const
     {
         auto r = std::static_pointer_cast<CollisionShape>(obj);
-        return r->parentObject();
+        return r->active();
     }
 } }

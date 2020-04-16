@@ -188,9 +188,13 @@ namespace af3d
 
     void CollisionShape::onActivate()
     {
+        btAssert(!active_);
+        active_ = true;
     }
 
     void CollisionShape::onDeactivate()
     {
+        btAssert(active_);
+        active_ = false;
     }
 }
