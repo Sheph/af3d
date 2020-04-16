@@ -24,6 +24,7 @@
  */
 
 #include "CollisionShapeCapsule.h"
+#include "PhysicsDebugDraw.h"
 
 namespace af3d
 {
@@ -53,5 +54,9 @@ namespace af3d
 
     void CollisionShapeCapsule::render(PhysicsDebugDraw& dd, const btVector3& c)
     {
+        float radius = shape_.getRadius();
+        float halfHeight = shape_.getHalfHeight();
+        int upAxis = shape_.getUpAxis();
+        dd.drawCapsule(radius, halfHeight, upAxis, worldTransform(), c);
     }
 }

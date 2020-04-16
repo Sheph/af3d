@@ -25,6 +25,7 @@
 
 #include "CollisionShapeStaticMesh.h"
 #include "Logger.h"
+#include "PhysicsDebugDraw.h"
 
 namespace af3d
 {
@@ -53,6 +54,7 @@ namespace af3d
 
     void CollisionShapeStaticMesh::render(PhysicsDebugDraw& dd, const btVector3& c)
     {
+        dd.drawMesh(&shape_, worldTransform(), c);
     }
 
     btTriangleMesh* CollisionShapeStaticMesh::initMesh(const MeshPtr& mesh, int subMeshIndex)

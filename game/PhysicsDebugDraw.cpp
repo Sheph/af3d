@@ -27,9 +27,49 @@
 #include "MaterialManager.h"
 #include "RenderList.h"
 #include "Logger.h"
+#include "bullet/BulletCollision/CollisionShapes/btConvexPolyhedron.h"
 
 namespace af3d
 {
+    namespace
+    {
+        class TriDrawCallback : public btTriangleCallback, public btInternalTriangleIndexCallback
+        {
+        public:
+            TriDrawCallback(btIDebugDraw* debugDrawer, const btTransform& worldTrans, const btVector3& color)
+            : debugDrawer_(debugDrawer),
+              color_(color),
+              worldTrans_(worldTrans)
+            {
+            }
+
+            void internalProcessTriangleIndex(btVector3* triangle, int partId, int triangleIndex) override
+            {
+                processTriangle(triangle, partId, triangleIndex);
+            }
+
+            void processTriangle(btVector3* triangle, int partId, int triangleIndex) override
+            {
+                (void)partId;
+                (void)triangleIndex;
+
+                btVector3 wv0, wv1, wv2;
+                wv0 = worldTrans_ * triangle[0];
+                wv1 = worldTrans_ * triangle[1];
+                wv2 = worldTrans_ * triangle[2];
+
+                debugDrawer_->drawLine(wv0, wv1, color_);
+                debugDrawer_->drawLine(wv1, wv2, color_);
+                debugDrawer_->drawLine(wv2, wv0, color_);
+            }
+
+        private:
+            btIDebugDraw* debugDrawer_;
+            btVector3 color_;
+            btTransform worldTrans_;
+        };
+    }
+
     void PhysicsDebugDraw::drawLine(const btVector3& from, const btVector3& to, const btVector3& color)
     {
         lines_.emplace_back(from, to, Color(color, alpha_));
@@ -87,5 +127,52 @@ namespace af3d
         }
 
         lines_.clear();
+    }
+
+    void PhysicsDebugDraw::drawMesh(btCollisionShape* shape, const btTransform& worldTransform, const btVector3& color)
+    {
+        if (shape->isPolyhedral()) {
+            btPolyhedralConvexShape* polyshape = (btPolyhedralConvexShape*)shape;
+
+            int i;
+            if (polyshape->getConvexPolyhedron()) {
+                const btConvexPolyhedron* poly = polyshape->getConvexPolyhedron();
+                for (i = 0; i < poly->m_faces.size(); i++) {
+                    btVector3 centroid(0, 0, 0);
+                    int numVerts = poly->m_faces[i].m_indices.size();
+                    if (numVerts) {
+                        int lastV = poly->m_faces[i].m_indices[numVerts - 1];
+                        for (int v = 0; v < poly->m_faces[i].m_indices.size(); v++) {
+                            int curVert = poly->m_faces[i].m_indices[v];
+                            centroid += poly->m_vertices[curVert];
+                            drawLine(worldTransform * poly->m_vertices[lastV], worldTransform * poly->m_vertices[curVert], color);
+                            lastV = curVert;
+                        }
+                    }
+                }
+            } else {
+                for (i = 0; i < polyshape->getNumEdges(); i++) {
+                    btVector3 a, b;
+                    polyshape->getEdge(i, a, b);
+                    btVector3 wa = worldTransform * a;
+                    btVector3 wb = worldTransform * b;
+                    drawLine(wa, wb, color);
+                }
+            }
+        } else if (shape->isConcave()) {
+            btConcaveShape* concaveMesh = (btConcaveShape*)shape;
+
+            btVector3 aabbMax(BT_LARGE_FLOAT, BT_LARGE_FLOAT, BT_LARGE_FLOAT);
+            btVector3 aabbMin(-BT_LARGE_FLOAT, -BT_LARGE_FLOAT, -BT_LARGE_FLOAT);
+
+            TriDrawCallback drawCallback(this, worldTransform, color);
+            concaveMesh->processAllTriangles(&drawCallback, aabbMin, aabbMax);
+        } else if (shape->getShapeType() == CONVEX_TRIANGLEMESH_SHAPE_PROXYTYPE) {
+            btConvexTriangleMeshShape* convexMesh = (btConvexTriangleMeshShape*)shape;
+            btVector3 aabbMax(BT_LARGE_FLOAT, BT_LARGE_FLOAT, BT_LARGE_FLOAT);
+            btVector3 aabbMin(-BT_LARGE_FLOAT, -BT_LARGE_FLOAT, -BT_LARGE_FLOAT);
+            TriDrawCallback drawCallback(this, worldTransform, color);
+            convexMesh->getMeshInterface()->InternalProcessAllTriangles(&drawCallback, aabbMin, aabbMax);
+        }
     }
 }

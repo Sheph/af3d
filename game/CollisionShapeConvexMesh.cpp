@@ -25,6 +25,7 @@
 
 #include "CollisionShapeConvexMesh.h"
 #include "Logger.h"
+#include "PhysicsDebugDraw.h"
 
 namespace af3d
 {
@@ -84,5 +85,6 @@ namespace af3d
 
     void CollisionShapeConvexMesh::render(PhysicsDebugDraw& dd, const btVector3& c)
     {
+        dd.drawMesh(&shape_, worldTransform(), c);
     }
 }

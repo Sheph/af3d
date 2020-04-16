@@ -30,6 +30,7 @@
 #include "af3d/Vector4.h"
 #include <boost/noncopyable.hpp>
 #include "bullet/LinearMath/btIDebugDraw.h"
+#include "bullet/btBulletCollisionCommon.h"
 
 namespace af3d
 {
@@ -59,6 +60,8 @@ namespace af3d
         void clearLines() override;
 
         void flushLines() override;
+
+        void drawMesh(btCollisionShape* shape, const btTransform& worldTransform, const btVector3& color);
 
         inline void setRenderList(RenderList* value) { rl_ = value; }
 
