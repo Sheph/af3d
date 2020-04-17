@@ -217,7 +217,7 @@ namespace af3d
         body_ = value;
         body_->setUserPointer(this);
         bodyMs_ = static_cast<MotionState*>(body_->getMotionState());
-        physicsActive_ = body_->isInWorld();
+        bodyCi_.active = body_->isInWorld();
     }
 
     BodyType SceneObject::bodyType() const
@@ -570,25 +570,19 @@ namespace af3d
 
     bool SceneObject::physicsActive() const
     {
-        if (body_) {
-            return physicsActive_;
-        } else {
-            return bodyCi_.active;
-        }
+        return bodyCi_.active;
     }
 
     void SceneObject::setPhysicsActive(bool value)
     {
+        bodyCi_.active = value;
         if (body_) {
-            physicsActive_ = value;
             if (!frozen()) {
                 auto pc = findComponent<PhysicsBodyComponent>();
                 if (pc) {
                     pc->setActive(value);
                 }
             }
-        } else {
-            bodyCi_.active = value;
         }
     }
 

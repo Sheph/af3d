@@ -323,8 +323,6 @@ namespace af3d
 
         Flags flags_;
 
-        bool physicsActive_ = false;
-
         APropertyValueMap params_;
     };
 
