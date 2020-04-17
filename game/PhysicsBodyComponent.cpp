@@ -181,7 +181,7 @@ namespace af3d
             if (parent()->bodyType() == BodyType::Static) {
                 body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_STATIC_OBJECT);
             } else if (parent()->bodyType() == BodyType::Kinematic) {
-                body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
+                body->setCollisionFlags((body->getCollisionFlags() & ~btCollisionObject::CF_STATIC_OBJECT) | btCollisionObject::CF_KINEMATIC_OBJECT);
             }
             if (scene()->workspace()) {
                 body->setActivationState(DISABLE_SIMULATION);
@@ -242,6 +242,9 @@ namespace af3d
         }
 
         parent()->body()->setMassProps(totalMass, inertia);
+        if (parent()->bodyType() != BodyType::Static) {
+            parent()->body()->setCollisionFlags(parent()->body()->getCollisionFlags() & ~btCollisionObject::CF_STATIC_OBJECT);
+        }
 
         if (addRemove) {
             parent()->body()->setCollisionShape(compound_->shape());

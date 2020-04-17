@@ -218,6 +218,13 @@ namespace af3d
         body_->setUserPointer(this);
         bodyMs_ = static_cast<MotionState*>(body_->getMotionState());
         bodyCi_.active = body_->isInWorld();
+
+        if (bodyType() == BodyType::Kinematic) {
+            if (!bodyCi_.linearVelocity.fuzzyZero() || !bodyCi_.angularVelocity.fuzzyZero()) {
+                // Non-zero velocity for kinematic body, disable deactivation so that it can move.
+                body_->setActivationState(DISABLE_DEACTIVATION);
+            }
+        }
     }
 
     BodyType SceneObject::bodyType() const
@@ -241,13 +248,31 @@ namespace af3d
             if (value == bodyType()) {
                 return;
             }
+            if (bodyType() == BodyType::Kinematic) {
+                // Was kinematic body, copy velocities and reset deactivation
+                body_->setLinearVelocity(bodyCi_.linearVelocity);
+                body_->setAngularVelocity(bodyCi_.angularVelocity);
+                if (body_->getActivationState() == DISABLE_DEACTIVATION) {
+                    body_->forceActivationState(ACTIVE_TAG);
+                    body_->activate(true);
+                }
+            } else if (value == BodyType::Kinematic) {
+                // Becomes kinematic, copy velocities
+                bodyCi_.linearVelocity = body_->getLinearVelocity();
+                bodyCi_.angularVelocity = body_->getAngularVelocity();
+                if (!bodyCi_.linearVelocity.fuzzyZero() || !bodyCi_.angularVelocity.fuzzyZero()) {
+                    // Non-zero velocity for kinematic body, disable deactivation so that it can move.
+                    body_->setActivationState(DISABLE_DEACTIVATION);
+                }
+            }
             switch (value) {
             case BodyType::Static:
                 body_->setCollisionFlags((body_->getCollisionFlags() & ~btCollisionObject::CF_KINEMATIC_OBJECT) |
                     btCollisionObject::CF_STATIC_OBJECT);
                 break;
             case BodyType::Kinematic:
-                body_->setCollisionFlags(body_->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
+                body_->setCollisionFlags((body_->getCollisionFlags() & ~btCollisionObject::CF_STATIC_OBJECT) |
+                    btCollisionObject::CF_KINEMATIC_OBJECT);
                 break;
             case BodyType::Dynamic:
                 body_->setCollisionFlags((body_->getCollisionFlags() &
@@ -288,6 +313,10 @@ namespace af3d
             auto relXf = worldCenter().inverse() * bodyMs_->smoothXf;
             body_->setCenterOfMassTransform(t * localCenter());
             bodyMs_->smoothXf = worldCenter() * relXf;
+            if (body_->isKinematicObject()) {
+                body_->setInterpolationWorldTransform(worldCenter());
+            }
+            body_->activate();
         } else {
             bodyCi_.xf = t;
         }
@@ -403,7 +432,7 @@ namespace af3d
 
     const btVector3& SceneObject::linearVelocity() const
     {
-        if (body_) {
+        if (body_ && !body_->isKinematicObject()) {
             return body_->getLinearVelocity();
         } else {
             return bodyCi_.linearVelocity;
@@ -414,16 +443,27 @@ namespace af3d
     {
         btAssert(btIsValid(value));
 
-        if (body_) {
+        if (body_ && !body_->isKinematicObject()) {
             body_->setLinearVelocity(value);
+            body_->activate();
         } else {
             bodyCi_.linearVelocity = value;
+            if (body_) {
+                if (value.fuzzyZero() && bodyCi_.angularVelocity.fuzzyZero()) {
+                    if (body_->getActivationState() == DISABLE_DEACTIVATION) {
+                        body_->forceActivationState(ACTIVE_TAG);
+                        body_->activate(true);
+                    }
+                } else {
+                    body_->setActivationState(DISABLE_DEACTIVATION);
+                }
+            }
         }
     }
 
     const btVector3& SceneObject::angularVelocity() const
     {
-        if (body_) {
+        if (body_ && !body_->isKinematicObject()) {
             return body_->getAngularVelocity();
         } else {
             return bodyCi_.angularVelocity;
@@ -434,10 +474,21 @@ namespace af3d
     {
         btAssert(btIsValid(value));
 
-        if (body_) {
+        if (body_ && !body_->isKinematicObject()) {
             body_->setAngularVelocity(value);
+            body_->activate();
         } else {
             bodyCi_.angularVelocity = value;
+            if (body_) {
+                if (value.fuzzyZero() && bodyCi_.linearVelocity.fuzzyZero()) {
+                    if (body_->getActivationState() == DISABLE_DEACTIVATION) {
+                        body_->forceActivationState(ACTIVE_TAG);
+                        body_->activate(true);
+                    }
+                } else {
+                    body_->setActivationState(DISABLE_DEACTIVATION);
+                }
+            }
         }
     }
 
@@ -528,6 +579,7 @@ namespace af3d
 
         if (body_) {
             body_->applyForce(force, worldCenter().inverse() * point);
+            body_->activate();
         }
     }
 
@@ -537,6 +589,7 @@ namespace af3d
 
         if (body_) {
             body_->applyCentralForce(force);
+            body_->activate();
         }
     }
 
@@ -546,6 +599,7 @@ namespace af3d
 
         if (body_) {
             body_->applyTorque(torque);
+            body_->activate();
         }
     }
 
@@ -556,6 +610,7 @@ namespace af3d
 
         if (body_) {
             body_->applyImpulse(impulse, worldCenter().inverse() * point);
+            body_->activate();
         }
     }
 
@@ -565,6 +620,7 @@ namespace af3d
 
         if (body_) {
             body_->applyTorqueImpulse(impulse);
+            body_->activate();
         }
     }
 

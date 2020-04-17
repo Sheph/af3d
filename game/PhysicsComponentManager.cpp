@@ -26,6 +26,8 @@
 #include "PhysicsComponentManager.h"
 #include "PhysicsComponent.h"
 #include "Settings.h"
+#include "SceneObject.h"
+#include "MotionState.h"
 #include "bullet/BulletCollision/NarrowPhaseCollision/btRaycastCallback.h"
 
 namespace af3d
@@ -139,6 +141,21 @@ namespace af3d
 
     bool PhysicsComponentManager::update(float dt)
     {
+        if (dt > 0.0f) {
+            for (int i = 0; i < world_.getNumCollisionObjects(); ++i) {
+                btCollisionObject* c = world_.getCollisionObjectArray()[i];
+                btRigidBody* body = btRigidBody::upcast(c);
+                if (body && (body->getActivationState() == DISABLE_DEACTIVATION) &&
+                    body->isKinematicObject()) {
+                    auto obj = SceneObject::fromBody(body);
+                    auto ms = static_cast<MotionState*>(body->getMotionState());
+                    btTransform xf;
+                    btTransformUtil::integrateTransform(ms->smoothXf, obj->linearVelocity(), obj->angularVelocity(), dt, xf);
+                    ms->smoothXf = xf;
+                }
+            }
+        }
+
         return world_.stepSimulation(dt, settings.physics.maxSteps, settings.physics.fixedTimestep) > 0;
     }
 
