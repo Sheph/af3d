@@ -144,6 +144,9 @@ namespace af3d
         void setTransform(const btVector3& pos, const btQuaternion& rot);
         void setTransform(const btTransform& t);
 
+        void setTransformRecursive(const btVector3& pos, const btQuaternion& rot);
+        void setTransformRecursive(const btTransform& t);
+
         const btTransform& smoothTransform() const;
 
         const btVector3& pos() const;
@@ -250,7 +253,7 @@ namespace af3d
          */
 
         APropertyValue propertyTransformGet(const std::string&) const { return transform(); }
-        void propertyTransformSet(const std::string&, const APropertyValue& value) { setTransform(value.toTransform()); }
+        void propertyTransformSet(const std::string&, const APropertyValue& value) { setTransformRecursive(value.toTransform()); }
 
         APropertyValue propertyTypeGet(const std::string&) const { return static_cast<int>(type()); }
         void propertyTypeSet(const std::string&, const APropertyValue& value) { setType(static_cast<SceneObjectType>(value.toInt())); }

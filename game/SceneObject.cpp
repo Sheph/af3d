@@ -322,6 +322,23 @@ namespace af3d
         }
     }
 
+    void SceneObject::setTransformRecursive(const btVector3& pos, const btQuaternion& rot)
+    {
+        btAssert(btIsValid(pos));
+        btAssert(btIsValid(rot));
+
+        setTransformRecursive(btTransform(rot, pos));
+    }
+
+    void SceneObject::setTransformRecursive(const btTransform& t)
+    {
+        auto tmp = t * transform().inverse();
+        setTransform(t);
+        for (const auto& obj : objects()) {
+            obj->setTransform(tmp * obj->transform());
+        }
+    }
+
     const btTransform& SceneObject::smoothTransform() const
     {
         if (body_) {
