@@ -311,7 +311,18 @@ namespace af3d
     {
         if (body_) {
             auto relXf = worldCenter().inverse() * bodyMs_->smoothXf;
-            body_->setCenterOfMassTransform(t * localCenter());
+
+            // FIXME: This is insane, without this "re-orthonormalization"
+            // we get numeric drifts really fast on nested bodies in editor.
+            // The reason is that we keep transforming stuff around some point
+            // fast and we get those crazy shears in 3x3 matrix. I really don't
+            // know how to handle this better for now...
+            auto tmp = t * localCenter();
+            btQuaternion q;
+            tmp.getBasis().getRotation(q);
+            tmp.getBasis().setRotation(q);
+
+            body_->setCenterOfMassTransform(tmp);
             bodyMs_->smoothXf = worldCenter() * relXf;
             if (body_->isKinematicObject()) {
                 body_->setInterpolationWorldTransform(worldCenter());
@@ -319,6 +330,10 @@ namespace af3d
             body_->activate();
         } else {
             bodyCi_.xf = t;
+
+            btQuaternion q;
+            bodyCi_.xf.getBasis().getRotation(q);
+            bodyCi_.xf.getBasis().setRotation(q);
         }
     }
 
