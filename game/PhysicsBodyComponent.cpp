@@ -204,11 +204,7 @@ namespace af3d
 
     void PhysicsBodyComponent::onUnregister()
     {
-        notifyShapes(false);
-
-        if (parent()->body()->isInWorld()) {
-            manager()->world().removeRigidBody(parent()->body());
-        }
+        setActive(false);
     }
 
     void PhysicsBodyComponent::updateBodyCollision(bool addRemove)
@@ -249,7 +245,7 @@ namespace af3d
 
         if (addRemove) {
             parent()->body()->setCollisionShape(compound_->shape());
-            parent()->body()->setActivationState(ACTIVE_TAG);
+            parent()->body()->activate(true);
 
             if (parent()->body()->isInWorld()) {
                 manager()->world().removeRigidBody(parent()->body());
