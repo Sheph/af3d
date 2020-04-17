@@ -133,25 +133,21 @@ namespace af3d
     {
         if (shape->isPolyhedral()) {
             btPolyhedralConvexShape* polyshape = (btPolyhedralConvexShape*)shape;
-
-            int i;
             if (polyshape->getConvexPolyhedron()) {
                 const btConvexPolyhedron* poly = polyshape->getConvexPolyhedron();
-                for (i = 0; i < poly->m_faces.size(); i++) {
-                    btVector3 centroid(0, 0, 0);
+                for (int i = 0; i < poly->m_faces.size(); i++) {
                     int numVerts = poly->m_faces[i].m_indices.size();
                     if (numVerts) {
                         int lastV = poly->m_faces[i].m_indices[numVerts - 1];
                         for (int v = 0; v < poly->m_faces[i].m_indices.size(); v++) {
                             int curVert = poly->m_faces[i].m_indices[v];
-                            centroid += poly->m_vertices[curVert];
                             drawLine(worldTransform * poly->m_vertices[lastV], worldTransform * poly->m_vertices[curVert], color);
                             lastV = curVert;
                         }
                     }
                 }
             } else {
-                for (i = 0; i < polyshape->getNumEdges(); i++) {
+                for (int i = 0; i < polyshape->getNumEdges(); i++) {
                     btVector3 a, b;
                     polyshape->getEdge(i, a, b);
                     btVector3 wa = worldTransform * a;
@@ -161,10 +157,8 @@ namespace af3d
             }
         } else if (shape->isConcave()) {
             btConcaveShape* concaveMesh = (btConcaveShape*)shape;
-
             btVector3 aabbMax(BT_LARGE_FLOAT, BT_LARGE_FLOAT, BT_LARGE_FLOAT);
             btVector3 aabbMin(-BT_LARGE_FLOAT, -BT_LARGE_FLOAT, -BT_LARGE_FLOAT);
-
             TriDrawCallback drawCallback(this, worldTransform, color);
             concaveMesh->processAllTriangles(&drawCallback, aabbMin, aabbMax);
         } else if (shape->getShapeType() == CONVEX_TRIANGLEMESH_SHAPE_PROXYTYPE) {

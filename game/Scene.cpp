@@ -100,6 +100,7 @@ namespace af3d
             }
 
             debugDraw_.setDebugMode(debugMode);
+            debugDraw_.setAlpha(0.6f);
 
             phasedComponentManager_.reset(new PhasedComponentManager());
             physicsComponentManager_.reset(new PhysicsComponentManager(&debugDraw_));
