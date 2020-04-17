@@ -61,4 +61,13 @@ namespace af3d
             scene->addObject(obj);
         }
     }
+
+    void SceneAsset::apply(const SceneObjectPtr& parent)
+    {
+        btAssert(!root());
+
+        for (const auto& obj : objects_) {
+            parent->addObject(obj);
+        }
+    }
 }

@@ -47,7 +47,11 @@ namespace af3d
 
         AObjectPtr sharedThis() override { return shared_from_this(); }
 
+        inline const SceneObjectPtr& root() const { return root_; }
+
         void apply(Scene* scene);
+
+        void apply(const SceneObjectPtr& parent);
 
         APropertyValue propertyChildrenGet(const std::string&) const
         {
@@ -82,6 +86,7 @@ namespace af3d
         APropertyValue propertyCameraTransformGet(const std::string&) const { return cameraXf_; }
 
     private:
+        SceneObjectPtr root_;
         std::vector<SceneObjectPtr> objects_;
         Color clearColor_ = Color_zero;
         Color ambientColor_ = Color_zero;

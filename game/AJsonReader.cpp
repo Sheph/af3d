@@ -379,7 +379,6 @@ namespace af3d
 
         it->second.obj = it->second.klass.create(propVals);
         if (*it->second.obj) {
-            (*it->second.obj)->aflagsSet(AObjectEditable);
             if (withCookie_) {
                 const auto& val = it->second.jsonValue["cookie"];
                 if (!val.isInt() && !val.isUInt()) {
@@ -389,6 +388,7 @@ namespace af3d
                 }
             }
             if (editor_) {
+                (*it->second.obj)->aflagsSet(AObjectEditable);
                 if (auto sObj = aobjectCast<SceneObject>(*it->second.obj)) {
                     sObj->addComponent(std::make_shared<editor::ObjectComponent>());
                 }

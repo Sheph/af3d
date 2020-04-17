@@ -84,6 +84,25 @@ namespace af3d
         return obj;
     }
 
+    SceneObjectPtr SceneObjectFactory::createInstance(const std::string& assetPath)
+    {
+        auto sa = assetManager.getSceneAsset(assetPath);
+
+        if (!sa) {
+            return std::make_shared<SceneObject>();
+        }
+
+        if (sa->root()) {
+            return sa->root();
+        }
+
+        auto obj = std::make_shared<SceneObject>();
+
+        sa->apply(obj);
+
+        return obj;
+    }
+
     SCENEOBJECT_DEFINE_BEGIN(Dummy)
     {
         return sceneObjectFactory.createDummy();
@@ -103,4 +122,13 @@ namespace af3d
     SCENEOBJECT_PARAM(ColoredBox, "color1", "Box color #1", ColorRGB, Color(1.0f, 0.0f, 0.0f, 1.0f))
     SCENEOBJECT_PARAM(ColoredBox, "color2", "Box color #2", ColorRGB, Color(0.0f, 1.0f, 0.0f, 1.0f))
     SCENEOBJECT_DEFINE_END(ColoredBox)
+
+    SCENEOBJECT_DEFINE_BEGIN(Instance)
+    {
+        return sceneObjectFactory.createInstance(
+            params.get("asset").toString());
+    }
+    SCENEOBJECT_DEFINE_PROPS(Instance)
+    SCENEOBJECT_PARAM(Instance, "asset", "Asset path", String, "empty.af3")
+    SCENEOBJECT_DEFINE_END(Instance)
 }
