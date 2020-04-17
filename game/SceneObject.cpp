@@ -335,7 +335,7 @@ namespace af3d
         auto tmp = t * transform().inverse();
         setTransform(t);
         for (const auto& obj : objects()) {
-            obj->setTransform(tmp * obj->transform());
+            obj->setTransformRecursive(tmp * obj->transform());
         }
     }
 
