@@ -26,6 +26,7 @@
 #include "PhysicsComponentManager.h"
 #include "PhysicsComponent.h"
 #include "Settings.h"
+#include "bullet/BulletCollision/NarrowPhaseCollision/btRaycastCallback.h"
 
 namespace af3d
 {
@@ -151,6 +152,7 @@ namespace af3d
     void PhysicsComponentManager::rayCast(const btVector3& p1, const btVector3& p2, const RayCastFn& fn) const
     {
         RayResultCallback cb(p1, p2, fn);
+        cb.m_flags |= btTriangleRaycastCallback::kF_UseGjkConvexCastRaytest;
         world_.rayTest(p1, p2, cb);
     }
 }
