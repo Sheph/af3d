@@ -51,7 +51,7 @@ namespace af3d
         B,
         X,
         Y,
-        MAX = Y
+        Max = Y
     };
 
     class InputGamepad : boost::noncopyable

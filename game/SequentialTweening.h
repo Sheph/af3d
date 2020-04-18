@@ -23,50 +23,35 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Level.h"
-#include "AssetManager.h"
-#include "Settings.h"
+#ifndef _SEQUENTIALTWEENING_H_
+#define _SEQUENTIALTWEENING_H_
+
+#include "Tweening.h"
 
 namespace af3d
 {
-    Level::Level(const std::string& assetPath,
-        int checkpoint)
-    : scene_(new Scene(assetPath))
+    class SequentialTweening : public Tweening
     {
-        scene_->setCheckpoint(checkpoint);
-    }
+    public:
+        explicit SequentialTweening(bool loop = false);
+        ~SequentialTweening() = default;
 
-    Level::~Level()
-    {
-        if (scene_) {
-            scene_->cleanup();
-        }
-    }
+        void addTweening(const TweeningPtr& tweening);
 
-    bool Level::init()
-    {
-        SceneAssetPtr asset = assetManager.getSceneAsset(scene_->assetPath(), !!scene_->workspace());
+        virtual float duration() const { return duration_; }
 
-        if (asset) {
-            if (!asset->scriptPath().empty() && !scene_->workspace()) {
-                script_.reset(new Script(asset->scriptPath(), scene_.get()));
-            }
+        virtual float getValue(float timeVal) const;
 
-            asset->apply(scene_.get());
+        virtual bool finished(float timeVal) const;
 
-            if (script_ && !script_->init()) {
-                return false;
-            }
-        } else if (!settings.editor.enabled) {
-            return false;
-        }
+    private:
+        using Tweenings = std::vector<TweeningPtr>;
 
-        scene_->prepare();
+        Tweenings tweenings_;
+        float duration_;
+    };
 
-        if (script_ && !script_->run()) {
-            return false;
-        }
-
-        return true;
-    }
+    using SequentialTweeningPtr = std::shared_ptr<SequentialTweening>;
 }
+
+#endif

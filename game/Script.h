@@ -23,50 +23,38 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Level.h"
-#include "AssetManager.h"
-#include "Settings.h"
+#ifndef _SCRIPT_H_
+#define _SCRIPT_H_
+
+#include "af3d/Types.h"
+#include <boost/noncopyable.hpp>
+#include <memory>
+
+struct lua_State;
 
 namespace af3d
 {
-    Level::Level(const std::string& assetPath,
-        int checkpoint)
-    : scene_(new Scene(assetPath))
+    class Scene;
+
+    class Script : boost::noncopyable
     {
-        scene_->setCheckpoint(checkpoint);
-    }
+    public:
+        Script(const std::string& path,
+            Scene* scene);
+        ~Script();
 
-    Level::~Level()
-    {
-        if (scene_) {
-            scene_->cleanup();
-        }
-    }
+        bool init();
 
-    bool Level::init()
-    {
-        SceneAssetPtr asset = assetManager.getSceneAsset(scene_->assetPath(), !!scene_->workspace());
+        bool run();
 
-        if (asset) {
-            if (!asset->scriptPath().empty() && !scene_->workspace()) {
-                script_.reset(new Script(asset->scriptPath(), scene_.get()));
-            }
+        void finalize();
 
-            asset->apply(scene_.get());
+        struct lua_State* state();
 
-            if (script_ && !script_->init()) {
-                return false;
-            }
-        } else if (!settings.editor.enabled) {
-            return false;
-        }
-
-        scene_->prepare();
-
-        if (script_ && !script_->run()) {
-            return false;
-        }
-
-        return true;
-    }
+    private:
+        class Impl;
+        std::unique_ptr<Impl> impl_;
+    };
 }
+
+#endif

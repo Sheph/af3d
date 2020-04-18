@@ -23,50 +23,58 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Level.h"
-#include "AssetManager.h"
-#include "Settings.h"
+#include "SequentialTweening.h"
+#include <cmath>
 
 namespace af3d
 {
-    Level::Level(const std::string& assetPath,
-        int checkpoint)
-    : scene_(new Scene(assetPath))
+    SequentialTweening::SequentialTweening(bool loop)
+    : Tweening(loop),
+      duration_(0.0f)
     {
-        scene_->setCheckpoint(checkpoint);
     }
 
-    Level::~Level()
+    void SequentialTweening::addTweening(const TweeningPtr& tweening)
     {
-        if (scene_) {
-            scene_->cleanup();
-        }
+        tweenings_.push_back(tweening);
+        duration_ += tweening->duration();
     }
 
-    bool Level::init()
+    float SequentialTweening::getValue(float timeVal) const
     {
-        SceneAssetPtr asset = assetManager.getSceneAsset(scene_->assetPath(), !!scene_->workspace());
-
-        if (asset) {
-            if (!asset->scriptPath().empty() && !scene_->workspace()) {
-                script_.reset(new Script(asset->scriptPath(), scene_.get()));
-            }
-
-            asset->apply(scene_.get());
-
-            if (script_ && !script_->init()) {
-                return false;
-            }
-        } else if (!settings.editor.enabled) {
-            return false;
+        if (tweenings_.empty()) {
+            return 0.0f;
         }
 
-        scene_->prepare();
-
-        if (script_ && !script_->run()) {
-            return false;
+        if (loop()) {
+            timeVal = std::fmod(timeVal, duration_);
+            if (timeVal < 0.0f) {
+                timeVal += duration_;
+            }
+        } else if ((timeVal >= duration_) && !tweenings_.back()->loop()) {
+            return tweenings_.back()->getValue(tweenings_.back()->duration());
+        } else if (timeVal <= 0.0f) {
+            return tweenings_[0]->getValue(0.0f);
         }
 
-        return true;
+        float tmp = 0.0f;
+        for (size_t i = 0; i < tweenings_.size(); ++i) {
+            if (((tmp + tweenings_[i]->duration()) > timeVal) || tweenings_[i]->loop()) {
+                return tweenings_[i]->getValue(timeVal - tmp);
+            }
+            tmp += tweenings_[i]->duration();
+        }
+
+        btAssert(false);
+        return 0.0f;
+    }
+
+    bool SequentialTweening::finished(float timeVal) const
+    {
+        if (tweenings_.empty()) {
+            return true;
+        }
+
+        return (!loop() && ((timeVal < 0.0f) || ((timeVal > duration_) && !tweenings_.back()->loop())));
     }
 }

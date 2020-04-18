@@ -60,7 +60,7 @@ namespace af3d
     void HardwareIndexBuffer::doResize(HardwareContext& ctx)
     {
         ogl.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, id(ctx));
-        ogl.BufferData(GL_ELEMENT_ARRAY_BUFFER, sizeInBytes(ctx), NULL, glUsage());
+        ogl.BufferData(GL_ELEMENT_ARRAY_BUFFER, sizeInBytes(ctx), nullptr, glUsage());
     }
 
     void HardwareIndexBuffer::doReload(GLsizeiptr cnt, const GLvoid* data, HardwareContext& ctx)

@@ -23,50 +23,34 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Level.h"
-#include "AssetManager.h"
-#include "Settings.h"
+#ifndef _UITIMERCOMPONENT_H_
+#define _UITIMERCOMPONENT_H_
+
+#include "UIComponent.h"
 
 namespace af3d
 {
-    Level::Level(const std::string& assetPath,
-        int checkpoint)
-    : scene_(new Scene(assetPath))
+    class UITimerComponent : public UIComponent
     {
-        scene_->setCheckpoint(checkpoint);
-    }
+    public:
+        UITimerComponent(const AClass& klass, float t, int zOrder = 0);
+        ~UITimerComponent() = default;
 
-    Level::~Level()
-    {
-        if (scene_) {
-            scene_->cleanup();
-        }
-    }
+        static const AClass& staticKlass();
 
-    bool Level::init()
-    {
-        SceneAssetPtr asset = assetManager.getSceneAsset(scene_->assetPath(), !!scene_->workspace());
+        void update(float dt) override;
 
-        if (asset) {
-            if (!asset->scriptPath().empty() && !scene_->workspace()) {
-                script_.reset(new Script(asset->scriptPath(), scene_.get()));
-            }
+    private:
+        virtual void timeoutReached(float dt) = 0;
 
-            asset->apply(scene_.get());
+        float timeout_;
+        float t_;
+        bool first_;
+    };
 
-            if (script_ && !script_->init()) {
-                return false;
-            }
-        } else if (!settings.editor.enabled) {
-            return false;
-        }
+    using UITimerComponentPtr = std::shared_ptr<UITimerComponent>;
 
-        scene_->prepare();
-
-        if (script_ && !script_->run()) {
-            return false;
-        }
-
-        return true;
-    }
+    ACLASS_DECLARE(UITimerComponent)
 }
+
+#endif

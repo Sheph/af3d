@@ -80,6 +80,10 @@ namespace af3d
 
         void removeAllObjects();
 
+        void addObjectUnparent(const SceneObjectPtr& obj);
+
+        void reparent(const SceneObjectPtr& obj);
+
         inline const std::unordered_set<SceneObjectPtr>& objects() const { return objects_; }
 
         std::vector<SceneObjectPtr> getObjects(const std::string& name) const;

@@ -28,6 +28,7 @@
 
 #include "af3d/Types.h"
 #include "Scene.h"
+#include "Script.h"
 
 namespace af3d
 {
@@ -44,6 +45,7 @@ namespace af3d
 
     private:
         std::unique_ptr<Scene> scene_;
+        std::unique_ptr<Script> script_;
     };
 
     using LevelPtr = std::shared_ptr<Level>;

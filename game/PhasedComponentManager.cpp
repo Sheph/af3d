@@ -74,7 +74,7 @@ namespace af3d
         res |= (preRenderComponents_.erase(phasedComponent) > 0);
 
         if (res || frozenComponents_.erase(phasedComponent)) {
-            phasedComponent->setManager(NULL);
+            phasedComponent->setManager(nullptr);
         }
     }
 

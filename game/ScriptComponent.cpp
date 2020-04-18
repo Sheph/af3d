@@ -23,50 +23,49 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Level.h"
-#include "AssetManager.h"
-#include "Settings.h"
+#include "ScriptComponent.h"
+#include "Utils.h"
+#include "Logger.h"
 
 namespace af3d
 {
-    Level::Level(const std::string& assetPath,
-        int checkpoint)
-    : scene_(new Scene(assetPath))
+    ACLASS_DEFINE_BEGIN(ScriptComponent, PhasedComponent)
+    ACLASS_DEFINE_END(ScriptComponent)
+
+    ScriptComponent::ScriptComponent(luabind::object self, std::uint32_t phases, int order)
+    : PhasedComponent(AClass_ScriptComponent, phases, order),
+      self_(self)
     {
-        scene_->setCheckpoint(checkpoint);
     }
 
-    Level::~Level()
+    const AClass& ScriptComponent::staticKlass()
     {
-        if (scene_) {
-            scene_->cleanup();
-        }
+        return AClass_ScriptComponent;
     }
 
-    bool Level::init()
+    AObjectPtr ScriptComponent::create(const APropertyValueMap& propVals)
     {
-        SceneAssetPtr asset = assetManager.getSceneAsset(scene_->assetPath(), !!scene_->workspace());
+        return AObjectPtr();
+    }
 
-        if (asset) {
-            if (!asset->scriptPath().empty() && !scene_->workspace()) {
-                script_.reset(new Script(asset->scriptPath(), scene_.get()));
-            }
+    void ScriptComponent::update(float dt)
+    {
+        AF3D_SCRIPT_CALL("update", dt);
+    }
 
-            asset->apply(scene_.get());
+    void ScriptComponent::preRender(float dt)
+    {
+        AF3D_SCRIPT_CALL("preRender", dt);
+    }
 
-            if (script_ && !script_->init()) {
-                return false;
-            }
-        } else if (!settings.editor.enabled) {
-            return false;
-        }
+    void ScriptComponent::onRegister()
+    {
+        AF3D_SCRIPT_CALL("onRegister");
+    }
 
-        scene_->prepare();
-
-        if (script_ && !script_->run()) {
-            return false;
-        }
-
-        return true;
+    void ScriptComponent::onUnregister()
+    {
+        AF3D_SCRIPT_CALL("onUnregister");
+        self_ = luabind::object();
     }
 }

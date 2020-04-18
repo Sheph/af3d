@@ -23,50 +23,44 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Level.h"
-#include "AssetManager.h"
-#include "Settings.h"
+#include "ScriptUITimerComponent.h"
+#include "Utils.h"
+#include "Logger.h"
 
 namespace af3d
 {
-    Level::Level(const std::string& assetPath,
-        int checkpoint)
-    : scene_(new Scene(assetPath))
+    ACLASS_DEFINE_BEGIN(ScriptUITimerComponent, UITimerComponent)
+    ACLASS_DEFINE_END(ScriptUITimerComponent)
+
+    ScriptUITimerComponent::ScriptUITimerComponent(luabind::object self, float t, int zOrder)
+    : UITimerComponent(AClass_ScriptUITimerComponent, t, zOrder),
+      self_(self)
     {
-        scene_->setCheckpoint(checkpoint);
     }
 
-    Level::~Level()
+    const AClass& ScriptUITimerComponent::staticKlass()
     {
-        if (scene_) {
-            scene_->cleanup();
-        }
+        return AClass_ScriptUITimerComponent;
     }
 
-    bool Level::init()
+    AObjectPtr ScriptUITimerComponent::create(const APropertyValueMap& propVals)
     {
-        SceneAssetPtr asset = assetManager.getSceneAsset(scene_->assetPath(), !!scene_->workspace());
+        return AObjectPtr();
+    }
 
-        if (asset) {
-            if (!asset->scriptPath().empty() && !scene_->workspace()) {
-                script_.reset(new Script(asset->scriptPath(), scene_.get()));
-            }
+    void ScriptUITimerComponent::onRegister()
+    {
+        AF3D_SCRIPT_CALL("onRegister");
+    }
 
-            asset->apply(scene_.get());
+    void ScriptUITimerComponent::onUnregister()
+    {
+        AF3D_SCRIPT_CALL("onUnregister");
+        self_ = luabind::object();
+    }
 
-            if (script_ && !script_->init()) {
-                return false;
-            }
-        } else if (!settings.editor.enabled) {
-            return false;
-        }
-
-        scene_->prepare();
-
-        if (script_ && !script_->run()) {
-            return false;
-        }
-
-        return true;
+    void ScriptUITimerComponent::timeoutReached(float dt)
+    {
+        AF3D_SCRIPT_CALL("timeoutReached", dt);
     }
 }

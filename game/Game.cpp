@@ -376,7 +376,14 @@ namespace af3d
         LevelPtr level = std::make_shared<Level>(assetPath, cp);
 
         if (!level->init()) {
-            return false;
+            if (editorLevel_) {
+                level_ = editorLevel_;
+                editorLevel_.reset();
+                settings.editor.playing = false;
+                return true;
+            } else {
+                return false;
+            }
         }
 
         level_ = level;

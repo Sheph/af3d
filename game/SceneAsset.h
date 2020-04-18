@@ -49,6 +49,8 @@ namespace af3d
 
         inline const SceneObjectPtr& root() const { return root_; }
 
+        inline const std::string& scriptPath() const { return scriptPath_; }
+
         void apply(Scene* scene);
 
         void apply(const SceneObjectPtr& parent);
@@ -83,6 +85,9 @@ namespace af3d
         APropertyValue propertyAmbientColorGet(const std::string&) const { return ambientColor_; }
         void propertyAmbientColorSet(const std::string&, const APropertyValue& value) { ambientColor_ = value.toColor(); }
 
+        APropertyValue propertyScriptGet(const std::string&) const { return scriptPath_; }
+        void propertyScriptSet(const std::string&, const APropertyValue& value) { scriptPath_ = value.toString(); }
+
         APropertyValue propertyCameraTransformGet(const std::string&) const { return cameraXf_; }
 
     private:
@@ -90,6 +95,7 @@ namespace af3d
         std::vector<SceneObjectPtr> objects_;
         Color clearColor_ = Color_zero;
         Color ambientColor_ = Color_zero;
+        std::string scriptPath_;
         btTransform cameraXf_;
     };
 
@@ -100,6 +106,7 @@ namespace af3d
     #define SCENE_PROPS(Class) \
         ACLASS_PROPERTY(Class, ClearColor, "clear color", "Clear Color", ColorRGB, Color(0.23f, 0.23f, 0.23f, 1.0f), General, APropertyEditable) \
         ACLASS_PROPERTY(Class, AmbientColor, "ambient color", "Ambient Color", ColorRGB, Color(0.2f, 0.2f, 0.2f, 1.0f), General, APropertyEditable) \
+        ACLASS_PROPERTY(Class, Script, "script", "Scene script asset path", String, "", General, APropertyEditable) \
         ACLASS_PROPERTY_RO(Class, CameraTransform, AProperty_CameraTransform, "Camera transform", Transform, Position, APropertyEditable)
 }
 

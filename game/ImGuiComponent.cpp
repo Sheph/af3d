@@ -86,7 +86,7 @@ namespace af3d
 
             for (int i = 0; i < cmdList->CmdBuffer.Size; ++i) {
                 const ImDrawCmd* pcmd = &cmdList->CmdBuffer[i];
-                if (pcmd->UserCallback != NULL) {
+                if (pcmd->UserCallback != nullptr) {
                     if (pcmd->UserCallback == ImDrawCallback_ResetRenderState) {
                         // Rendering is not immediate in our engine, how to reset ?
                         runtime_assert(false);

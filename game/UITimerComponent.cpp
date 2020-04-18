@@ -23,50 +23,41 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Level.h"
-#include "AssetManager.h"
-#include "Settings.h"
+#include "UITimerComponent.h"
 
 namespace af3d
 {
-    Level::Level(const std::string& assetPath,
-        int checkpoint)
-    : scene_(new Scene(assetPath))
+    ACLASS_DEFINE_BEGIN_ABSTRACT(UITimerComponent, UIComponent)
+    ACLASS_DEFINE_END(UITimerComponent)
+
+    UITimerComponent::UITimerComponent(const AClass& klass, float t, int zOrder)
+    : UIComponent(klass, zOrder),
+      timeout_(t),
+      t_(t),
+      first_(true)
     {
-        scene_->setCheckpoint(checkpoint);
     }
 
-    Level::~Level()
+    const AClass& UITimerComponent::staticKlass()
     {
-        if (scene_) {
-            scene_->cleanup();
-        }
+        return AClass_UITimerComponent;
     }
 
-    bool Level::init()
+    void UITimerComponent::update(float dt)
     {
-        SceneAssetPtr asset = assetManager.getSceneAsset(scene_->assetPath(), !!scene_->workspace());
-
-        if (asset) {
-            if (!asset->scriptPath().empty() && !scene_->workspace()) {
-                script_.reset(new Script(asset->scriptPath(), scene_.get()));
-            }
-
-            asset->apply(scene_.get());
-
-            if (script_ && !script_->init()) {
-                return false;
-            }
-        } else if (!settings.editor.enabled) {
-            return false;
+        if (first_) {
+            /*
+             * FIXME: Skip the very first update, since it happens right when
+             * the timer is added.
+             */
+            first_ = false;
+            return;
         }
 
-        scene_->prepare();
-
-        if (script_ && !script_->run()) {
-            return false;
+        t_ -= dt;
+        if (t_ <= 0.0f) {
+            t_ = timeout_;
+            timeoutReached(dt);
         }
-
-        return true;
     }
 }

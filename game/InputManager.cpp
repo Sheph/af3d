@@ -26,6 +26,7 @@
 #include "InputManager.h"
 #include "Settings.h"
 #include "Logger.h"
+#include "imgui.h"
 
 namespace af3d
 {
@@ -47,17 +48,21 @@ namespace af3d
 
     void InputManager::update()
     {
-        if (keyboard().triggered(KI_J)) {
-            gameDebugPressed_ = !gameDebugPressed_;
-        }
-        if (keyboard().triggered(KI_P)) {
-            physicsDebugPressed_ = !physicsDebugPressed_;
-        }
-        if (keyboard().triggered(KI_M)) {
-            slowmoPressed_ = !slowmoPressed_;
-        }
-        if (keyboard().triggered(KI_B)) {
-            cullPressed_ = !cullPressed_;
+        ImGuiIO& io = ImGui::GetIO();
+
+        if (!io.WantCaptureMouse && !io.WantCaptureKeyboard) {
+            if (keyboard().triggered(KI_J)) {
+                gameDebugPressed_ = !gameDebugPressed_;
+            }
+            if (keyboard().triggered(KI_P)) {
+                physicsDebugPressed_ = !physicsDebugPressed_;
+            }
+            if (keyboard().triggered(KI_M)) {
+                slowmoPressed_ = !slowmoPressed_;
+            }
+            if (keyboard().triggered(KI_B)) {
+                cullPressed_ = !cullPressed_;
+            }
         }
     }
 

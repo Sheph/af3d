@@ -37,6 +37,15 @@
 
 namespace af3d
 {
+    #define AF3D_SCRIPT_CALL(func, ...) \
+        try { \
+            call<void>(func,##__VA_ARGS__); \
+        } catch (const luabind::error& e) { \
+            ::lua_pop(e.state(), 1); \
+        } catch (const std::exception& e) { \
+            LOG4CPLUS_ERROR(logger(), e.what()); \
+        }
+
     enum class TransformOrientation
     {
         Local = 0,

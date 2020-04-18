@@ -23,50 +23,39 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Level.h"
-#include "AssetManager.h"
-#include "Settings.h"
+#ifndef _TWEENING_H_
+#define _TWEENING_H_
+
+#include "af3d/Types.h"
+#include <boost/noncopyable.hpp>
+#include <memory>
 
 namespace af3d
 {
-    Level::Level(const std::string& assetPath,
-        int checkpoint)
-    : scene_(new Scene(assetPath))
+    class Tweening : boost::noncopyable
     {
-        scene_->setCheckpoint(checkpoint);
-    }
-
-    Level::~Level()
-    {
-        if (scene_) {
-            scene_->cleanup();
-        }
-    }
-
-    bool Level::init()
-    {
-        SceneAssetPtr asset = assetManager.getSceneAsset(scene_->assetPath(), !!scene_->workspace());
-
-        if (asset) {
-            if (!asset->scriptPath().empty() && !scene_->workspace()) {
-                script_.reset(new Script(asset->scriptPath(), scene_.get()));
-            }
-
-            asset->apply(scene_.get());
-
-            if (script_ && !script_->init()) {
-                return false;
-            }
-        } else if (!settings.editor.enabled) {
-            return false;
+    public:
+        explicit Tweening(bool loop)
+        : loop_(loop)
+        {
         }
 
-        scene_->prepare();
+        virtual ~Tweening() = default;
 
-        if (script_ && !script_->run()) {
-            return false;
-        }
+        virtual float duration() const = 0;
 
-        return true;
-    }
+        virtual float getValue(float timeVal) const = 0;
+
+        virtual bool finished(float timeVal) const = 0;
+
+        inline bool loop() const { return loop_; }
+        inline void setLoop(bool value) { loop_ = value; }
+
+    private:
+        bool loop_;
+    };
+
+    using TweeningPtr = std::shared_ptr<Tweening>;
 }
+
+#endif

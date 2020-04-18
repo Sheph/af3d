@@ -23,50 +23,45 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Level.h"
-#include "AssetManager.h"
-#include "Settings.h"
+#ifndef _SCRIPTUITIMERCOMPONENT_H_
+#define _SCRIPTUITIMERCOMPONENT_H_
+
+#include "UITimerComponent.h"
+#include "luainc.h"
+#include <luabind/luabind.hpp>
 
 namespace af3d
 {
-    Level::Level(const std::string& assetPath,
-        int checkpoint)
-    : scene_(new Scene(assetPath))
+    class ScriptUITimerComponent : public std::enable_shared_from_this<ScriptUITimerComponent>,
+        public UITimerComponent,
+        public luabind::wrap_base
     {
-        scene_->setCheckpoint(checkpoint);
-    }
+    public:
+        /*
+         * Important! See ScriptSensorListener.h
+         */
+        ScriptUITimerComponent(luabind::object self, float t, int zOrder = 0);
+        ~ScriptUITimerComponent() = default;
 
-    Level::~Level()
-    {
-        if (scene_) {
-            scene_->cleanup();
-        }
-    }
+        static const AClass& staticKlass();
 
-    bool Level::init()
-    {
-        SceneAssetPtr asset = assetManager.getSceneAsset(scene_->assetPath(), !!scene_->workspace());
+        static AObjectPtr create(const APropertyValueMap& propVals);
 
-        if (asset) {
-            if (!asset->scriptPath().empty() && !scene_->workspace()) {
-                script_.reset(new Script(asset->scriptPath(), scene_.get()));
-            }
+        AObjectPtr sharedThis() override { return shared_from_this(); }
 
-            asset->apply(scene_.get());
+    private:
+        void onRegister() override;
 
-            if (script_ && !script_->init()) {
-                return false;
-            }
-        } else if (!settings.editor.enabled) {
-            return false;
-        }
+        void onUnregister() override;
 
-        scene_->prepare();
+        void timeoutReached(float dt) override;
 
-        if (script_ && !script_->run()) {
-            return false;
-        }
+        luabind::object self_;
+    };
 
-        return true;
-    }
+    using ScriptUITimerComponentPtr = std::shared_ptr<ScriptUITimerComponent>;
+
+    ACLASS_DECLARE(ScriptUITimerComponent)
 }
+
+#endif

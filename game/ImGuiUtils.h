@@ -34,9 +34,9 @@
 namespace af3d { namespace ImGuiUtils
 {
     bool APropertyEdit(const APropertyType& type, APropertyValue& val, bool readOnly);
-    bool inputText(const char* label, std::string& str, ImGuiInputTextFlags flags = 0, ImGuiInputTextCallback callback = NULL, void* user_data = NULL);
-    bool inputTextMultiline(const char* label, std::string& str, const ImVec2& size = ImVec2(0, 0), ImGuiInputTextFlags flags = 0, ImGuiInputTextCallback callback = NULL, void* user_data = NULL);
-    bool inputTextWithHint(const char* label, const char* hint, std::string& str, ImGuiInputTextFlags flags = 0, ImGuiInputTextCallback callback = NULL, void* user_data = NULL);
+    bool inputText(const char* label, std::string& str, ImGuiInputTextFlags flags = 0, ImGuiInputTextCallback callback = nullptr, void* user_data = nullptr);
+    bool inputTextMultiline(const char* label, std::string& str, const ImVec2& size = ImVec2(0, 0), ImGuiInputTextFlags flags = 0, ImGuiInputTextCallback callback = nullptr, void* user_data = nullptr);
+    bool inputTextWithHint(const char* label, const char* hint, std::string& str, ImGuiInputTextFlags flags = 0, ImGuiInputTextCallback callback = nullptr, void* user_data = nullptr);
     bool imageButton(const char* id, const Image& image, float size, bool enabled = true, bool checked = false);
     bool imageButtonTooltip(const char* id, const Image& image, float size, const char* tooltip, bool enabled = true, bool checked = false);
 } }

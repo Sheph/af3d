@@ -54,6 +54,7 @@ namespace af3d
     void SceneAsset::apply(Scene* scene)
     {
         scene->setName(name());
+        scene->setScriptPath(scriptPath_);
         scene->camera()->setTransform(cameraXf_);
         scene->camera()->findComponent<CameraComponent>()->renderSettings().setClearColor(clearColor_);
         scene->camera()->findComponent<CameraComponent>()->renderSettings().setAmbientColor(ambientColor_);

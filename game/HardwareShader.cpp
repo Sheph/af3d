@@ -77,7 +77,7 @@ namespace af3d
 
         const char* str = source.c_str();
 
-        ogl.ShaderSource(id_, 1, &str, NULL);
+        ogl.ShaderSource(id_, 1, &str, nullptr);
         ogl.CompileShader(id_);
 
         GLint tmp = 0;
@@ -90,7 +90,7 @@ namespace af3d
 
             std::string buff(tmp, 0);
 
-            ogl.GetShaderInfoLog(id_, buff.size(), NULL, &buff[0]);
+            ogl.GetShaderInfoLog(id_, buff.size(), nullptr, &buff[0]);
 
             LOG4CPLUS_ERROR(logger(), "Unable to compile shader (type = " << static_cast<int>(type_) << ") - " << buff);
 

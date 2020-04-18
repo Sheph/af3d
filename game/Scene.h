@@ -52,6 +52,9 @@ namespace af3d
 
         inline const std::string& assetPath() const { return assetPath_; }
 
+        inline const std::string& scriptPath() const { return scriptPath_; }
+        inline void setScriptPath(const std::string& value) { scriptPath_ = value; }
+
         static const AClass& staticKlass();
 
         static AObjectPtr create(const APropertyValueMap& propVals);
@@ -121,6 +124,9 @@ namespace af3d
         APropertyValue propertyAmbientColorGet(const std::string&) const;
         void propertyAmbientColorSet(const std::string&, const APropertyValue& value);
 
+        APropertyValue propertyScriptGet(const std::string&) const { return scriptPath(); }
+        void propertyScriptSet(const std::string&, const APropertyValue& value) { setScriptPath(value.toString()); }
+
         APropertyValue propertyCameraTransformGet(const std::string&) const;
 
     private:
@@ -155,6 +161,8 @@ namespace af3d
 
         std::string assetPath_;
         std::string nextAssetPath_;
+
+        std::string scriptPath_;
 
         bool firstUpdate_;
         int checkpoint_;

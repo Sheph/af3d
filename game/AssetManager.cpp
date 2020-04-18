@@ -36,7 +36,7 @@ namespace af3d
     AssetManager assetManager;
 
     template <>
-    Single<AssetManager>* Single<AssetManager>::single = NULL;
+    Single<AssetManager>* Single<AssetManager>::single = nullptr;
 
     bool AssetManager::init()
     {

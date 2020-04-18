@@ -104,6 +104,34 @@ namespace af3d
         }
     }
 
+    void SceneObjectManager::addObjectUnparent(const SceneObjectPtr& obj)
+    {
+        auto tmp = obj->objects();
+
+        obj->removeAllObjects();
+
+        addObject(obj);
+
+        for (const auto& obj2 : tmp) {
+            addObject(obj2);
+        }
+    }
+
+    void SceneObjectManager::reparent(const SceneObjectPtr& obj)
+    {
+        if (!obj->parent() || (obj->parent() == this)) {
+            return;
+        }
+
+        SceneObjectPtr tmp = obj;
+
+        obj->parent()->objects_.erase(tmp);
+
+        objects_.insert(tmp);
+
+        obj->setParent(this);
+    }
+
     std::vector<SceneObjectPtr> SceneObjectManager::getObjects(const std::string& name) const
     {
         std::vector<SceneObjectPtr> res;

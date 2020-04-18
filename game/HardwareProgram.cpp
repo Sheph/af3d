@@ -169,7 +169,7 @@ namespace af3d
 
             std::string buff(tmp, 0);
 
-            ogl.GetProgramInfoLog(id_, buff.size(), NULL, &buff[0]);
+            ogl.GetProgramInfoLog(id_, buff.size(), nullptr, &buff[0]);
 
             LOG4CPLUS_ERROR(logger(), "Unable to link program - " << buff);
 
