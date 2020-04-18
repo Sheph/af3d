@@ -136,6 +136,45 @@ namespace af3d
                     #undef enum_value
                 ],
 
+            luabind::class_<btVector3>("Vec3")
+                .scope
+                [
+                    luabind::def("zeroNormalize", (float(*)(btVector3&))&btZeroNormalize),
+                    luabind::def("zeroNormalized", (btVector3(*)(const btVector3&))&btZeroNormalized),
+                    luabind::def("perpendicular", &btPerpendicular)
+                ]
+                .def(luabind::constructor<float, float, float>())
+                .def(luabind::const_self == luabind::const_self)
+                .def(luabind::const_self + luabind::const_self)
+                .def(luabind::const_self - luabind::const_self)
+                .def(luabind::const_self * luabind::const_self)
+                .def(luabind::const_self / luabind::const_self)
+                .def(luabind::const_self * float())
+                .def(float() * luabind::const_self)
+                .def(luabind::const_self / float())
+                .def(-luabind::const_self)
+                .def(tostring(luabind::self))
+                .def("length2", &btVector3::length2)
+                .def("length", &btVector3::length)
+                .def("norm", &btVector3::norm)
+                .def("safeNorm", &btVector3::safeNorm)
+                .def("distance2", &btVector3::distance2)
+                .def("distance", &btVector3::distance)
+                .def("safeNormalize", &btVector3::safeNormalize)
+                .def("normalize", &btVector3::normalize)
+                .def("normalized", &btVector3::normalized)
+                .def("angle", &btVector3::angle)
+                .def("absolute", &btVector3::absolute)
+                .def("cross", &btVector3::cross)
+                .def("triple", &btVector3::triple)
+                .def("lerp", &btVector3::lerp)
+                .def("isZero", &btVector3::isZero)
+                .def("fuzzyZero", &btVector3::fuzzyZero)
+                .def("dot", &btVector3::dot)
+                .property("x", &btVector3::x, &btVector3::setX)
+                .property("y", &btVector3::y, &btVector3::setY)
+                .property("z", &btVector3::z, &btVector3::setZ),
+
             luabind::class_<Settings>("Settings")
                 .def_readonly("developer", &Settings::developer)
                 .def("setDeveloper", &Settings::setDeveloper)
@@ -147,7 +186,6 @@ namespace af3d
 
             luabind::class_<AObject, AObjectPtr>("AObject")
                 .def(luabind::const_self == luabind::const_self)
-                .def(luabind::self == luabind::self)
                 .property("cookie", &AObject::cookie)
                 .property("name", &AObject::name, &AObject::setName),
 
@@ -175,7 +213,6 @@ namespace af3d
 
             luabind::class_<Component, AObject, AObjectPtr>("Component")
                 .def(luabind::const_self == luabind::const_self)
-                .def(luabind::self == luabind::self)
                 .property("parent", &Component::script_parent)
                 .def("removeFromParent", &Component::removeFromParent),
 
@@ -200,7 +237,6 @@ namespace af3d
             luabind::class_<SceneObject, AObject, AObjectPtr>("SceneObject")
                 .def(luabind::constructor<>())
                 .def(luabind::const_self == luabind::const_self)
-                .def(luabind::self == luabind::self)
                 .def("scene", &SceneObject::scene)
                 .property("parent", &SceneObject::script_parentObject)
                 .def("getObjects", (std::vector<SceneObjectPtr> (SceneObject::*)() const)&SceneObject::getObjects)
@@ -347,6 +383,15 @@ namespace af3d
         luabind::globals(L_)["platform"] = platform.get();
         luabind::globals(L_)["input"] = &inputManager;
         luabind::globals(L_)["gameShell"] = gameShell.get();
+
+        luabind::globals(L_)["Vec3"]["zero"] = btVector3_zero;
+        luabind::globals(L_)["Vec3"]["up"] = btVector3_up;
+        luabind::globals(L_)["Vec3"]["down"] = btVector3_down;
+        luabind::globals(L_)["Vec3"]["forward"] = btVector3_forward;
+        luabind::globals(L_)["Vec3"]["back"] = btVector3_back;
+        luabind::globals(L_)["Vec3"]["right"] = btVector3_right;
+        luabind::globals(L_)["Vec3"]["left"] = btVector3_left;
+        luabind::globals(L_)["Vec3"]["one"] = btVector3_one;
     }
 
     void Script::Impl::loadFile()
