@@ -175,6 +175,29 @@ namespace af3d
                 .property("y", &btVector3::y, &btVector3::setY)
                 .property("z", &btVector3::z, &btVector3::setZ),
 
+            luabind::class_<btQuaternion>("Quaternion")
+                .scope
+                [
+                    luabind::def("rotate", &quatRotate),
+                    luabind::def("shortestArc", &script_shortestArcQuatNormalize2)
+                ]
+                .def(luabind::constructor<const btVector3&, float>())
+                .def(luabind::const_self == luabind::const_self)
+                .def(luabind::const_self + luabind::const_self)
+                .def(luabind::const_self - luabind::const_self)
+                .def(luabind::const_self * luabind::const_self)
+                .def(luabind::const_self * float())
+                .def(luabind::const_self / float())
+                .def(-luabind::const_self)
+                .def(tostring(luabind::self))
+                .def("dot", &btQuaternion::dot)
+                .def("angle", &btQuaternion::angle)
+                .def("angleShortestPath", &btQuaternion::angleShortestPath)
+                .def("getAngle", &btQuaternion::getAngle)
+                .def("getAngleShortestPath", &btQuaternion::getAngleShortestPath)
+                .def("getAxis", &btQuaternion::getAxis)
+                .def("inverse", &btQuaternion::inverse),
+
             luabind::class_<Settings>("Settings")
                 .def_readonly("developer", &Settings::developer)
                 .def("setDeveloper", &Settings::setDeveloper)
@@ -392,6 +415,8 @@ namespace af3d
         luabind::globals(L_)["Vec3"]["right"] = btVector3_right;
         luabind::globals(L_)["Vec3"]["left"] = btVector3_left;
         luabind::globals(L_)["Vec3"]["one"] = btVector3_one;
+
+        luabind::globals(L_)["Quaternion"]["identity"] = btQuaternion::getIdentity();
     }
 
     void Script::Impl::loadFile()

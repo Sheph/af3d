@@ -92,6 +92,11 @@ namespace af3d
         return v1 + (v2 - v1) * t;
     }
 
+    inline btQuaternion script_shortestArcQuatNormalize2(btVector3 v0, btVector3 v1)
+    {
+        return shortestArcQuatNormalize2(v0, v1);
+    }
+
     inline bool btIsValid(const btVector3& v)
     {
         return btIsValid(v.x()) && btIsValid(v.y()) && btIsValid(v.z());
