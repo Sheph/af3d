@@ -165,11 +165,31 @@ namespace luabind
     {};
 
     template <class T>
-    struct default_converter<std::shared_ptr<T> >
-      : detail::default_converter_generator<std::shared_ptr<T> >::type
+    struct default_converter<std::shared_ptr<T>>
+        : detail::default_converter_generator<std::shared_ptr<T>>::type
     {
         template <class U>
-        int match(lua_State* L, U tmp, int index)
+        typename std::enable_if<std::is_base_of<af3d::AObject, U>::value, int>::type match(lua_State* L, detail::by_reference<std::shared_ptr<U>> tmp, int index)
+        {
+            if (lua_isnil(L, index)) {
+                return 0;
+            }
+
+            detail::object_rep* obj = detail::get_instance(L, index);
+            if (obj == 0) {
+                return -1;
+            }
+
+            std::pair<void*, int> s = obj->get_instance(detail::registered_class<af3d::AObjectPtr>::id);
+            this->result = s.first;
+            if (this->result && !(*static_cast<af3d::AObjectPtr*>(this->result))->isSubClassOf(T::staticKlass())) {
+                return -1;
+            }
+            return s.second;
+        }
+
+        template <class U>
+        typename std::enable_if<!std::is_base_of<af3d::AObject, U>::value, int>::type match(lua_State* L, detail::by_reference<std::shared_ptr<U>> tmp, int index)
         {
             if (lua_isnil(L, index)) {
                 return 0;
@@ -178,12 +198,20 @@ namespace luabind
         }
 
         template <class U>
-        std::shared_ptr<T> apply(lua_State* L, U tmp, int index)
+        typename std::enable_if<std::is_base_of<af3d::AObject, U>::value, std::shared_ptr<T>>::type apply(lua_State* L, detail::by_reference<std::shared_ptr<U>> tmp, int index)
         {
             if (lua_isnil(L, index)) {
                 return std::shared_ptr<T>();
             }
+            return af3d::aobjectCast<T>(*static_cast<af3d::AObjectPtr*>(this->result));
+        }
 
+        template <class U>
+        typename std::enable_if<!std::is_base_of<af3d::AObject, U>::value, std::shared_ptr<T>>::type apply(lua_State* L, detail::by_reference<std::shared_ptr<U>> tmp, int index)
+        {
+            if (lua_isnil(L, index)) {
+                return std::shared_ptr<T>();
+            }
             return detail::default_converter_generator<std::shared_ptr<T> >::type::apply(L, tmp, index);
         }
 
@@ -194,31 +222,62 @@ namespace luabind
     };
 
     template <class T>
-    struct default_converter<const std::shared_ptr<T>& >
-        : detail::default_converter_generator<const std::shared_ptr<T>& >::type
+    struct default_converter<const std::shared_ptr<T>&>
+        : detail::default_converter_generator<const std::shared_ptr<T>&>::type
     {
         template <class U>
-        int match(lua_State* L, U tmp, int index)
+        typename std::enable_if<std::is_base_of<af3d::AObject, U>::value, int>::type match(lua_State* L, detail::by_const_reference<std::shared_ptr<U>> tmp, int index)
         {
             if (lua_isnil(L, index)) {
                 return 0;
             }
-            return detail::default_converter_generator<const std::shared_ptr<T>& >::type::match(L, tmp, index);
+
+            detail::object_rep* obj = detail::get_instance(L, index);
+            if (obj == 0) {
+                return -1;
+            }
+
+            std::pair<void*, int> s = obj->get_instance(detail::registered_class<af3d::AObjectPtr>::id);
+            if (s.second >= 0 && !obj->is_const()) {
+                s.second += 10;
+            }
+            this->result = s.first;
+            if (this->result && !(*static_cast<af3d::AObjectPtr*>(this->result))->isSubClassOf(T::staticKlass())) {
+                return -1;
+            }
+            return s.second;
         }
 
         template <class U>
-        std::shared_ptr<T> apply(lua_State* L, U tmp, int index)
+        typename std::enable_if<!std::is_base_of<af3d::AObject, U>::value, int>::type match(lua_State* L, detail::by_const_reference<std::shared_ptr<U>> tmp, int index)
+        {
+            if (lua_isnil(L, index)) {
+                return 0;
+            }
+            return detail::default_converter_generator<const std::shared_ptr<T>&>::type::match(L, tmp, index);
+        }
+
+        template <class U>
+        typename std::enable_if<std::is_base_of<af3d::AObject, U>::value, std::shared_ptr<T>>::type apply(lua_State* L, detail::by_const_reference<std::shared_ptr<U>> tmp, int index)
+        {
+            if (lua_isnil(L, index)) {
+               return std::shared_ptr<T>();
+            }
+            return af3d::aobjectCast<T>(*static_cast<af3d::AObjectPtr*>(this->result));
+        }
+
+        template <class U>
+        typename std::enable_if<!std::is_base_of<af3d::AObject, U>::value, std::shared_ptr<T>>::type apply(lua_State* L, detail::by_const_reference<std::shared_ptr<U>> tmp, int index)
         {
             if (lua_isnil(L, index)) {
                 return std::shared_ptr<T>();
             }
-
-            return detail::default_converter_generator<const std::shared_ptr<T>& >::type::apply(L, tmp, index);
+            return detail::default_converter_generator<const std::shared_ptr<T>&>::type::apply(L, tmp, index);
         }
 
         void apply(lua_State* L, const std::shared_ptr<T>& p)
         {
-            detail::default_converter_generator<const std::shared_ptr<T>& >::type::apply(L, p);
+            detail::default_converter_generator<const std::shared_ptr<T>&>::type::apply(L, p);
         }
     };
 
