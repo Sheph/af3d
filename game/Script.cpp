@@ -25,6 +25,7 @@
 
 #include "ScriptImpl.h"
 #include <luabind/discard_result_policy.hpp>
+#include <luabind/copy_policy.hpp>
 
 namespace af3d
 {
@@ -198,6 +199,18 @@ namespace af3d
                 .def("getAxis", &btQuaternion::getAxis)
                 .def("inverse", &btQuaternion::inverse),
 
+            luabind::class_<btTransform>("Transform")
+                .def(luabind::constructor<const btQuaternion&, const btVector3&>())
+                .def(luabind::const_self == luabind::const_self)
+                .def(luabind::const_self * luabind::const_self)
+                .def(luabind::const_self * luabind::other<btVector3>())
+                .def(luabind::const_self * luabind::other<btQuaternion>())
+                .def(tostring(luabind::self))
+                .def("inverse", &btTransform::inverse)
+                .def("inverseTimes", &btTransform::inverseTimes)
+                .property("origin", (const btVector3& (btTransform::*)() const)&btTransform::getOrigin, &btTransform::setOrigin, luabind::copy(luabind::result))
+                .property("rotation", &btTransform::getRotation, &btTransform::setRotation),
+
             luabind::class_<Settings>("Settings")
                 .def_readonly("developer", &Settings::developer)
                 .def("setDeveloper", &Settings::setDeveloper)
@@ -222,7 +235,7 @@ namespace af3d
                 .def("setNextLevel", &Scene::setNextLevel)
                 .def("restartLevel", &Scene::restartLevel)
                 .property("camera", &Scene::camera)
-                .property("respawnPoint", &Scene::respawnPoint, &Scene::setRespawnPoint)
+                .property("respawnPoint", &Scene::respawnPoint, &Scene::setRespawnPoint, luabind::copy(luabind::result))
                 .property("checkpoint", &Scene::checkpoint, &Scene::setCheckpoint)
                 .property("cutscene", &Scene::cutscene, &Scene::setCutscene)
                 .property("quit", &Scene::quit, &Scene::setQuit)
@@ -270,6 +283,13 @@ namespace af3d
                 .def("removeFromParent", &SceneObject::removeFromParent)
                 .def("removeFromParentRecursive", &SceneObject::removeFromParentRecursive)
                 .property("type", &SceneObject::type, &SceneObject::setType)
+                .def("transform", &SceneObject::transform, luabind::copy(luabind::result))
+                .def("setTransform", (void (SceneObject::*)(const btTransform&))&SceneObject::setTransform)
+                .def("setTransform", (void (SceneObject::*)(const btVector3&, const btQuaternion&))&SceneObject::setTransform)
+                .def("setTransformRecursive", (void (SceneObject::*)(const btTransform&))&SceneObject::setTransformRecursive)
+                .def("setTransformRecursive", (void (SceneObject::*)(const btVector3&, const btQuaternion&))&SceneObject::setTransformRecursive)
+                .property("pos", &SceneObject::pos, &SceneObject::setPos, luabind::copy(luabind::result))
+                .property("rotation", &SceneObject::rotation, &SceneObject::setRotation)
                 .def("findCameraComponent", &SceneObject::findComponent<CameraComponent>)
                 .def("findPhysicsBodyComponent", &SceneObject::findComponent<PhysicsBodyComponent>)
                 .property("bodyType", &SceneObject::bodyType, &SceneObject::setBodyType)
@@ -417,6 +437,8 @@ namespace af3d
         luabind::globals(L_)["Vec3"]["one"] = btVector3_one;
 
         luabind::globals(L_)["Quaternion"]["identity"] = btQuaternion::getIdentity();
+
+        luabind::globals(L_)["Transform"]["identity"] = btTransform::getIdentity();
     }
 
     void Script::Impl::loadFile()
