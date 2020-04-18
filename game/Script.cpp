@@ -147,6 +147,7 @@ namespace af3d
 
             luabind::class_<AObject, AObjectPtr>("AObject")
                 .def(luabind::const_self == luabind::const_self)
+                .def(luabind::self == luabind::self)
                 .property("cookie", &AObject::cookie)
                 .property("name", &AObject::name, &AObject::setName),
 
@@ -174,6 +175,7 @@ namespace af3d
 
             luabind::class_<Component, AObject, AObjectPtr>("Component")
                 .def(luabind::const_self == luabind::const_self)
+                .def(luabind::self == luabind::self)
                 .property("parent", &Component::script_parent)
                 .def("removeFromParent", &Component::removeFromParent),
 
@@ -198,6 +200,7 @@ namespace af3d
             luabind::class_<SceneObject, AObject, AObjectPtr>("SceneObject")
                 .def(luabind::constructor<>())
                 .def(luabind::const_self == luabind::const_self)
+                .def(luabind::self == luabind::self)
                 .def("scene", &SceneObject::scene)
                 .property("parent", &SceneObject::script_parentObject)
                 .def("getObjects", (std::vector<SceneObjectPtr> (SceneObject::*)() const)&SceneObject::getObjects)
