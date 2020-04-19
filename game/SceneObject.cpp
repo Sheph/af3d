@@ -47,6 +47,7 @@ namespace af3d
     ACLASS_PROPERTY(SceneObject, PhysicsActive, AProperty_PhysicsActive, "Physics is active", Bool, true, Physics, APropertyEditable)
     ACLASS_PROPERTY(SceneObject, BodyType, "body type", "Physics body type", BodyType, static_cast<int>(BodyType::Static), Physics, APropertyEditable)
     ACLASS_PROPERTY(SceneObject, IsSensor, "is sensor", "Is sensor", Bool, false, Physics, APropertyEditable)
+    ACLASS_PROPERTY(SceneObject, GravityEnabled, "gravity enabled", "Is gravity enabled", Bool, true, Physics, APropertyEditable)
     ACLASS_PROPERTY_RO(SceneObject, Mass, "mass", "Mass", Float, Physics, APropertyEditable|APropertyTransient)
     ACLASS_PROPERTY(SceneObject, Friction, "friction", "Friction", Float, 0.5f, Physics, APropertyEditable)
     ACLASS_PROPERTY(SceneObject, Restitution, "restitution", "Restitution", Float, 0.0f, Physics, APropertyEditable)
@@ -342,6 +343,28 @@ namespace af3d
             body_->activate();
         } else {
             bodyCi_.isSensor = value;
+        }
+    }
+
+    bool SceneObject::gravityEnabled() const
+    {
+        if (body_) {
+            return (body_->getFlags() & BT_DISABLE_WORLD_GRAVITY) == 0;
+        } else {
+            return bodyCi_.gravityEnabled;
+        }
+    }
+
+    void SceneObject::setGravityEnabled(bool value)
+    {
+        if (body_) {
+            if (value) {
+                body_->setFlags(body_->getFlags() & ~BT_DISABLE_WORLD_GRAVITY);
+            } else {
+                body_->setFlags(body_->getFlags() | BT_DISABLE_WORLD_GRAVITY);
+            }
+        } else {
+            bodyCi_.gravityEnabled = value;
         }
     }
 

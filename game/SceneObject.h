@@ -149,6 +149,9 @@ namespace af3d
         bool isSensor() const;
         void setIsSensor(bool value);
 
+        bool gravityEnabled() const;
+        void setGravityEnabled(bool value);
+
         const btTransform& transform() const;
         void setTransform(const btVector3& pos, const btQuaternion& rot);
         void setTransform(const btTransform& t);
@@ -276,6 +279,9 @@ namespace af3d
         APropertyValue propertyIsSensorGet(const std::string&) const { return isSensor(); }
         void propertyIsSensorSet(const std::string&, const APropertyValue& value) { setIsSensor(value.toBool()); }
 
+        APropertyValue propertyGravityEnabledGet(const std::string&) const { return gravityEnabled(); }
+        void propertyGravityEnabledSet(const std::string&, const APropertyValue& value) { setGravityEnabled(value.toBool()); }
+
         APropertyValue propertyMassGet(const std::string&) const { return mass(); }
 
         APropertyValue propertyFrictionGet(const std::string&) const { return friction(); }
@@ -311,6 +317,7 @@ namespace af3d
         {
             BodyType bodyType = BodyType::Static;
             bool isSensor = false;
+            bool gravityEnabled = true;
             btTransform xf = btTransform::getIdentity();
             bool active = true;
             float linearDamping = 0.0f;
@@ -361,6 +368,7 @@ namespace af3d
         ACLASS_PROPERTY_RO(SceneObject, PhysicsActive, AProperty_PhysicsActive, "Physics is active", Bool, Physics, APropertyEditable|APropertyTransient) \
         ACLASS_PROPERTY_RO(SceneObject, BodyType, "body type", "Physics body type", BodyType, Physics, APropertyEditable|APropertyTransient) \
         ACLASS_PROPERTY_RO(SceneObject, IsSensor, "is sensor", "Is sensor", Bool, Physics, APropertyEditable|APropertyTransient) \
+        ACLASS_PROPERTY_RO(SceneObject, GravityEnabled, "gravity enabled", "Is gravity enabled", Bool, Physics, APropertyEditable|APropertyTransient) \
         ACLASS_PROPERTY_RO(SceneObject, Friction, "friction", "Friction", Float, Physics, APropertyEditable|APropertyTransient) \
         ACLASS_PROPERTY_RO(SceneObject, Restitution, "restitution", "Restitution", Float, Physics, APropertyEditable|APropertyTransient) \
         ACLASS_PROPERTY_RO(SceneObject, LinearDamping, "linear damping", "Linear damping", Float, Physics, APropertyEditable|APropertyTransient) \

@@ -201,6 +201,10 @@ namespace af3d
                 body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
             }
 
+            if (!parent()->gravityEnabled()) {
+                body->setFlags(body->getFlags() | BT_DISABLE_WORLD_GRAVITY);
+            }
+
             if (scene()->workspace() && settings.editor.disableSimulation) {
                 body->setActivationState(DISABLE_SIMULATION);
             }

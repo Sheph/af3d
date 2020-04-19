@@ -302,6 +302,8 @@ namespace af3d
                 .def("setTransformRecursive", (void (SceneObject::*)(const btVector3&, const btQuaternion&))&SceneObject::setTransformRecursive)
                 .property("pos", &SceneObject::pos, &SceneObject::setPos, luabind::copy(luabind::result))
                 .property("rotation", &SceneObject::rotation, &SceneObject::setRotation)
+                .property("linearVelocity", &SceneObject::linearVelocity, &SceneObject::setLinearVelocity)
+                .property("angularVelocity", &SceneObject::angularVelocity, &SceneObject::setAngularVelocity)
                 .def("findCameraComponent", &SceneObject::findComponent<CameraComponent>)
                 .def("findPhysicsBodyComponent", &SceneObject::findComponent<PhysicsBodyComponent>)
                 .def("findCollisionSensorComponent", &SceneObject::findComponent<CollisionSensorComponent>)
