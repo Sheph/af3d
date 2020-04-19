@@ -73,7 +73,7 @@ namespace af3d
     {
         auto w = scene()->workspace();
         auto em = w->emCollision();
-        if (em->active() || (settings.editor.collisionColorOff.w() > 0.0f)) {
+        if (em->active() || (settings.editor.collisionColorOff.w() > 0.0f) || parent()->isSensor()) {
             PhysicsDebugDraw dd;
             dd.setRenderList(&rl);
 
@@ -91,6 +91,8 @@ namespace af3d
                     } else {
                         c = settings.editor.collisionColorInactive;
                     }
+                } else if (parent()->isSensor()) {
+                    c = settings.editor.collisionColorInactive;
                 } else {
                     c = settings.editor.collisionColorOff;
                 }
