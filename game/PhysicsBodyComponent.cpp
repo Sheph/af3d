@@ -26,6 +26,7 @@
 #include "PhysicsBodyComponent.h"
 #include "SceneObject.h"
 #include "Scene.h"
+#include "Settings.h"
 #include "MotionState.h"
 
 namespace af3d
@@ -183,7 +184,7 @@ namespace af3d
             } else if (parent()->bodyType() == BodyType::Kinematic) {
                 body->setCollisionFlags((body->getCollisionFlags() & ~btCollisionObject::CF_STATIC_OBJECT) | btCollisionObject::CF_KINEMATIC_OBJECT);
             }
-            if (scene()->workspace()) {
+            if (scene()->workspace() && settings.editor.disableSimulation) {
                 body->setActivationState(DISABLE_SIMULATION);
             }
 

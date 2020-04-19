@@ -107,6 +107,7 @@ namespace af3d
 
         editor.enabled = false;
         editor.playing = false;
+        editor.disableSimulation = appConfig->getBool("editor.disableSimulation");
         editor.objMarkerSizeWorld = appConfig->getFloat("editor.objMarkerSizeWorld");
         editor.objMarkerSizePixels = appConfig->getInt("editor.objMarkerSizePixels");
         editor.objMarkerColorInactive = appConfig->getColor("editor.objMarkerColorInactive");

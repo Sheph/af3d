@@ -68,6 +68,7 @@ namespace af3d
         {
             bool enabled;
             bool playing;
+            bool disableSimulation;
             float objMarkerSizeWorld;
             int objMarkerSizePixels;
             Color objMarkerColorInactive;
