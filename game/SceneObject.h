@@ -341,12 +341,15 @@ namespace af3d
         extern const AClass AClass_SceneObject##Name; \
         static SceneObjectPtr SceneObject##Name##create(const APropertyValueMap& params)
 
-    #define SCENEOBJECT_DEFINE_PROPS(Name) \
+    #define SCENEOBJECT_DEFINE_PROPS_NO_RESTRICT(Name) \
         static AObjectPtr SceneObject##Name##createWrapper(const APropertyValueMap& propVals) \
         { \
             return SceneObject::createWithParams(AClass_SceneObject##Name, propVals, (AClass::CreateFn)&SceneObject##Name##create); \
         } \
         const AClass AClass_SceneObject##Name{"SceneObject" #Name, AClass_SceneObject, &SceneObject##Name##createWrapper, { \
+
+    #define SCENEOBJECT_DEFINE_PROPS(Name) \
+        SCENEOBJECT_DEFINE_PROPS_NO_RESTRICT(Name) \
         ACLASS_PROPERTY_RO(SceneObject, Type, "type", "Scene object type", SceneObjectType, General, APropertyEditable|APropertyTransient) \
         ACLASS_PROPERTY_RO(SceneObject, PhysicsActive, AProperty_PhysicsActive, "Physics is active", Bool, Physics, APropertyEditable|APropertyTransient) \
         ACLASS_PROPERTY_RO(SceneObject, BodyType, "body type", "Physics body type", BodyType, Physics, APropertyEditable|APropertyTransient) \

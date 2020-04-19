@@ -69,7 +69,7 @@ namespace af3d
     void CollisionSensorComponent::endContact(const Contact& contact)
     {
         auto it = contacts_.find(contact.cookie);
-        if (it != contacts_.end()) {
+        if (it == contacts_.end()) {
             return;
         }
 

@@ -30,6 +30,7 @@
 #include "RenderMeshComponent.h"
 #include "RenderQuadComponent.h"
 #include "PhysicsBodyComponent.h"
+#include "CollisionSensorComponent.h"
 #include "Settings.h"
 #include "Utils.h"
 #include "Logger.h"
@@ -103,6 +104,15 @@ namespace af3d
         return obj;
     }
 
+    SceneObjectPtr SceneObjectFactory::createSensor()
+    {
+        auto obj = std::make_shared<SceneObject>();
+
+        obj->addComponent(std::make_shared<CollisionSensorComponent>());
+
+        return obj;
+    }
+
     SCENEOBJECT_DEFINE_BEGIN(Dummy)
     {
         return sceneObjectFactory.createDummy();
@@ -131,4 +141,11 @@ namespace af3d
     SCENEOBJECT_DEFINE_PROPS(Instance)
     SCENEOBJECT_PARAM(Instance, "asset", "Asset path", String, "empty.af3")
     SCENEOBJECT_DEFINE_END(Instance)
+
+    SCENEOBJECT_DEFINE_BEGIN(Sensor)
+    {
+        return sceneObjectFactory.createSensor();
+    }
+    SCENEOBJECT_DEFINE_PROPS_NO_RESTRICT(Sensor)
+    SCENEOBJECT_DEFINE_END(Sensor)
 }

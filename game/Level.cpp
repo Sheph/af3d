@@ -48,7 +48,7 @@ namespace af3d
         SceneAssetPtr asset = assetManager.getSceneAsset(scene_->assetPath(), !!scene_->workspace());
 
         if (asset) {
-            if (!asset->scriptPath().empty() && !scene_->workspace()) {
+            if (!asset->scriptPath().empty() && (!scene_->workspace() || !settings.editor.disableSimulation)) {
                 script_.reset(new Script(asset->scriptPath(), scene_.get()));
             }
 

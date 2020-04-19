@@ -536,8 +536,7 @@ namespace editor {
             bool enabled = false;
             if (!emObject_->selected().empty()) {
                 auto obj = emObject_->selectedTyped().back();
-                auto pc = obj->findComponent<PhysicsBodyComponent>();
-                enabled = !pc && (&obj->klass() == &AClass_SceneObject);
+                enabled = !obj->findComponent<PhysicsBodyComponent>();
             }
             return Action::State(enabled);
         }, [this]() {

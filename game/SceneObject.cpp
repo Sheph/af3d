@@ -851,7 +851,8 @@ namespace af3d
                 obj->removeFromParent();
             }
         }
-        for (const auto& c : components_) {
+        auto cts = components();
+        for (const auto& c : cts) {
             if ((c->aflags() & AObjectEditable) != 0) {
                 c->removeFromParent();
             }

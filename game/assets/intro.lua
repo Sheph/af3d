@@ -11,3 +11,12 @@ addTimeout0(function(cookie, dt)
 
     box1:setTransform(xf);
 end);
+
+local total = 0;
+setSensorListener("sensor1", function(other)
+    total = total + 1;
+    print("entered "..other.name.."("..total..")");
+end, function (other)
+    total = total - 1;
+    print("exited "..other.name.."("..total..")");
+end);
