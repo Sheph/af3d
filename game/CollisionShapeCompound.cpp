@@ -58,4 +58,12 @@ namespace af3d
     void CollisionShapeCompound::render(PhysicsDebugDraw& dd, const btVector3& c)
     {
     }
+
+    void CollisionShapeCompound::onResetUserPointer()
+    {
+        CollisionShape::onResetUserPointer();
+        for (int i = 0; i < shape_.getNumChildShapes(); ++i) {
+            CollisionShape::fromShape(shape_.getChildShape(i))->setHoldingObject(nullptr);
+        }
+    }
 }

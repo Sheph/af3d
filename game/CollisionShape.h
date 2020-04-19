@@ -95,6 +95,21 @@ namespace af3d
         void resetUserPointer();
 
         /*
+         * When this shape is added to some physics body component and that
+         * component is registered in some object we set holding object to that object.
+         * Then, if holding object gets removed from scene or physics component
+         * gets removed then parent/parentObject will be NULL, however, holding object
+         * will remain set until either:
+         * + new physics body component with new set of shapes gets added to that object
+         * + object is destructed (i.e. not just removed from scene, but dead like ~SceneObject is called)
+         * the reason for "holding object" thing is to make SceneObject::fromShape work. We
+         * need a way to get SceneObject* from shape in collision component even when SceneObject is removed
+         * from scene or physics was deactivated on it.
+         */
+        inline SceneObject* getHoldingObject() const { return holdingObj_; }
+        inline void setHoldingObject(SceneObject* obj) { holdingObj_ = obj; }
+
+        /*
          * @}
          */
 
@@ -114,6 +129,9 @@ namespace af3d
 
         APropertyValue propertyParamGet(const std::string& key) const { return params_.get(key); }
 
+    protected:
+        virtual void onResetUserPointer();
+
     private:
         virtual void doSetScale(const btVector3& value);
 
@@ -125,6 +143,8 @@ namespace af3d
 
         APropertyValueMap params_;
         bool active_ = false;
+
+        SceneObject* holdingObj_ = nullptr;
     };
 
     using CollisionShapePtr = std::shared_ptr<CollisionShape>;

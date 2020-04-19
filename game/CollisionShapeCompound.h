@@ -48,6 +48,8 @@ namespace af3d
         void render(PhysicsDebugDraw& dd, const btVector3& c) override;
 
     private:
+        void onResetUserPointer() override;
+
         btCompoundShape shape_;
     };
 

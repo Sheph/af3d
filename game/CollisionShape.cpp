@@ -178,12 +178,18 @@ namespace af3d
         if (!ptr) {
             return;
         }
+        onResetUserPointer();
         shape()->setUserPointer(nullptr);
         delete ptr;
     }
 
     void CollisionShape::doSetScale(const btVector3& value)
     {
+    }
+
+    void CollisionShape::onResetUserPointer()
+    {
+        setHoldingObject(nullptr);
     }
 
     void CollisionShape::onActivate()

@@ -71,6 +71,10 @@ namespace af3d
         compound_->shape()->addChildShape(cs->transform(), cs->shape());
         cs->assignUserPointer();
 
+        if (parent()) {
+            cs->setHoldingObject(parent());
+        }
+
         updateBodyCollision(true);
 
         notifyShape(cs.get(), true);
@@ -137,6 +141,8 @@ namespace af3d
 
     void PhysicsBodyComponent::onRegister()
     {
+        compound_->setHoldingObject(parent());
+
         btRigidBody* body;
 
         if (parent()->body()) {
@@ -144,11 +150,17 @@ namespace af3d
             CollisionShape::fromShape(parent()->body()->getCollisionShape())->resetUserPointer();
             compound_->assignUserPointer(); // Inc ref count.
             parent()->body()->setCollisionShape(compound_->shape());
+
+            for (int i = 0; i < numShapes(); ++i) {
+                shape(i)->setHoldingObject(parent());
+            }
+
             updateBodyCollision(true);
         } else {
             std::vector<float> masses(numShapes());
             float totalMass = 0.0f;
             for (int i = 0; i < numShapes(); ++i) {
+                shape(i)->setHoldingObject(parent());
                 masses[i] = shape(i)->mass();
                 totalMass += masses[i];
             }

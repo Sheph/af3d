@@ -147,6 +147,12 @@ namespace af3d
         return static_cast<SceneObject*>(body->getUserPointer());
     }
 
+    SceneObject* SceneObject::fromShape(btCollisionShape* shape)
+    {
+        auto s = CollisionShape::fromShape(shape);
+        return s ? s->getHoldingObject() : nullptr;
+    }
+
     void SceneObject::addComponent(const ComponentPtr& component)
     {
         btAssert(!component->parent());

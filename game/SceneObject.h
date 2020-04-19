@@ -62,6 +62,8 @@ namespace af3d
 
         static SceneObject* fromBody(btRigidBody* body);
 
+        static SceneObject* fromShape(btCollisionShape* shape);
+
         void addComponent(const ComponentPtr& component);
 
         void removeComponent(const ComponentPtr& component);
