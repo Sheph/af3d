@@ -189,8 +189,6 @@ namespace af3d
             if (cA || cB) {
                 for (size_t i = 0; i < it->second.contacts.size(); ++i) {
                     if (it->second.contacts[i].cookie) {
-                        btAssert(it->second.contacts[i].numPoints > 0);
-
                         // Contact removed.
                         events_.emplace_back();
                         auto& evt = events_.back();
