@@ -1172,6 +1172,8 @@ struct btBridgedManifoldResult : public btManifoldResult
 			newPt.m_partId1 = m_partId0;
 			newPt.m_index0 = m_index1;
 			newPt.m_index1 = m_index0;
+			newPt.m_childIdx0 = m_childIdx1;
+			newPt.m_childIdx1 = m_childIdx0;
 		}
 		else
 		{
@@ -1179,6 +1181,8 @@ struct btBridgedManifoldResult : public btManifoldResult
 			newPt.m_partId1 = m_partId1;
 			newPt.m_index0 = m_index0;
 			newPt.m_index1 = m_index1;
+			newPt.m_childIdx0 = m_childIdx0;
+			newPt.m_childIdx1 = m_childIdx1;
 		}
 
 		//experimental feature info, for per-triangle material etc.

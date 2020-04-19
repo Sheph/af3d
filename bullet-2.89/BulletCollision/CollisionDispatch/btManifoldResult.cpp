@@ -95,7 +95,9 @@ btManifoldResult::btManifoldResult(const btCollisionObjectWrapper* body0Wrap, co
 	  m_partId0(-1),
 	  m_partId1(-1),
 	  m_index0(-1),
-	  m_index1(-1)
+	  m_index1(-1),
+	  m_childIdx0(0),
+	  m_childIdx1(0)
 #endif  //DEBUG_PART_INDEX
 	  ,
 	  m_closestPointDistanceThreshold(0)
@@ -164,6 +166,8 @@ void btManifoldResult::addContactPoint(const btVector3& normalOnBInWorld, const 
 		newPt.m_partId1 = m_partId0;
 		newPt.m_index0 = m_index1;
 		newPt.m_index1 = m_index0;
+		newPt.m_childIdx0 = m_childIdx1;
+		newPt.m_childIdx1 = m_childIdx0;
 	}
 	else
 	{
@@ -171,6 +175,8 @@ void btManifoldResult::addContactPoint(const btVector3& normalOnBInWorld, const 
 		newPt.m_partId1 = m_partId1;
 		newPt.m_index0 = m_index0;
 		newPt.m_index1 = m_index1;
+		newPt.m_childIdx0 = m_childIdx0;
+		newPt.m_childIdx1 = m_childIdx1;
 	}
 	//printf("depth=%f\n",depth);
 	///@todo, check this for any side effects

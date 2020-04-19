@@ -392,6 +392,8 @@ namespace af3d
 
     void Scene::updateStep(float dt)
     {
+        impl_->collisionComponentManager_->step(&impl_->physicsComponentManager_->world());
+        impl_->collisionComponentManager_->flushPending();
         impl_->collisionComponentManager_->update(dt);
 
         if (!impl_->timers_.empty()) {

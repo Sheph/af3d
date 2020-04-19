@@ -79,6 +79,8 @@ namespace af3d
 
         void debugDraw(RenderList& rl) override;
 
+        void step(btCollisionWorld* world);
+
         void flushPending();
 
         void endContact(btPersistentManifold* manifold);
@@ -87,10 +89,6 @@ namespace af3d
         struct ContactEvent
         {
             ContactEvent() = default;
-            ContactEvent(btPersistentManifold* manifold)
-            : manifold(manifold) {}
-
-            btPersistentManifold* manifold = nullptr;
 
             Contact contact;
             bool isNew = false;
@@ -112,30 +110,31 @@ namespace af3d
         {
             std::uint64_t cookie = 0;
 
-            SceneObjectPtr objA;
-            SceneObjectPtr objB;
-
             CollisionShapePtr shapeA;
             CollisionShapePtr shapeB;
+
+            int numPoints = 0;
+            std::array<const btManifoldPoint*, MANIFOLD_CACHE_SIZE> points;
         };
 
         struct Manifold
         {
             Manifold() = default;
-            explicit Manifold(btPersistentManifold* manifold)
-            : manifold(manifold) {}
+            explicit Manifold(btPersistentManifold* manifold);
 
             btPersistentManifold* manifold = nullptr;
 
+            SceneObjectPtr objA;
+            SceneObjectPtr objB;
+
             // Each of those MANIFOLD_CACHE_SIZE points can be for
             // different shape, thus, max MANIFOLD_CACHE_SIZE contacts per manifold.
-            int numContacts = 0;
             std::array<ContactInfo, MANIFOLD_CACHE_SIZE> contacts;
-
-            std::unordered_set<int> events;
         };
 
         using Manifolds = std::unordered_map<btPersistentManifold*, Manifold>;
+
+        void addEvents(Manifold& m);
 
         std::unordered_set<CollisionComponentPtr> components_;
         std::unordered_set<CollisionComponentPtr> frozenComponents_;

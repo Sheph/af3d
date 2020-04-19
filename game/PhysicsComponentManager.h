@@ -65,10 +65,22 @@ namespace af3d
         inline btDiscreteDynamicsWorld& world() { return world_; }
 
     private:
+        class CollisionDispatcher : public btCollisionDispatcher
+        {
+        public:
+            CollisionDispatcher(CollisionComponentManager* collisionMgr,
+                btCollisionConfiguration* collisionConfiguration);
+
+            void releaseManifold(btPersistentManifold* manifold) override;
+
+        private:
+            CollisionComponentManager* collisionMgr_ = nullptr;
+        };
+
         CollisionComponentManager* collisionMgr_ = nullptr;
 
         btDefaultCollisionConfiguration collisionCfg_;
-        btCollisionDispatcher collisionDispatcher_;
+        CollisionDispatcher collisionDispatcher_;
         btDbvtBroadphase broadphase_;
         btSequentialImpulseConstraintSolver solver_;
         btDiscreteDynamicsWorld world_;

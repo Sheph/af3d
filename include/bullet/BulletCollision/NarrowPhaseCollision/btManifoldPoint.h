@@ -110,6 +110,8 @@ public:
 	int m_partId1;
 	int m_index0;
 	int m_index1;
+	int m_childIdx0;
+	int m_childIdx1;
 
 	mutable void* m_userPersistentData;
 	//bool			m_lateralFrictionInitialized;

@@ -57,6 +57,9 @@ protected:
 	int m_index1;
 
 public:
+	int m_childIdx0;
+	int m_childIdx1;
+
 	btManifoldResult()
 		:
 #ifdef DEBUG_PART_INDEX
@@ -64,7 +67,9 @@ public:
 		  m_partId0(-1),
 		  m_partId1(-1),
 		  m_index0(-1),
-		  m_index1(-1)
+		  m_index1(-1),
+		  m_childIdx0(0),
+		  m_childIdx1(0)
 #endif  //DEBUG_PART_INDEX
 			  m_closestPointDistanceThreshold(0)
 	{

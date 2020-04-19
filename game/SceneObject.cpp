@@ -153,6 +153,30 @@ namespace af3d
         return s ? s->getHoldingObject() : nullptr;
     }
 
+    btCollisionShape* SceneObject::getBodyShape(btCollisionObject* body, int childIdx)
+    {
+        auto shape = body->getCollisionShape();
+        if (shape->isCompound()) {
+            auto cShape = static_cast<btCompoundShape*>(shape);
+            btAssert(childIdx >= 0);
+            btAssert(childIdx < cShape->getNumChildShapes());
+            shape = cShape->getChildShape(childIdx);
+        }
+        return shape;
+    }
+
+    const btCollisionShape* SceneObject::getBodyShape(const btCollisionObject* body, int childIdx)
+    {
+        auto shape = body->getCollisionShape();
+        if (shape->isCompound()) {
+            auto cShape = static_cast<const btCompoundShape*>(shape);
+            btAssert(childIdx >= 0);
+            btAssert(childIdx < cShape->getNumChildShapes());
+            shape = cShape->getChildShape(childIdx);
+        }
+        return shape;
+    }
+
     void SceneObject::addComponent(const ComponentPtr& component)
     {
         btAssert(!component->parent());

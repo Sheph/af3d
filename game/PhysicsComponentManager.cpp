@@ -24,6 +24,7 @@
  */
 
 #include "PhysicsComponentManager.h"
+#include "CollisionComponentManager.h"
 #include "PhysicsComponent.h"
 #include "Settings.h"
 #include "SceneObject.h"
@@ -53,13 +54,7 @@ namespace af3d
                 btVector3 pointWorld;
                 pointWorld.setInterpolate3(p1_, p2_, rayResult.m_hitFraction);
 
-                auto shape = rayResult.m_collisionObject->getCollisionShape();
-                if (shape->isCompound()) {
-                    auto cShape = static_cast<const btCompoundShape*>(shape);
-                    btAssert(m_childIdx >= 0);
-                    btAssert(m_childIdx < cShape->getNumChildShapes());
-                    shape = cShape->getChildShape(m_childIdx);
-                }
+                auto shape = SceneObject::getBodyShape(rayResult.m_collisionObject, m_childIdx);
 
                 float f = fn_(const_cast<btCollisionShape*>(shape), pointWorld, normalWorld, rayResult.m_hitFraction);
                 if ((f >= 0.0f) && (f < m_closestHitFraction)) {
@@ -75,9 +70,22 @@ namespace af3d
         };
     };
 
+    PhysicsComponentManager::CollisionDispatcher::CollisionDispatcher(CollisionComponentManager* collisionMgr,
+        btCollisionConfiguration* collisionConfiguration)
+    : btCollisionDispatcher(collisionConfiguration),
+      collisionMgr_(collisionMgr)
+    {
+    }
+
+    void PhysicsComponentManager::CollisionDispatcher::releaseManifold(btPersistentManifold* manifold)
+    {
+        collisionMgr_->endContact(manifold);
+        btCollisionDispatcher::releaseManifold(manifold);
+    }
+
     PhysicsComponentManager::PhysicsComponentManager(CollisionComponentManager* collisionMgr, btIDebugDraw* debugDraw)
     : collisionMgr_(collisionMgr),
-      collisionDispatcher_(&collisionCfg_),
+      collisionDispatcher_(collisionMgr, &collisionCfg_),
       world_(&collisionDispatcher_, &broadphase_, &solver_, &collisionCfg_)
     {
         world_.setWorldUserInfo(this);

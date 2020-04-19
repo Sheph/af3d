@@ -167,12 +167,14 @@ public:
 				tmpWrap = m_resultOut->getBody0Wrap();
 				m_resultOut->setBody0Wrap(&compoundWrap);
 				m_resultOut->setShapeIdentifiersA(-1, index);
+				m_resultOut->m_childIdx0 = index;
 			}
 			else
 			{
 				tmpWrap = m_resultOut->getBody1Wrap();
 				m_resultOut->setBody1Wrap(&compoundWrap);
 				m_resultOut->setShapeIdentifiersB(-1, index);
+				m_resultOut->m_childIdx1 = index;
 			}
 
 			algo->processCollision(&compoundWrap, m_otherObjWrap, m_dispatchInfo, m_resultOut);
