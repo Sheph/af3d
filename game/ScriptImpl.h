@@ -36,6 +36,9 @@
 #include "ScriptUITimerComponent.h"
 #include "CameraComponent.h"
 #include "PhysicsBodyComponent.h"
+#include "CollisionSensorComponent.h"
+#include "ScriptCollisionComponent.h"
+#include "ScriptSensorListener.h"
 #include "InputManager.h"
 #include "Const.h"
 #include "Settings.h"
@@ -124,6 +127,11 @@ namespace af3d
     }
 
     static bool operator==(const SceneObject& lhs, const SceneObject& rhs)
+    {
+        return &lhs == &rhs;
+    }
+
+    static bool operator==(const SensorListener& lhs, const SensorListener& rhs)
     {
         return &lhs == &rhs;
     }

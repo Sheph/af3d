@@ -102,6 +102,7 @@ set(SOURCES
     CollisionComponent.cpp
     CollisionSensorComponent.cpp
     ScriptSensorListener.cpp
+    ScriptCollisionComponent.cpp
     PhysicsDebugDraw.cpp
     MotionState.cpp
     Script.cpp

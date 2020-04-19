@@ -221,3 +221,75 @@ end
 function preRenderCancelTimeout(cookie)
     cookie:removeFromParent();
 end
+
+--- Enter-only sensor listener helper.
+-- @bool once Only call once
+-- @func func Functor to call
+-- @param[opt] arg1
+-- @param[opt] arg2
+-- @param[opt] argN
+-- @treturn SensorListener Sensor listener
+function createSensorEnterListener(once, func, ...)
+    class 'UtilListener' (SensorListener)
+
+    function UtilListener:__init(once, func, args)
+        SensorListener.__init(self, self);
+        self.once = once;
+        self.func = func;
+        self.args = args;
+        self.done = false;
+    end
+
+    function UtilListener:sensorEnter(other)
+        if self.once and self.done then
+            return;
+        end
+        self.done = true;
+        self.func(other, unpack2(self.args));
+    end
+
+    function UtilListener:sensorExit(other)
+    end
+
+    return UtilListener(once, func, pack2(...));
+end
+
+--- Set enter-only sensor listener.
+-- @string name Sensor object name
+-- @bool once Only call once
+-- @func func Functor to call
+-- @param[opt] arg1
+-- @param[opt] arg2
+-- @param[opt] argN
+function setSensorEnterListener(name, once, func, ...)
+    local objs = scene:getObjects(name);
+    for _, obj in pairs(objs) do
+        obj:findCollisionSensorComponent().listener = createSensorEnterListener(once, func, ...);
+    end
+end
+
+function createSensorListener(enterFunc, exitFunc, ...)
+    class 'UtilListener' (SensorListener)
+
+    function UtilListener:__init(enterFunc, exitFunc, args)
+        SensorListener.__init(self, self);
+        self.enterFunc = enterFunc;
+        self.exitFunc = exitFunc;
+        self.args = args;
+    end
+
+    function UtilListener:sensorEnter(other)
+        self.enterFunc(other, unpack2(self.args));
+    end
+
+    function UtilListener:sensorExit(other)
+        self.exitFunc(other, unpack2(self.args));
+    end
+
+    return UtilListener(enterFunc, exitFunc, pack2(...));
+end
+
+function setSensorListener(name, enterFunc, exitFunc, ...)
+    local obj = scene:getObjects(name)[1];
+    obj:findCollisionSensorComponent().listener = createSensorListener(enterFunc, exitFunc, ...);
+end

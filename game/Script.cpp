@@ -257,6 +257,9 @@ namespace af3d
                 .property("phases", &PhasedComponent::phases)
                 .property("order", &PhasedComponent::order),
 
+            luabind::class_<CollisionComponent, Component, ScriptCollisionComponent, AObjectPtr>("CollisionComponent")
+                .def(luabind::constructor<luabind::object>()),
+
             luabind::class_<RenderComponent, Component, AObjectPtr>("RenderComponent")
                 .property("visible", &RenderComponent::visible, &RenderComponent::setVisible),
 
@@ -269,6 +272,15 @@ namespace af3d
 
             luabind::class_<UITimerComponent, UIComponent, ScriptUITimerComponent, AObjectPtr>("UITimerComponent")
                 .def(luabind::constructor<luabind::object, float, int>()),
+
+            luabind::class_<SensorListener, ScriptSensorListener, SensorListenerPtr>("SensorListener")
+                .def(luabind::const_self == luabind::const_self)
+                .def(luabind::constructor<luabind::object>()),
+
+            luabind::class_<CollisionSensorComponent, CollisionComponent, AObjectPtr>("CollisionSensorComponent")
+                .def(luabind::constructor<>())
+                .property("listener", &CollisionSensorComponent::listener, &CollisionSensorComponent::setListener)
+                .property("allowSensor", &CollisionSensorComponent::allowSensor, &CollisionSensorComponent::setAllowSensor),
 
             luabind::class_<SceneObject, AObject, AObjectPtr>("SceneObject")
                 .def(luabind::constructor<>())
@@ -292,6 +304,7 @@ namespace af3d
                 .property("rotation", &SceneObject::rotation, &SceneObject::setRotation)
                 .def("findCameraComponent", &SceneObject::findComponent<CameraComponent>)
                 .def("findPhysicsBodyComponent", &SceneObject::findComponent<PhysicsBodyComponent>)
+                .def("findCollisionSensorComponent", &SceneObject::findComponent<CollisionSensorComponent>)
                 .property("bodyType", &SceneObject::bodyType, &SceneObject::setBodyType)
                 .property("freezable", &SceneObject::freezable, &SceneObject::setFreezable)
                 .property("freezeRadius", &SceneObject::freezeRadius, &SceneObject::setFreezeRadius)
