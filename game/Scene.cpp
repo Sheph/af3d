@@ -36,9 +36,11 @@
 #include "PhysicsComponentManager.h"
 #include "RenderComponentManager.h"
 #include "UIComponentManager.h"
+#include "CollisionComponentManager.h"
 #include "PhasedComponent.h"
 #include "PhysicsComponent.h"
 #include "RenderComponent.h"
+#include "CollisionComponent.h"
 #include "CameraComponent.h"
 #include "UIComponent.h"
 #include "MeshManager.h"
@@ -103,7 +105,8 @@ namespace af3d
             debugDraw_.setAlpha(0.6f);
 
             phasedComponentManager_.reset(new PhasedComponentManager());
-            physicsComponentManager_.reset(new PhysicsComponentManager(&debugDraw_));
+            collisionComponentManager_.reset(new CollisionComponentManager());
+            physicsComponentManager_.reset(new PhysicsComponentManager(collisionComponentManager_.get(), &debugDraw_));
             renderComponentManager_.reset(new RenderComponentManager());
             uiComponentManager_.reset(new UIComponentManager());
 
@@ -117,6 +120,7 @@ namespace af3d
         PhysicsDebugDraw debugDraw_;
         VertexArrayWriter defaultVa_;
         std::unique_ptr<PhasedComponentManager> phasedComponentManager_;
+        std::unique_ptr<CollisionComponentManager> collisionComponentManager_;
         std::unique_ptr<PhysicsComponentManager> physicsComponentManager_;
         std::unique_ptr<RenderComponentManager> renderComponentManager_;
         std::unique_ptr<UIComponentManager> uiComponentManager_;
@@ -147,6 +151,7 @@ namespace af3d
         setScene(this);
 
         impl_->phasedComponentManager_->setScene(this);
+        impl_->collisionComponentManager_->setScene(this);
         impl_->physicsComponentManager_->setScene(this);
         impl_->renderComponentManager_->setScene(this);
         impl_->uiComponentManager_->setScene(this);
@@ -226,6 +231,7 @@ namespace af3d
 
         impl_->phasedComponentManager_->cleanup();
         impl_->physicsComponentManager_->cleanup();
+        impl_->collisionComponentManager_->cleanup();
         impl_->renderComponentManager_->cleanup();
         impl_->uiComponentManager_->cleanup();
     }
@@ -240,6 +246,8 @@ namespace af3d
             impl_->uiComponentManager_->addComponent(component);
         } else if (aobjectCast<PhysicsComponent>(component)) {
             impl_->physicsComponentManager_->addComponent(component);
+        } else if (aobjectCast<CollisionComponent>(component)) {
+            impl_->collisionComponentManager_->addComponent(component);
         } else {
             runtime_assert(false);
         }
@@ -294,6 +302,8 @@ namespace af3d
 
         if (!paused_) {
             impl_->firstPhysicsStep_ = true;
+
+            impl_->collisionComponentManager_->flushPending();
 
             bool physicsStepped = impl_->physicsComponentManager_->update(dt);
 
@@ -382,6 +392,8 @@ namespace af3d
 
     void Scene::updateStep(float dt)
     {
+        impl_->collisionComponentManager_->update(dt);
+
         if (!impl_->timers_.empty()) {
             auto lastCookie = impl_->timers_.rbegin()->first;
             for (impl_->timerIt_ = impl_->timers_.begin();
@@ -402,6 +414,8 @@ namespace af3d
             impl_->firstPhysicsStep_ = false;
             inputManager.processed();
         }
+
+        impl_->collisionComponentManager_->flushPending();
     }
 
     std::uint32_t Scene::addTimer(const TimerFn& fn)

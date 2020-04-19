@@ -75,8 +75,9 @@ namespace af3d
         };
     };
 
-    PhysicsComponentManager::PhysicsComponentManager(btIDebugDraw* debugDraw)
-    : collisionDispatcher_(&collisionCfg_),
+    PhysicsComponentManager::PhysicsComponentManager(CollisionComponentManager* collisionMgr, btIDebugDraw* debugDraw)
+    : collisionMgr_(collisionMgr),
+      collisionDispatcher_(&collisionCfg_),
       world_(&collisionDispatcher_, &broadphase_, &solver_, &collisionCfg_)
     {
         world_.setWorldUserInfo(this);

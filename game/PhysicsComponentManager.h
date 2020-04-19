@@ -32,6 +32,7 @@
 
 namespace af3d
 {
+    class CollisionComponentManager;
     class PhysicsComponent;
     using PhysicsComponentPtr = std::shared_ptr<PhysicsComponent>;
 
@@ -40,7 +41,7 @@ namespace af3d
     class PhysicsComponentManager : public ComponentManager
     {
     public:
-        explicit PhysicsComponentManager(btIDebugDraw* debugDraw);
+        PhysicsComponentManager(CollisionComponentManager* collisionMgr, btIDebugDraw* debugDraw);
         ~PhysicsComponentManager();
 
         static PhysicsComponentManager* fromWorld(btDynamicsWorld* world);
@@ -64,6 +65,8 @@ namespace af3d
         inline btDiscreteDynamicsWorld& world() { return world_; }
 
     private:
+        CollisionComponentManager* collisionMgr_ = nullptr;
+
         btDefaultCollisionConfiguration collisionCfg_;
         btCollisionDispatcher collisionDispatcher_;
         btDbvtBroadphase broadphase_;

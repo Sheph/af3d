@@ -98,6 +98,8 @@ set(SOURCES
     CollisionShapePlane.cpp
     CollisionShapeStaticMesh.cpp
     CollisionShapeConvexMesh.cpp
+    CollisionComponentManager.cpp
+    CollisionComponent.cpp
     PhysicsDebugDraw.cpp
     MotionState.cpp
     Script.cpp
