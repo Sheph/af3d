@@ -104,11 +104,14 @@ namespace af3d
         return obj;
     }
 
-    SceneObjectPtr SceneObjectFactory::createSensor()
+    SceneObjectPtr SceneObjectFactory::createSensor(bool allowSensor)
     {
         auto obj = std::make_shared<SceneObject>();
 
-        obj->addComponent(std::make_shared<CollisionSensorComponent>());
+        auto c = std::make_shared<CollisionSensorComponent>();
+        c->setAllowSensor(allowSensor);
+
+        obj->addComponent(c);
 
         return obj;
     }
@@ -144,8 +147,9 @@ namespace af3d
 
     SCENEOBJECT_DEFINE_BEGIN(Sensor)
     {
-        return sceneObjectFactory.createSensor();
+        return sceneObjectFactory.createSensor(params.get("allow sensors").toBool());
     }
     SCENEOBJECT_DEFINE_PROPS_NO_RESTRICT(Sensor)
+    SCENEOBJECT_PARAM(Sensor, "allow sensors", "React on other sensors", Bool, false)
     SCENEOBJECT_DEFINE_END(Sensor)
 }

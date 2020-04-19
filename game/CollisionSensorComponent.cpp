@@ -55,6 +55,10 @@ namespace af3d
             return;
         }
 
+        if (!allowSensor_ && contact.getOther(parent())->isSensor()) {
+            return;
+        }
+
         SceneObjectPtr obj = contact.getOther(parent())->shared_from_this();
 
         contacts_[contact.cookie] = obj;
