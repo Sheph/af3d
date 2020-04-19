@@ -46,6 +46,7 @@ namespace af3d
     ACLASS_PROPERTY(SceneObject, Type, "type", "Scene object type", SceneObjectType, static_cast<int>(SceneObjectType::Other), General, APropertyEditable)
     ACLASS_PROPERTY(SceneObject, PhysicsActive, AProperty_PhysicsActive, "Physics is active", Bool, true, Physics, APropertyEditable)
     ACLASS_PROPERTY(SceneObject, BodyType, "body type", "Physics body type", BodyType, static_cast<int>(BodyType::Static), Physics, APropertyEditable)
+    ACLASS_PROPERTY(SceneObject, IsSensor, "is sensor", "Is sensor", Bool, false, Physics, APropertyEditable)
     ACLASS_PROPERTY_RO(SceneObject, Mass, "mass", "Mass", Float, Physics, APropertyEditable|APropertyTransient)
     ACLASS_PROPERTY(SceneObject, Friction, "friction", "Friction", Float, 0.5f, Physics, APropertyEditable)
     ACLASS_PROPERTY(SceneObject, Restitution, "restitution", "Restitution", Float, 0.0f, Physics, APropertyEditable)
@@ -318,6 +319,29 @@ namespace af3d
             }
         } else {
             bodyCi_.bodyType = value;
+        }
+    }
+
+    bool SceneObject::isSensor() const
+    {
+        if (body_) {
+            return (body_->getCollisionFlags() & btCollisionObject::CF_NO_CONTACT_RESPONSE) != 0;
+        } else {
+            return bodyCi_.isSensor;
+        }
+    }
+
+    void SceneObject::setIsSensor(bool value)
+    {
+        if (body_) {
+            if (value) {
+                body_->setCollisionFlags(body_->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
+            } else {
+                body_->setCollisionFlags(body_->getCollisionFlags() & ~btCollisionObject::CF_NO_CONTACT_RESPONSE);
+            }
+            body_->activate();
+        } else {
+            bodyCi_.isSensor = value;
         }
     }
 

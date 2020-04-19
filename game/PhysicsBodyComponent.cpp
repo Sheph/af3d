@@ -196,6 +196,11 @@ namespace af3d
             } else if (parent()->bodyType() == BodyType::Kinematic) {
                 body->setCollisionFlags((body->getCollisionFlags() & ~btCollisionObject::CF_STATIC_OBJECT) | btCollisionObject::CF_KINEMATIC_OBJECT);
             }
+
+            if (parent()->isSensor()) {
+                body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
+            }
+
             if (scene()->workspace() && settings.editor.disableSimulation) {
                 body->setActivationState(DISABLE_SIMULATION);
             }
