@@ -37,14 +37,13 @@ namespace af3d
     struct Contact
     {
         Contact() = default;
-        explicit Contact(std::uint64_t cookie);
         ~Contact() = default;
 
         SceneObject* getOther(SceneObject* obj) const;
 
-        const CollisionShapePtr& getOtherFixture(SceneObject* obj) const;
+        const CollisionShapePtr& getOtherShape(SceneObject* obj) const;
 
-        const CollisionShapePtr& getThisFixture(SceneObject* obj) const;
+        const CollisionShapePtr& getThisShape(SceneObject* obj) const;
 
         std::uint64_t cookie = 0;
 

@@ -100,6 +100,8 @@ set(SOURCES
     CollisionShapeConvexMesh.cpp
     CollisionComponentManager.cpp
     CollisionComponent.cpp
+    CollisionSensorComponent.cpp
+    ScriptSensorListener.cpp
     PhysicsDebugDraw.cpp
     MotionState.cpp
     Script.cpp

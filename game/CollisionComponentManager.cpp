@@ -29,6 +29,23 @@
 
 namespace af3d
 {
+    SceneObject* Contact::getOther(SceneObject* obj) const
+    {
+        SceneObject* objA = SceneObject::fromShape(shapeA->shape());
+
+        return (obj == objA) ? SceneObject::fromShape(shapeB->shape()) : objA;
+    }
+
+    const CollisionShapePtr& Contact::getOtherShape(SceneObject* obj) const
+    {
+        return (obj == SceneObject::fromShape(shapeA->shape())) ? shapeB : shapeA;
+    }
+
+    const CollisionShapePtr& Contact::getThisShape(SceneObject* obj) const
+    {
+        return (obj == SceneObject::fromShape(shapeA->shape())) ? shapeA : shapeB;
+    }
+
     CollisionComponentManager::Manifold::Manifold(btPersistentManifold* manifold)
     : manifold(manifold),
       objA(SceneObject::fromBody(const_cast<btRigidBody*>(btRigidBody::upcast(manifold->getBody0())))->shared_from_this()),
