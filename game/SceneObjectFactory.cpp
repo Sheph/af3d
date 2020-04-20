@@ -116,6 +116,13 @@ namespace af3d
         return obj;
     }
 
+    SceneObjectPtr SceneObjectFactory::createTestRef(const SceneObjectPtr& other1, const SceneObjectPtr& other2)
+    {
+        auto obj = std::make_shared<SceneObject>();
+
+        return obj;
+    }
+
     SCENEOBJECT_DEFINE_BEGIN(Dummy)
     {
         return sceneObjectFactory.createDummy();
@@ -152,4 +159,14 @@ namespace af3d
     SCENEOBJECT_DEFINE_PROPS_NO_RESTRICT(Sensor)
     SCENEOBJECT_PARAM(Sensor, "allow sensors", "React on other sensors", Bool, false)
     SCENEOBJECT_DEFINE_END(Sensor)
+
+    SCENEOBJECT_DEFINE_BEGIN(TestRef)
+    {
+        return sceneObjectFactory.createTestRef(params.get("other1").toObject<SceneObject>(),
+            params.get("other2").toObject<SceneObject>());
+    }
+    SCENEOBJECT_DEFINE_PROPS(TestRef)
+    SCENEOBJECT_PARAM(TestRef, "other1", "Other1", SceneObject, SceneObjectPtr())
+    SCENEOBJECT_PARAM(TestRef, "other2", "Other2", SceneObject, SceneObjectPtr())
+    SCENEOBJECT_DEFINE_END(TestRef)
 }

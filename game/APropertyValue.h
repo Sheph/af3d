@@ -99,6 +99,8 @@ namespace af3d
         void convertToWeak();
         // Convert all used weak objs to non-weak.
         void convertFromWeak();
+        // Refresh all objects from their cookies.
+        void refreshObjects();
 
         // Cut out all references to 'obj' (weak and non-weak).
         bool cut(const AObjectPtr& obj);

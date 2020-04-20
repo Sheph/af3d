@@ -49,6 +49,8 @@ namespace af3d
         SceneObjectPtr createInstance(const std::string& assetPath);
 
         SceneObjectPtr createSensor(bool allowSensor);
+
+        SceneObjectPtr createTestRef(const SceneObjectPtr& other1, const SceneObjectPtr& other2);
     };
 
     extern SceneObjectFactory sceneObjectFactory;

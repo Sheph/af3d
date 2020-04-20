@@ -86,6 +86,7 @@ namespace af3d { namespace editor
         inline EditModeScene* emScene() { return emScene_.get(); }
 
         inline EditMode* em() { return em_; }
+        inline EditMode* overriddenEm() { return overriddenEm_ ? overriddenEm_ : em_; }
 
         inline const std::vector<EditMode*>& ems() { return ems_; }
 
@@ -130,6 +131,9 @@ namespace af3d { namespace editor
         inline Action& actionPropertyEditor() { return actionPropertyEditor_; }
         inline Action& actionToolbox() { return actionToolbox_; }
 
+        inline bool toolsActive() const { return toolsActive_; }
+        void setToolsActive(bool value);
+
         inline Tool* currentTool() { return currentTool_; }
         inline void setCurrentTool(Tool* value) { runtime_assert(value); currentTool_ = value; }
 
@@ -141,6 +145,8 @@ namespace af3d { namespace editor
             const std::string& name, const APropertyValue& value, bool isParam);
 
         void setEditMode(EditModeImpl* value);
+
+        void setOverrideEditMode(EditMode* value);
 
         void deleteObject(const AObjectPtr& obj);
 
@@ -180,6 +186,7 @@ namespace af3d { namespace editor
         std::vector<EditMode*> ems_;
 
         EditModeImpl* em_;
+        EditModeImpl* overriddenEm_ = nullptr;
 
         CommandHistory cmdHistory_;
 
@@ -231,6 +238,7 @@ namespace af3d { namespace editor
 
         std::vector<Tool*> tools_;
 
+        bool toolsActive_ = true;
         Tool* currentTool_;
 
         SceneObjectPtr grid_;

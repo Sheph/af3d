@@ -174,7 +174,9 @@ namespace editor {
                             inputManager.keyboard().triggered(tools()[i]->shortcut())) {
                             currentTool()->activate(false);
                             setCurrentTool(tools()[i]);
-                            currentTool()->activate(true);
+                            if (toolsActive()) {
+                                currentTool()->activate(true);
+                            }
                         }
                     }
                 }
@@ -188,6 +190,15 @@ namespace editor {
 
     void Workspace::render(RenderList& rl)
     {
+    }
+
+    void Workspace::setToolsActive(bool value)
+    {
+        if (toolsActive_ == value) {
+            return;
+        }
+        toolsActive_ = value;
+        currentTool()->activate(value);
     }
 
     void Workspace::addObject(const std::string& kind)
@@ -228,6 +239,19 @@ namespace editor {
         em_->leave();
         em_ = value;
         em_->enter();
+    }
+
+    void Workspace::setOverrideEditMode(EditMode* value)
+    {
+        if (value) {
+            btAssert(!overriddenEm_);
+            overriddenEm_ = em_;
+            value->activate();
+        } else {
+            btAssert(overriddenEm_);
+            overriddenEm_->activate();
+            overriddenEm_ = nullptr;
+        }
     }
 
     void Workspace::deleteObject(const AObjectPtr& obj)
@@ -275,6 +299,7 @@ namespace editor {
         emCollision_.reset();
         emScene_.reset();
         em_ = nullptr;
+        overriddenEm_ = nullptr;
         ems_.clear();
 
         toolSelect_.reset();

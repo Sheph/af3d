@@ -27,6 +27,9 @@
 #include "ImGuiManager.h"
 #include "ImGuiFileDialog.h"
 #include "MeshManager.h"
+#include "SceneObject.h"
+#include "Scene.h"
+#include "CameraComponent.h"
 
 namespace af3d { namespace ImGuiUtils
 {
@@ -40,8 +43,9 @@ namespace af3d { namespace ImGuiUtils
     class PropertyEditVisitor : public APropertyTypeVisitor
     {
     public:
-        PropertyEditVisitor(APropertyValue& value, bool readOnly)
-        : value_(value),
+        PropertyEditVisitor(Scene* scene, APropertyValue& value, bool readOnly)
+        : scene_(scene),
+          value_(value),
           readOnly_(readOnly)
         {
         }
@@ -167,33 +171,12 @@ namespace af3d { namespace ImGuiUtils
 
         void visitObject(const APropertyTypeObject& type) override
         {
-            auto res = aobjectCast<Resource>(value_.toObject());
-            std::string assetPath;
-            if (res && !res->name().empty()) {
-                assetPath = res->name();
-            }
-
-            bool clicked = ImGui::Button("...");
-
             if (type.klass().isSubClassOf(AClass_Mesh)) {
-                if (clicked) {
-                    ImGui::OpenPopup("Open model");
+                visitMesh();
+            } else if (type.klass().isSubClassOf(AClass_SceneObject)) {
+                if (scene_->workspace()) {
+                    visitObject<SceneObject>(scene_->workspace()->emObject());
                 }
-                if (auto dlg = ImGuiFileDialog::beginAssetsModal("Open model", assetPath, "Model files,.fbx;All files")) {
-                    if (dlg->ok() && !dlg->fileName().empty()) {
-                        auto mesh = meshManager.loadMesh(dlg->filePath());
-                        if (mesh) {
-                            ret_ = true;
-                            value_ = APropertyValue(mesh);
-                        }
-                    }
-                    dlg->endModal();
-                }
-            }
-
-            if (!assetPath.empty()) {
-                ImGui::SameLine();
-                ImGui::Text("%s", assetPath.c_str());
             }
         }
 
@@ -235,14 +218,125 @@ namespace af3d { namespace ImGuiUtils
         inline bool ret() const { return ret_; }
 
     private:
+        void visitMesh()
+        {
+            auto res = aobjectCast<Resource>(value_.toObject());
+            std::string assetPath;
+            if (res && !res->name().empty()) {
+                assetPath = res->name();
+            }
+
+            bool clicked = ImGui::Button("...");
+
+            if (clicked) {
+                ImGui::OpenPopup("Open model");
+            }
+
+            if (auto dlg = ImGuiFileDialog::beginAssetsModal("Open model", assetPath, "Model files,.fbx;All files")) {
+                if (dlg->ok() && !dlg->fileName().empty()) {
+                    auto mesh = meshManager.loadMesh(dlg->filePath());
+                    if (mesh) {
+                        ret_ = true;
+                        value_ = APropertyValue(mesh);
+                    }
+                }
+                dlg->endModal();
+            }
+
+            if (!assetPath.empty()) {
+                ImGui::SameLine();
+                ImGui::Text("%s", assetPath.c_str());
+            }
+        }
+
+        template <class T>
+        void visitObject(editor::EditMode* em)
+        {
+            auto aObj = value_.toObject();
+            std::string name;
+            if (aObj) {
+                name = aObj->name();
+            } else {
+                name = "(null)";
+            }
+
+            bool clicked = ImGui::Button("...");
+
+            std::shared_ptr<T> obj;
+            if (pickObject(em, clicked, obj)) {
+                if (obj) {
+                    ret_ = true;
+                    // Set as weak object, since it's picked from scene, we
+                    // don't want a strong reference!
+                    value_ = APropertyValue(AWeakObject(obj));
+                }
+            }
+
+            if (!name.empty()) {
+                ImGui::SameLine();
+                ImGui::Text("%s", name.c_str());
+            }
+        }
+
+        template <class T>
+        bool pickObject(editor::EditMode* em, bool open, std::shared_ptr<T>& obj)
+        {
+            bool ret = false;
+
+            if (open) {
+                ImGui::OpenPopup("##pick");
+                scene_->workspace()->setToolsActive(false);
+                scene_->workspace()->setOverrideEditMode(em);
+            }
+
+            ImGuiIO& io = ImGui::GetIO();
+
+            ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x * 0.5f, 80.0f), ImGuiCond_Always, ImVec2(0.5f, 0.0f));
+            ImGui::SetNextWindowBgAlpha(0.35f);
+            ImGui::PushStyleColor(ImGuiCol_ModalWindowDimBg, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+            if (ImGui::BeginPopupModal("##pick", nullptr, ImGuiWindowFlags_NoMove |
+                ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize |
+                ImGuiWindowFlags_NoSavedSettings |
+                ImGuiWindowFlags_NoNav)) {
+                em->setHovered(editor::EditMode::AWeakList());
+                if (inputManager.keyboard().triggered(KI_ESCAPE)) {
+                    ret = true;
+                } else {
+                    auto cc = scene_->camera()->findComponent<CameraComponent>();
+                    auto res = em->rayCast(cc->getFrustum(), cc->screenPointToRay(inputManager.mouse().pos()));
+                    if (res) {
+                        if (inputManager.mouse().triggered(true)) {
+                            obj = aobjectCast<T>(res);
+                            ret = true;
+                        } else {
+                            em->setHovered(editor::EditMode::AWeakList{AWeakObject(res)});
+                        }
+                    }
+                }
+
+                if (ret) {
+                    scene_->workspace()->setToolsActive(true);
+                    scene_->workspace()->setOverrideEditMode(nullptr);
+                    ImGui::CloseCurrentPopup();
+                }
+
+                ImGui::Text("Pick %s from scene or press ESC", em->name().c_str());
+                ImGui::EndPopup();
+            }
+            ImGui::PopStyleColor();
+
+            return ret;
+        }
+
+        Scene* scene_;
         APropertyValue& value_;
         bool readOnly_ = false;
         bool ret_ = false;
     };
 
-    bool APropertyEdit(const APropertyType& type, APropertyValue& val, bool readOnly)
+    bool APropertyEdit(Scene* scene, const APropertyType& type, APropertyValue& val, bool readOnly)
     {
-        PropertyEditVisitor visitor(val, readOnly);
+        PropertyEditVisitor visitor(scene, val, readOnly);
         type.accept(visitor);
         return visitor.ret();
     }

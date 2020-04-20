@@ -73,7 +73,7 @@ namespace af3d { namespace editor
 
     void CommandSetProperty::setValue(const AObjectPtr& obj, APropertyValue& value)
     {
-        value.convertFromWeak();
+        value.refreshObjects();
 
         if (isParam_) {
             if (auto sObj = aobjectCast<SceneObject>(obj)) {

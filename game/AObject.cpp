@@ -79,6 +79,12 @@ namespace af3d
         return (it == cookieToAObj.end()) ? nullptr : it->second;
     }
 
+    size_t AObject::getCount()
+    {
+        ScopedLock lock(cookieToAObjMtx);
+        return cookieToAObj.size();
+    }
+
     bool AObject::isSubClassOf(const AClass& value) const
     {
         return klass_->isSubClassOf(value);

@@ -71,8 +71,10 @@ namespace editor {
             return;
         }
 
+        auto em = scene()->workspace()->overriddenEm();
+
         AWeakObject newWobj;
-        const auto& sList = scene()->workspace()->em()->selected();
+        const auto& sList = em->selected();
         if (!sList.empty()) {
             newWobj = sList.back();
         }
@@ -93,7 +95,7 @@ namespace editor {
         ImGuiStyle& style = ImGui::GetStyle();
 
         if (obj) {
-            ImGui::Text("1 %s (%s) selected", scene()->workspace()->em()->name().c_str(), obj->klass().name().c_str());
+            ImGui::Text("1 %s (%s) selected", em->name().c_str(), obj->klass().name().c_str());
         } else {
             ImGui::Text("No selection");
         }
@@ -171,9 +173,10 @@ namespace editor {
                 if (val != pi.initialVal) {
                     pi.initialVal = pi.val = val;
                 }
-                if (ImGuiUtils::APropertyEdit(pi.prop.type(), pi.val, !isParam && (pi.prop.flags() & APropertyWritable) == 0) &&
+                if (ImGuiUtils::APropertyEdit(scene(), pi.prop.type(), pi.val, !isParam && (pi.prop.flags() & APropertyWritable) == 0) &&
                     !wasSet && (pi.val != pi.initialVal)) {
                     scene()->workspace()->setProperty(obj, pi.prop.name(), pi.val, isParam);
+                    pi.initialVal = pi.val;
                     wasSet = true;
                 }
 
@@ -200,5 +203,6 @@ namespace editor {
     void PropertyEditor::onUnregister()
     {
         LOG4CPLUS_DEBUG(logger(), "PropertyEditor closed");
+        properties_.clear();
     }
 } }

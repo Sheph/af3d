@@ -41,6 +41,8 @@ namespace af3d
         }
     };
 
+    const APropertyTypeObject APropertyType_SceneObject{"SceneObject", AClass_SceneObject};
+
     ACLASS_DEFINE_BEGIN(SceneObject, SceneObjectManager)
     ACLASS_PROPERTY(SceneObject, Transform, AProperty_WorldTransform, "World transform", Transform, btTransform::getIdentity(), Position, APropertyEditable)
     ACLASS_PROPERTY(SceneObject, Type, "type", "Scene object type", SceneObjectType, static_cast<int>(SceneObjectType::Other), General, APropertyEditable)

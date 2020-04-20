@@ -46,6 +46,8 @@ namespace af3d
 
         static AObject* getByCookie(ACookie value);
 
+        static size_t getCount();
+
         virtual AObjectPtr sharedThis() = 0;
 
         inline const AClass& klass() const { return *klass_; }

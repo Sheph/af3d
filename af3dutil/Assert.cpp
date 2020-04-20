@@ -25,6 +25,8 @@
 
 #include "Logger.h"
 #include "af3d/Assert.h"
+#include <thread>
+#include <chrono>
 #include <signal.h>
 
 namespace af3d
@@ -32,6 +34,7 @@ namespace af3d
     void runtimeAssertImpl(const char* cond, const char* file, unsigned int lineno)
     {
         LOG4CPLUS_FATAL(af3dutil::logger(), "ASSERTION FAILED at " << file << "(" << lineno << "): " << cond);
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
         raise(SIGABRT);
     }
 }

@@ -349,6 +349,8 @@ namespace af3d
         APropertyValueMap params_;
     };
 
+    extern const APropertyTypeObject APropertyType_SceneObject;
+
     ACLASS_DECLARE(SceneObject)
 
     #define SCENEOBJECT_DEFINE_BEGIN(Name) \

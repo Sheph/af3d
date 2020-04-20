@@ -85,7 +85,9 @@ namespace editor {
                 tools[i]->tooltip().c_str(), enabled, checked) && enabled && !checked) {
                 curTool->activate(false);
                 curTool = tools[i];
-                curTool->activate(true);
+                if (ws->toolsActive()) {
+                    curTool->activate(true);
+                }
                 ws->setCurrentTool(curTool);
             }
             float nx2 = ImGui::GetItemRectMax().x + style.ItemSpacing.x + iconSize;

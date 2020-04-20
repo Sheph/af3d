@@ -446,6 +446,23 @@ namespace af3d
         }
     }
 
+    void APropertyValue::refreshObjects()
+    {
+        switch (type_) {
+        case Object:
+            // If object was re-created, then re-assign it.
+            obj_ = AWeakObject(obj_).lock();
+            break;
+        case Array:
+            for (auto& e : arr_) {
+                e.refreshObjects();
+            }
+            break;
+        default:
+            break;
+        }
+    }
+
     bool APropertyValue::cut(const AObjectPtr& obj)
     {
         switch (type_) {

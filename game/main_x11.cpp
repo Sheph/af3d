@@ -2321,5 +2321,7 @@ int main(int argc, char *argv[])
 
     platformLinux->shutdown();
 
+    runtime_assert(af3d::AObject::getCount() == 0);
+
     return 0;
 }
