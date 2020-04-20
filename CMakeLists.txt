@@ -45,6 +45,7 @@ endif ()
 
 option(USE_LUAJIT "Use LuaJIT" FALSE)
 option(USE_LUAJIT_VALGRIND "Enable LuaJIT+valgrind" FALSE)
+option(USE_BT_SSE "Use Bullet SSE" TRUE)
 
 # END USER SETTINGS
 
@@ -141,6 +142,13 @@ endif ()
 add_definitions(-DROCKET_STATIC_LIB)
 add_definitions(-DASSIMP_BUILD_NO_OWN_ZLIB)
 add_definitions("-DIMGUI_OVERRIDE_DRAWVERT_STRUCT_LAYOUT=struct ImDrawVert{ImVec2 pos\;float posZ\;ImVec2 uv\;ImU32 col\;}")
+
+if (USE_BT_SSE)
+    add_definitions(-DUSE_SIMD)
+    add_definitions(-DBT_USE_SSE)
+    add_definitions(-DBT_USE_SSE_IN_API)
+    add_definitions(-DBT_USE_SIMD_VECTOR3)
+endif ()
 
 message(STATUS "Platform - " ${CMAKE_SYSTEM_NAME})
 message(STATUS "Install prefix - " ${CMAKE_INSTALL_PREFIX})
