@@ -27,6 +27,7 @@
 #define _EDITOR_JSONSERIALIZER_H_
 
 #include "AJsonSerializer.h"
+#include <unordered_set>
 
 namespace af3d { namespace editor
 {
@@ -35,7 +36,7 @@ namespace af3d { namespace editor
     public:
         // All objects that aren't children of 'parent' will get serialized
         // as ACookie.
-        explicit JsonSerializer(const AObjectPtr& parent = AObjectPtr());
+        JsonSerializer(const AObjectPtr& parent = AObjectPtr(), std::unordered_set<ACookie>* serializedObjs = nullptr);
         ~JsonSerializer() = default;
 
         Json::Value toJsonValue(const AObjectPtr& obj) override;
@@ -43,6 +44,7 @@ namespace af3d { namespace editor
 
     private:
         AObjectPtr parent_;
+        std::unordered_set<ACookie>* serializedObjs_;
     };
 } }
 

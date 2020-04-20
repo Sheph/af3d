@@ -25,6 +25,7 @@
 
 #include "editor/CommandDelete.h"
 #include "editor/CommandSelect.h"
+#include "editor/CommandSetProperty.h"
 #include "editor/JsonSerializer.h"
 #include "SceneObject.h"
 #include "Scene.h"
@@ -49,13 +50,15 @@ namespace af3d { namespace editor
             return false;
         }
 
+        std::unordered_set<ACookie> serializedObjs;
+
         if (auto sceneObj = aobjectCast<SceneObject>(obj)) {
             if (!sceneObj->parent()) {
                 LOG4CPLUS_ERROR(logger(), "redo: Scene object not parented: " << description());
                 return false;
             }
             setDescription("Delete object");
-            preDelete(obj);
+            preDelete(obj, serializedObjs);
             parentWobj_ = AWeakObject(sceneObj->parent()->sharedThis());
             sceneObj->removeFromParent();
         } else if (auto c = aobjectCast<Component>(obj)) {
@@ -64,7 +67,7 @@ namespace af3d { namespace editor
                 return false;
             }
             setDescription("Delete component");
-            preDelete(obj);
+            preDelete(obj, serializedObjs);
             parentWobj_ = AWeakObject(c->parent()->sharedThis());
             c->removeFromParent();
         } else if (auto shape = aobjectCast<CollisionShape>(obj)) {
@@ -73,7 +76,7 @@ namespace af3d { namespace editor
                 return false;
             }
             setDescription("Delete collision");
-            preDelete(obj);
+            preDelete(obj, serializedObjs);
             parentWobj_ = AWeakObject(shape->parent()->sharedThis());
             shape->removeFromParent();
         } else {
@@ -81,7 +84,7 @@ namespace af3d { namespace editor
             return false;
         }
 
-        redoNested();
+        redoNested(serializedObjs);
 
         first_ = false;
 
@@ -148,13 +151,14 @@ namespace af3d { namespace editor
         return true;
     }
 
-    void CommandDelete::preDelete(const AObjectPtr& obj)
+    void CommandDelete::preDelete(const AObjectPtr& obj, std::unordered_set<ACookie>& serializedObjs)
     {
         if (!first_) {
             return;
         }
 
-        JsonSerializer ser(obj);
+        serializedObjs.insert(obj->cookie());
+        JsonSerializer ser(obj, &serializedObjs);
 
         AJsonWriter writer(data_, ser, true);
         writer.write(obj);
@@ -165,28 +169,89 @@ namespace af3d { namespace editor
             const auto& sel = em->selected();
             bool needSelect = false;
             for (const auto& wobj : sel) {
-                auto sObj = wobj.lock();
-                if (sObj != obj) {
-                    objs.push_back(sObj);
+                if (serializedObjs.count(wobj.cookie()) == 0) {
+                    objs.push_back(wobj.lock());
                 } else {
                     needSelect = true;
                 }
             }
             if (needSelect) {
+                //LOG4CPLUS_DEBUG(logger(), "nested: select " << em->name() << " updated");
                 nested_.push_back(std::make_shared<CommandSelect>(scene(), reinterpret_cast<EditModeImpl*>(em), objs));
             }
         }
     }
 
-    void CommandDelete::redoNested()
+    void CommandDelete::redoNested(const std::unordered_set<ACookie>& serializedObjs)
     {
         if (first_) {
-            // TODO: fill nested_ with CommandSetProperty that set/unset dependent
-            // props.
+            // 'cut out' all refs to 'serializedObjs'.
+            std::unordered_set<ACookie> visitedObjs;
+            buildNested(scene(), serializedObjs, visitedObjs);
         }
 
         for (const auto& c : nested_) {
             c->redo();
         }
+    }
+
+    void CommandDelete::buildNested(AObject* obj, const std::unordered_set<ACookie>& serializedObjs,
+        std::unordered_set<ACookie>& visitedObjs)
+    {
+        if (!visitedObjs.insert(obj->cookie()).second) {
+            return;
+        }
+
+        auto props = obj->klass().getProperties();
+        for (const auto& prop : props) {
+            auto val = obj->propertyGet(prop.name());
+            if (buildNested(val, serializedObjs, visitedObjs)) {
+                LOG4CPLUS_DEBUG(logger(), "nested: set " << obj->name() << "|" << prop.name() << " = " << val.toString());
+                nested_.push_back(
+                    std::make_shared<CommandSetProperty>(scene(), obj->sharedThis(),
+                        prop.name(), val, (prop.category() == APropertyCategory::Params)));
+            }
+        }
+    }
+
+    bool CommandDelete::buildNested(APropertyValue& value, const std::unordered_set<ACookie>& serializedObjs,
+        std::unordered_set<ACookie>& visitedObjs)
+    {
+        switch (value.type()) {
+        case APropertyValue::Object: {
+            if (serializedObjs.count(value.toWeakObject().cookie()) > 0) {
+                value = APropertyValue(AObjectPtr());
+                return true;
+            } else if (auto obj = value.toObject()) {
+                buildNested(obj.get(), serializedObjs, visitedObjs);
+            }
+            break;
+        }
+        case APropertyValue::WeakObject: {
+            if (serializedObjs.count(value.toWeakObject().cookie()) > 0) {
+                value = APropertyValue(AWeakObject());
+                return true;
+            } else if (auto obj = value.toObject()) {
+                buildNested(obj.get(), serializedObjs, visitedObjs);
+            }
+            break;
+        }
+        case APropertyValue::Array: {
+            auto arr = value.toArray();
+            bool res = false;
+            arr.erase(std::remove_if(arr.begin(), arr.end(), [this, &res, &serializedObjs, &visitedObjs](APropertyValue& v) {
+                bool r = buildNested(v, serializedObjs, visitedObjs);
+                res |= r;
+                return r && (v.type() != APropertyValue::Array);
+            }), arr.end());
+            if (res) {
+                value = APropertyValue(arr);
+            }
+            return res;
+        }
+        default:
+            break;
+        }
+        return false;
     }
 } }

@@ -28,6 +28,7 @@
 
 #include "editor/Command.h"
 #include "AObject.h"
+#include <unordered_set>
 #include "json/json.h"
 
 namespace af3d { namespace editor
@@ -43,9 +44,15 @@ namespace af3d { namespace editor
         bool undo() override;
 
     private:
-        void preDelete(const AObjectPtr& obj);
+        void preDelete(const AObjectPtr& obj, std::unordered_set<ACookie>& serializedObjs);
 
-        void redoNested();
+        void redoNested(const std::unordered_set<ACookie>& serializedObjs);
+
+        void buildNested(AObject* obj, const std::unordered_set<ACookie>& serializedObjs,
+            std::unordered_set<ACookie>& visitedObjs);
+
+        bool buildNested(APropertyValue& value, const std::unordered_set<ACookie>& serializedObjs,
+            std::unordered_set<ACookie>& visitedObjs);
 
         bool first_ = true;
         AWeakObject parentWobj_;

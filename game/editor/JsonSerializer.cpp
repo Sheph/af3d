@@ -28,8 +28,9 @@
 
 namespace af3d { namespace editor
 {
-    JsonSerializer::JsonSerializer(const AObjectPtr& parent)
-    : parent_(parent)
+    JsonSerializer::JsonSerializer(const AObjectPtr& parent, std::unordered_set<ACookie>* serializedObjs)
+    : parent_(parent),
+      serializedObjs_(serializedObjs)
     {
     }
 
@@ -41,6 +42,9 @@ namespace af3d { namespace editor
         AObjectPtr tmp = obj;
         while (tmp && parent_) {
             if (tmp == parent_) {
+                if (serializedObjs_) {
+                    serializedObjs_->insert(obj->cookie());
+                }
                 return Json::Value::null;
             }
             tmp = tmp->propertyGet(AProperty_Parent).toObject();
