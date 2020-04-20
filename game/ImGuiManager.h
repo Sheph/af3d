@@ -31,6 +31,8 @@
 #include "af3d/Single.h"
 #include "imgui.h"
 
+struct ImGuiSettingsHandler;
+
 namespace af3d
 {
     class ImGuiManager : public Single<ImGuiManager>
@@ -44,6 +46,23 @@ namespace af3d
         void shutdown();
 
         void reload();
+
+        static constexpr const char* strCommandHistoryOpened = "CommandHistoryOpened";
+        static constexpr const char* strPropertyEditorOpened = "PropertyEditorOpened";
+        static constexpr const char* strPropertyEditorColumnWidth = "PropertyEditorColumnWidth";
+        static constexpr const char* strToolBoxOpened = "ToolBoxOpened";
+
+        std::string cfgGet(const std::string& key, const std::string& def = "") const;
+        void cfgSet(const std::string& key, const std::string& value);
+
+        bool cfgGetBool(const std::string& key, bool def = false) const;
+        void cfgSetBool(const std::string& key, bool value);
+
+        int cfgGetInt(const std::string& key, int def = 0) const;
+        void cfgSetInt(const std::string& key, int value);
+
+        float cfgGetFloat(const std::string& key, float def = 0.0f) const;
+        void cfgSetFloat(const std::string& key, float value);
 
         ImTextureID toTextureId(const TexturePtr& tex);
         TexturePtr fromTextureId(ImTextureID texId);
@@ -66,11 +85,18 @@ namespace af3d
         void mouseMove(const Vector2f& point);
 
     private:
+        using Cfg = std::unordered_map<std::string, std::string>;
         using TextureCache = std::unordered_set<TexturePtr>;
 
         static const char* getClipboardText(void* userData);
         static void setClipboardText(void* userData, const char* text);
         static int kiToChar(KeyIdentifier ki);
+
+        static void* CfgHandler_ReadOpen(ImGuiContext*, ImGuiSettingsHandler*, const char* name);
+        static void CfgHandler_ReadLine(ImGuiContext*, ImGuiSettingsHandler*, void* entry, const char* line);
+        static void CfgHandler_WriteAll(ImGuiContext* ctx, ImGuiSettingsHandler* handler, ImGuiTextBuffer* buf);
+
+        Cfg cfg_;
 
         TexturePtr fontsTex_;
         TextureCache textureCache_;

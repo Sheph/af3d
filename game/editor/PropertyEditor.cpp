@@ -30,6 +30,7 @@
 #include "Settings.h"
 #include "SceneObject.h"
 #include "PhysicsBodyComponent.h"
+#include "ImGuiManager.h"
 #include "imgui.h"
 
 namespace af3d {
@@ -57,6 +58,7 @@ namespace editor {
     void PropertyEditor::update(float dt)
     {
         if (!show_) {
+            imGuiManager.cfgSetBool(ImGuiManager::strPropertyEditorOpened, false);
             removeFromParent();
             return;
         }
@@ -96,6 +98,12 @@ namespace editor {
             ImGui::Text("No selection");
         }
         ImGui::Columns(2);
+        if (!columnWidthSet_) {
+            columnWidthSet_ = true;
+            ImGui::SetColumnWidth(0, imGuiManager.cfgGetFloat(ImGuiManager::strPropertyEditorColumnWidth, 150.0f));
+        } else {
+            imGuiManager.cfgSetFloat(ImGuiManager::strPropertyEditorColumnWidth, ImGui::GetColumnWidth(0));
+        }
         ImGui::Separator();
         ImGui::TextColored(style.Colors[ImGuiCol_HeaderActive], "Property"); ImGui::NextColumn();
         ImGui::TextColored(style.Colors[ImGuiCol_HeaderActive], "Value"); ImGui::NextColumn();
@@ -186,6 +194,7 @@ namespace editor {
     void PropertyEditor::onRegister()
     {
         LOG4CPLUS_DEBUG(logger(), "PropertyEditor open");
+        imGuiManager.cfgSetBool(ImGuiManager::strPropertyEditorOpened, true);
     }
 
     void PropertyEditor::onUnregister()

@@ -29,6 +29,7 @@
 #include "Const.h"
 #include "Logger.h"
 #include "ImGuiUtils.h"
+#include "ImGuiManager.h"
 
 namespace af3d {
     ACLASS_NS_DEFINE_BEGIN(editor, Toolbox, UIComponent)
@@ -55,6 +56,7 @@ namespace editor {
     void Toolbox::update(float dt)
     {
         if (!show_) {
+            imGuiManager.cfgSetBool(ImGuiManager::strToolBoxOpened, false);
             removeFromParent();
             return;
         }
@@ -115,6 +117,7 @@ namespace editor {
     void Toolbox::onRegister()
     {
         LOG4CPLUS_DEBUG(logger(), "Toolbox open");
+        imGuiManager.cfgSetBool(ImGuiManager::strToolBoxOpened, true);
     }
 
     void Toolbox::onUnregister()

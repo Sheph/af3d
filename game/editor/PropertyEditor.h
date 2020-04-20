@@ -63,6 +63,7 @@ namespace af3d { namespace editor
         void onUnregister() override;
 
         bool show_ = true;
+        bool columnWidthSet_ = false;
 
         AWeakObject wobj_;
         std::vector<PropInfo> properties_;

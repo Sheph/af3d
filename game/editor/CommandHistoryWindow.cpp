@@ -27,6 +27,7 @@
 #include "Const.h"
 #include "Logger.h"
 #include "Scene.h"
+#include "ImGuiManager.h"
 #include "imgui.h"
 
 namespace af3d {
@@ -54,6 +55,7 @@ namespace editor {
     void CommandHistoryWindow::update(float dt)
     {
         if (!show_) {
+            imGuiManager.cfgSetBool(ImGuiManager::strCommandHistoryOpened, false);
             removeFromParent();
             return;
         }
@@ -93,6 +95,7 @@ namespace editor {
     void CommandHistoryWindow::onRegister()
     {
         LOG4CPLUS_DEBUG(logger(), "CommandHistoryWindow open");
+        imGuiManager.cfgSetBool(ImGuiManager::strCommandHistoryOpened, true);
     }
 
     void CommandHistoryWindow::onUnregister()

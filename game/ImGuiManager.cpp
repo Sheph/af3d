@@ -28,6 +28,8 @@
 #include "VertexArrayWriter.h"
 #include "Settings.h"
 #include "Logger.h"
+#include <boost/tokenizer.hpp>
+#include "imgui_internal.h"
 
 namespace af3d
 {
@@ -50,6 +52,17 @@ namespace af3d
 
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
+
+        ImGuiContext* ctx = ImGui::GetCurrentContext();
+
+        ImGuiSettingsHandler cfgHandler;
+        cfgHandler.TypeName = "Cfg";
+        cfgHandler.TypeHash = ImHashStr("Cfg");
+        cfgHandler.ReadOpenFn = CfgHandler_ReadOpen;
+        cfgHandler.ReadLineFn = CfgHandler_ReadLine;
+        cfgHandler.WriteAllFn = CfgHandler_WriteAll;
+        ctx->SettingsHandlers.push_back(cfgHandler);
+
         ImGuiIO& io = ImGui::GetIO();
 
         ImGui::StyleColorsDark();
@@ -97,6 +110,14 @@ namespace af3d
 
         io.Fonts->TexID = fontsTex_.get();
 
+        if (!ctx->SettingsLoaded) {
+            IM_ASSERT(ctx->SettingsWindows.empty());
+            if (ctx->IO.IniFilename) {
+                ImGui::LoadIniSettingsFromDisk(ctx->IO.IniFilename);
+            }
+            ctx->SettingsLoaded = true;
+        }
+
         return true;
     }
 
@@ -125,6 +146,72 @@ namespace af3d
 
         fontsTex_->upload(GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE,
             std::vector<Byte>(pixels, pixels + (fontsTex_->width() * fontsTex_->height() * 4)));
+    }
+
+    std::string ImGuiManager::cfgGet(const std::string& key, const std::string& def) const
+    {
+        auto it = cfg_.find(key);
+        return (it == cfg_.end()) ? def : it->second;
+    }
+
+    void ImGuiManager::cfgSet(const std::string& key, const std::string& value)
+    {
+        auto it = cfg_.find(key);
+        if ((it == cfg_.end()) || (it->second != value)) {
+            cfg_[key] = value;
+            ImGui::MarkIniSettingsDirty();
+        }
+    }
+
+    bool ImGuiManager::cfgGetBool(const std::string& key, bool def) const
+    {
+        auto valStr = cfgGet(key);
+        std::istringstream is(valStr);
+        int val = 0;
+        if (!(is >> val) || !is.eof()) {
+            return def;
+        } else {
+            return val;
+        }
+    }
+
+    void ImGuiManager::cfgSetBool(const std::string& key, bool value)
+    {
+        cfgSet(key, std::to_string(static_cast<int>(value)));
+    }
+
+    int ImGuiManager::cfgGetInt(const std::string& key, int def) const
+    {
+        auto valStr = cfgGet(key);
+        std::istringstream is(valStr);
+        int val = 0;
+        if (!(is >> val) || !is.eof()) {
+            return def;
+        } else {
+            return val;
+        }
+    }
+
+    void ImGuiManager::cfgSetInt(const std::string& key, int value)
+    {
+        cfgSet(key, std::to_string(value));
+    }
+
+    float ImGuiManager::cfgGetFloat(const std::string& key, float def) const
+    {
+        auto valStr = cfgGet(key);
+        std::istringstream is(valStr);
+        float val = 0.0f;
+        if (!(is >> val) || !is.eof()) {
+            return def;
+        } else {
+            return val;
+        }
+    }
+
+    void ImGuiManager::cfgSetFloat(const std::string& key, float value)
+    {
+        cfgSet(key, std::to_string(value));
     }
 
     ImTextureID ImGuiManager::toTextureId(const TexturePtr& tex)
@@ -258,5 +345,36 @@ namespace af3d
             runtime_assert(ki + 0xFF < static_cast<int>(sizeof(io.KeysDown) / sizeof(io.KeysDown[0])));
             return ki + 0xFF;
         }
+    }
+
+    void* ImGuiManager::CfgHandler_ReadOpen(ImGuiContext*, ImGuiSettingsHandler*, const char* name)
+    {
+        return (void*)&imGuiManager;
+    }
+
+    void ImGuiManager::CfgHandler_ReadLine(ImGuiContext*, ImGuiSettingsHandler*, void* entry, const char* line)
+    {
+        std::string s(line);
+        boost::tokenizer<boost::char_separator<char>> tok(s,
+            boost::char_separator<char>("="));
+        auto it = tok.begin();
+        if (it == tok.end()) {
+            return;
+        }
+        std::string key = *it;
+        ++it;
+        if (it == tok.end()) {
+            return;
+        }
+        imGuiManager.cfg_[key] = *it;
+    }
+
+    void ImGuiManager::CfgHandler_WriteAll(ImGuiContext* ctx, ImGuiSettingsHandler* handler, ImGuiTextBuffer* buf)
+    {
+        buf->appendf("[%s][Default]\n", handler->TypeName);
+        for (const auto& kv : imGuiManager.cfg_) {
+            buf->appendf("%s=%s\n", kv.first.c_str(), kv.second.c_str());
+        }
+        buf->append("\n");
     }
 }

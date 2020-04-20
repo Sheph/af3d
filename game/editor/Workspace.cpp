@@ -253,9 +253,15 @@ namespace editor {
         em_->enter();
         currentTool_->activate(true);
 
-        actionCommandHistory().trigger();
-        actionPropertyEditor().trigger();
-        actionToolbox().trigger();
+        if (imGuiManager.cfgGetBool(ImGuiManager::strCommandHistoryOpened, true)) {
+            actionCommandHistory().trigger();
+        }
+        if (imGuiManager.cfgGetBool(ImGuiManager::strPropertyEditorOpened, true)) {
+            actionPropertyEditor().trigger();
+        }
+        if (imGuiManager.cfgGetBool(ImGuiManager::strToolBoxOpened, true)) {
+            actionToolbox().trigger();
+        }
     }
 
     void Workspace::onUnregister()
