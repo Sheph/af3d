@@ -79,6 +79,9 @@ namespace af3d
             }
         }
 
+        APropertyValue propertyGravityGet(const std::string&) const { return gravity_; }
+        void propertyGravitySet(const std::string&, const APropertyValue& value) { gravity_ = value.toVec3(); }
+
         APropertyValue propertyClearColorGet(const std::string&) const { return clearColor_; }
         void propertyClearColorSet(const std::string&, const APropertyValue& value) { clearColor_ = value.toColor(); }
 
@@ -93,6 +96,8 @@ namespace af3d
     private:
         SceneObjectPtr root_;
         std::vector<SceneObjectPtr> objects_;
+
+        btVector3 gravity_;
         Color clearColor_ = Color_zero;
         Color ambientColor_ = Color_zero;
         std::string scriptPath_;
@@ -104,6 +109,7 @@ namespace af3d
     ACLASS_DECLARE(SceneAsset)
 
     #define SCENE_PROPS(Class) \
+        ACLASS_PROPERTY(Class, Gravity, "gravity", "World gravity", Vec3f, btVector3(0.0f, -10.0f, 0.0f), Physics, APropertyEditable) \
         ACLASS_PROPERTY(Class, ClearColor, "clear color", "Clear Color", ColorRGB, Color(0.23f, 0.23f, 0.23f, 1.0f), General, APropertyEditable) \
         ACLASS_PROPERTY(Class, AmbientColor, "ambient color", "Ambient Color", ColorRGB, Color(0.2f, 0.2f, 0.2f, 1.0f), General, APropertyEditable) \
         ACLASS_PROPERTY(Class, Script, "script", "Scene script asset path", String, "", General, APropertyEditable) \

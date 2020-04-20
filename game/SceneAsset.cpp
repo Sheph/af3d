@@ -53,6 +53,7 @@ namespace af3d
 
     void SceneAsset::apply(Scene* scene)
     {
+        scene->setGravity(gravity_);
         scene->setName(name());
         scene->setScriptPath(scriptPath_);
         scene->camera()->setTransform(cameraXf_);

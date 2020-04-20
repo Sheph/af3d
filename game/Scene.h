@@ -118,6 +118,9 @@ namespace af3d
 
         inline float realDt() const { return realDt_; }
 
+        APropertyValue propertyGravityGet(const std::string&) const { return gravity(); }
+        void propertyGravitySet(const std::string&, const APropertyValue& value) { setGravity(value.toVec3()); }
+
         APropertyValue propertyClearColorGet(const std::string&) const;
         void propertyClearColorSet(const std::string&, const APropertyValue& value);
 
