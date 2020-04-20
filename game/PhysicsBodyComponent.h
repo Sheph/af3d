@@ -110,6 +110,8 @@ namespace af3d
 
         void setActive(bool value);
 
+        void setWorldGravity();
+
     private:
         void onRegister() override;
 

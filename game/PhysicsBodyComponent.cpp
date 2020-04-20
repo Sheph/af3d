@@ -294,6 +294,15 @@ namespace af3d
         }
     }
 
+    void PhysicsBodyComponent::setWorldGravity()
+    {
+        if (!parent()) {
+            return;
+        }
+
+        parent()->body()->setGravity(manager()->world().getGravity());
+    }
+
     void PhysicsBodyComponent::calculatePrincipalAxisTransform(const btScalar* masses, btTransform& principal, btVector3& inertia)
     {
         if (numShapes() <= 0) {

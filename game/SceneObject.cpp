@@ -360,9 +360,15 @@ namespace af3d
         if (body_) {
             if (value) {
                 body_->setFlags(body_->getFlags() & ~BT_DISABLE_WORLD_GRAVITY);
+                auto pc = findComponent<PhysicsBodyComponent>();
+                if (pc) {
+                    pc->setWorldGravity();
+                }
             } else {
                 body_->setFlags(body_->getFlags() | BT_DISABLE_WORLD_GRAVITY);
+                body_->setGravity(btVector3_zero);
             }
+            body_->activate();
         } else {
             bodyCi_.gravityEnabled = value;
         }
