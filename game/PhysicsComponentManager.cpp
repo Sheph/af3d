@@ -179,6 +179,7 @@ namespace af3d
     bool PhysicsComponentManager::update(float dt)
     {
         if (dt > 0.0f) {
+            float kinematicDt = btMin(dt, settings.physics.maxSteps * settings.physics.fixedTimestep);
             for (int i = 0; i < world_.getNumCollisionObjects(); ++i) {
                 btCollisionObject* c = world_.getCollisionObjectArray()[i];
                 btRigidBody* body = btRigidBody::upcast(c);
@@ -187,7 +188,7 @@ namespace af3d
                     auto obj = SceneObject::fromBody(body);
                     auto ms = static_cast<MotionState*>(body->getMotionState());
                     btTransform xf;
-                    btTransformUtil::integrateTransform(ms->smoothXf, obj->linearVelocity(), obj->angularVelocity(), dt, xf);
+                    btTransformUtil::integrateTransform(ms->smoothXf, obj->linearVelocity(), obj->angularVelocity(), kinematicDt, xf);
                     ms->smoothXf = xf;
                 }
             }
