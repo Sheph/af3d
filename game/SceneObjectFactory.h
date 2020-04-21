@@ -51,6 +51,8 @@ namespace af3d
         SceneObjectPtr createSensor(bool allowSensor);
 
         SceneObjectPtr createTestRef(const SceneObjectPtr& other1, const SceneObjectPtr& other2);
+
+        SceneObjectPtr createLinkedBoxes(const btVector3& size, const Color& color1, const Color& color2);
     };
 
     extern SceneObjectFactory sceneObjectFactory;

@@ -31,6 +31,9 @@
 #include "RenderQuadComponent.h"
 #include "PhysicsBodyComponent.h"
 #include "CollisionSensorComponent.h"
+#include "CollisionShapeBox.h"
+#include "PhysicsJointComponent.h"
+#include "JointPointToPoint.h"
 #include "Settings.h"
 #include "Utils.h"
 #include "Logger.h"
@@ -123,6 +126,33 @@ namespace af3d
         return obj;
     }
 
+    SceneObjectPtr SceneObjectFactory::createLinkedBoxes(const btVector3& size, const Color& color1, const Color& color2)
+    {
+        auto obj = createColoredBox(size, color1, color2);
+        obj->setBodyType(BodyType::Dynamic);
+        auto pc = std::make_shared<PhysicsBodyComponent>();
+        pc->addShape(std::make_shared<CollisionShapeBox>(size));
+        obj->addComponent(pc);
+
+        auto obj2 = createColoredBox(size, color2, color1);
+        obj2->setPos(-btVector3_forward * size);
+        obj2->setBodyType(BodyType::Dynamic);
+        pc = std::make_shared<PhysicsBodyComponent>();
+        pc->addShape(std::make_shared<CollisionShapeBox>(size));
+        obj2->addComponent(pc);
+
+        obj->addObject(obj2);
+
+        auto j = std::make_shared<JointPointToPoint>(obj, obj2);
+        j->setPivotA(-btVector3_forward * size * 0.5f);
+        j->setPivotB(btVector3_forward * size * 0.5f);
+
+        obj->addComponent(
+            std::make_shared<PhysicsJointComponent>(Joints{j}));
+
+        return obj;
+    }
+
     SCENEOBJECT_DEFINE_BEGIN(Dummy)
     {
         return sceneObjectFactory.createDummy();
@@ -169,4 +199,17 @@ namespace af3d
     SCENEOBJECT_PARAM(TestRef, "other1", "Other1", SceneObject, SceneObjectPtr())
     SCENEOBJECT_PARAM(TestRef, "other2", "Other2", SceneObject, SceneObjectPtr())
     SCENEOBJECT_DEFINE_END(TestRef)
+
+    SCENEOBJECT_DEFINE_BEGIN(LinkedBoxes)
+    {
+        return sceneObjectFactory.createLinkedBoxes(
+            params.get("size").toVec3(),
+            params.get("color1").toColor(),
+            params.get("color2").toColor());
+    }
+    SCENEOBJECT_DEFINE_PROPS(LinkedBoxes)
+    SCENEOBJECT_PARAM(LinkedBoxes, "size", "Box size", Vec3f, btVector3(1.0f, 2.0f, 3.0f))
+    SCENEOBJECT_PARAM(LinkedBoxes, "color1", "Box color #1", ColorRGB, Color(1.0f, 0.0f, 0.0f, 1.0f))
+    SCENEOBJECT_PARAM(LinkedBoxes, "color2", "Box color #2", ColorRGB, Color(0.0f, 1.0f, 0.0f, 1.0f))
+    SCENEOBJECT_DEFINE_END(LinkedBoxes)
 }
