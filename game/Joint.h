@@ -93,6 +93,8 @@ namespace af3d
 
     using JointPtr = std::shared_ptr<Joint>;
 
+    using Joints = std::vector<JointPtr>;
+
     ACLASS_DECLARE(Joint)
 
     #define JOINT_PARAM(SName, Name, Tooltip, Type, Def) \
