@@ -44,7 +44,7 @@ namespace af3d
         explicit CollisionShape(const AClass& klass);
         ~CollisionShape();
 
-        // btCollisionShape's userPointer is CollisionShapePtr* unless
+        // btCollisionShape's userPointer is CollisionShapePtr*
         static CollisionShape* fromShape(btCollisionShape* shape);
 
         static const AClass& staticKlass();
