@@ -112,6 +112,7 @@ set(SOURCES
     SingleTweening.cpp
     UITimerComponent.cpp
     Joint.cpp
+    JointPointToPoint.cpp
     editor/Action.cpp
     editor/Workspace.cpp
     editor/MainPopup.cpp

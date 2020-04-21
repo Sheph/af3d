@@ -39,7 +39,8 @@ namespace af3d
     : AObject(klass),
       objectA_(objectA),
       objectB_(objectB),
-      collideConnected_(collideConnected)
+      collideConnected_(collideConnected),
+      hasBodyB_(objectB)
     {
     }
 
@@ -66,6 +67,7 @@ namespace af3d
     {
         doRefresh(forceDelete);
         auto c = constraint();
+        btAssert(!(forceDelete && c));
         if (c) {
             c->setUserConstraintPtr(this);
         }
