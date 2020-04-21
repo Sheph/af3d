@@ -157,8 +157,14 @@ namespace editor {
 
                 ImGui::PushID(pi.prop.name().c_str());
 
+                bool isParam = (pi.prop.category() == APropertyCategory::Params);
+
                 ImGui::Separator();
-                ImGui::Text("%s", pi.prop.name().c_str());
+                if (isParam) {
+                    ImGui::TextColored(ImVec4(0.6f, 1.0f, 0.6f, style.Colors[ImGuiCol_Text].w), "%s", pi.prop.name().c_str());
+                } else {
+                    ImGui::Text("%s", pi.prop.name().c_str());
+                }
                 if (ImGui::IsItemHovered()) {
                     ImGui::BeginTooltip();
                     ImGui::Text("%s (%s)", pi.prop.tooltip().c_str(), pi.prop.type().name());
@@ -166,8 +172,6 @@ namespace editor {
                 }
 
                 ImGui::NextColumn();
-
-                bool isParam = (pi.prop.category() == APropertyCategory::Params);
 
                 auto val = obj->propertyGet(pi.prop.name());
                 if (val != pi.initialVal) {
