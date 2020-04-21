@@ -36,8 +36,9 @@
 
 namespace af3d { namespace editor
 {
-    CommandDelete::CommandDelete(Scene* scene, const AObjectPtr& obj)
+    CommandDelete::CommandDelete(Scene* scene, const AObjectPtr& obj, bool quiet)
     : Command(scene),
+      quiet_(quiet),
       wobj_(obj)
     {
     }
@@ -206,7 +207,9 @@ namespace af3d { namespace editor
         for (const auto& prop : props) {
             auto val = obj->propertyGet(prop.name());
             if (buildNested(val, serializedObjs, visitedObjs)) {
-                LOG4CPLUS_DEBUG(logger(), "nested: set " << obj->name() << "|" << prop.name() << " = " << val.toString());
+                if (!quiet_) {
+                    LOG4CPLUS_DEBUG(logger(), "nested: set " << obj->name() << "|" << prop.name() << " = " << val.toString());
+                }
                 nested_.push_back(
                     std::make_shared<CommandSetProperty>(scene(), obj->sharedThis(),
                         prop.name(), val, (prop.category() == APropertyCategory::Params)));

@@ -36,7 +36,7 @@ namespace af3d { namespace editor
     class CommandDelete : public Command
     {
     public:
-        CommandDelete(Scene* scene, const AObjectPtr& obj);
+        CommandDelete(Scene* scene, const AObjectPtr& obj, bool quiet = false);
         ~CommandDelete() = default;
 
         bool redo() override;
@@ -54,6 +54,7 @@ namespace af3d { namespace editor
         bool buildNested(APropertyValue& value, const std::unordered_set<ACookie>& serializedObjs,
             std::unordered_set<ACookie>& visitedObjs);
 
+        bool quiet_ = false;
         bool first_ = true;
         AWeakObject parentWobj_;
         AWeakObject wobj_;

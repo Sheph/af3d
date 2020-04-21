@@ -28,6 +28,7 @@
 
 #include "editor/Command.h"
 #include "AObject.h"
+#include <unordered_set>
 
 namespace af3d { namespace editor
 {
@@ -47,11 +48,20 @@ namespace af3d { namespace editor
     private:
         void setValue(const AObjectPtr& obj, APropertyValue& value);
 
+        bool fixForParam(APropertyValue& value);
+
+        static bool reachableViaParams(const AWeakObject& from, const AWeakObject& to,
+            std::unordered_set<ACookie>& visitedObjs);
+
+        static bool reachableViaParams(const APropertyValue& value, const AWeakObject& to,
+            std::unordered_set<ACookie>& visitedObjs);
+
         AWeakObject wobj_;
         std::string name_;
         APropertyValue prevValue_;
         APropertyValue value_;
         bool isParam_ = false;
+        bool first_ = true;
     };
 } }
 

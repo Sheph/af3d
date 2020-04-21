@@ -55,6 +55,8 @@ namespace af3d { namespace editor
 
         setValue(obj, value_);
 
+        first_ = false;
+
         return true;
     }
 
@@ -76,12 +78,20 @@ namespace af3d { namespace editor
         value.refreshObjects();
 
         if (isParam_) {
+            if (first_) {
+                // If 'value' contains objects that have param properties that refer to this
+                // object then it's an impossible configuration, so we just 'cut out' these
+                // objects from 'value'. Leaving them would result in an infinite loop of
+                // sets and deletes.
+                fixForParam(value);
+            }
+
             if (auto sObj = aobjectCast<SceneObject>(obj)) {
                 auto origPvm = sObj->params();
                 auto pvm = origPvm;
                 pvm.set(name_, value);
                 sObj->setParams(pvm);
-                auto cmd = std::make_shared<CommandDelete>(scene(), obj);
+                auto cmd = std::make_shared<CommandDelete>(scene(), obj, true);
                 if (cmd->redo()) {
                     cmd->undo();
                 } else {
@@ -92,7 +102,7 @@ namespace af3d { namespace editor
                 auto pvm = origPvm;
                 pvm.set(name_, value);
                 shape->setParams(pvm);
-                auto cmd = std::make_shared<CommandDelete>(scene(), obj);
+                auto cmd = std::make_shared<CommandDelete>(scene(), obj, true);
                 if (cmd->redo()) {
                     cmd->undo();
                 } else {
@@ -104,5 +114,96 @@ namespace af3d { namespace editor
         } else {
             obj->propertySet(name_, value);
         }
+    }
+
+    bool CommandSetProperty::fixForParam(APropertyValue& value)
+    {
+        switch (value.type()) {
+        case APropertyValue::Object: {
+            std::unordered_set<ACookie> visitedObjs;
+            if (reachableViaParams(value.toWeakObject(), wobj_, visitedObjs)) {
+                value = APropertyValue(AObjectPtr());
+                return true;
+            }
+            break;
+        }
+        case APropertyValue::WeakObject: {
+            std::unordered_set<ACookie> visitedObjs;
+            if (reachableViaParams(value.toWeakObject(), wobj_, visitedObjs)) {
+                value = APropertyValue(AWeakObject());
+                return true;
+            }
+            break;
+        }
+        case APropertyValue::Array: {
+            auto arr = value.toArray();
+            bool res = false;
+            arr.erase(std::remove_if(arr.begin(), arr.end(), [this, &res](APropertyValue& v) {
+                bool r = fixForParam(v);
+                res |= r;
+                return r && (v.type() != APropertyValue::Array);
+            }), arr.end());
+            if (res) {
+                value = APropertyValue(arr);
+            }
+            return res;
+        }
+        default:
+            break;
+        }
+        return false;
+    }
+
+    bool CommandSetProperty::reachableViaParams(const AWeakObject& from, const AWeakObject& to,
+        std::unordered_set<ACookie>& visitedObjs)
+    {
+        if (!visitedObjs.insert(from.cookie()).second) {
+            return false;
+        }
+
+        AObjectPtr fromObj = from.lock();
+        AObjectPtr toObj = to.lock();
+
+        if (!fromObj || !toObj) {
+            return false;
+        }
+
+        auto props = fromObj->klass().getProperties();
+        for (const auto& prop : props) {
+            if (prop.category() == APropertyCategory::Params) {
+                if (reachableViaParams(fromObj->propertyGet(prop.name()), to, visitedObjs)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    bool CommandSetProperty::reachableViaParams(const APropertyValue& value, const AWeakObject& to,
+        std::unordered_set<ACookie>& visitedObjs)
+    {
+        switch (value.type()) {
+        case APropertyValue::Object:
+        case APropertyValue::WeakObject: {
+            auto w = value.toWeakObject();
+            if ((w == to) || reachableViaParams(w, to, visitedObjs)) {
+                return true;
+            }
+            break;
+        }
+        case APropertyValue::Array: {
+            auto arr = value.toArray();
+            for (const auto& el : arr) {
+                if (reachableViaParams(el, to, visitedObjs)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        default:
+            break;
+        }
+        return false;
     }
 } }
