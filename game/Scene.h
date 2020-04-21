@@ -29,6 +29,7 @@
 #include "SceneObjectManager.h"
 #include "PhysicsComponent.h"
 #include "ImGuiComponent.h"
+#include "Joint.h"
 #include "editor/Workspace.h"
 #include "af3d/AABB.h"
 #include <functional>
@@ -74,6 +75,16 @@ namespace af3d
         void thawComponent(const ComponentPtr& component);
 
         void update(float dt);
+
+        void addJoint(const JointPtr& joint);
+
+        void removeJoint(const JointPtr& joint);
+
+        std::vector<JointPtr> getJoints(const std::string& name) const;
+
+        const std::unordered_set<JointPtr>& joints() const;
+
+        Joint* getJoint(btTypedConstraint* constraint) const;
 
         std::uint32_t addTimer(const TimerFn& fn);
 
@@ -132,6 +143,9 @@ namespace af3d
 
         APropertyValue propertyCameraTransformGet(const std::string&) const;
 
+        // Internal, do not call.
+        void onLeave(SceneObject* obj);
+
     private:
         static void worldTickCallback(btDynamicsWorld* world, btScalar timeStep);
 
@@ -144,6 +158,8 @@ namespace af3d
         void setChildren(const std::vector<AObjectPtr>& value) override;
 
         void updateStep(float dt);
+
+        void reapJoints();
 
         class Impl;
         std::unique_ptr<Impl> impl_;

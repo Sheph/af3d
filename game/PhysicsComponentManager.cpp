@@ -83,10 +83,38 @@ namespace af3d
         btCollisionDispatcher::releaseManifold(manifold);
     }
 
-    PhysicsComponentManager::PhysicsComponentManager(CollisionComponentManager* collisionMgr, btIDebugDraw* debugDraw)
+    PhysicsComponentManager::World::World(btDispatcher* dispatcher, btBroadphaseInterface* pairCache, btConstraintSolver* constraintSolver,
+        btCollisionConfiguration* collisionConfiguration, const BodyFn& bodyAddFn,
+        const BodyFn& bodyRemoveFn)
+    : btDiscreteDynamicsWorld(dispatcher, pairCache, constraintSolver, collisionConfiguration),
+      bodyAddFn_(bodyAddFn),
+      bodyRemoveFn_(bodyRemoveFn)
+    {
+    }
+
+    void PhysicsComponentManager::World::addRigidBody(btRigidBody* body)
+    {
+        btDiscreteDynamicsWorld::addRigidBody(body);
+        bodyAddFn_(body);
+    }
+
+    void PhysicsComponentManager::World::addRigidBody(btRigidBody* body, int group, int mask)
+    {
+        btDiscreteDynamicsWorld::addRigidBody(body, group, mask);
+        bodyAddFn_(body);
+    }
+
+    void PhysicsComponentManager::World::removeRigidBody(btRigidBody* body)
+    {
+        btDiscreteDynamicsWorld::removeRigidBody(body);
+        bodyRemoveFn_(body);
+    }
+
+    PhysicsComponentManager::PhysicsComponentManager(CollisionComponentManager* collisionMgr, btIDebugDraw* debugDraw,
+        const BodyFn& bodyAddFn, const BodyFn& bodyRemoveFn)
     : collisionMgr_(collisionMgr),
       collisionDispatcher_(collisionMgr, &collisionCfg_),
-      world_(&collisionDispatcher_, &broadphase_, &solver_, &collisionCfg_)
+      world_(&collisionDispatcher_, &broadphase_, &solver_, &collisionCfg_, bodyAddFn, bodyRemoveFn)
     {
         world_.setWorldUserInfo(this);
 

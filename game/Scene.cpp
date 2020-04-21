@@ -61,6 +61,8 @@ namespace af3d
     ACLASS_DEFINE_END(Scene)
 
     using TimerMap = std::map<std::int32_t, Scene::TimerFn>;
+    using JointSet = std::unordered_set<JointPtr>;
+    using ConstraintJointMap = std::unordered_map<btTypedConstraint*, Joint*>;
 
     class Scene::Impl
     {
@@ -106,7 +108,9 @@ namespace af3d
 
             phasedComponentManager_.reset(new PhasedComponentManager());
             collisionComponentManager_.reset(new CollisionComponentManager());
-            physicsComponentManager_.reset(new PhysicsComponentManager(collisionComponentManager_.get(), &debugDraw_));
+            physicsComponentManager_.reset(new PhysicsComponentManager(collisionComponentManager_.get(), &debugDraw_,
+                std::bind(&Impl::onBodyAdd, this, std::placeholders::_1),
+                std::bind(&Impl::onBodyRemove, this, std::placeholders::_1)));
             renderComponentManager_.reset(new RenderComponentManager());
             uiComponentManager_.reset(new UIComponentManager());
 
@@ -117,6 +121,55 @@ namespace af3d
         {
         }
 
+        void onBodyAdd(btRigidBody* body)
+        {
+            // Body added to world
+            btAssert(body->isInWorld());
+            refreshJoints(body, false);
+        }
+
+        void onBodyRemove(btRigidBody* body)
+        {
+            // Body removed from world
+            btAssert(!body->isInWorld());
+            refreshJoints(body, false);
+        }
+
+        void onBodyLeave(btRigidBody* body)
+        {
+            // Body's leaving for good
+            btAssert(!body->isInWorld());
+            refreshJoints(body, true);
+        }
+
+        void refreshJoints(btRigidBody* body, bool forceDelete)
+        {
+            btAssert(SceneObject::fromBody(body));
+
+            for (const auto& j : joints_) {
+                auto c = j->constraint();
+                if (c) {
+                    if ((&c->getRigidBodyA() == body) ||
+                        (&c->getRigidBodyB() == body)) {
+                        if (forceDelete) {
+                            physicsComponentManager_->world().removeConstraint(c);
+                            runtime_assert(constraintToJoint_.erase(c) > 0);
+                        }
+                        j->refresh(forceDelete);
+                    }
+                } else {
+                    j->refresh(forceDelete);
+                    c = j->constraint();
+                    if (c) {
+                        runtime_assert(constraintToJoint_.emplace(c, j.get()).second);
+                        physicsComponentManager_->world().addConstraint(c, !j->collideConnected());
+                    }
+                }
+            }
+        }
+
+        JointSet joints_;
+        ConstraintJointMap constraintToJoint_;
         PhysicsDebugDraw debugDraw_;
         VertexArrayWriter defaultVa_;
         std::unique_ptr<PhasedComponentManager> phasedComponentManager_;
@@ -128,6 +181,7 @@ namespace af3d
         std::uint32_t nextTimerCookie_ = 1;
         TimerMap::const_iterator timerIt_;
         bool firstPhysicsStep_ = true;
+        int tick_ = 0;
     };
 
     Scene::Scene(const std::string& assetPath)
@@ -194,6 +248,9 @@ namespace af3d
 
     Scene::~Scene()
     {
+        btAssert(impl_->joints_.empty());
+        btAssert(impl_->constraintToJoint_.empty());
+
         impl_.reset();
     }
 
@@ -227,6 +284,9 @@ namespace af3d
         workspaceObj_.reset();
         workspace_.reset();
 
+        while (!impl_->joints_.empty()) {
+            removeJoint(*impl_->joints_.begin());
+        }
         impl_->timers_.clear();
 
         impl_->phasedComponentManager_->cleanup();
@@ -392,6 +452,10 @@ namespace af3d
 
     void Scene::updateStep(float dt)
     {
+        ++impl_->tick_;
+
+        reapJoints();
+
         impl_->collisionComponentManager_->step(&impl_->physicsComponentManager_->world());
         impl_->collisionComponentManager_->flushPending();
         impl_->collisionComponentManager_->update(dt);
@@ -418,6 +482,85 @@ namespace af3d
         }
 
         impl_->collisionComponentManager_->flushPending();
+    }
+
+    void Scene::reapJoints()
+    {
+        // If we're not in editor and joint doesn't have
+        // any bodies alive and constraint is no longer there
+        // then there's no way this joint can become active again, so
+        // check it and remove such joints.
+
+        if (workspace()) {
+            return;
+        }
+
+        if (impl_->tick_ % 100 != 0) {
+            return;
+        }
+
+        for (auto it = impl_->joints_.begin(); it != impl_->joints_.end();) {
+            const auto& j = *it;
+            ++it;
+            if (!j->constraint() && !j->objectA() && !j->objectB()) {
+                removeJoint(j);
+            }
+        }
+    }
+
+    void Scene::addJoint(const JointPtr& joint)
+    {
+        runtime_assert(impl_->joints_.insert(joint).second);
+
+        joint->adopt(this);
+
+        auto c = joint->constraint();
+        if (c) {
+            runtime_assert(impl_->constraintToJoint_.emplace(c, joint.get()).second);
+            impl_->physicsComponentManager_->world().addConstraint(c, !joint->collideConnected());
+        }
+    }
+
+    void Scene::removeJoint(const JointPtr& joint)
+    {
+        // Hold on to it while removing.
+        JointPtr tmp = joint;
+
+        if (impl_->joints_.erase(joint) == 0) {
+            return;
+        }
+
+        auto c = joint->constraint();
+        if (c) {
+            impl_->physicsComponentManager_->world().removeConstraint(c);
+            runtime_assert(impl_->constraintToJoint_.erase(c) > 0);
+        }
+
+        joint->abandon();
+    }
+
+    std::vector<JointPtr> Scene::getJoints(const std::string& name) const
+    {
+        std::vector<JointPtr> res;
+
+        for (const auto& j : impl_->joints_) {
+            if (j->name() == name) {
+                res.push_back(j);
+            }
+        }
+
+        return res;
+    }
+
+    const std::unordered_set<JointPtr>& Scene::joints() const
+    {
+        return impl_->joints_;
+    }
+
+    Joint* Scene::getJoint(btTypedConstraint* constraint) const
+    {
+        auto it = impl_->constraintToJoint_.find(constraint);
+        return (it == impl_->constraintToJoint_.end()) ? nullptr : it->second;
     }
 
     std::uint32_t Scene::addTimer(const TimerFn& fn)
@@ -547,6 +690,13 @@ namespace af3d
         return camera_->transform();
     }
 
+    void Scene::onLeave(SceneObject* obj)
+    {
+        if (obj->body()) {
+            impl_->onBodyLeave(obj->body());
+        }
+    }
+
     void Scene::worldTickCallback(btDynamicsWorld* world, btScalar timeStep)
     {
         PhysicsComponentManager::fromWorld(world)->scene()->updateStep(timeStep);
@@ -603,12 +753,20 @@ namespace af3d
     std::vector<AObjectPtr> Scene::getChildren() const
     {
         std::vector<AObjectPtr> res;
-        res.reserve(objects().size());
+        res.reserve(objects().size() + joints().size());
+
         for (const auto& obj : objects()) {
             if ((obj->aflags() & AObjectEditable) != 0) {
                 res.push_back(obj);
             }
         }
+
+        for (const auto& j : joints()) {
+            if ((j->aflags() & AObjectEditable) != 0) {
+                res.push_back(j);
+            }
+        }
+
         return res;
     }
 
@@ -620,10 +778,19 @@ namespace af3d
                 obj->removeFromParent();
             }
         }
+
+        auto js = joints();
+        for (const auto& j : js) {
+            if ((j->aflags() & AObjectEditable) != 0) {
+                j->removeFromParent();
+            }
+        }
+
         for (const auto& obj : value) {
-            auto sObj = aobjectCast<SceneObject>(obj);
-            if (sObj) {
+            if (auto sObj = aobjectCast<SceneObject>(obj)) {
                 addObject(sObj);
+            } else if (auto j = aobjectCast<Joint>(obj)) {
+                addJoint(j);
             } else {
                 LOG4CPLUS_ERROR(logger(), "Bad child object \"" << obj->name() << "\", class - \"" << obj->klass().name() << "\"");
             }

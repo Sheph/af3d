@@ -38,10 +38,13 @@ namespace af3d
 
     using RayCastFn = std::function<float(btCollisionShape*, const btVector3&, const btVector3&, float)>;
 
+    using BodyFn = std::function<void(btRigidBody*)>;
+
     class PhysicsComponentManager : public ComponentManager
     {
     public:
-        PhysicsComponentManager(CollisionComponentManager* collisionMgr, btIDebugDraw* debugDraw);
+        PhysicsComponentManager(CollisionComponentManager* collisionMgr, btIDebugDraw* debugDraw,
+            const BodyFn& bodyAddFn, const BodyFn& bodyRemoveFn);
         ~PhysicsComponentManager();
 
         static PhysicsComponentManager* fromWorld(btDynamicsWorld* world);
@@ -77,13 +80,31 @@ namespace af3d
             CollisionComponentManager* collisionMgr_ = nullptr;
         };
 
+        class World : public btDiscreteDynamicsWorld
+        {
+        public:
+            World(btDispatcher* dispatcher, btBroadphaseInterface* pairCache, btConstraintSolver* constraintSolver,
+                btCollisionConfiguration* collisionConfiguration, const BodyFn& bodyAddFn,
+                const BodyFn& bodyRemoveFn);
+
+            void addRigidBody(btRigidBody* body) override;
+
+            void addRigidBody(btRigidBody* body, int group, int mask) override;
+
+            void removeRigidBody(btRigidBody* body) override;
+
+        private:
+            BodyFn bodyAddFn_;
+            BodyFn bodyRemoveFn_;
+        };
+
         CollisionComponentManager* collisionMgr_ = nullptr;
 
         btDefaultCollisionConfiguration collisionCfg_;
         CollisionDispatcher collisionDispatcher_;
         btDbvtBroadphase broadphase_;
         btSequentialImpulseConstraintSolver solver_;
-        btDiscreteDynamicsWorld world_;
+        World world_;
 
         std::unordered_set<PhysicsComponentPtr> components_;
         std::unordered_set<PhysicsComponentPtr> frozenComponents_;

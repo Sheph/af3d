@@ -94,7 +94,7 @@ namespace af3d
         inline void setParent(SceneObjectManager* value) { parent_ = value; }
 
         inline Scene* scene() { return scene_; }
-        inline void setScene(Scene* value) { scene_ = value; }
+        void setScene(Scene* value);
 
         APropertyValue propertyChildrenGet(const std::string&) const
         {

@@ -213,12 +213,12 @@ namespace af3d
             body->setAngularVelocity(parent()->angularVelocity());
         }
 
-        if (parent()->physicsActive()) {
-            manager()->world().addRigidBody(body);
-        }
-
         if (!parent()->body()) {
             parent()->setBody(body);
+        }
+
+        if (parent()->physicsActive()) {
+            manager()->world().addRigidBody(body);
         }
 
         notifyShapes(true);

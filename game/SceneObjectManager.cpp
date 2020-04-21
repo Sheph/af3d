@@ -156,6 +156,17 @@ namespace af3d
         return res;
     }
 
+    void SceneObjectManager::setScene(Scene* value)
+    {
+        if (scene_ && (value != scene_)) {
+            auto obj = aobjectCast<SceneObject>(this);
+            if (obj) {
+                scene_->onLeave(obj);
+            }
+        }
+        scene_ = value;
+    }
+
     void SceneObjectManager::registerObject(const SceneObjectPtr& obj)
     {
         obj->setScene(scene());

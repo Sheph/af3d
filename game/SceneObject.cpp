@@ -251,7 +251,6 @@ namespace af3d
         body_ = value;
         body_->setUserPointer(this);
         bodyMs_ = static_cast<MotionState*>(body_->getMotionState());
-        bodyCi_.active = body_->isInWorld();
 
         if (bodyType() == BodyType::Kinematic) {
             if (!bodyCi_.linearVelocity.fuzzyZero() || !bodyCi_.angularVelocity.fuzzyZero()) {

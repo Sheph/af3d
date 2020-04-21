@@ -111,6 +111,7 @@ set(SOURCES
     SequentialTweening.cpp
     SingleTweening.cpp
     UITimerComponent.cpp
+    Joint.cpp
     editor/Action.cpp
     editor/Workspace.cpp
     editor/MainPopup.cpp
