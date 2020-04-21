@@ -25,8 +25,7 @@
 
 #include "editor/CommandSetProperty.h"
 #include "editor/CommandDelete.h"
-#include "SceneObject.h"
-#include "CollisionShape.h"
+#include "AParameterized.h"
 #include "Logger.h"
 
 namespace af3d { namespace editor
