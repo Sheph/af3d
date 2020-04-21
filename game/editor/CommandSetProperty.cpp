@@ -33,14 +33,13 @@ namespace af3d { namespace editor
 {
     CommandSetProperty::CommandSetProperty(Scene* scene,
         const AObjectPtr& obj,
-        const std::string& propName, const APropertyValue& propValue,
-        bool isParam)
+        const std::string& propName, const APropertyValue& propValue)
     : Command(scene),
       wobj_(obj),
       name_(propName),
       prevValue_(obj->propertyGet(propName)),
       value_(propValue),
-      isParam_(isParam)
+      isParam_(obj->propertyFind(propName)->category() == APropertyCategory::Params)
     {
         setDescription("Set \"" + propName + "\" property");
     }
@@ -86,27 +85,16 @@ namespace af3d { namespace editor
                 fixForParam(value);
             }
 
-            if (auto sObj = aobjectCast<SceneObject>(obj)) {
-                auto origPvm = sObj->params();
+            if (auto ap = dynamic_cast<AParameterized*>(obj.get())) {
+                auto origPvm = ap->params();
                 auto pvm = origPvm;
                 pvm.set(name_, value);
-                sObj->setParams(pvm);
+                ap->setParams(pvm);
                 auto cmd = std::make_shared<CommandDelete>(scene(), obj, true);
                 if (cmd->redo()) {
                     cmd->undo();
                 } else {
-                    sObj->setParams(origPvm);
-                }
-            } else if (auto shape = aobjectCast<CollisionShape>(obj)) {
-                auto origPvm = shape->params();
-                auto pvm = origPvm;
-                pvm.set(name_, value);
-                shape->setParams(pvm);
-                auto cmd = std::make_shared<CommandDelete>(scene(), obj, true);
-                if (cmd->redo()) {
-                    cmd->undo();
-                } else {
-                    shape->setParams(origPvm);
+                    ap->setParams(origPvm);
                 }
             } else {
                 LOG4CPLUS_ERROR(logger(), "Unknown param handling object: " << description());

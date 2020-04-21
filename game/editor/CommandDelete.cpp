@@ -212,7 +212,7 @@ namespace af3d { namespace editor
                 }
                 nested_.push_back(
                     std::make_shared<CommandSetProperty>(scene(), obj->sharedThis(),
-                        prop.name(), val, (prop.category() == APropertyCategory::Params)));
+                        prop.name(), val));
             }
         }
     }

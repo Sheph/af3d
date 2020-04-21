@@ -28,6 +28,7 @@
 
 #include "SceneObjectManager.h"
 #include "Component.h"
+#include "AParameterized.h"
 #include "bullet/btBulletDynamicsCommon.h"
 #include <memory>
 
@@ -46,6 +47,7 @@ namespace af3d
     extern const APropertyTypeEnumImpl<BodyType> APropertyType_BodyType;
 
     class SceneObject : public std::enable_shared_from_this<SceneObject>,
+        public AParameterized,
         public SceneObjectManager
     {
     public:
@@ -250,9 +252,6 @@ namespace af3d
 
         bool collidesWith(btCollisionObject* other);
 
-        inline const APropertyValueMap& params() const { return params_; }
-        inline void setParams(const APropertyValueMap& value) { params_ = value; }
-
         /*
          * Internal, do not call.
          * @{
@@ -302,7 +301,7 @@ namespace af3d
         APropertyValue propertyAngularVelocityGet(const std::string&) const { return angularVelocity(); }
         void propertyAngularVelocitySet(const std::string&, const APropertyValue& value) { setAngularVelocity(value.toVec3()); }
 
-        APropertyValue propertyParamGet(const std::string& key) const { return params_.get(key); }
+        APropertyValue propertyParamGet(const std::string& key) const { return params().get(key); }
 
     private:
         enum class Flag
@@ -345,8 +344,6 @@ namespace af3d
         std::vector<ComponentPtr> components_;
 
         Flags flags_;
-
-        APropertyValueMap params_;
     };
 
     extern const APropertyTypeObject APropertyType_SceneObject;

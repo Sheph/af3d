@@ -142,7 +142,7 @@ namespace af3d { namespace editor
         void addObject(const std::string& kind);
 
         void setProperty(const AObjectPtr& obj,
-            const std::string& name, const APropertyValue& value, bool isParam);
+            const std::string& name, const APropertyValue& value);
 
         void setEditMode(EditModeImpl* value);
 

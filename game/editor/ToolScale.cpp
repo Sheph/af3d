@@ -99,7 +99,7 @@ namespace af3d { namespace editor
         auto scale = rc_->target()->propertyGet(AProperty_Scale);
         rc_->target()->propertySet(AProperty_Scale, capturedTargetScale_);
         if (!canceled) {
-            workspace().setProperty(rc_->target(), AProperty_Scale, scale, false);
+            workspace().setProperty(rc_->target(), AProperty_Scale, scale);
         }
         rc_->setOrientation(orientation());
         rc_->setMoveType(MoveType::None);

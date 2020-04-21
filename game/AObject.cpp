@@ -100,6 +100,11 @@ namespace af3d
         return klass_->propertyCanSet(key);
     }
 
+    const AProperty* AObject::propertyFind(const std::string& key) const
+    {
+        return klass_->propertyFind(key);
+    }
+
     APropertyValue AObject::propertyGet(const std::string& key) const
     {
         return klass_->propertyGet(this, key);

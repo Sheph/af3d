@@ -125,6 +125,20 @@ namespace af3d
         return !!it->second.setter;
     }
 
+    const AProperty* AClass::propertyFind(const std::string& key) const
+    {
+        if (&super_ == this) {
+            return nullptr;
+        } else {
+            for (const auto& p : properties_) {
+                if (p.name() == key) {
+                    return &p;
+                }
+            }
+            return super_.propertyFind(key);
+        }
+    }
+
     APropertyValue AClass::propertyGet(const AObject* obj, const std::string& key) const
     {
         if (&super_ == this) {

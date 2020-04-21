@@ -179,7 +179,7 @@ namespace editor {
                 }
                 if (ImGuiUtils::APropertyEdit(scene(), pi.prop.type(), pi.val, !isParam && (pi.prop.flags() & APropertyWritable) == 0) &&
                     !wasSet && (pi.val != pi.initialVal)) {
-                    scene()->workspace()->setProperty(obj, pi.prop.name(), pi.val, isParam);
+                    scene()->workspace()->setProperty(obj, pi.prop.name(), pi.val);
                     pi.initialVal = pi.val;
                     wasSet = true;
                 }

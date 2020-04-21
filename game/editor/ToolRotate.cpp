@@ -107,7 +107,7 @@ namespace af3d { namespace editor
         auto xf = rc_->target()->propertyGet(AProperty_WorldTransform);
         rc_->target()->propertySet(AProperty_WorldTransform, capturedTargetXf_);
         if (!canceled) {
-            workspace().setProperty(rc_->target(), AProperty_WorldTransform, xf, false);
+            workspace().setProperty(rc_->target(), AProperty_WorldTransform, xf);
         }
         rc_->setOrientation(orientation());
         rc_->setRotateType(RotateType::None);

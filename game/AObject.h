@@ -69,6 +69,7 @@ namespace af3d
 
         bool propertyCanGet(const std::string& key) const;
         bool propertyCanSet(const std::string& key) const;
+        const AProperty* propertyFind(const std::string& key) const;
 
         APropertyValue propertyGet(const std::string& key) const;
         void propertySet(const std::string& key, const APropertyValue& value);

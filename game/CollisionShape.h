@@ -27,6 +27,7 @@
 #define _COLLISIONSHAPE_H_
 
 #include "AObject.h"
+#include "AParameterized.h"
 #include "af3d/Types.h"
 #include "bullet/btBulletCollisionCommon.h"
 
@@ -37,7 +38,7 @@ namespace af3d
     class SceneObject;
     class PhysicsDebugDraw;
 
-    class CollisionShape : public AObject
+    class CollisionShape : public AObject, public AParameterized
     {
     public:
         explicit CollisionShape(const AClass& klass);
@@ -79,9 +80,6 @@ namespace af3d
         void setMass(float value);
 
         void removeFromParent();
-
-        inline const APropertyValueMap& params() const { return params_; }
-        inline void setParams(const APropertyValueMap& value) { params_ = value; }
 
         /*
          * Internal, do not call.
@@ -127,7 +125,7 @@ namespace af3d
         APropertyValue propertyMassGet(const std::string&) const { return mass(); }
         void propertyMassSet(const std::string&, const APropertyValue& value) { setMass(value.toFloat()); }
 
-        APropertyValue propertyParamGet(const std::string& key) const { return params_.get(key); }
+        APropertyValue propertyParamGet(const std::string& key) const { return params().get(key); }
 
     protected:
         virtual void onResetUserPointer();
@@ -141,7 +139,6 @@ namespace af3d
         PhysicsBodyComponent* parent_ = nullptr;
         btTransform abandonedParentXf_ = btTransform::getIdentity();
 
-        APropertyValueMap params_;
         bool active_ = false;
 
         SceneObject* holdingObj_ = nullptr;

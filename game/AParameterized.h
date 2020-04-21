@@ -23,45 +23,27 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _EDITOR_COMMAND_SETPROPERTY_H_
-#define _EDITOR_COMMAND_SETPROPERTY_H_
+#ifndef _APARAMETERIZED_H_
+#define _APARAMETERIZED_H_
 
-#include "editor/Command.h"
-#include "AObject.h"
-#include <unordered_set>
+#include "APropertyValueMap.h"
 
-namespace af3d { namespace editor
+namespace af3d
 {
-    class CommandSetProperty : public Command
+    class AParameterized
     {
     public:
-        CommandSetProperty(Scene* scene,
-            const AObjectPtr& obj,
-            const std::string& propName, const APropertyValue& propValue);
-        ~CommandSetProperty() = default;
+        AParameterized() = default;
+        // Intentionally non-virtual! We want to have it as a mixin
+        // and don't touch the vtable (as enabled_shared_from_this does).
+        ~AParameterized() = default;
 
-        bool redo() override;
-
-        bool undo() override;
+        inline const APropertyValueMap& params() const { return params_; }
+        inline void setParams(const APropertyValueMap& value) { params_ = value; }
 
     private:
-        void setValue(const AObjectPtr& obj, APropertyValue& value);
-
-        bool fixForParam(APropertyValue& value);
-
-        static bool reachableViaParams(const AWeakObject& from, const AWeakObject& to,
-            std::unordered_set<ACookie>& visitedObjs);
-
-        static bool reachableViaParams(const APropertyValue& value, const AWeakObject& to,
-            std::unordered_set<ACookie>& visitedObjs);
-
-        AWeakObject wobj_;
-        std::string name_;
-        APropertyValue prevValue_;
-        APropertyValue value_;
-        const bool isParam_;
-        bool first_ = true;
+        APropertyValueMap params_;
     };
-} }
+}
 
 #endif
