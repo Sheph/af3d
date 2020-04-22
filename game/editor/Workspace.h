@@ -84,6 +84,7 @@ namespace af3d { namespace editor
         inline EditModeVisual* emVisual() { return emVisual_.get(); }
         inline EditModeLight* emLight() { return emLight_.get(); }
         inline EditModeCollision* emCollision() { return emCollision_.get(); }
+        inline EditModeJoint* emJoint() { return emJoint_.get(); }
         inline EditModeScene* emScene() { return emScene_.get(); }
 
         inline EditMode* em() { return em_; }

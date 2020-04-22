@@ -109,6 +109,23 @@ namespace editor {
                         }
                     }
                 }
+            } else if (scene()->workspace()->emJoint()->active()) {
+                auto selected = scene()->workspace()->emJoint()->selectedTyped();
+                for (const auto& j : selected) {
+                    if ((j->objectA().get() == parent()) || (j->objectB().get() == parent())) {
+                        showMarker = true;
+                        break;
+                    }
+                }
+                if (!showMarker) {
+                    auto hovered = scene()->workspace()->emJoint()->hoveredTyped();
+                    for (const auto& j : hovered) {
+                        if ((j->objectA().get() == parent()) || (j->objectB().get() == parent())) {
+                            showMarker = true;
+                            break;
+                        }
+                    }
+                }
             }
         }
 
