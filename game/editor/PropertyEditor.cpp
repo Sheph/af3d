@@ -162,6 +162,8 @@ namespace editor {
                 ImGui::Separator();
                 if (isParam) {
                     ImGui::TextColored(ImVec4(0.6f, 1.0f, 0.6f, style.Colors[ImGuiCol_Text].w), "%s", pi.prop.name().c_str());
+                } else if ((pi.prop.flags() & APropertyTransient) != 0) {
+                    ImGui::TextColored(ImVec4(0.6f, 0.8f, 1.0f, style.Colors[ImGuiCol_Text].w), "%s", pi.prop.name().c_str());
                 } else {
                     ImGui::Text("%s", pi.prop.name().c_str());
                 }
