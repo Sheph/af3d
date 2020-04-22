@@ -72,16 +72,23 @@ namespace af3d
 
             auto w = scene()->workspace();
             auto em = w->emLight();
-            if (em->active()) {
-                if (em->isSelected(sharedThis())) {
-                    setMarkerParams(settings.editor.lightMarkerAlphaSelected, false);
-                } else if (em->isHovered(sharedThis())) {
-                    setMarkerParams(settings.editor.lightMarkerAlphaHovered, false);
+
+            bool showMarker = em->active() || w->emObject()->active();
+
+            markerRc_->setVisible(showMarker);
+
+            if (showMarker) {
+                if (em->active()) {
+                    if (em->isSelected(sharedThis())) {
+                        setMarkerParams(settings.editor.lightMarkerAlphaSelected, false);
+                    } else if (em->isHovered(sharedThis())) {
+                        setMarkerParams(settings.editor.lightMarkerAlphaHovered, false);
+                    } else {
+                        setMarkerParams(settings.editor.lightMarkerAlphaInactive, false);
+                    }
                 } else {
-                    setMarkerParams(settings.editor.lightMarkerAlphaInactive, false);
+                    setMarkerParams(settings.editor.lightMarkerAlphaOff, true);
                 }
-            } else {
-                setMarkerParams(settings.editor.lightMarkerAlphaOff, true);
             }
         }
 
