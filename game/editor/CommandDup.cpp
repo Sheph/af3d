@@ -151,7 +151,7 @@ namespace af3d { namespace editor
             for (auto em : ems) {
                 if (em->isSelected(obj)) {
                     nested_.push_back(std::make_shared<CommandSelect>(scene(),
-                        reinterpret_cast<EditModeImpl*>(em), std::list<AObjectPtr>{dupObj}));
+                        reinterpret_cast<EditModeImpl*>(em), EditMode::AList{EditMode::Item(dupObj)}));
                 }
             }
         }

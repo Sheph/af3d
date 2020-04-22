@@ -49,25 +49,25 @@ namespace editor
 
         const AWeakList& hovered() const override;
 
-        std::list<AObjectPtr> hoveredObjs() const override;
+        AList hoveredStrong() const override;
 
         const AWeakList& selected() const override;
 
-        std::list<AObjectPtr> selectedObjs() const override;
+        AList selectedStrong() const override;
 
         bool isHovered(const AObjectPtr& obj) const override;
 
         bool isSelected(const AObjectPtr& obj) const override;
 
-        void select(std::list<AObjectPtr>&& objs) override;
+        void select(AList&& items) override;
 
-        void setHovered(const AWeakList& wobjs) override;
+        void setHovered(const AWeakList& witems) override;
 
         void enter();
 
         void leave();
 
-        void setSelected(const AWeakList& wobjs);
+        void setSelected(const AWeakList& witems);
 
     protected:
         inline Workspace& workspace() { return *workspace_; }

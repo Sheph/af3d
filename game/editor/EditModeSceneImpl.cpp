@@ -33,18 +33,18 @@ namespace af3d { namespace editor
     {
     }
 
-    AObjectPtr EditModeSceneImpl::rayCast(const Frustum& frustum, const Ray& ray) const
+    EditMode::Item EditModeSceneImpl::rayCast(const Frustum& frustum, const Ray& ray) const
     {
-        return const_cast<Scene*>(scene())->sharedThis();
+        return Item(const_cast<Scene*>(scene())->sharedThis());
     }
 
-    bool EditModeSceneImpl::isValid(const AObjectPtr& obj) const
+    bool EditModeSceneImpl::isValid(const Item& item) const
     {
-        auto r = aobjectCast<Scene>(obj);
+        auto r = aobjectCast<Scene>(item.obj());
         return r && ((r->aflags() & AObjectEditable) != 0);
     }
 
-    bool EditModeSceneImpl::isAlive(const AObjectPtr& obj) const
+    bool EditModeSceneImpl::isAlive(const Item& item) const
     {
         return true;
     }

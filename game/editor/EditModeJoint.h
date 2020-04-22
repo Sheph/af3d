@@ -34,7 +34,7 @@ namespace af3d { namespace editor
     class EditModeJoint : public virtual EditMode
     {
     public:
-        using TList = std::list<JointPtr>;
+        using TList = std::list<ItemBase<Joint>>;
 
         EditModeJoint() = default;
         ~EditModeJoint() = default;

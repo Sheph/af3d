@@ -276,7 +276,7 @@ namespace editor {
         grid_->addComponent(std::make_shared<RenderGridComponent>());
         scene()->addObject(grid_);
 
-        emScene_->setSelected(EditMode::AWeakList{AWeakObject(scene()->sharedThis())});
+        emScene_->setSelected(EditMode::AWeakList{EditMode::WItem(scene()->sharedThis())});
         em_->enter();
         currentTool_->activate(true);
 
@@ -390,8 +390,8 @@ namespace editor {
             return Action::State(!em_->selected().empty());
         }, [this]() {
             auto sel = em_->selected();
-            for (const auto& wobj : sel) {
-                deleteObject(wobj.lock());
+            for (const auto& witem : sel) {
+                deleteObject(witem.lock().obj());
             }
         }, assetManager.getImage("common1/action_delete.png"), KeySequence(KI_DELETE));
 
@@ -399,8 +399,8 @@ namespace editor {
             return Action::State(!em_->selected().empty());
         }, [this]() {
             auto sel = em_->selected();
-            for (const auto& wobj : sel) {
-                duplicateObject(wobj.lock());
+            for (const auto& witem : sel) {
+                duplicateObject(witem.lock().obj());
             }
         }, assetManager.getImage("common1/action_dup.png"), KeySequence(KM_CTRL, KI_D));
 
@@ -448,7 +448,7 @@ namespace editor {
 
             cmdHistory_.add(
                 std::make_shared<CommandAdd>(scene(),
-                    emObject_->selected().back().lock(),
+                    emObject_->selected().back().lock().obj(),
                     RenderMeshComponent::staticKlass(), "Mesh", initVals));
         });
 
@@ -465,7 +465,7 @@ namespace editor {
             APropertyValueMap initVals;
             cmdHistory_.add(
                 std::make_shared<CommandAdd>(scene(),
-                    emObject_->selected().back().lock(),
+                    emObject_->selected().back().lock().obj(),
                     DirectionalLight::staticKlass(), "Directional light", initVals));
         });
 
@@ -475,7 +475,7 @@ namespace editor {
             APropertyValueMap initVals;
             cmdHistory_.add(
                 std::make_shared<CommandAdd>(scene(),
-                    emObject_->selected().back().lock(),
+                    emObject_->selected().back().lock().obj(),
                     PointLight::staticKlass(), "Point light", initVals));
         });
 
@@ -498,7 +498,7 @@ namespace editor {
             APropertyValueMap initVals;
             cmdHistory_.add(
                 std::make_shared<CommandAdd>(scene(),
-                    emObject_->selectedTyped().back()->findComponent<PhysicsBodyComponent>(),
+                    emObject_->selectedTyped().back().obj()->findComponent<PhysicsBodyComponent>(),
                     CollisionShapeBox::staticKlass(), "Box collision", initVals));
         });
 
@@ -508,7 +508,7 @@ namespace editor {
             APropertyValueMap initVals;
             cmdHistory_.add(
                 std::make_shared<CommandAdd>(scene(),
-                    emObject_->selectedTyped().back()->findComponent<PhysicsBodyComponent>(),
+                    emObject_->selectedTyped().back().obj()->findComponent<PhysicsBodyComponent>(),
                     CollisionShapeCapsule::staticKlass(), "Capsule collision", initVals));
         });
 
@@ -518,7 +518,7 @@ namespace editor {
             APropertyValueMap initVals;
             cmdHistory_.add(
                 std::make_shared<CommandAdd>(scene(),
-                    emObject_->selectedTyped().back()->findComponent<PhysicsBodyComponent>(),
+                    emObject_->selectedTyped().back().obj()->findComponent<PhysicsBodyComponent>(),
                     CollisionShapeSphere::staticKlass(), "Sphere collision", initVals));
         });
 
@@ -528,7 +528,7 @@ namespace editor {
             APropertyValueMap initVals;
             cmdHistory_.add(
                 std::make_shared<CommandAdd>(scene(),
-                    emObject_->selectedTyped().back()->findComponent<PhysicsBodyComponent>(),
+                    emObject_->selectedTyped().back().obj()->findComponent<PhysicsBodyComponent>(),
                     CollisionShapeCylinder::staticKlass(), "Cylinder collision", initVals));
         });
 
@@ -538,7 +538,7 @@ namespace editor {
             APropertyValueMap initVals;
             cmdHistory_.add(
                 std::make_shared<CommandAdd>(scene(),
-                    emObject_->selectedTyped().back()->findComponent<PhysicsBodyComponent>(),
+                    emObject_->selectedTyped().back().obj()->findComponent<PhysicsBodyComponent>(),
                     CollisionShapeCone::staticKlass(), "Cone collision", initVals));
         });
 
@@ -548,7 +548,7 @@ namespace editor {
             APropertyValueMap initVals;
             cmdHistory_.add(
                 std::make_shared<CommandAdd>(scene(),
-                    emObject_->selectedTyped().back()->findComponent<PhysicsBodyComponent>(),
+                    emObject_->selectedTyped().back().obj()->findComponent<PhysicsBodyComponent>(),
                     CollisionShapePlane::staticKlass(), "Plane collision", initVals));
         });
 
@@ -559,7 +559,7 @@ namespace editor {
             initVals.set("mesh", APropertyValue(meshManager.loadMesh("cube.fbx")));
             cmdHistory_.add(
                 std::make_shared<CommandAdd>(scene(),
-                    emObject_->selectedTyped().back()->findComponent<PhysicsBodyComponent>(),
+                    emObject_->selectedTyped().back().obj()->findComponent<PhysicsBodyComponent>(),
                     CollisionShapeStaticMesh::staticKlass(), "Static mesh collision", initVals));
         });
 
@@ -570,7 +570,7 @@ namespace editor {
             initVals.set("mesh", APropertyValue(meshManager.loadMesh("cube.fbx")));
             cmdHistory_.add(
                 std::make_shared<CommandAdd>(scene(),
-                    emObject_->selectedTyped().back()->findComponent<PhysicsBodyComponent>(),
+                    emObject_->selectedTyped().back().obj()->findComponent<PhysicsBodyComponent>(),
                     CollisionShapeConvexMesh::staticKlass(), "Convex mesh collision", initVals));
         });
 
@@ -594,7 +594,7 @@ namespace editor {
         actionOpMenuAddPhysicsBody_ = Action("Physics body", [this]() {
             bool enabled = false;
             if (!emObject_->selected().empty()) {
-                auto obj = emObject_->selectedTyped().back();
+                auto obj = emObject_->selectedTyped().back().obj();
                 enabled = !obj->findComponent<PhysicsBodyComponent>();
             }
             return Action::State(enabled);
@@ -602,7 +602,7 @@ namespace editor {
             APropertyValueMap initVals;
             cmdHistory_.add(
                 std::make_shared<CommandAdd>(scene(),
-                    emObject_->selected().back().lock(),
+                    emObject_->selected().back().lock().obj(),
                     PhysicsBodyComponent::staticKlass(), "Physics body", initVals));
         });
 
@@ -615,7 +615,7 @@ namespace editor {
         actionOpMenuRemovePhysicsBody_ = Action("Physics body", [this]() {
             return Action::State(objectWithPhysicsBodySelected());
         }, [this]() {
-            deleteObject(emObject_->selectedTyped().back()->findComponent<PhysicsBodyComponent>());
+            deleteObject(emObject_->selectedTyped().back().obj()->findComponent<PhysicsBodyComponent>());
         });
 
         actionMainPopup_ = Action("", [this]() {
@@ -831,7 +831,7 @@ namespace editor {
     {
         bool res = false;
         if (!emObject_->selected().empty()) {
-            auto pc = emObject_->selectedTyped().back()->findComponent<PhysicsBodyComponent>();
+            auto pc = emObject_->selectedTyped().back().obj()->findComponent<PhysicsBodyComponent>();
             res = pc && ((pc->aflags() & AObjectEditable) != 0);
         }
         return res;

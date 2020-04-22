@@ -61,7 +61,7 @@ namespace editor {
             if (scene()->workspace()->emVisual()->active()) {
                 auto selected = scene()->workspace()->emVisual()->selectedTyped();
                 for (const auto& rc : selected) {
-                    if (rc->parent() == parent()) {
+                    if (rc.obj()->parent() == parent()) {
                         showMarker = true;
                         break;
                     }
@@ -69,7 +69,7 @@ namespace editor {
                 if (!showMarker) {
                     auto hovered = scene()->workspace()->emVisual()->hoveredTyped();
                     for (const auto& rc : hovered) {
-                        if (rc->parent() == parent()) {
+                        if (rc.obj()->parent() == parent()) {
                             showMarker = true;
                             break;
                         }
@@ -78,7 +78,7 @@ namespace editor {
             } else if (scene()->workspace()->emLight()->active()) {
                 auto selected = scene()->workspace()->emLight()->selectedTyped();
                 for (const auto& rc : selected) {
-                    if (rc->parent() == parent()) {
+                    if (rc.obj()->parent() == parent()) {
                         showMarker = true;
                         break;
                     }
@@ -86,7 +86,7 @@ namespace editor {
                 if (!showMarker) {
                     auto hovered = scene()->workspace()->emLight()->hoveredTyped();
                     for (const auto& rc : hovered) {
-                        if (rc->parent() == parent()) {
+                        if (rc.obj()->parent() == parent()) {
                             showMarker = true;
                             break;
                         }
@@ -95,7 +95,7 @@ namespace editor {
             } else if (scene()->workspace()->emCollision()->active()) {
                 auto selected = scene()->workspace()->emCollision()->selectedTyped();
                 for (const auto& shape : selected) {
-                    if (shape->parentObject() == parent()) {
+                    if (shape.obj()->parentObject() == parent()) {
                         showMarker = true;
                         break;
                     }
@@ -103,7 +103,7 @@ namespace editor {
                 if (!showMarker) {
                     auto hovered = scene()->workspace()->emCollision()->hoveredTyped();
                     for (const auto& shape : hovered) {
-                        if (shape->parentObject() == parent()) {
+                        if (shape.obj()->parentObject() == parent()) {
                             showMarker = true;
                             break;
                         }
@@ -112,7 +112,7 @@ namespace editor {
             } else if (scene()->workspace()->emJoint()->active()) {
                 auto selected = scene()->workspace()->emJoint()->selectedTyped();
                 for (const auto& j : selected) {
-                    if ((j->objectA().get() == parent()) || (j->objectB().get() == parent())) {
+                    if ((j.obj()->objectA().get() == parent()) || (j.obj()->objectB().get() == parent())) {
                         showMarker = true;
                         break;
                     }
@@ -120,7 +120,7 @@ namespace editor {
                 if (!showMarker) {
                     auto hovered = scene()->workspace()->emJoint()->hoveredTyped();
                     for (const auto& j : hovered) {
-                        if ((j->objectA().get() == parent()) || (j->objectB().get() == parent())) {
+                        if ((j.obj()->objectA().get() == parent()) || (j.obj()->objectB().get() == parent())) {
                             showMarker = true;
                             break;
                         }

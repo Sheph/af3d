@@ -38,9 +38,8 @@ namespace af3d { namespace editor
     EditModeJoint::TList EditModeJointImpl::hoveredTyped() const
     {
         TList res;
-        for (const auto& wobj : hovered()) {
-            auto obj = wobj.lock();
-            res.push_back(std::static_pointer_cast<Joint>(obj));
+        for (const auto& witem : hovered()) {
+            res.push_back(witem.lock<Joint>());
         }
         return res;
     }
@@ -48,16 +47,15 @@ namespace af3d { namespace editor
     EditModeJoint::TList EditModeJointImpl::selectedTyped() const
     {
         TList res;
-        for (const auto& wobj : selected()) {
-            auto obj = wobj.lock();
-            res.push_back(std::static_pointer_cast<Joint>(obj));
+        for (const auto& witem : selected()) {
+            res.push_back(witem.lock<Joint>());
         }
         return res;
     }
 
-    AObjectPtr EditModeJointImpl::rayCast(const Frustum& frustum, const Ray& ray) const
+    EditMode::Item EditModeJointImpl::rayCast(const Frustum& frustum, const Ray& ray) const
     {
-        JointPtr res;
+        Item res;
 
         scene()->rayCastRender(frustum, ray, [&res](const RenderComponentPtr& r, const AObjectPtr&, const btVector3&, float dist) {
             if ((r->aflags() & AObjectMarkerJoint) == 0) {
@@ -65,7 +63,7 @@ namespace af3d { namespace editor
             }
             auto tmp = r->parent()->findComponent<JointComponent>();
             if (tmp) {
-                res = tmp->joint();
+                res = Item(tmp->joint());
             }
             return dist;
         });
@@ -73,15 +71,15 @@ namespace af3d { namespace editor
         return res;
     }
 
-    bool EditModeJointImpl::isValid(const AObjectPtr& obj) const
+    bool EditModeJointImpl::isValid(const Item& item) const
     {
-        auto r = aobjectCast<Joint>(obj);
+        auto r = aobjectCast<Joint>(item.obj());
         return r && ((r->aflags() & AObjectEditable) != 0);
     }
 
-    bool EditModeJointImpl::isAlive(const AObjectPtr& obj) const
+    bool EditModeJointImpl::isAlive(const Item& item) const
     {
-        auto r = std::static_pointer_cast<Joint>(obj);
+        auto r = std::static_pointer_cast<Joint>(item.obj());
         return r->parent();
     }
 } }

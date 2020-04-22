@@ -30,18 +30,15 @@
 namespace af3d { namespace editor
 {
     CommandSelect::CommandSelect(Scene* scene, EditModeImpl* em,
-        const std::list<AObjectPtr>& objs)
+        const EditMode::AList& items)
     : Command(scene),
       em_(em)
     {
         setDescription("Select/deselect " + em->name());
 
-        const auto& prev = em->selected();
-        for (const auto& obj : prev) {
-            prevWobjs_.emplace_back(obj);
-        }
-        for (const auto& obj : objs) {
-            wobjs_.emplace_back(obj);
+        prevWobjs_ = em->selected();
+        for (const auto& item : items) {
+            wobjs_.emplace_back(item.toWItem());
         }
     }
 

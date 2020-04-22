@@ -38,9 +38,8 @@ namespace af3d { namespace editor
     EditModeLight::TList EditModeLightImpl::hoveredTyped() const
     {
         TList res;
-        for (const auto& wobj : hovered()) {
-            auto obj = wobj.lock();
-            res.push_back(std::static_pointer_cast<Light>(obj));
+        for (const auto& witem : hovered()) {
+            res.push_back(witem.lock<Light>());
         }
         return res;
     }
@@ -48,16 +47,15 @@ namespace af3d { namespace editor
     EditModeLight::TList EditModeLightImpl::selectedTyped() const
     {
         TList res;
-        for (const auto& wobj : selected()) {
-            auto obj = wobj.lock();
-            res.push_back(std::static_pointer_cast<Light>(obj));
+        for (const auto& witem : selected()) {
+            res.push_back(witem.lock<Light>());
         }
         return res;
     }
 
-    AObjectPtr EditModeLightImpl::rayCast(const Frustum& frustum, const Ray& ray) const
+    EditMode::Item EditModeLightImpl::rayCast(const Frustum& frustum, const Ray& ray) const
     {
-        LightPtr res;
+        Item res;
 
         scene()->rayCastRender(frustum, ray, [&res](const RenderComponentPtr& r, const AObjectPtr&, const btVector3&, float dist) {
             if ((r->aflags() & AObjectMarkerLight) == 0) {
@@ -66,7 +64,7 @@ namespace af3d { namespace editor
             auto lights = r->parent()->findComponents<Light>();
             for (const auto& l : lights) {
                 if (l->markerRc() == r) {
-                    res = l;
+                    res = Item(l);
                     break;
                 }
             }
@@ -76,14 +74,14 @@ namespace af3d { namespace editor
         return res;
     }
 
-    bool EditModeLightImpl::isValid(const AObjectPtr& obj) const
+    bool EditModeLightImpl::isValid(const Item& item) const
     {
-        return !!aobjectCast<Light>(obj);
+        return !!aobjectCast<Light>(item.obj());
     }
 
-    bool EditModeLightImpl::isAlive(const AObjectPtr& obj) const
+    bool EditModeLightImpl::isAlive(const Item& item) const
     {
-        auto light = std::static_pointer_cast<Light>(obj);
+        auto light = std::static_pointer_cast<Light>(item.obj());
         return light->parent();
     }
 } }

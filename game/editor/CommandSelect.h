@@ -27,6 +27,7 @@
 #define _EDITOR_COMMAND_SELECT_H_
 
 #include "editor/Command.h"
+#include "editor/EditMode.h"
 #include "AWeakObject.h"
 #include <list>
 
@@ -38,7 +39,7 @@ namespace af3d { namespace editor
     {
     public:
         CommandSelect(Scene* scene, EditModeImpl* em,
-            const std::list<AObjectPtr>& objs);
+            const EditMode::AList& items);
         ~CommandSelect() = default;
 
         bool redo() override;
@@ -47,8 +48,8 @@ namespace af3d { namespace editor
 
     private:
         EditModeImpl* em_;
-        std::list<AWeakObject> prevWobjs_;
-        std::list<AWeakObject> wobjs_;
+        EditMode::AWeakList prevWobjs_;
+        EditMode::AWeakList wobjs_;
     };
 } }
 

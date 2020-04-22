@@ -37,9 +37,8 @@ namespace af3d { namespace editor
     EditModeCollision::TList EditModeCollisionImpl::hoveredTyped() const
     {
         TList res;
-        for (const auto& wobj : hovered()) {
-            auto obj = wobj.lock();
-            res.push_back(std::static_pointer_cast<CollisionShape>(obj));
+        for (const auto& witem : hovered()) {
+            res.push_back(witem.lock<CollisionShape>());
         }
         return res;
     }
@@ -47,38 +46,37 @@ namespace af3d { namespace editor
     EditModeCollision::TList EditModeCollisionImpl::selectedTyped() const
     {
         TList res;
-        for (const auto& wobj : selected()) {
-            auto obj = wobj.lock();
-            res.push_back(std::static_pointer_cast<CollisionShape>(obj));
+        for (const auto& witem : selected()) {
+            res.push_back(witem.lock<CollisionShape>());
         }
         return res;
     }
 
-    AObjectPtr EditModeCollisionImpl::rayCast(const Frustum& frustum, const Ray& ray) const
+    EditMode::Item EditModeCollisionImpl::rayCast(const Frustum& frustum, const Ray& ray) const
     {
-        CollisionShapePtr res;
+        Item res;
 
         scene()->rayCast(ray.pos, ray.pos + ray.dir * 1000.0f, [&res](btCollisionShape* shape, const btVector3&, const btVector3&, float fraction) {
             auto s = CollisionShape::fromShape(shape);
             if ((s->aflags() & AObjectEditable) == 0) {
                 return -1.0f;
             }
-            res = std::static_pointer_cast<CollisionShape>(s->sharedThis());
+            res = Item(std::static_pointer_cast<CollisionShape>(s->sharedThis()));
             return fraction;
         });
 
         return res;
     }
 
-    bool EditModeCollisionImpl::isValid(const AObjectPtr& obj) const
+    bool EditModeCollisionImpl::isValid(const Item& item) const
     {
-        auto r = aobjectCast<CollisionShape>(obj);
+        auto r = aobjectCast<CollisionShape>(item.obj());
         return r && ((r->aflags() & AObjectEditable) != 0);
     }
 
-    bool EditModeCollisionImpl::isAlive(const AObjectPtr& obj) const
+    bool EditModeCollisionImpl::isAlive(const Item& item) const
     {
-        auto r = std::static_pointer_cast<CollisionShape>(obj);
+        auto r = std::static_pointer_cast<CollisionShape>(item.obj());
         return r->active();
     }
 } }

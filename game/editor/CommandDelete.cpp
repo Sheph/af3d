@@ -186,19 +186,19 @@ namespace af3d { namespace editor
 
         const auto& ems = scene()->workspace()->ems();
         for (auto em : ems) {
-            std::list<AObjectPtr> objs;
+            EditMode::AList items;
             const auto& sel = em->selected();
             bool needSelect = false;
-            for (const auto& wobj : sel) {
-                if (serializedObjs.count(wobj.cookie()) == 0) {
-                    objs.push_back(wobj.lock());
+            for (const auto& witem : sel) {
+                if (serializedObjs.count(witem.obj().cookie()) == 0) {
+                    items.push_back(witem.lock());
                 } else {
                     needSelect = true;
                 }
             }
             if (needSelect) {
                 //LOG4CPLUS_DEBUG(logger(), "nested: select " << em->name() << " updated");
-                nested_.push_back(std::make_shared<CommandSelect>(scene(), reinterpret_cast<EditModeImpl*>(em), objs));
+                nested_.push_back(std::make_shared<CommandSelect>(scene(), reinterpret_cast<EditModeImpl*>(em), items));
             }
         }
     }

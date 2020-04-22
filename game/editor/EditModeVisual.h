@@ -34,7 +34,7 @@ namespace af3d { namespace editor
     class EditModeVisual : public virtual EditMode
     {
     public:
-        using TList = std::list<RenderComponentPtr>;
+        using TList = std::list<ItemBase<RenderComponent>>;
 
         EditModeVisual() = default;
         ~EditModeVisual() = default;

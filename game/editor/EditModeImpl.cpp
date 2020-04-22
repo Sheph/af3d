@@ -48,8 +48,8 @@ namespace af3d { namespace editor
     const EditMode::AWeakList& EditModeImpl::hovered() const
     {
         for (auto it = hovered_.begin(); it != hovered_.end();) {
-            auto obj = it->lock();
-            if (obj && isAlive(obj)) {
+            auto item = it->lock();
+            if (!item.empty() && isAlive(item)) {
                 ++it;
             } else {
                 hovered_.erase(it++);
@@ -58,12 +58,12 @@ namespace af3d { namespace editor
         return hovered_;
     }
 
-    std::list<AObjectPtr> EditModeImpl::hoveredObjs() const
+    EditMode::AList EditModeImpl::hoveredStrong() const
     {
-        std::list<AObjectPtr> res;
+        EditMode::AList res;
         const auto& tmp = hovered();
-        for (const auto& wobj : tmp) {
-            res.push_back(wobj.lock());
+        for (const auto& witem : tmp) {
+            res.push_back(witem.lock());
         }
         return res;
     }
@@ -71,8 +71,8 @@ namespace af3d { namespace editor
     const EditMode::AWeakList& EditModeImpl::selected() const
     {
         for (auto it = selected_.begin(); it != selected_.end();) {
-            auto obj = it->lock();
-            if (obj && isAlive(obj)) {
+            auto item = it->lock();
+            if (!item.empty() && isAlive(item)) {
                 ++it;
             } else {
                 selected_.erase(it++);
@@ -81,12 +81,12 @@ namespace af3d { namespace editor
         return selected_;
     }
 
-    std::list<AObjectPtr> EditModeImpl::selectedObjs() const
+    EditMode::AList EditModeImpl::selectedStrong() const
     {
-        std::list<AObjectPtr> res;
+        EditMode::AList res;
         const auto& tmp = selected();
-        for (const auto& wobj : tmp) {
-            res.push_back(wobj.lock());
+        for (const auto& witem : tmp) {
+            res.push_back(witem.lock());
         }
         return res;
     }
@@ -95,7 +95,7 @@ namespace af3d { namespace editor
     {
         for (const auto& wh : hovered_) {
             auto h = wh.lock();
-            if (h == obj) {
+            if (h.obj() == obj) {
                 return isAlive(h);
             }
         }
@@ -106,21 +106,21 @@ namespace af3d { namespace editor
     {
         for (const auto& ws : selected_) {
             auto s = ws.lock();
-            if (s == obj) {
+            if (s.obj() == obj) {
                 return isAlive(s);
             }
         }
         return false;
     }
 
-    void EditModeImpl::select(std::list<AObjectPtr>&& objs)
+    void EditModeImpl::select(AList&& items)
     {
-        if (selectedObjs() == objs) {
+        if (selectedStrong() == items) {
             return;
         }
 
         workspace_->cmdHistory().add(
-            std::make_shared<CommandSelect>(workspace_->scene(), this, std::move(objs)));
+            std::make_shared<CommandSelect>(workspace_->scene(), this, std::move(items)));
     }
 
     void EditModeImpl::enter()
@@ -134,18 +134,18 @@ namespace af3d { namespace editor
         active_ = false;
     }
 
-    void EditModeImpl::setHovered(const AWeakList& wobjs)
+    void EditModeImpl::setHovered(const AWeakList& witems)
     {
-        hovered_ = wobjs;
+        hovered_ = witems;
     }
 
-    void EditModeImpl::setSelected(const AWeakList& wobjs)
+    void EditModeImpl::setSelected(const AWeakList& witems)
     {
         selected_.clear();
-        for (const auto& wobj : wobjs) {
-            auto obj = wobj.lock();
-            if (obj && isValid(obj) && isAlive(obj)) {
-                selected_.push_back(wobj);
+        for (const auto& witem : witems) {
+            auto item = witem.lock();
+            if (!item.empty() && isValid(item) && isAlive(item)) {
+                selected_.push_back(witem);
             }
         }
     }

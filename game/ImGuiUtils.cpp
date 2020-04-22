@@ -304,12 +304,12 @@ namespace af3d { namespace ImGuiUtils
                 } else {
                     auto cc = scene_->camera()->findComponent<CameraComponent>();
                     auto res = em->rayCast(cc->getFrustum(), cc->screenPointToRay(inputManager.mouse().pos()));
-                    if (res) {
+                    if (!res.empty()) {
                         if (inputManager.mouse().triggered(true)) {
-                            obj = aobjectCast<T>(res);
+                            obj = aobjectCast<T>(res.obj());
                             ret = true;
                         } else {
-                            em->setHovered(editor::EditMode::AWeakList{AWeakObject(res)});
+                            em->setHovered(editor::EditMode::AWeakList{res.toWItem()});
                         }
                     }
                 }

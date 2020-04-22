@@ -34,7 +34,7 @@ namespace af3d { namespace editor
     class EditModeLight : public virtual EditMode
     {
     public:
-        using TList = std::list<LightPtr>;
+        using TList = std::list<ItemBase<Light>>;
 
         EditModeLight() = default;
         ~EditModeLight() = default;

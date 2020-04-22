@@ -76,7 +76,7 @@ namespace editor {
         AWeakObject newWobj;
         const auto& sList = em->selected();
         if (!sList.empty()) {
-            newWobj = sList.back();
+            newWobj = sList.back().obj();
         }
 
         AObjectPtr obj = newWobj.lock();

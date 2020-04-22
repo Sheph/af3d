@@ -34,7 +34,7 @@ namespace af3d { namespace editor
     class EditModeObject : public virtual EditMode
     {
     public:
-        using TList = std::list<SceneObjectPtr>;
+        using TList = std::list<ItemBase<SceneObject>>;
 
         EditModeObject() = default;
         ~EditModeObject() = default;

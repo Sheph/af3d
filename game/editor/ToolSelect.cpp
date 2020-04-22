@@ -67,8 +67,8 @@ namespace af3d { namespace editor
 
         auto res = em->rayCast(cc->getFrustum(), cc->screenPointToRay(inputManager.mouse().pos()));
 
-        if (res) {
-            em->setHovered(EditMode::AWeakList{AWeakObject(res)});
+        if (!res.empty()) {
+            em->setHovered(EditMode::AWeakList{res.toWItem()});
             if (inputManager.mouse().triggered(true)) {
                 em->select({res});
             }

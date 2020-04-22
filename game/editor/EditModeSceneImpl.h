@@ -38,11 +38,11 @@ namespace af3d { namespace editor
         explicit EditModeSceneImpl(Workspace* workspace);
         ~EditModeSceneImpl() = default;
 
-        AObjectPtr rayCast(const Frustum& frustum, const Ray& ray) const override;
+        Item rayCast(const Frustum& frustum, const Ray& ray) const override;
 
-        bool isValid(const AObjectPtr& obj) const override;
+        bool isValid(const Item& item) const override;
 
-        bool isAlive(const AObjectPtr& obj) const override;
+        bool isAlive(const Item& item) const override;
     };
 } }
 

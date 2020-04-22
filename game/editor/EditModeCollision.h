@@ -34,7 +34,7 @@ namespace af3d { namespace editor
     class EditModeCollision : public virtual EditMode
     {
     public:
-        using TList = std::list<CollisionShapePtr>;
+        using TList = std::list<ItemBase<CollisionShape>>;
 
         EditModeCollision() = default;
         ~EditModeCollision() = default;

@@ -38,9 +38,8 @@ namespace af3d { namespace editor
     EditModeVisual::TList EditModeVisualImpl::hoveredTyped() const
     {
         TList res;
-        for (const auto& wobj : hovered()) {
-            auto obj = wobj.lock();
-            res.push_back(std::static_pointer_cast<RenderComponent>(obj));
+        for (const auto& witem : hovered()) {
+            res.push_back(witem.lock<RenderComponent>());
         }
         return res;
     }
@@ -48,37 +47,36 @@ namespace af3d { namespace editor
     EditModeVisual::TList EditModeVisualImpl::selectedTyped() const
     {
         TList res;
-        for (const auto& wobj : selected()) {
-            auto obj = wobj.lock();
-            res.push_back(std::static_pointer_cast<RenderComponent>(obj));
+        for (const auto& witem : selected()) {
+            res.push_back(witem.lock<RenderComponent>());
         }
         return res;
     }
 
-    AObjectPtr EditModeVisualImpl::rayCast(const Frustum& frustum, const Ray& ray) const
+    EditMode::Item EditModeVisualImpl::rayCast(const Frustum& frustum, const Ray& ray) const
     {
-        RenderComponentPtr res;
+        Item res;
 
         scene()->rayCastRender(frustum, ray, [&res](const RenderComponentPtr& r, const AObjectPtr&, const btVector3&, float dist) {
             if (((r->aflags() & AObjectEditable) == 0) || aobjectCast<Light>(r)) {
                 return -1.0f;
             }
-            res = r;
+            res = Item(r);
             return dist;
         });
 
         return res;
     }
 
-    bool EditModeVisualImpl::isValid(const AObjectPtr& obj) const
+    bool EditModeVisualImpl::isValid(const Item& item) const
     {
-        auto r = aobjectCast<RenderComponent>(obj);
-        return r && ((r->aflags() & AObjectEditable) != 0) && !aobjectCast<Light>(obj);
+        auto r = aobjectCast<RenderComponent>(item.obj());
+        return r && ((r->aflags() & AObjectEditable) != 0) && !aobjectCast<Light>(item.obj());
     }
 
-    bool EditModeVisualImpl::isAlive(const AObjectPtr& obj) const
+    bool EditModeVisualImpl::isAlive(const Item& item) const
     {
-        auto r = std::static_pointer_cast<RenderComponent>(obj);
+        auto r = std::static_pointer_cast<RenderComponent>(item.obj());
         return r->parent();
     }
 } }

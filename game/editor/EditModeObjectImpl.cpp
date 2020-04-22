@@ -37,9 +37,8 @@ namespace af3d { namespace editor
     EditModeObject::TList EditModeObjectImpl::hoveredTyped() const
     {
         TList res;
-        for (const auto& wobj : hovered()) {
-            auto obj = wobj.lock();
-            res.push_back(std::static_pointer_cast<SceneObject>(obj));
+        for (const auto& witem : hovered()) {
+            res.push_back(witem.lock<SceneObject>());
         }
         return res;
     }
@@ -47,36 +46,35 @@ namespace af3d { namespace editor
     EditModeObject::TList EditModeObjectImpl::selectedTyped() const
     {
         TList res;
-        for (const auto& wobj : selected()) {
-            auto obj = wobj.lock();
-            res.push_back(std::static_pointer_cast<SceneObject>(obj));
+        for (const auto& witem : selected()) {
+            res.push_back(witem.lock<SceneObject>());
         }
         return res;
     }
 
-    AObjectPtr EditModeObjectImpl::rayCast(const Frustum& frustum, const Ray& ray) const
+    EditMode::Item EditModeObjectImpl::rayCast(const Frustum& frustum, const Ray& ray) const
     {
-        SceneObjectPtr res;
+        Item res;
 
         scene()->rayCastRender(frustum, ray, [&res](const RenderComponentPtr& r, const AObjectPtr&, const btVector3&, float dist) {
             if ((r->aflags() & AObjectMarkerObject) == 0) {
                 return -1.0f;
             }
-            res = r->parent()->shared_from_this();
+            res = Item(r->parent()->shared_from_this());
             return dist;
         });
 
         return res;
     }
 
-    bool EditModeObjectImpl::isValid(const AObjectPtr& obj) const
+    bool EditModeObjectImpl::isValid(const Item& item) const
     {
-        return !!aobjectCast<SceneObject>(obj);
+        return !!aobjectCast<SceneObject>(item.obj());
     }
 
-    bool EditModeObjectImpl::isAlive(const AObjectPtr& obj) const
+    bool EditModeObjectImpl::isAlive(const Item& item) const
     {
-        auto sObj = std::static_pointer_cast<SceneObject>(obj);
+        auto sObj = std::static_pointer_cast<SceneObject>(item.obj());
         return sObj->scene();
     }
 } }
