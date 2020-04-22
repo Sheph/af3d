@@ -125,5 +125,11 @@ namespace af3d
         editor.collisionColorInactive = appConfig->getColor("editor.collisionColorInactive");
         editor.collisionColorHovered = appConfig->getColor("editor.collisionColorHovered");
         editor.collisionColorSelected = appConfig->getColor("editor.collisionColorSelected");
+        editor.jointMarkerSizeWorld = appConfig->getFloat("editor.jointMarkerSizeWorld");
+        editor.jointMarkerSizePixels = appConfig->getInt("editor.jointMarkerSizePixels");
+        editor.jointMarkerColorInactive = appConfig->getColor("editor.jointMarkerColorInactive");
+        editor.jointMarkerColorHovered = appConfig->getColor("editor.jointMarkerColorHovered");
+        editor.jointMarkerColorSelected = appConfig->getColor("editor.jointMarkerColorSelected");
+        editor.jointMarkerColorOff = appConfig->getColor("editor.jointMarkerColorOff");
     }
 }

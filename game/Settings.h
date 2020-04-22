@@ -86,6 +86,12 @@ namespace af3d
             Color collisionColorInactive;
             Color collisionColorHovered;
             Color collisionColorSelected;
+            float jointMarkerSizeWorld;
+            int jointMarkerSizePixels;
+            Color jointMarkerColorInactive;
+            Color jointMarkerColorHovered;
+            Color jointMarkerColorSelected;
+            Color jointMarkerColorOff;
         };
 
         Settings() = default;

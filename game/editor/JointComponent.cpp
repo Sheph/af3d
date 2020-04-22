@@ -56,25 +56,22 @@ namespace editor {
 
         auto emJoint = scene()->workspace()->emJoint();
 
-        bool showMarker = emJoint->active();
-
-        if (!showMarker) {
-            showMarker = true;
-        }
+        bool showMarker = emJoint->active() || scene()->workspace()->emObject()->active() ||
+            scene()->workspace()->emCollision()->active();
 
         markerRc_->setVisible(showMarker);
 
         if (showMarker) {
             if (emJoint->active()) {
                 if (emJoint->isSelected(joint_)) {
-                    markerRc_->setColor(settings.editor.objMarkerColorSelected);
+                    markerRc_->setColor(settings.editor.jointMarkerColorSelected);
                 } else if (emJoint->isHovered(joint_)) {
-                    markerRc_->setColor(settings.editor.objMarkerColorHovered);
+                    markerRc_->setColor(settings.editor.jointMarkerColorHovered);
                 } else {
-                    markerRc_->setColor(settings.editor.objMarkerColorInactive);
+                    markerRc_->setColor(settings.editor.jointMarkerColorInactive);
                 }
             } else {
-                markerRc_->setColor(Color(0.6f, 0.6f, 0.6f, 0.35f));
+                markerRc_->setColor(settings.editor.jointMarkerColorOff);
             }
         }
     }
@@ -84,9 +81,9 @@ namespace editor {
         markerRc_ = std::make_shared<RenderQuadComponent>();
         markerRc_->setDrawable(assetManager.getDrawable("common1/mode_joint.png"));
         markerRc_->setDepthTest(false);
-        markerRc_->setHeight(settings.editor.objMarkerSizeWorld);
-        markerRc_->setViewportHeight((float)settings.editor.objMarkerSizePixels / settings.viewHeight);
-        markerRc_->setColor(settings.editor.objMarkerColorInactive);
+        markerRc_->setHeight(settings.editor.jointMarkerSizeWorld);
+        markerRc_->setViewportHeight((float)settings.editor.jointMarkerSizePixels / settings.viewHeight);
+        markerRc_->setColor(settings.editor.jointMarkerColorInactive);
         markerRc_->aflagsSet(AObjectMarkerJoint);
         markerRc_->setVisible(false);
         parent()->addComponent(markerRc_);
