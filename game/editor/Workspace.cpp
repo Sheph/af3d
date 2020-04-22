@@ -73,6 +73,7 @@ namespace editor {
       emVisual_(new EditModeVisualImpl(this)),
       emLight_(new EditModeLightImpl(this)),
       emCollision_(new EditModeCollisionImpl(this)),
+      emJoint_(new EditModeJointImpl(this)),
       emScene_(new EditModeSceneImpl(this)),
       toolSelect_(new ToolSelect(this)),
       toolMove_(new ToolMove(this)),
@@ -85,6 +86,7 @@ namespace editor {
         ems_.push_back(emVisual_.get());
         ems_.push_back(emLight_.get());
         ems_.push_back(emCollision_.get());
+        ems_.push_back(emJoint_.get());
         ems_.push_back(emScene_.get());
         em_ = emObject_.get();
 
@@ -297,6 +299,7 @@ namespace editor {
         emVisual_.reset();
         emLight_.reset();
         emCollision_.reset();
+        emJoint_.reset();
         emScene_.reset();
         em_ = nullptr;
         overriddenEm_ = nullptr;
@@ -363,6 +366,12 @@ namespace editor {
         }, [this]() {
             emCollision_->activate();
         }, assetManager.getImage("common1/mode_collision.png"), KeySequence(KI_F));
+
+        actionModeJoint_ = Action("Edit joint", [this]() {
+            return Action::State(true, emJoint_->active());
+        }, [this]() {
+            emJoint_->activate();
+        }, assetManager.getImage("common1/mode_joint.png"), KeySequence(KI_J));
 
         actionUndo_ = Action("Undo", [this]() {
             return Action::State(cmdHistory_.pos() > 0);
@@ -626,6 +635,7 @@ namespace editor {
         actions_.push_back(&actionModeVisual_);
         actions_.push_back(&actionModeLight_);
         actions_.push_back(&actionModeCollision_);
+        actions_.push_back(&actionModeJoint_);
         actions_.push_back(&actionUndo_);
         actions_.push_back(&actionRedo_);
         actions_.push_back(&actionDelete_);
@@ -704,6 +714,7 @@ namespace editor {
             actionModeVisual().doMenuItem();
             actionModeLight().doMenuItem();
             actionModeCollision().doMenuItem();
+            actionModeJoint().doMenuItem();
             actionModeScene().doMenuItem();
             ImGui::Separator();
             actionUndo().doMenuItem();
@@ -766,6 +777,7 @@ namespace editor {
         toolbarButton(actionModeVisual());
         toolbarButton(actionModeLight());
         toolbarButton(actionModeCollision());
+        toolbarButton(actionModeJoint());
         toolbarButton(actionModeScene());
 
         toolbarSep();

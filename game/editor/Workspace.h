@@ -32,6 +32,7 @@
 #include "editor/EditModeLightImpl.h"
 #include "editor/EditModeSceneImpl.h"
 #include "editor/EditModeCollisionImpl.h"
+#include "editor/EditModeJointImpl.h"
 #include "editor/ToolSelect.h"
 #include "editor/ToolMove.h"
 #include "editor/ToolRotate.h"
@@ -100,6 +101,7 @@ namespace af3d { namespace editor
         inline Action& actionModeVisual() { return actionModeVisual_; }
         inline Action& actionModeLight() { return actionModeLight_; }
         inline Action& actionModeCollision() { return actionModeCollision_; }
+        inline Action& actionModeJoint() { return actionModeJoint_; }
         inline Action& actionUndo() { return actionUndo_; }
         inline Action& actionRedo() { return actionRedo_; }
         inline Action& actionDelete() { return actionDelete_; }
@@ -181,6 +183,7 @@ namespace af3d { namespace editor
         std::unique_ptr<EditModeVisualImpl> emVisual_;
         std::unique_ptr<EditModeLightImpl> emLight_;
         std::unique_ptr<EditModeCollisionImpl> emCollision_;
+        std::unique_ptr<EditModeJointImpl> emJoint_;
         std::unique_ptr<EditModeSceneImpl> emScene_;
 
         std::vector<EditMode*> ems_;
@@ -198,6 +201,7 @@ namespace af3d { namespace editor
         Action actionModeVisual_;
         Action actionModeLight_;
         Action actionModeCollision_;
+        Action actionModeJoint_;
         Action actionUndo_;
         Action actionRedo_;
         Action actionDelete_;

@@ -64,6 +64,9 @@ namespace af3d
 
         bool enabled() const;
 
+        inline Scene* parent() { return parent_; }
+        inline const Scene* parent() const { return parent_; }
+
         /*
          * Internal, do not call.
          * @{

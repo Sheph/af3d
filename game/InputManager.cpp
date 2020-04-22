@@ -51,7 +51,7 @@ namespace af3d
         ImGuiIO& io = ImGui::GetIO();
 
         if (!io.WantCaptureMouse && !io.WantCaptureKeyboard) {
-            if (keyboard().triggered(KI_J)) {
+            if (keyboard().triggered(KI_K)) {
                 gameDebugPressed_ = !gameDebugPressed_;
             }
             if (keyboard().triggered(KI_P)) {

@@ -131,6 +131,7 @@ set(SOURCES
     editor/EditModeLightImpl.cpp
     editor/EditModeSceneImpl.cpp
     editor/EditModeCollisionImpl.cpp
+    editor/EditModeJointImpl.cpp
     editor/PropertyEditor.cpp
     editor/JsonSerializer.cpp
     editor/Toolbox.cpp

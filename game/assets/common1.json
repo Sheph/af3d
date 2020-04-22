@@ -47,6 +47,15 @@
 },
 {
 	"filename": "mode_collision.png",
+	"frame": {"x":184,"y":4,"w":24,"h":24},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":24,"h":24},
+	"sourceSize": {"w":24,"h":24},
+	"pivot": {"x":0.5,"y":0.5}
+},
+{
+	"filename": "mode_joint.png",
 	"frame": {"x":4,"y":72,"w":24,"h":24},
 	"rotated": false,
 	"trimmed": false,
@@ -176,8 +185,8 @@
 	"version": "1.0",
 	"image": "common1.png",
 	"format": "RGBA8888",
-	"size": {"w":200,"h":128},
+	"size": {"w":212,"h":128},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:8c7468ddd355dd985670f6fc8ef82a9b:c7b142a627e889ba7bd3ca07755eb2c7:849a2d506a3dff356c1665b7dfafc6aa$"
+	"smartupdate": "$TexturePacker:SmartUpdate:01f62c938bae9e80c580f14a7d078e1c:00a20741a93c18912963a92d2a1b51ce:849a2d506a3dff356c1665b7dfafc6aa$"
 }
 }
