@@ -30,6 +30,7 @@
 #include "AParameterized.h"
 #include "SceneObjectManager.h"
 #include "af3d/Types.h"
+#include "af3d/Utils.h"
 #include "bullet/btBulletDynamicsCommon.h"
 
 namespace af3d
@@ -58,8 +59,11 @@ namespace af3d
 
         void removeFromParent();
 
-        SceneObjectPtr objectA();
-        SceneObjectPtr objectB();
+        const btVector3& pos() const;
+        void setPos(const btVector3& value);
+
+        SceneObjectPtr objectA() const;
+        SceneObjectPtr objectB() const;
         inline bool collideConnected() const { return collideConnected_; }
 
         bool enabled() const;
@@ -81,10 +85,24 @@ namespace af3d
 
         APropertyValue propertyParentGet(const std::string&) const;
 
+        APropertyValue propertyWorldPositionGet(const std::string&) const { return pos(); }
+        void propertyWorldPositionSet(const std::string&, const APropertyValue& value) { setPos(value.toVec3()); }
+
+        APropertyValue propertyWorldTransformGet(const std::string&) const;
+        void propertyWorldTransformSet(const std::string&, const APropertyValue& value);
+
         APropertyValue propertyParamGet(const std::string& key) const { return params().get(key); }
 
+    protected:
+        void setDirty();
+
     private:
+        virtual btVector3 doGetPos() const = 0;
+        virtual void doSetPos(const btVector3& pos) {}
+
         virtual void doRefresh(bool forceDelete) = 0;
+
+        mutable btVector3 pos_ = btVector3_zero;
 
         std::weak_ptr<SceneObject> objectA_;
         std::weak_ptr<SceneObject> objectB_;
@@ -92,6 +110,8 @@ namespace af3d
         bool hasBodyB_ = false;
 
         Scene* parent_ = nullptr;
+
+        SceneObjectPtr marker_;
     };
 
     using JointPtr = std::shared_ptr<Joint>;

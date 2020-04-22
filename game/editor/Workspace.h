@@ -125,6 +125,8 @@ namespace af3d { namespace editor
         inline Action& actionOpMenuAddCollisionPlane() { return actionOpMenuAddCollisionPlane_; }
         inline Action& actionOpMenuAddCollisionStaticMesh() { return actionOpMenuAddCollisionStaticMesh_; }
         inline Action& actionOpMenuAddCollisionConvexMesh() { return actionOpMenuAddCollisionConvexMesh_; }
+        inline Action& actionOpMenuAddJoint() { return actionOpMenuAddJoint_; }
+        inline Action& actionOpMenuAddJointP2P() { return actionOpMenuAddJointP2P_; }
         inline Action& actionOpMenuAddPhysicsBody() { return actionOpMenuAddPhysicsBody_; }
         inline Action& actionOpMenuRemove() { return actionOpMenuRemove_; }
         inline Action& actionOpMenuRemovePhysicsBody() { return actionOpMenuRemovePhysicsBody_; }
@@ -225,6 +227,8 @@ namespace af3d { namespace editor
         Action actionOpMenuAddCollisionPlane_;
         Action actionOpMenuAddCollisionStaticMesh_;
         Action actionOpMenuAddCollisionConvexMesh_;
+        Action actionOpMenuAddJoint_;
+        Action actionOpMenuAddJointP2P_;
         Action actionOpMenuAddPhysicsBody_;
         Action actionOpMenuRemove_;
         Action actionOpMenuRemovePhysicsBody_;

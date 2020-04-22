@@ -124,6 +124,18 @@ namespace af3d { namespace editor
             }
             setDescription("Duplicate collision");
             shape->parent()->addShape(dupShape);
+        } else if (auto j = aobjectCast<Joint>(obj)) {
+            if (!j->parent()) {
+                LOG4CPLUS_ERROR(logger(), "redo: Joint not parented: " << description());
+                return false;
+            }
+            auto dupJoint = aobjectCast<Joint>(dupObj);
+            if (!dupJoint) {
+                LOG4CPLUS_ERROR(logger(), "redo: Duped object not a joint: " << description());
+                return false;
+            }
+            setDescription("Duplicate joint");
+            j->parent()->addJoint(dupJoint);
         } else {
             LOG4CPLUS_ERROR(logger(), "redo: Bad object type: " << description());
             return false;
@@ -177,6 +189,9 @@ namespace af3d { namespace editor
         } else if (auto shape = aobjectCast<CollisionShape>(dupObj)) {
             runtime_assert(shape->parent());
             shape->removeFromParent();
+        } else if (auto j = aobjectCast<Joint>(dupObj)) {
+            runtime_assert(j->parent());
+            j->removeFromParent();
         } else {
             LOG4CPLUS_ERROR(logger(), "undo: Bad object type: " << description());
             return false;

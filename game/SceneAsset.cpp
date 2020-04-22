@@ -25,6 +25,7 @@
 
 #include "SceneAsset.h"
 #include "Scene.h"
+#include "PhysicsJointComponent.h"
 
 namespace af3d
 {
@@ -62,6 +63,9 @@ namespace af3d
         for (const auto& obj : objects_) {
             scene->addObject(obj);
         }
+        for (const auto& j : joints_) {
+            scene->addJoint(j);
+        }
     }
 
     void SceneAsset::apply(const SceneObjectPtr& parent)
@@ -70,6 +74,11 @@ namespace af3d
 
         for (const auto& obj : objects_) {
             parent->addObject(obj);
+        }
+
+        if (!joints_.empty()) {
+            parent->addComponent(
+                std::make_shared<PhysicsJointComponent>(std::move(joints_)));
         }
     }
 }

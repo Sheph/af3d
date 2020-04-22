@@ -27,7 +27,9 @@
 #include "editor/ObjectComponent.h"
 #include "Logger.h"
 #include "SceneObject.h"
+#include "Scene.h"
 #include "PhysicsBodyComponent.h"
+#include "Joint.h"
 
 namespace af3d { namespace editor
 {
@@ -99,6 +101,13 @@ namespace af3d { namespace editor
                 return false;
             }
             parentPc->addShape(shape);
+        } else if (auto j = aobjectCast<Joint>(aobj)) {
+            auto scn = aobjectCast<Scene>(parentObj);
+            if (!scn) {
+                LOG4CPLUS_ERROR(logger(), "redo: Parent obj not a scene: " << description());
+                return false;
+            }
+            scn->addJoint(j);
         } else {
             LOG4CPLUS_ERROR(logger(), "redo: Class obj not supported: " << description());
             return false;
@@ -121,6 +130,8 @@ namespace af3d { namespace editor
             c->removeFromParent();
         } else if (auto shape = aobjectCast<CollisionShape>(aobj)) {
             shape->removeFromParent();
+        } else if (auto j = aobjectCast<Joint>(aobj)) {
+            j->removeFromParent();
         } else {
             LOG4CPLUS_ERROR(logger(), "undo: obj not supported: " << description());
             return false;

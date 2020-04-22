@@ -27,7 +27,7 @@
 #define _SCENEASSET_H_
 
 #include "SceneObject.h"
-#include "AObject.h"
+#include "Joint.h"
 #include "Logger.h"
 
 namespace af3d
@@ -58,21 +58,30 @@ namespace af3d
         APropertyValue propertyChildrenGet(const std::string&) const
         {
             std::vector<APropertyValue> res;
-            res.reserve(objects_.size());
+
+            res.reserve(objects_.size() + joints_.size());
             for (const auto& obj : objects_) {
                 res.emplace_back(obj);
             }
+            for (const auto& j : joints_) {
+                res.emplace_back(j);
+            }
+
             return res;
         }
         void propertyChildrenSet(const std::string&, const APropertyValue& value)
         {
             objects_.clear();
+            joints_.clear();
             auto children = value.toArray();
             objects_.reserve(children.size());
+            joints_.reserve(children.size());
             for (const auto& c : children) {
                 auto obj = c.toObject();
                 if (auto sObj = aobjectCast<SceneObject>(obj)) {
                     objects_.emplace_back(sObj);
+                } else if (auto j = aobjectCast<Joint>(obj)) {
+                    joints_.emplace_back(j);
                 } else {
                     LOG4CPLUS_ERROR(logger(), "Bad child object \"" << obj->name() << "\", class - \"" << obj->klass().name() << "\"");
                 }
@@ -96,6 +105,7 @@ namespace af3d
     private:
         SceneObjectPtr root_;
         std::vector<SceneObjectPtr> objects_;
+        Joints joints_;
 
         btVector3 gravity_;
         Color clearColor_ = Color_zero;

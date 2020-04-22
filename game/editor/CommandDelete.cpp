@@ -30,6 +30,7 @@
 #include "SceneObject.h"
 #include "Scene.h"
 #include "PhysicsBodyComponent.h"
+#include "Joint.h"
 #include "Logger.h"
 #include "AJsonWriter.h"
 #include "AJsonReader.h"
@@ -80,6 +81,15 @@ namespace af3d { namespace editor
             preDelete(obj, serializedObjs);
             parentWobj_ = AWeakObject(shape->parent()->sharedThis());
             shape->removeFromParent();
+        } else if (auto j = aobjectCast<Joint>(obj)) {
+            if (!j->parent()) {
+                LOG4CPLUS_ERROR(logger(), "redo: Joint not parented: " << description());
+                return false;
+            }
+            setDescription("Delete joint");
+            preDelete(obj, serializedObjs);
+            parentWobj_ = AWeakObject(j->parent()->sharedThis());
+            j->removeFromParent();
         } else {
             LOG4CPLUS_ERROR(logger(), "redo: Bad object type: " << description());
             return false;
@@ -140,6 +150,16 @@ namespace af3d { namespace editor
             }
 
             parentPc->addShape(shape);
+        } else if (auto j = aobjectCast<Joint>(obj)) {
+            runtime_assert(!j->parent());
+
+            auto scn = aweakObjectCast<Scene>(parentWobj_);
+            if (!scn) {
+                LOG4CPLUS_ERROR(logger(), "undo: Cannot get parent scene by cookie: " << description());
+                return false;
+            }
+
+            scn->addJoint(j);
         } else {
             LOG4CPLUS_ERROR(logger(), "undo: Bad object type: " << description());
             return false;

@@ -24,6 +24,7 @@
  */
 
 #include "editor/EditModeJointImpl.h"
+#include "editor/JointComponent.h"
 #include "Scene.h"
 #include "SceneObject.h"
 
@@ -57,6 +58,17 @@ namespace af3d { namespace editor
     AObjectPtr EditModeJointImpl::rayCast(const Frustum& frustum, const Ray& ray) const
     {
         JointPtr res;
+
+        scene()->rayCastRender(frustum, ray, [&res](const RenderComponentPtr& r, const AObjectPtr&, const btVector3&, float dist) {
+            if ((r->aflags() & AObjectMarkerJoint) == 0) {
+                return -1.0f;
+            }
+            auto tmp = r->parent()->findComponent<JointComponent>();
+            if (tmp) {
+                res = tmp->joint();
+            }
+            return dist;
+        });
 
         return res;
     }

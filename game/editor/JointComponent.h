@@ -23,20 +23,21 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _JOINTPOINTTOPOINT_H_
-#define _JOINTPOINTTOPOINT_H_
+#ifndef _EDITOR_JOINTCOMPONENT_H_
+#define _EDITOR_JOINTCOMPONENT_H_
 
+#include "PhasedComponent.h"
+#include "RenderQuadComponent.h"
 #include "Joint.h"
 
-namespace af3d
+namespace af3d { namespace editor
 {
-    class JointPointToPoint : public std::enable_shared_from_this<JointPointToPoint>,
-        public Joint
+    class JointComponent : public std::enable_shared_from_this<JointComponent>,
+        public PhasedComponent
     {
     public:
-        explicit JointPointToPoint(const SceneObjectPtr& objectA, const SceneObjectPtr& objectB = SceneObjectPtr(),
-            bool collideConnected = false);
-        ~JointPointToPoint() = default;
+        explicit JointComponent(const JointPtr& joint);
+        ~JointComponent() = default;
 
         static const AClass& staticKlass();
 
@@ -44,35 +45,22 @@ namespace af3d
 
         AObjectPtr sharedThis() override { return shared_from_this(); }
 
-        btPoint2PointConstraint* constraint() override { return constraint_; }
+        void preRender(float dt) override;
 
-        inline const btVector3& pivotA() const { return pivotA_; }
-        void setPivotA(const btVector3& value);
-
-        inline const btVector3& pivotB() const { return pivotB_; }
-        void setPivotB(const btVector3& value);
-
-        APropertyValue propertyPivotAGet(const std::string&) const { return pivotA(); }
-        void propertyPivotASet(const std::string&, const APropertyValue& value) { setPivotA(value.toVec3()); }
-
-        APropertyValue propertyPivotBGet(const std::string&) const { return pivotB(); }
-        void propertyPivotBSet(const std::string&, const APropertyValue& value) { setPivotB(value.toVec3()); }
+        inline const JointPtr& joint() const { return joint_; }
 
     private:
-        btVector3 doGetPos() const override;
-        void doSetPos(const btVector3& pos) override;
+        void onRegister() override;
 
-        void doRefresh(bool forceDelete) override;
+        void onUnregister() override;
 
-        btVector3 pivotA_ = btVector3_zero;
-        btVector3 pivotB_ = btVector3_zero;
-
-        btPoint2PointConstraint* constraint_ = nullptr;
+        JointPtr joint_;
+        RenderQuadComponentPtr markerRc_;
     };
 
-    using JointPointToPointPtr = std::shared_ptr<JointPointToPoint>;
-
-    ACLASS_DECLARE(JointPointToPoint)
+    using JointComponentPtr = std::shared_ptr<JointComponent>;
+}
+    ACLASS_NS_DECLARE(editor, JointComponent)
 }
 
 #endif

@@ -753,6 +753,7 @@ namespace af3d
                 auto pc = findComponent<PhysicsBodyComponent>();
                 if (pc) {
                     pc->setActive(value);
+                    body_->activate();
                 }
             }
         }

@@ -34,7 +34,8 @@ namespace af3d
     {
         AObjectEditable = 1 << 0,
         AObjectMarkerObject = 1 << 1,
-        AObjectMarkerLight = 1 << 2
+        AObjectMarkerLight = 1 << 2,
+        AObjectMarkerJoint = 1 << 3
     };
 
     class AObject : boost::noncopyable

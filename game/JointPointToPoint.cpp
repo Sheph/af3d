@@ -62,6 +62,7 @@ namespace af3d
         if (constraint_) {
             constraint_->setPivotA(value);
         }
+        setDirty();
     }
 
     void JointPointToPoint::setPivotB(const btVector3& value)
@@ -69,6 +70,20 @@ namespace af3d
         pivotB_ = value;
         if (constraint_) {
             constraint_->setPivotB(value);
+        }
+        setDirty();
+    }
+
+    btVector3 JointPointToPoint::doGetPos() const
+    {
+        return objectA()->getWorldPoint(constraint_->getPivotInA());
+    }
+
+    void JointPointToPoint::doSetPos(const btVector3& pos)
+    {
+        setPivotA(objectA()->getLocalPoint(pos));
+        if (hasBodyB()) {
+            setPivotB(objectB()->getLocalPoint(pos));
         }
     }
 
