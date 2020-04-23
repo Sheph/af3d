@@ -2,13 +2,13 @@
    {
       "ambient color" : [ 0.2352941185235977, 0.2352941185235977, 0.2352941185235977, 1.0 ],
       "camera transform" : [
-         41.15565490722656,
-         22.54158973693848,
-         -8.779082298278809,
-         -0.1614075750112534,
-         0.6383230686187744,
-         0.1392950713634491,
-         0.7396541237831116
+         42.36173248291016,
+         22.86862182617188,
+         -9.647354125976562,
+         -0.1534526050090790,
+         0.6453412175178528,
+         0.1345266401767731,
+         0.7361314296722412
       ],
       "children" : [
          2,
@@ -44,7 +44,7 @@
       "angular damping" : 0.0,
       "angular velocity" : [ 0.0, 0.0, 0.0 ],
       "body type" : 0,
-      "children" : [ 23, 24, 25 ],
+      "children" : [ 23 ],
       "class" : "SceneObject",
       "friction" : 0.50,
       "gravity enabled" : true,
@@ -52,29 +52,56 @@
       "is sensor" : false,
       "linear damping" : 0.0,
       "linear velocity" : [ 0.0, 0.0, 0.0 ],
-      "name" : "muro1",
+      "name" : "muro0",
       "physics active" : true,
       "restitution" : 0.0,
-      "type" : 2,
+      "type" : 5,
       "world transform" : [
-         0.2941541969776154,
-         9.303775787353516,
-         26.39535522460938,
-         -0.1445399969816208,
-         0.01038203947246075,
-         0.001516630640253425,
-         0.9894433617591858
+         -0.4683134257793427,
+         3.058435678482056,
+         12.51413440704346,
+         -0.1319362670183182,
+         0.06877814978361130,
+         0.009176895022392273,
+         0.9888266324996948
+      ]
+   },
+   {
+      "allow sensors" : false,
+      "angular damping" : 0.0,
+      "angular velocity" : [ 0.0, 0.0, 0.0 ],
+      "body type" : 0,
+      "children" : [ 24 ],
+      "class" : "SceneObjectSensor",
+      "friction" : 0.50,
+      "gravity enabled" : true,
+      "id" : 3,
+      "is sensor" : true,
+      "linear damping" : 0.0,
+      "linear velocity" : [ 0.0, 0.0, 0.0 ],
+      "name" : "sensor1",
+      "physics active" : true,
+      "restitution" : 0.0,
+      "type" : 0,
+      "world transform" : [
+         1.833456993103027,
+         -0.7994297742843628,
+         -19.94786453247070,
+         -1.267879979607520e-13,
+         0.0,
+         0.0,
+         1.0
       ]
    },
    {
       "angular velocity" : [ 0.0, 0.0, 0.0 ],
-      "children" : [ 26 ],
+      "children" : [ 25 ],
       "class" : "SceneObjectTestRef",
-      "id" : 3,
+      "id" : 4,
       "linear velocity" : [ 0.0, 0.0, 0.0 ],
       "name" : "ref1",
-      "other1" : 13,
-      "other2" : 14,
+      "other1" : 15,
+      "other2" : 17,
       "world transform" : [
          29.29218482971191,
          18.34994125366211,
@@ -89,11 +116,11 @@
       "angular damping" : 0.07999999821186066,
       "angular velocity" : [ 0.0, 0.0, 0.0 ],
       "body type" : 2,
-      "children" : [ 27, 28, 29 ],
+      "children" : [ 26, 27, 28 ],
       "class" : "SceneObject",
       "friction" : 0.50,
       "gravity enabled" : true,
-      "id" : 4,
+      "id" : 5,
       "is sensor" : false,
       "linear damping" : 0.009999999776482582,
       "linear velocity" : [ 0.0, 0.0, 0.0 ],
@@ -112,14 +139,40 @@
       ]
    },
    {
-      "angular damping" : 0.001000000047497451,
+      "angular damping" : 0.0,
       "angular velocity" : [ 0.0, 0.0, 0.0 ],
-      "body type" : 2,
-      "children" : [ 30, 31 ],
+      "body type" : 0,
+      "children" : [ 29, 30, 31 ],
       "class" : "SceneObject",
       "friction" : 0.50,
       "gravity enabled" : true,
-      "id" : 5,
+      "id" : 6,
+      "is sensor" : false,
+      "linear damping" : 0.0,
+      "linear velocity" : [ 0.0, 0.0, 0.0 ],
+      "name" : "muro1",
+      "physics active" : true,
+      "restitution" : 0.0,
+      "type" : 2,
+      "world transform" : [
+         0.2941541969776154,
+         9.303775787353516,
+         26.39535522460938,
+         -0.1445399969816208,
+         0.01038203947246075,
+         0.001516630640253425,
+         0.9894433617591858
+      ]
+   },
+   {
+      "angular damping" : 0.001000000047497451,
+      "angular velocity" : [ 0.0, 0.0, 0.0 ],
+      "body type" : 2,
+      "children" : [ 32, 33 ],
+      "class" : "SceneObject",
+      "friction" : 0.50,
+      "gravity enabled" : true,
+      "id" : 7,
       "is sensor" : false,
       "linear damping" : 0.001000000047497451,
       "linear velocity" : [ 0.0, 0.0, 0.0 ],
@@ -139,11 +192,31 @@
    },
    {
       "angular velocity" : [ 0.0, 0.0, 0.0 ],
-      "children" : [ 32, 33 ],
+      "children" : [ 34 ],
+      "class" : "SceneObjectColoredBox",
+      "color1" : [ 0.2286139875650406, 0.3545725643634796, 0.6568627357482910, 1.0 ],
+      "color2" : [ 0.3558713197708130, 0.6519607901573181, 0.09268068522214890, 1.0 ],
+      "id" : 8,
+      "linear velocity" : [ 0.0, 0.0, 0.0 ],
+      "name" : "t2",
+      "size" : [ 2.0, 7.0, 0.3000000119209290 ],
+      "world transform" : [
+         1.831785202026367,
+         3.247441768646240,
+         -0.6930651664733887,
+         -0.2354795187711716,
+         0.4064027070999146,
+         0.4224789142608643,
+         0.7751759886741638
+      ]
+   },
+   {
+      "angular velocity" : [ 0.0, 0.0, 0.0 ],
+      "children" : [ 35, 36 ],
       "class" : "SceneObjectColoredBox",
       "color1" : [ 1.0, 0.0, 0.0, 1.0 ],
       "color2" : [ 0.0, 1.0, 0.0, 1.0 ],
-      "id" : 6,
+      "id" : 9,
       "linear velocity" : [ 0.0, 0.0, 0.0 ],
       "name" : "muro2",
       "size" : [ 1.0, 2.0, 3.0 ],
@@ -158,41 +231,14 @@
       ]
    },
    {
-      "allow sensors" : false,
-      "angular damping" : 0.0,
-      "angular velocity" : [ 0.0, 0.0, 0.0 ],
-      "body type" : 0,
-      "children" : [ 34 ],
-      "class" : "SceneObjectSensor",
-      "friction" : 0.50,
-      "gravity enabled" : true,
-      "id" : 7,
-      "is sensor" : true,
-      "linear damping" : 0.0,
-      "linear velocity" : [ 0.0, 0.0, 0.0 ],
-      "name" : "sensor1",
-      "physics active" : true,
-      "restitution" : 0.0,
-      "type" : 0,
-      "world transform" : [
-         1.833456993103027,
-         -0.7994297742843628,
-         -19.94786453247070,
-         -1.267879979607520e-13,
-         0.0,
-         0.0,
-         1.0
-      ]
-   },
-   {
       "angular damping" : 0.001000000047497451,
       "angular velocity" : [ 0.0, 0.0, 0.0 ],
       "body type" : 0,
-      "children" : [ 35, 36 ],
+      "children" : [ 37, 38 ],
       "class" : "SceneObject",
       "friction" : 0.50,
       "gravity enabled" : true,
-      "id" : 8,
+      "id" : 10,
       "is sensor" : false,
       "linear damping" : 0.001000000047497451,
       "linear velocity" : [ 0.0, 0.0, 0.0 ],
@@ -214,11 +260,11 @@
       "angular damping" : 0.0,
       "angular velocity" : [ 0.0, 0.0, 0.0 ],
       "body type" : 0,
-      "children" : [ 37 ],
+      "children" : [ 39 ],
       "class" : "SceneObject",
       "friction" : 0.50,
       "gravity enabled" : true,
-      "id" : 9,
+      "id" : 11,
       "is sensor" : false,
       "linear damping" : 0.0,
       "linear velocity" : [ 0.0, 0.0, 0.0 ],
@@ -240,11 +286,11 @@
       "angular damping" : 0.0,
       "angular velocity" : [ 0.0, 0.0, 0.0 ],
       "body type" : 0,
-      "children" : [ 38 ],
+      "children" : [ 40 ],
       "class" : "SceneObject",
       "friction" : 0.50,
       "gravity enabled" : true,
-      "id" : 10,
+      "id" : 12,
       "is sensor" : false,
       "linear damping" : 0.0,
       "linear velocity" : [ 0.0, 0.0, 0.0 ],
@@ -266,11 +312,11 @@
       "angular damping" : 0.0,
       "angular velocity" : [ 0.0, 0.0, 0.0 ],
       "body type" : 0,
-      "children" : [ 39, 40 ],
+      "children" : [ 41, 42 ],
       "class" : "SceneObject",
       "friction" : 0.50,
       "gravity enabled" : true,
-      "id" : 11,
+      "id" : 13,
       "is sensor" : false,
       "linear damping" : 0.0,
       "linear velocity" : [ 0.0, 0.0, 0.0 ],
@@ -284,7 +330,7 @@
          -19.83142089843750,
          0.0,
          0.0,
-         0.04361957311630249,
+         0.04361958056688309,
          0.9990482330322266
       ]
    },
@@ -294,7 +340,7 @@
       "class" : "SceneObjectLinkedBoxes",
       "color1" : [ 0.7549019455909729, 0.4033544659614563, 0.4033544659614563, 1.0 ],
       "color2" : [ 0.0, 1.0, 0.0, 1.0 ],
-      "id" : 12,
+      "id" : 14,
       "linear velocity" : [ 0.0, 0.0, 0.0 ],
       "name" : "bx2",
       "size" : [ 1.0, 2.0, 3.0 ],
@@ -310,13 +356,13 @@
    },
    {
       "angular velocity" : [ 0.0, 0.0, 0.0 ],
-      "children" : [ 41 ],
+      "children" : [ 43 ],
       "class" : "SceneObjectTestRef",
-      "id" : 13,
+      "id" : 15,
       "linear velocity" : [ 0.0, 0.0, 0.0 ],
       "name" : "ref2",
-      "other1" : 14,
-      "other2" : 12,
+      "other1" : 17,
+      "other2" : 14,
       "world transform" : [
          25.15503692626953,
          21.11444282531738,
@@ -325,45 +371,6 @@
          0.6543229222297668,
          0.1959334462881088,
          0.6996950507164001
-      ]
-   },
-   {
-      "angular velocity" : [ 0.0, 0.0, 0.0 ],
-      "children" : [ 42 ],
-      "class" : "SceneObjectTestRef",
-      "id" : 14,
-      "linear velocity" : [ 0.0, 0.0, 0.0 ],
-      "name" : "ref3",
-      "other1" : 4,
-      "other2" : 17,
-      "world transform" : [
-         26.69425201416016,
-         15.43173027038574,
-         -13.41981697082520,
-         -0.2095198333263397,
-         0.6543229222297668,
-         0.1959334462881088,
-         0.6996950507164001
-      ]
-   },
-   {
-      "angular velocity" : [ 0.0, 0.0, 0.0 ],
-      "children" : [ 43 ],
-      "class" : "SceneObjectColoredBox",
-      "color1" : [ 0.2286139875650406, 0.3545725643634796, 0.6568627357482910, 1.0 ],
-      "color2" : [ 0.3558713197708130, 0.6519607901573181, 0.09268068522214890, 1.0 ],
-      "id" : 15,
-      "linear velocity" : [ 0.0, 0.0, 0.0 ],
-      "name" : "t2",
-      "size" : [ 2.0, 7.0, 0.3000000119209290 ],
-      "world transform" : [
-         1.831785202026367,
-         3.247441768646240,
-         -0.6930651664733887,
-         -0.2354795187711716,
-         0.4064027070999146,
-         0.4224789142608643,
-         0.7751759886741638
       ]
    },
    {
@@ -383,9 +390,9 @@
       "restitution" : 0.50,
       "type" : 0,
       "world transform" : [
-         2.514293909072876,
-         1.668777227401733,
-         -17.51527404785156,
+         2.515137195587158,
+         1.667445302009583,
+         -17.51563453674316,
          0.2490255385637283,
          -0.5315079092979431,
          0.1618084460496902,
@@ -394,11 +401,30 @@
    },
    {
       "angular velocity" : [ 0.0, 0.0, 0.0 ],
+      "children" : [ 46 ],
+      "class" : "SceneObjectTestRef",
+      "id" : 17,
+      "linear velocity" : [ 0.0, 0.0, 0.0 ],
+      "name" : "ref3",
+      "other1" : 5,
+      "other2" : 18,
+      "world transform" : [
+         26.69425201416016,
+         15.43173027038574,
+         -13.41981697082520,
+         -0.2095198333263397,
+         0.6543229222297668,
+         0.1959334462881088,
+         0.6996950507164001
+      ]
+   },
+   {
+      "angular velocity" : [ 0.0, 0.0, 0.0 ],
       "children" : [],
       "class" : "SceneObjectLinkedBoxes",
       "color1" : [ 0.7549019455909729, 0.4033544659614563, 0.4033544659614563, 1.0 ],
       "color2" : [ 0.0, 1.0, 0.0, 1.0 ],
-      "id" : 17,
+      "id" : 18,
       "linear velocity" : [ 0.0, 0.0, 0.0 ],
       "name" : "bx1",
       "size" : [ 1.0, 2.0, 3.0 ],
@@ -407,7 +433,7 @@
          5.370629310607910,
          -11.30421257019043,
          -0.2849707603454590,
-         0.8333260416984558,
+         0.8333261013031006,
          0.3249409496784210,
          0.3446342647075653
       ]
@@ -416,11 +442,11 @@
       "angular damping" : 0.001000000047497451,
       "angular velocity" : [ 0.0, 0.0, 0.0 ],
       "body type" : 2,
-      "children" : [ 46, 47 ],
+      "children" : [ 47, 48 ],
       "class" : "SceneObject",
       "friction" : 0.50,
       "gravity enabled" : true,
-      "id" : 18,
+      "id" : 19,
       "is sensor" : false,
       "linear damping" : 0.001000000047497451,
       "linear velocity" : [ 0.0, 0.0, 0.0 ],
@@ -442,33 +468,7 @@
       "angular damping" : 0.001000000047497451,
       "angular velocity" : [ 0.0, 0.0, 0.0 ],
       "body type" : 2,
-      "children" : [ 48, 49 ],
-      "class" : "SceneObject",
-      "friction" : 0.50,
-      "gravity enabled" : true,
-      "id" : 19,
-      "is sensor" : false,
-      "linear damping" : 0.001000000047497451,
-      "linear velocity" : [ 0.0, 0.0, 0.0 ],
-      "name" : "box4",
-      "physics active" : true,
-      "restitution" : 0.50,
-      "type" : 0,
-      "world transform" : [
-         2.041301250457764,
-         5.199851512908936,
-         -19.38796234130859,
-         0.2490255385637283,
-         -0.5315079092979431,
-         0.1618084460496902,
-         0.7932866215705872
-      ]
-   },
-   {
-      "angular damping" : 0.001000000047497451,
-      "angular velocity" : [ 0.0, 0.0, 0.0 ],
-      "body type" : 2,
-      "children" : [ 50, 51, 52 ],
+      "children" : [ 49, 50, 51 ],
       "class" : "SceneObject",
       "friction" : 0.50,
       "gravity enabled" : true,
@@ -491,45 +491,102 @@
       ]
    },
    {
-      "angular damping" : 0.0,
+      "angular damping" : 0.001000000047497451,
       "angular velocity" : [ 0.0, 0.0, 0.0 ],
-      "body type" : 0,
-      "children" : [ 53 ],
+      "body type" : 2,
+      "children" : [ 52, 53 ],
       "class" : "SceneObject",
       "friction" : 0.50,
       "gravity enabled" : true,
       "id" : 21,
       "is sensor" : false,
-      "linear damping" : 0.0,
+      "linear damping" : 0.001000000047497451,
       "linear velocity" : [ 0.0, 0.0, 0.0 ],
-      "name" : "muro0",
+      "name" : "box4",
       "physics active" : true,
-      "restitution" : 0.0,
-      "type" : 5,
+      "restitution" : 0.50,
+      "type" : 0,
       "world transform" : [
-         -0.4683134257793427,
-         3.058435678482056,
-         12.51413440704346,
-         -0.1319362670183182,
-         0.06877814978361130,
-         0.009176895022392273,
-         0.9888266324996948
+         2.041301250457764,
+         5.199851512908936,
+         -19.38796234130859,
+         0.2490255385637283,
+         -0.5315079092979431,
+         0.1618084460496902,
+         0.7932866215705872
       ]
    },
    {
       "class" : "JointPointToPoint",
-      "collide connected" : true,
+      "collide connected" : false,
       "id" : 22,
+      "local pivot A" : [ -0.1399707794189453, -0.4444732666015625, -1.464084386825562 ],
+      "local pivot B" : [ 0.50, 0.5000002384185791, -0.50 ],
       "name" : "",
-      "object A" : 12,
+      "object A" : 14,
       "object B" : 16,
-      "pivot A" : [ -0.1165618896484375, -0.4781904220581055, -1.506768465042114 ],
-      "pivot B" : [ 0.4938707351684570, 0.4412660598754883, -0.5025825500488281 ],
-      "world position" : [ 2.856485128402710, 2.313273668289185, -17.11684989929199 ]
+      "world position" : [ 2.784113407135010, 3.894659519195557, -17.03570175170898 ]
    },
    {
       "class" : "RenderMeshComponent",
       "id" : 23,
+      "local transform" : [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0 ],
+      "mesh" : 54,
+      "name" : "4343",
+      "scale" : [ 0.009999999776482582, 0.009999999776482582, 0.009999999776482582 ],
+      "visible" : true
+   },
+   {
+      "children" : [ 55 ],
+      "class" : "PhysicsBodyComponent",
+      "id" : 24,
+      "name" : ""
+   },
+   {
+      "class" : "RenderMeshComponent",
+      "id" : 25,
+      "local transform" : [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0 ],
+      "mesh" : 56,
+      "name" : "",
+      "scale" : [ 1.0, 1.0, 1.0 ],
+      "visible" : true
+   },
+   {
+      "class" : "RenderMeshComponent",
+      "id" : 26,
+      "local transform" : [ 0.0, 1.0, 0.0, -0.7071067690849304, 0.0, 0.0, 0.7071067690849304 ],
+      "mesh" : 57,
+      "name" : "pic1",
+      "scale" : [ 2.0, 2.0, 2.0 ],
+      "visible" : true
+   },
+   {
+      "class" : "PointLight",
+      "color" : [ 0.9950980544090271, 0.004877916537225246, 0.004877916537225246, 1.0 ],
+      "id" : 27,
+      "intensity" : 3.0,
+      "local transform" : [
+         0.110696554183960,
+         3.188247203826904,
+         -0.09062814712524414,
+         0.0,
+         0.0,
+         0.0,
+         1.0
+      ],
+      "name" : "",
+      "radius" : 8.0,
+      "visible" : true
+   },
+   {
+      "children" : [ 58 ],
+      "class" : "PhysicsBodyComponent",
+      "id" : 28,
+      "name" : ""
+   },
+   {
+      "class" : "RenderMeshComponent",
+      "id" : 29,
       "local transform" : [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.7071067690849304, 0.7071067690849304 ],
       "mesh" : 54,
       "name" : "",
@@ -538,7 +595,7 @@
    },
    {
       "class" : "RenderMeshComponent",
-      "id" : 24,
+      "id" : 30,
       "local transform" : [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0 ],
       "mesh" : 54,
       "name" : "",
@@ -548,7 +605,7 @@
    {
       "class" : "PointLight",
       "color" : [ 0.07076605409383774, 0.7598038911819458, 0.07076605409383774, 1.0 ],
-      "id" : 25,
+      "id" : 31,
       "intensity" : 2.0,
       "local transform" : [
          -0.1550658941268921,
@@ -565,162 +622,22 @@
    },
    {
       "class" : "RenderMeshComponent",
-      "id" : 26,
-      "local transform" : [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0 ],
-      "mesh" : 55,
-      "name" : "",
-      "scale" : [ 1.0, 1.0, 1.0 ],
-      "visible" : true
-   },
-   {
-      "class" : "RenderMeshComponent",
-      "id" : 27,
-      "local transform" : [ 0.0, 1.0, 0.0, -0.7071067690849304, 0.0, 0.0, 0.7071067690849304 ],
-      "mesh" : 56,
-      "name" : "pic1",
-      "scale" : [ 2.0, 2.0, 2.0 ],
-      "visible" : true
-   },
-   {
-      "class" : "PointLight",
-      "color" : [ 0.9950980544090271, 0.004877916537225246, 0.004877916537225246, 1.0 ],
-      "id" : 28,
-      "intensity" : 3.0,
-      "local transform" : [
-         0.110696554183960,
-         3.188247203826904,
-         -0.09062814712524414,
-         0.0,
-         0.0,
-         0.0,
-         1.0
-      ],
-      "name" : "",
-      "radius" : 8.0,
-      "visible" : true
-   },
-   {
-      "children" : [ 57 ],
-      "class" : "PhysicsBodyComponent",
-      "id" : 29,
-      "name" : ""
-   },
-   {
-      "class" : "RenderMeshComponent",
-      "id" : 30,
-      "local transform" : [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0 ],
-      "mesh" : 55,
-      "name" : "",
-      "scale" : [ 1.0, 1.0, 1.0 ],
-      "visible" : true
-   },
-   {
-      "children" : [ 58 ],
-      "class" : "PhysicsBodyComponent",
-      "id" : 31,
-      "name" : ""
-   },
-   {
-      "class" : "RenderMeshComponent",
       "id" : 32,
       "local transform" : [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0 ],
-      "mesh" : 54,
+      "mesh" : 56,
       "name" : "",
-      "scale" : [ 0.009999999776482582, 0.009999999776482582, 0.009999999776482582 ],
-      "visible" : true
-   },
-   {
-      "class" : "RenderMeshComponent",
-      "id" : 33,
-      "local transform" : [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.7071067690849304, 0.7071067690849304 ],
-      "mesh" : 54,
-      "name" : "",
-      "scale" : [ 0.009999999776482582, 0.009999999776482582, 0.009999999776482582 ],
+      "scale" : [ 1.0, 1.0, 1.0 ],
       "visible" : true
    },
    {
       "children" : [ 59 ],
       "class" : "PhysicsBodyComponent",
+      "id" : 33,
+      "name" : ""
+   },
+   {
+      "class" : "RenderMeshComponent",
       "id" : 34,
-      "name" : ""
-   },
-   {
-      "class" : "RenderMeshComponent",
-      "id" : 35,
-      "local transform" : [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0 ],
-      "mesh" : 55,
-      "name" : "",
-      "scale" : [ 2.0, 2.0, 1.0 ],
-      "visible" : true
-   },
-   {
-      "children" : [],
-      "class" : "PhysicsBodyComponent",
-      "id" : 36,
-      "name" : ""
-   },
-   {
-      "class" : "DirectionalLight",
-      "color" : [ 0.08934070914983749, 0.6110517382621765, 0.8284313678741455, 1.0 ],
-      "id" : 37,
-      "intensity" : 0.50,
-      "local transform" : [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0 ],
-      "name" : "",
-      "visible" : true
-   },
-   {
-      "class" : "DirectionalLight",
-      "color" : [ 0.8284313678741455, 0.8064346313476562, 0.08934065699577332, 1.0 ],
-      "id" : 38,
-      "intensity" : 1.0,
-      "local transform" : [
-         0.0,
-         0.0,
-         0.0,
-         -0.1157541424036026,
-         0.4791044592857361,
-         -0.1900875419378281,
-         0.8490740060806274
-      ],
-      "name" : "",
-      "visible" : true
-   },
-   {
-      "class" : "RenderMeshComponent",
-      "id" : 39,
-      "local transform" : [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0 ],
-      "mesh" : 55,
-      "name" : "",
-      "scale" : [ 50.0, 0.1000000014901161, 50.0 ],
-      "visible" : true
-   },
-   {
-      "children" : [ 60 ],
-      "class" : "PhysicsBodyComponent",
-      "id" : 40,
-      "name" : ""
-   },
-   {
-      "class" : "RenderMeshComponent",
-      "id" : 41,
-      "local transform" : [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0 ],
-      "mesh" : 55,
-      "name" : "",
-      "scale" : [ 1.0, 1.0, 1.0 ],
-      "visible" : true
-   },
-   {
-      "class" : "RenderMeshComponent",
-      "id" : 42,
-      "local transform" : [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0 ],
-      "mesh" : 55,
-      "name" : "",
-      "scale" : [ 1.0, 1.0, 1.0 ],
-      "visible" : true
-   },
-   {
-      "class" : "RenderMeshComponent",
-      "id" : 43,
       "local transform" : [
          0.0,
          0.0,
@@ -737,9 +654,92 @@
    },
    {
       "class" : "RenderMeshComponent",
+      "id" : 35,
+      "local transform" : [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0 ],
+      "mesh" : 54,
+      "name" : "",
+      "scale" : [ 0.009999999776482582, 0.009999999776482582, 0.009999999776482582 ],
+      "visible" : true
+   },
+   {
+      "class" : "RenderMeshComponent",
+      "id" : 36,
+      "local transform" : [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.7071067690849304, 0.7071067690849304 ],
+      "mesh" : 54,
+      "name" : "",
+      "scale" : [ 0.009999999776482582, 0.009999999776482582, 0.009999999776482582 ],
+      "visible" : true
+   },
+   {
+      "class" : "RenderMeshComponent",
+      "id" : 37,
+      "local transform" : [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0 ],
+      "mesh" : 56,
+      "name" : "",
+      "scale" : [ 2.0, 2.0, 1.0 ],
+      "visible" : true
+   },
+   {
+      "children" : [],
+      "class" : "PhysicsBodyComponent",
+      "id" : 38,
+      "name" : ""
+   },
+   {
+      "class" : "DirectionalLight",
+      "color" : [ 0.08934070914983749, 0.6110517382621765, 0.8284313678741455, 1.0 ],
+      "id" : 39,
+      "intensity" : 0.50,
+      "local transform" : [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0 ],
+      "name" : "",
+      "visible" : true
+   },
+   {
+      "class" : "DirectionalLight",
+      "color" : [ 0.8284313678741455, 0.8064346313476562, 0.08934065699577332, 1.0 ],
+      "id" : 40,
+      "intensity" : 1.0,
+      "local transform" : [
+         0.0,
+         0.0,
+         0.0,
+         -0.1157541498541832,
+         0.4791044890880585,
+         -0.1900875568389893,
+         0.8490740060806274
+      ],
+      "name" : "",
+      "visible" : true
+   },
+   {
+      "class" : "RenderMeshComponent",
+      "id" : 41,
+      "local transform" : [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0 ],
+      "mesh" : 56,
+      "name" : "",
+      "scale" : [ 50.0, 0.1000000014901161, 50.0 ],
+      "visible" : true
+   },
+   {
+      "children" : [ 60 ],
+      "class" : "PhysicsBodyComponent",
+      "id" : 42,
+      "name" : ""
+   },
+   {
+      "class" : "RenderMeshComponent",
+      "id" : 43,
+      "local transform" : [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0 ],
+      "mesh" : 56,
+      "name" : "",
+      "scale" : [ 1.0, 1.0, 1.0 ],
+      "visible" : true
+   },
+   {
+      "class" : "RenderMeshComponent",
       "id" : 44,
       "local transform" : [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0 ],
-      "mesh" : 55,
+      "mesh" : 56,
       "name" : "",
       "scale" : [ 1.0, 1.0, 1.0 ],
       "visible" : true
@@ -754,7 +754,16 @@
       "class" : "RenderMeshComponent",
       "id" : 46,
       "local transform" : [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0 ],
-      "mesh" : 55,
+      "mesh" : 56,
+      "name" : "",
+      "scale" : [ 1.0, 1.0, 1.0 ],
+      "visible" : true
+   },
+   {
+      "class" : "RenderMeshComponent",
+      "id" : 47,
+      "local transform" : [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0 ],
+      "mesh" : 56,
       "name" : "",
       "scale" : [ 1.0, 1.0, 1.0 ],
       "visible" : true
@@ -762,42 +771,27 @@
    {
       "children" : [ 62 ],
       "class" : "PhysicsBodyComponent",
-      "id" : 47,
-      "name" : ""
-   },
-   {
-      "class" : "RenderMeshComponent",
       "id" : 48,
-      "local transform" : [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0 ],
-      "mesh" : 55,
-      "name" : "",
-      "scale" : [ 1.0, 1.0, 1.0 ],
-      "visible" : true
+      "name" : ""
    },
    {
-      "children" : [ 63 ],
-      "class" : "PhysicsBodyComponent",
+      "class" : "RenderMeshComponent",
       "id" : 49,
-      "name" : ""
-   },
-   {
-      "class" : "RenderMeshComponent",
-      "id" : 50,
       "local transform" : [ 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0 ],
-      "mesh" : 55,
+      "mesh" : 56,
       "name" : "",
       "scale" : [ 1.0, 1.0, 1.0 ],
       "visible" : true
    },
    {
-      "children" : [ 64, 65 ],
+      "children" : [ 63, 64 ],
       "class" : "PhysicsBodyComponent",
-      "id" : 51,
+      "id" : 50,
       "name" : ""
    },
    {
       "class" : "RenderMeshComponent",
-      "id" : 52,
+      "id" : 51,
       "local transform" : [
          0.0,
          0.50,
@@ -807,19 +801,25 @@
          0.2285684645175934,
          0.9106707572937012
       ],
-      "mesh" : 55,
+      "mesh" : 56,
       "name" : "",
       "scale" : [ 1.0, 1.0, 1.0 ],
       "visible" : true
    },
    {
       "class" : "RenderMeshComponent",
-      "id" : 53,
+      "id" : 52,
       "local transform" : [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0 ],
-      "mesh" : 54,
-      "name" : "4343",
-      "scale" : [ 0.009999999776482582, 0.009999999776482582, 0.009999999776482582 ],
+      "mesh" : 56,
+      "name" : "",
+      "scale" : [ 1.0, 1.0, 1.0 ],
       "visible" : true
+   },
+   {
+      "children" : [ 65 ],
+      "class" : "PhysicsBodyComponent",
+      "id" : 53,
+      "name" : ""
    },
    {
       "class" : "Mesh",
@@ -827,18 +827,27 @@
       "name" : "muro.fbx"
    },
    {
-      "class" : "Mesh",
+      "class" : "CollisionShapeBox",
       "id" : 55,
-      "name" : "cube.fbx"
+      "local transform" : [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0 ],
+      "mass" : 1.0,
+      "name" : "",
+      "scale" : [ 1.0, 1.0, 1.0 ],
+      "size" : [ 5.0, 1.0, 8.0 ]
    },
    {
       "class" : "Mesh",
       "id" : 56,
+      "name" : "cube.fbx"
+   },
+   {
+      "class" : "Mesh",
+      "id" : 57,
       "name" : "Low-Poly Plant_.fbx"
    },
    {
       "class" : "CollisionShapeConvexMesh",
-      "id" : 57,
+      "id" : 58,
       "local transform" : [
          -1.176982777906233e-07,
          1.424122810363770,
@@ -849,7 +858,7 @@
          0.7071059346199036
       ],
       "mass" : 1.0,
-      "mesh" : 56,
+      "mesh" : 57,
       "name" : "shape",
       "offset" : [ 0.0, 0.0, -0.2000000029802322 ],
       "polyhedral" : false,
@@ -858,21 +867,12 @@
    },
    {
       "class" : "CollisionShapeBox",
-      "id" : 58,
-      "local transform" : [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0 ],
-      "mass" : 1.0,
-      "name" : "",
-      "scale" : [ 1.0, 1.0, 1.0 ],
-      "size" : [ 1.0, 1.0, 1.0 ]
-   },
-   {
-      "class" : "CollisionShapeBox",
       "id" : 59,
       "local transform" : [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0 ],
       "mass" : 1.0,
       "name" : "",
       "scale" : [ 1.0, 1.0, 1.0 ],
-      "size" : [ 5.0, 1.0, 8.0 ]
+      "size" : [ 1.0, 1.0, 1.0 ]
    },
    {
       "class" : "CollisionShapeBox",
@@ -904,15 +904,6 @@
    {
       "class" : "CollisionShapeBox",
       "id" : 63,
-      "local transform" : [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0 ],
-      "mass" : 1.0,
-      "name" : "",
-      "scale" : [ 1.0, 1.0, 1.0 ],
-      "size" : [ 1.0, 1.0, 1.0 ]
-   },
-   {
-      "class" : "CollisionShapeBox",
-      "id" : 64,
       "local transform" : [ 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0 ],
       "mass" : 1.0,
       "name" : "",
@@ -921,7 +912,7 @@
    },
    {
       "class" : "CollisionShapeBox",
-      "id" : 65,
+      "id" : 64,
       "local transform" : [
          0.0,
          0.50,
@@ -931,6 +922,15 @@
          0.2285684645175934,
          0.9106707572937012
       ],
+      "mass" : 1.0,
+      "name" : "",
+      "scale" : [ 1.0, 1.0, 1.0 ],
+      "size" : [ 1.0, 1.0, 1.0 ]
+   },
+   {
+      "class" : "CollisionShapeBox",
+      "id" : 65,
+      "local transform" : [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0 ],
       "mass" : 1.0,
       "name" : "",
       "scale" : [ 1.0, 1.0, 1.0 ],

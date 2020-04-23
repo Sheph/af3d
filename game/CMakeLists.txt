@@ -125,7 +125,6 @@ set(SOURCES
     editor/CommandDelete.cpp
     editor/CommandDup.cpp
     editor/ObjectComponent.cpp
-    editor/JointComponent.cpp
     editor/EditModeImpl.cpp
     editor/EditModeObjectImpl.cpp
     editor/EditModeVisualImpl.cpp
@@ -143,6 +142,8 @@ set(SOURCES
     editor/ToolRotate.cpp
     editor/ToolScale.cpp
     editor/Playbar.cpp
+    editor/EditPart.cpp
+    editor/EditPartTransform.cpp
 )
 
 include_directories(.)

@@ -24,16 +24,17 @@
  */
 
 #include "Joint.h"
+#include "editor/EditPartTransform.h"
+#include "RenderQuadComponent.h"
 #include "Settings.h"
 #include "Scene.h"
-#include "editor/JointComponent.h"
+#include "AssetManager.h"
 
 namespace af3d
 {
     ACLASS_DEFINE_BEGIN_ABSTRACT(Joint, AObject)
     ACLASS_PROPERTY_RO(Joint, Parent, AProperty_Parent, "Parent", AObject, Hierarchy, APropertyTransient)
-    ACLASS_PROPERTY(Joint, WorldPosition, AProperty_WorldPosition, "World position", Vec3f, btVector3(0.0f, 0.0f, 0.0f), Position, APropertyEditable)
-    ACLASS_PROPERTY(Joint, WorldTransform, AProperty_WorldTransform, "World transform", Transform, btTransform::getIdentity(), Position, APropertyTransient)
+    ACLASS_PROPERTY(Joint, WorldPosition, AProperty_WorldPosition, "World position", Vec3f, btVector3(0.0f, 0.0f, 0.0f), Position, 0)
     ACLASS_DEFINE_END(Joint)
 
     Joint::Joint(const AClass& klass,
@@ -101,23 +102,6 @@ namespace af3d
         }
     }
 
-    const btVector3& Joint::pos() const
-    {
-        if (enabled()) {
-            pos_ = doGetPos();
-        }
-        return pos_;
-    }
-
-    void Joint::setPos(const btVector3& value)
-    {
-        if (enabled()) {
-            doSetPos(value);
-        } else {
-            pos_ = value;
-        }
-    }
-
     SceneObjectPtr Joint::objectA() const
     {
         return objectA_.lock();
@@ -139,23 +123,13 @@ namespace af3d
         btAssert(!parent_);
         parent_ = parent;
         refresh(false);
-
-        if (((aflags() & AObjectEditable) != 0) && parent->workspace()) {
-            marker_ = std::make_shared<SceneObject>();
-            marker_->setPos(pos());
-            marker_->addComponent(
-                std::make_shared<editor::JointComponent>(std::static_pointer_cast<Joint>(sharedThis())));
-            parent->addObject(marker_);
-        }
+        doAdopt(((aflags() & AObjectEditable) != 0) && parent->workspace());
     }
 
     void Joint::abandon()
     {
-        if (marker_) {
-            marker_->removeFromParent();
-            marker_.reset();
-        }
         btAssert(parent_);
+        doAbandon();
         refresh(true);
         parent_ = nullptr;
     }
@@ -163,21 +137,6 @@ namespace af3d
     APropertyValue Joint::propertyParentGet(const std::string&) const
     {
         return APropertyValue(parent_ ? parent_->sharedThis() : AObjectPtr());
-    }
-
-    APropertyValue Joint::propertyWorldTransformGet(const std::string&) const
-    {
-        auto objA = objectA();
-        if (objA) {
-            return btTransform(objA->basis(), pos());
-        } else {
-            return toTransform(pos());
-        }
-    }
-
-    void Joint::propertyWorldTransformSet(const std::string&, const APropertyValue& value)
-    {
-        setPos(value.toTransform().getOrigin());
     }
 
     void Joint::setDirty()
@@ -189,5 +148,53 @@ namespace af3d
                 c->getRigidBodyB().activate();
             }
         }
+    }
+
+    SceneObjectPtr Joint::createPointEdit(const std::string& xfPropName, bool isDefault)
+    {
+        auto that = std::static_pointer_cast<Joint>(sharedThis());
+
+        auto edit = std::make_shared<SceneObject>();
+        edit->setPos(propertyGet(xfPropName).toTransform().getOrigin());
+
+        auto marker = std::make_shared<RenderQuadComponent>();
+        marker->setDrawable(assetManager.getDrawable("common1/mode_joint.png"));
+        marker->setDepthTest(false);
+        marker->setHeight(settings.editor.jointMarkerSizeWorld);
+        marker->setViewportHeight((float)settings.editor.jointMarkerSizePixels / settings.viewHeight);
+        marker->setColor(settings.editor.jointMarkerColorInactive);
+        marker->aflagsSet(AObjectMarkerJoint);
+        marker->setVisible(false);
+        edit->addComponent(marker);
+        edit->addComponent(
+            std::make_shared<editor::EditPartTransform>(that, isDefault,
+                xfPropName, [that, xfPropName, marker]() {
+                    marker->parent()->setPos(that->propertyGet(xfPropName).toTransform().getOrigin());
+                    auto s = marker->scene();
+
+                    auto emJoint = s->workspace()->emJoint();
+
+                    bool showMarker = emJoint->active() || s->workspace()->emObject()->active() ||
+                        s->workspace()->emCollision()->active();
+
+                    marker->setVisible(showMarker);
+
+                    if (showMarker) {
+                        if (emJoint->active()) {
+                            if (emJoint->isSelected(that)) {
+                                marker->setColor(settings.editor.jointMarkerColorSelected);
+                            } else if (emJoint->isHovered(that)) {
+                                marker->setColor(settings.editor.jointMarkerColorHovered);
+                            } else {
+                                marker->setColor(settings.editor.jointMarkerColorInactive);
+                            }
+                        } else {
+                            marker->setColor(settings.editor.jointMarkerColorOff);
+                        }
+                    }
+                }));
+
+        parent()->addObject(edit);
+        return edit;
     }
 }

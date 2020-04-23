@@ -24,7 +24,7 @@
  */
 
 #include "editor/EditModeJointImpl.h"
-#include "editor/JointComponent.h"
+#include "editor/EditPart.h"
 #include "Scene.h"
 #include "SceneObject.h"
 
@@ -61,9 +61,9 @@ namespace af3d { namespace editor
             if ((r->aflags() & AObjectMarkerJoint) == 0) {
                 return -1.0f;
             }
-            auto tmp = r->parent()->findComponent<JointComponent>();
+            auto tmp = r->parent()->findComponent<EditPart>();
             if (tmp) {
-                res = Item(tmp->joint());
+                res = Item(tmp->target(), tmp->isDefault() ? AObjectPtr() : tmp);
             }
             return dist;
         });

@@ -25,6 +25,7 @@
 
 #include "editor/CommandSetProperty.h"
 #include "editor/CommandDelete.h"
+#include "editor/EditPart.h"
 #include "AParameterized.h"
 #include "Logger.h"
 
@@ -40,7 +41,21 @@ namespace af3d { namespace editor
       value_(propValue),
       isParam_(obj->propertyFind(propName)->category() == APropertyCategory::Params)
     {
-        setDescription("Set \"" + propName + "\" property");
+        if ((obj->aflags() & AObjectEditable) == 0) {
+            if (auto ep = aobjectCast<EditPart>(obj)) {
+                const auto& mappedPropName = ep->targetPropertyName(propName);
+                if (mappedPropName.empty()) {
+                    LOG4CPLUS_ERROR(logger(), "CommandSetProperty for EditPart: cannot map property " << name_);
+                } else {
+                    wobj_.reset(ep->target());
+                    name_ = mappedPropName;
+                }
+            } else {
+                LOG4CPLUS_ERROR(logger(), "CommandSetProperty for non-editable obj " << obj->name() << ", delete undo won't work!");
+            }
+        }
+
+        setDescription("Set \"" + name_ + "\" property");
     }
 
     bool CommandSetProperty::redo()

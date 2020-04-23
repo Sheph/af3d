@@ -25,6 +25,7 @@
 
 #include "JointPointToPoint.h"
 #include "SceneObject.h"
+#include "Scene.h"
 
 namespace af3d
 {
@@ -32,8 +33,12 @@ namespace af3d
     JOINT_PARAM(JointPointToPoint, "object A", "Object A", SceneObject, SceneObjectPtr())
     JOINT_PARAM(JointPointToPoint, "object B", "Object B", SceneObject, SceneObjectPtr())
     JOINT_PARAM(JointPointToPoint, "collide connected", "Collide connected bodies", Bool, false)
-    ACLASS_PROPERTY(JointPointToPoint, PivotA, "pivot A", "Pivot A", Vec3f, btVector3(0.0f, 0.0f, 0.0f), Position, APropertyEditable)
-    ACLASS_PROPERTY(JointPointToPoint, PivotB, "pivot B", "Pivot B", Vec3f, btVector3(0.0f, 0.0f, 0.0f), Position, APropertyEditable)
+    ACLASS_PROPERTY(JointPointToPoint, LocalPivotA, "local pivot A", "Local pivot A", Vec3f, btVector3(0.0f, 0.0f, 0.0f), Position, APropertyEditable)
+    ACLASS_PROPERTY(JointPointToPoint, WorldPivotA, "world pivot A", "World pivot A", Vec3f, btVector3(0.0f, 0.0f, 0.0f), Position, APropertyEditable|APropertyTransient)
+    ACLASS_PROPERTY(JointPointToPoint, LocalPivotB, "local pivot B", "Local pivot B", Vec3f, btVector3(0.0f, 0.0f, 0.0f), Position, APropertyEditable)
+    ACLASS_PROPERTY(JointPointToPoint, WorldPivotB, "world pivot B", "World pivot B", Vec3f, btVector3(0.0f, 0.0f, 0.0f), Position, APropertyEditable|APropertyTransient)
+    ACLASS_PROPERTY(JointPointToPoint, WorldPivotATransform, AProperty_WorldTransform, "World pivot A transform", Transform, btTransform::getIdentity(), Position, APropertyTransient)
+    ACLASS_PROPERTY(JointPointToPoint, WorldPivotBTransform, "world pivot B transform", "World pivot B transform", Transform, btTransform::getIdentity(), Position, APropertyTransient)
     ACLASS_DEFINE_END(JointPointToPoint)
 
     JointPointToPoint::JointPointToPoint(const SceneObjectPtr& objectA, const SceneObjectPtr& objectB,
@@ -74,21 +79,77 @@ namespace af3d
         setDirty();
     }
 
-    btVector3 JointPointToPoint::doGetPos() const
+    btVector3 JointPointToPoint::worldPivotA() const
     {
-        return objectA()->getWorldPoint(constraint_->getPivotInA());
+        auto objA = objectA();
+        return objA ? objA->getWorldPoint(pivotA()) : (pos() + pivotA());
     }
 
-    void JointPointToPoint::doSetPos(const btVector3& pos)
+    void JointPointToPoint::setWorldPivotA(const btVector3& value)
     {
-        setPivotA(objectA()->getLocalPoint(pos));
-        if (hasBodyB()) {
-            setPivotB(objectB()->getLocalPoint(pos));
+        auto objA = objectA();
+        if (objA) {
+            setPivotA(objA->getLocalPoint(value));
+        } else {
+            setPos(value - pivotA());
         }
+    }
+
+    btVector3 JointPointToPoint::worldPivotB() const
+    {
+        auto objB = objectB();
+        return objB ? objB->getWorldPoint(pivotB()) : (pos() + pivotB());
+    }
+
+    void JointPointToPoint::setWorldPivotB(const btVector3& value)
+    {
+        auto objB = objectB();
+        if (objB) {
+            setPivotB(objB->getLocalPoint(value));
+        } else {
+            setPos(value - pivotB());
+        }
+    }
+
+    APropertyValue JointPointToPoint::propertyWorldPivotATransformGet(const std::string&) const
+    {
+        auto objA = objectA();
+        if (objA) {
+            return btTransform(objA->basis(), objA->getWorldPoint(pivotA()));
+        } else {
+            return toTransform(pos() + pivotA());
+        }
+    }
+
+    void JointPointToPoint::propertyWorldPivotATransformSet(const std::string&, const APropertyValue& value)
+    {
+        setWorldPivotA(value.toTransform().getOrigin());
+    }
+
+    APropertyValue JointPointToPoint::propertyWorldPivotBTransformGet(const std::string&) const
+    {
+        auto objB = objectB();
+        if (objB) {
+            return btTransform(objB->basis(), objB->getWorldPoint(pivotB()));
+        } else {
+            return toTransform(pos() + pivotB());
+        }
+    }
+
+    void JointPointToPoint::propertyWorldPivotBTransformSet(const std::string&, const APropertyValue& value)
+    {
+        setWorldPivotB(value.toTransform().getOrigin());
     }
 
     void JointPointToPoint::doRefresh(bool forceDelete)
     {
+        auto objA = objectA();
+        auto objB = objectB();
+
+        if (objA && objB) {
+            setPos(objA->pos());
+        }
+
         if (forceDelete) {
             delete constraint_;
             constraint_ = nullptr;
@@ -99,10 +160,8 @@ namespace af3d
             constraint_->setEnabled(constraint_->getRigidBodyA().isInWorld() &&
                 (!hasBodyB() || constraint_->getRigidBodyB().isInWorld()));
         } else {
-            auto objA = objectA();
             if (objA && objA->body() && objA->body()->isInWorld()) {
                 if (hasBodyB()) {
-                    auto objB = objectB();
                     if (objB && objB->body() && objB->body()->isInWorld()) {
                         constraint_ = new btPoint2PointConstraint(*objA->body(), *objB->body(), pivotA_, pivotB_);
                     }
@@ -110,6 +169,24 @@ namespace af3d
                     constraint_ = new btPoint2PointConstraint(*objA->body(), pivotA_);
                 }
             }
+        }
+    }
+
+    void JointPointToPoint::doAdopt(bool withEdit)
+    {
+        if (withEdit) {
+            editA_ = createPointEdit(AProperty_WorldTransform, true);
+            editB_ = createPointEdit("world pivot B transform");
+        }
+    }
+
+    void JointPointToPoint::doAbandon()
+    {
+        if (editA_) {
+            editA_->removeFromParent();
+            editA_.reset();
+            editB_->removeFromParent();
+            editB_.reset();
         }
     }
 }

@@ -80,7 +80,7 @@ namespace af3d { namespace editor
             return;
         }
 
-        auto obj = sel.back().lock().obj();
+        auto obj = sel.back().lock().part();
         if (target_ != obj) {
             cleanup();
         }

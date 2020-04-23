@@ -52,22 +52,44 @@ namespace af3d
         inline const btVector3& pivotB() const { return pivotB_; }
         void setPivotB(const btVector3& value);
 
-        APropertyValue propertyPivotAGet(const std::string&) const { return pivotA(); }
-        void propertyPivotASet(const std::string&, const APropertyValue& value) { setPivotA(value.toVec3()); }
+        btVector3 worldPivotA() const;
+        void setWorldPivotA(const btVector3& value);
 
-        APropertyValue propertyPivotBGet(const std::string&) const { return pivotB(); }
-        void propertyPivotBSet(const std::string&, const APropertyValue& value) { setPivotB(value.toVec3()); }
+        btVector3 worldPivotB() const;
+        void setWorldPivotB(const btVector3& value);
+
+        APropertyValue propertyLocalPivotAGet(const std::string&) const { return pivotA(); }
+        void propertyLocalPivotASet(const std::string&, const APropertyValue& value) { setPivotA(value.toVec3()); }
+
+        APropertyValue propertyLocalPivotBGet(const std::string&) const { return pivotB(); }
+        void propertyLocalPivotBSet(const std::string&, const APropertyValue& value) { setPivotB(value.toVec3()); }
+
+        APropertyValue propertyWorldPivotAGet(const std::string&) const { return worldPivotA(); }
+        void propertyWorldPivotASet(const std::string&, const APropertyValue& value) { setWorldPivotA(value.toVec3()); }
+
+        APropertyValue propertyWorldPivotBGet(const std::string&) const { return worldPivotB(); }
+        void propertyWorldPivotBSet(const std::string&, const APropertyValue& value) { setWorldPivotB(value.toVec3()); }
+
+        APropertyValue propertyWorldPivotATransformGet(const std::string&) const;
+        void propertyWorldPivotATransformSet(const std::string&, const APropertyValue& value);
+
+        APropertyValue propertyWorldPivotBTransformGet(const std::string&) const;
+        void propertyWorldPivotBTransformSet(const std::string&, const APropertyValue& value);
 
     private:
-        btVector3 doGetPos() const override;
-        void doSetPos(const btVector3& pos) override;
-
         void doRefresh(bool forceDelete) override;
+
+        void doAdopt(bool withEdit) override;
+
+        void doAbandon() override;
 
         btVector3 pivotA_ = btVector3_zero;
         btVector3 pivotB_ = btVector3_zero;
 
         btPoint2PointConstraint* constraint_ = nullptr;
+
+        SceneObjectPtr editA_;
+        SceneObjectPtr editB_;
     };
 
     using JointPointToPointPtr = std::shared_ptr<JointPointToPoint>;

@@ -23,44 +23,52 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _EDITOR_JOINTCOMPONENT_H_
-#define _EDITOR_JOINTCOMPONENT_H_
+#include "editor/EditPartTransform.h"
+#include "af3d/Utils.h"
 
-#include "PhasedComponent.h"
-#include "RenderQuadComponent.h"
-#include "Joint.h"
+namespace af3d {
+    ACLASS_NS_DEFINE_BEGIN(editor, EditPartTransform, editorEditPart)
+    ACLASS_PROPERTY(editor::EditPartTransform, Transform, AProperty_WorldTransform, "World transform", Transform, btTransform::getIdentity(), Position, APropertyTransient)
+    ACLASS_NS_DEFINE_END(editor, EditPartTransform)
 
-namespace af3d { namespace editor
-{
-    class JointComponent : public std::enable_shared_from_this<JointComponent>,
-        public PhasedComponent
+namespace editor {
+    EditPartTransform::EditPartTransform(const AObjectPtr& target, bool isDefault, const std::string& propName,
+        const std::function<void()>& updateFn)
+    : EditPart(AClass_editorEditPartTransform, target, isDefault),
+      propName_(propName),
+      updateFn_(updateFn)
     {
-    public:
-        explicit JointComponent(const JointPtr& joint);
-        ~JointComponent() = default;
+    }
 
-        static const AClass& staticKlass();
+    const AClass& EditPartTransform::staticKlass()
+    {
+        return AClass_editorEditPartTransform;
+    }
 
-        static AObjectPtr create(const APropertyValueMap& propVals);
+    const std::string& EditPartTransform::targetPropertyName(const std::string& propName) const
+    {
+        if (propName == AProperty_WorldTransform) {
+            return propName_;
+        } else {
+            return string_empty;
+        }
+    }
 
-        AObjectPtr sharedThis() override { return shared_from_this(); }
+    AObjectPtr EditPartTransform::create(const APropertyValueMap& propVals)
+    {
+        return AObjectPtr();
+    }
 
-        void preRender(float dt) override;
+    void EditPartTransform::preRender(float dt)
+    {
+        updateFn_();
+    }
 
-        inline const JointPtr& joint() const { return joint_; }
+    void EditPartTransform::onRegister()
+    {
+    }
 
-    private:
-        void onRegister() override;
-
-        void onUnregister() override;
-
-        JointPtr joint_;
-        RenderQuadComponentPtr markerRc_;
-    };
-
-    using JointComponentPtr = std::shared_ptr<JointComponent>;
-}
-    ACLASS_NS_DECLARE(editor, JointComponent)
-}
-
-#endif
+    void EditPartTransform::onUnregister()
+    {
+    }
+} }
