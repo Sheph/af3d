@@ -24,8 +24,10 @@
  */
 
 #include "JointConeTwist.h"
+#include "RenderJointComponent.h"
 #include "SceneObject.h"
 #include "Scene.h"
+#include "PhysicsDebugDraw.h"
 
 namespace af3d
 {
@@ -65,11 +67,34 @@ namespace af3d
         return obj;
     }
 
+    void JointConeTwist::render(bool drawA, PhysicsDebugDraw& dd, const btVector3& c, float sz)
+    {
+        btTransform tr = drawA ? worldFrameA() : worldFrameB();
+
+        const float length = sz;
+        static int nSegments = 8 * 4;
+        float fAngleInRadians = 2.0f * 3.1415926f * (float)(nSegments - 1) / float(nSegments);
+        btVector3 pPrev = getPointForAngle(fAngleInRadians, length);
+        pPrev = tr * pPrev;
+        for (int i = 0; i < nSegments; i++) {
+            fAngleInRadians = 2.0f * 3.1415926f * (float)i / float(nSegments);
+            btVector3 pCur = getPointForAngle(fAngleInRadians, length);
+            pCur = tr * pCur;
+            dd.drawLine(pPrev, pCur, c);
+
+            if (i % (nSegments / 8) == 0) {
+                dd.drawLine(tr.getOrigin(), pCur, c);
+            }
+
+            pPrev = pCur;
+        }
+    }
+
     void JointConeTwist::setFrameA(const btTransform& value)
     {
         frameA_ = value;
         if (constraint_) {
-            constraint_->setFrames(value, constraint_->getBFrame());
+            constraint_->setFrames(objectA()->localCenter().inverse() * value, constraint_->getBFrame());
         }
         setDirty();
     }
@@ -78,7 +103,7 @@ namespace af3d
     {
         frameB_ = value;
         if (constraint_) {
-            constraint_->setFrames(constraint_->getAFrame(), value);
+            constraint_->setFrames(constraint_->getAFrame(), objectB()->localCenter().inverse() * value);
         }
         setDirty();
     }
@@ -197,10 +222,11 @@ namespace af3d
             if (objA && objA->body() && objA->body()->isInWorld()) {
                 if (hasBodyB()) {
                     if (objB && objB->body() && objB->body()->isInWorld()) {
-                        constraint_ = new btConeTwistConstraint(*objA->body(), *objB->body(), frameA_, frameB_);
+                        constraint_ = new btConeTwistConstraint(*objA->body(), *objB->body(),
+                            objA->localCenter().inverse() * frameA_, objB->localCenter().inverse() * frameB_);
                     }
                 } else {
-                    constraint_ = new btConeTwistConstraint(*objA->body(), frameA_);
+                    constraint_ = new btConeTwistConstraint(*objA->body(), objA->localCenter().inverse() * frameA_);
                 }
             }
             if (constraint_) {
@@ -212,8 +238,17 @@ namespace af3d
     void JointConeTwist::doAdopt(bool withEdit)
     {
         if (withEdit) {
-            editA_ = createPointEdit(AProperty_WorldTransform, true);
-            editB_ = createPointEdit("world frame B");
+            editA_ = createTransformEdit(AProperty_WorldTransform, false, true);
+            auto jc = std::make_shared<RenderJointComponent>();
+            jc->setJoint(shared_from_this());
+            jc->setIsA(true);
+            editA_->addComponent(jc);
+
+            editB_ = createTransformEdit("world frame B", false);
+            jc = std::make_shared<RenderJointComponent>();
+            jc->setJoint(shared_from_this());
+            jc->setIsA(false);
+            editB_->addComponent(jc);
         }
     }
 
@@ -225,5 +260,24 @@ namespace af3d
             editB_->removeFromParent();
             editB_.reset();
         }
+    }
+
+    // From btConeTwistConstraint::GetPointForAngle
+    btVector3 JointConeTwist::getPointForAngle(float fAngleInRadians, float fLength) const
+    {
+        btScalar xEllipse = btCos(fAngleInRadians);
+        btScalar yEllipse = btSin(fAngleInRadians);
+        btScalar swingLimit = swing1_;
+        if (fabs(xEllipse) > SIMD_EPSILON) {
+            btScalar surfaceSlope2 = (yEllipse * yEllipse) / (xEllipse * xEllipse);
+            btScalar norm = 1 / (swing2_ * swing2_);
+            norm += surfaceSlope2 / (swing1_ * swing1_);
+            btScalar swingLimit2 = (1 + surfaceSlope2) / norm;
+            swingLimit = std::sqrt(swingLimit2);
+        }
+        btVector3 vSwingAxis(0, xEllipse, -yEllipse);
+        btQuaternion qSwing(vSwingAxis, swingLimit);
+        btVector3 vPointInConstraintSpace(fLength, 0, 0);
+        return quatRotate(qSwing, vPointInConstraintSpace);
     }
 }

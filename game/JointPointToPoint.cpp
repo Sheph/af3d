@@ -61,11 +61,15 @@ namespace af3d
         return obj;
     }
 
+    void JointPointToPoint::render(bool drawA, PhysicsDebugDraw& dd, const btVector3& c, float sz)
+    {
+    }
+
     void JointPointToPoint::setPivotA(const btVector3& value)
     {
         pivotA_ = value;
         if (constraint_) {
-            constraint_->setPivotA(value);
+            constraint_->setPivotA(objectA()->localCenter().inverse() * value);
         }
         setDirty();
     }
@@ -74,7 +78,7 @@ namespace af3d
     {
         pivotB_ = value;
         if (constraint_) {
-            constraint_->setPivotB(value);
+            constraint_->setPivotB(objectB()->localCenter().inverse() * value);
         }
         setDirty();
     }
@@ -163,10 +167,11 @@ namespace af3d
             if (objA && objA->body() && objA->body()->isInWorld()) {
                 if (hasBodyB()) {
                     if (objB && objB->body() && objB->body()->isInWorld()) {
-                        constraint_ = new btPoint2PointConstraint(*objA->body(), *objB->body(), pivotA_, pivotB_);
+                        constraint_ = new btPoint2PointConstraint(*objA->body(), *objB->body(),
+                            objA->localCenter().inverse() * pivotA_, objB->localCenter().inverse() * pivotB_);
                     }
                 } else {
-                    constraint_ = new btPoint2PointConstraint(*objA->body(), pivotA_);
+                    constraint_ = new btPoint2PointConstraint(*objA->body(), objA->localCenter().inverse() * pivotA_);
                 }
             }
         }
@@ -175,8 +180,8 @@ namespace af3d
     void JointPointToPoint::doAdopt(bool withEdit)
     {
         if (withEdit) {
-            editA_ = createPointEdit(AProperty_WorldTransform, true);
-            editB_ = createPointEdit("world pivot B transform");
+            editA_ = createTransformEdit(AProperty_WorldTransform, true, true);
+            editB_ = createTransformEdit("world pivot B transform", true);
         }
     }
 

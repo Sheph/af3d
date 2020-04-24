@@ -82,6 +82,7 @@ set(SOURCES
     RenderGridComponent.cpp
     RenderAxesComponent.cpp
     RenderCollisionShapeComponent.cpp
+    RenderJointComponent.cpp
     AJsonReader.cpp
     AJsonWriter.cpp
     SceneAsset.cpp

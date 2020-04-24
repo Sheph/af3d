@@ -221,6 +221,10 @@ namespace af3d
 
         btVector3 getSmoothLocalPoint(const btVector3& worldPoint) const;
 
+        btVector3 getWorldCenterPoint(const btVector3& localCenterPoint) const;
+
+        btVector3 getLocalCenterPoint(const btVector3& worldPoint) const;
+
         btVector3 getForward() const;
 
         btVector3 getRight() const;

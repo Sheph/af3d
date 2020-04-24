@@ -35,6 +35,8 @@
 
 namespace af3d
 {
+    class PhysicsDebugDraw;
+
     class Joint : public AObject, public AParameterized
     {
     public:
@@ -50,6 +52,8 @@ namespace af3d
         inline bool hasBodyB() const { return hasBodyB_; }
 
         virtual btTypedConstraint* constraint() = 0;
+
+        virtual void render(bool drawA, PhysicsDebugDraw& dd, const btVector3& c, float sz) = 0;
 
         void refresh(bool forceDelete);
 
@@ -93,7 +97,7 @@ namespace af3d
         inline const btVector3& pos() const { return pos_; }
         inline void setPos(const btVector3& value) { pos_ = value; }
 
-        SceneObjectPtr createPointEdit(const std::string& xfPropName, bool isDefault = false);
+        SceneObjectPtr createTransformEdit(const std::string& xfPropName, bool posOnly, bool isDefault = false);
 
     private:
         virtual void doRefresh(bool forceDelete) = 0;

@@ -150,12 +150,16 @@ namespace af3d
         }
     }
 
-    SceneObjectPtr Joint::createPointEdit(const std::string& xfPropName, bool isDefault)
+    SceneObjectPtr Joint::createTransformEdit(const std::string& xfPropName, bool posOnly, bool isDefault)
     {
         auto that = std::static_pointer_cast<Joint>(sharedThis());
 
         auto edit = std::make_shared<SceneObject>();
-        edit->setPos(propertyGet(xfPropName).toTransform().getOrigin());
+        if (posOnly) {
+            edit->setPos(propertyGet(xfPropName).toTransform().getOrigin());
+        } else {
+            edit->setTransform(propertyGet(xfPropName).toTransform());
+        }
 
         auto marker = std::make_shared<RenderQuadComponent>();
         marker->setDrawable(assetManager.getDrawable("common1/mode_joint.png"));
@@ -168,8 +172,12 @@ namespace af3d
         edit->addComponent(marker);
         edit->addComponent(
             std::make_shared<editor::EditPartTransform>(that, isDefault,
-                xfPropName, [that, xfPropName, marker]() {
-                    marker->parent()->setPos(that->propertyGet(xfPropName).toTransform().getOrigin());
+                xfPropName, [that, xfPropName, posOnly, marker]() {
+                    if (posOnly) {
+                        marker->parent()->setPos(that->propertyGet(xfPropName).toTransform().getOrigin());
+                    } else {
+                        marker->parent()->setTransform(that->propertyGet(xfPropName).toTransform());
+                    }
                     auto s = marker->scene();
 
                     auto emJoint = s->workspace()->emJoint();

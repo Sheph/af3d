@@ -46,6 +46,8 @@ namespace af3d
 
         btConeTwistConstraint* constraint() override { return constraint_; }
 
+        void render(bool drawA, PhysicsDebugDraw& dd, const btVector3& c, float sz) override;
+
         inline const btTransform& frameA() const { return frameA_; }
         void setFrameA(const btTransform& value);
 
@@ -112,6 +114,8 @@ namespace af3d
         void doAdopt(bool withEdit) override;
 
         void doAbandon() override;
+
+        btVector3 getPointForAngle(float fAngleInRadians, float fLength) const;
 
         btTransform frameA_ = btTransform::getIdentity();
         btTransform frameB_ = btTransform::getIdentity();

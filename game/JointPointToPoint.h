@@ -46,6 +46,8 @@ namespace af3d
 
         btPoint2PointConstraint* constraint() override { return constraint_; }
 
+        void render(bool drawA, PhysicsDebugDraw& dd, const btVector3& c, float sz) override;
+
         inline const btVector3& pivotA() const { return pivotA_; }
         void setPivotA(const btVector3& value);
 

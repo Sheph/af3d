@@ -779,6 +779,16 @@ namespace af3d
         return smoothTransform().inverse() * worldPoint;
     }
 
+    btVector3 SceneObject::getWorldCenterPoint(const btVector3& localCenterPoint) const
+    {
+        return worldCenter() * localCenterPoint;
+    }
+
+    btVector3 SceneObject::getLocalCenterPoint(const btVector3& worldPoint) const
+    {
+        return worldCenter().inverse() * worldPoint;
+    }
+
     btVector3 SceneObject::getForward() const
     {
         return transform().getBasis() * btVector3_forward;
