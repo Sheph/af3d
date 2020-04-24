@@ -92,6 +92,9 @@ namespace editor {
             }
         }
 
+        KeySequence ksCopy(KM_CTRL, KI_C);
+        KeySequence ksPaste(KM_CTRL, KI_V);
+
         ImGuiStyle& style = ImGui::GetStyle();
 
         if (obj) {
@@ -158,6 +161,8 @@ namespace editor {
                 ImGui::PushID(pi.prop.name().c_str());
 
                 bool isParam = (pi.prop.category() == APropertyCategory::Params);
+                auto val = obj->propertyGet(pi.prop.name());
+                bool readOnly = !isParam && ((pi.prop.flags() & APropertyWritable) == 0);
 
                 ImGui::Separator();
                 if (isParam) {
@@ -171,15 +176,34 @@ namespace editor {
                     ImGui::BeginTooltip();
                     ImGui::Text("%s (%s)", pi.prop.tooltip().c_str(), pi.prop.type().name());
                     ImGui::EndTooltip();
+
+                    if (inputManager.keyboard().triggered(ksCopy)) {
+                        clipboard_ = val;
+                    } else if (!wasSet && !readOnly && clipboard_.convertibleTo(val.type()) &&
+                        inputManager.keyboard().triggered(ksPaste)) {
+                        val = clipboard_.convertTo(val.type());
+                        scene()->workspace()->setProperty(obj, pi.prop.name(), val);
+                        wasSet = true;
+                    }
+                }
+                if (ImGui::BeginPopupContextItem("##m")) {
+                    if (ImGui::MenuItem("Copy", ksCopy.str().c_str(), false, true)) {
+                        clipboard_ = val;
+                    }
+                    if (ImGui::MenuItem("Paste", ksPaste.str().c_str(), false, !readOnly && clipboard_.convertibleTo(val.type())) && !wasSet) {
+                        val = clipboard_.convertTo(val.type());
+                        scene()->workspace()->setProperty(obj, pi.prop.name(), val);
+                        wasSet = true;
+                    }
+                    ImGui::EndPopup();
                 }
 
                 ImGui::NextColumn();
 
-                auto val = obj->propertyGet(pi.prop.name());
                 if (val != pi.initialVal) {
                     pi.initialVal = pi.val = val;
                 }
-                if (ImGuiUtils::APropertyEdit(scene(), pi.prop.type(), pi.val, !isParam && (pi.prop.flags() & APropertyWritable) == 0) &&
+                if (ImGuiUtils::APropertyEdit(scene(), pi.prop.type(), pi.val, readOnly) &&
                     !wasSet && (pi.val != pi.initialVal)) {
                     scene()->workspace()->setProperty(obj, pi.prop.name(), pi.val);
                     pi.initialVal = pi.val;

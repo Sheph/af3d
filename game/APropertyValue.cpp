@@ -107,6 +107,65 @@ namespace af3d
     {
     }
 
+    bool APropertyValue::convertibleTo(Type other) const
+    {
+        switch (type_) {
+        case None:
+            return false;
+        case Int:
+            return (other == Int) || (other == Float) || (other == String);
+        case Float:
+            return (other == Int) || (other == Float) || (other == String);
+        case String:
+            return (other == String);
+        case Vec2f:
+        case Vec3f:
+        case Vec4f:
+            return (other == Vec2f) || (other == Vec3f) || (other == Vec4f) || (other == String);
+        case Object:
+        case WeakObject:
+            return (other == Object) || (other == WeakObject) || (other == String);
+        case Transform:
+            return (other == Transform) || (other == String);
+        case Array:
+            return (other == Array) || (other == String);
+        default:
+            btAssert(false);
+            return false;
+        }
+    }
+
+    APropertyValue APropertyValue::convertTo(Type other) const
+    {
+        switch (other) {
+        case None:
+            return APropertyValue();
+        case Int:
+            return toInt();
+        case Float:
+            return toFloat();
+        case String:
+            return toString();
+        case Vec2f:
+            return toVec2f();
+        case Vec3f:
+            return toVec3f();
+        case Vec4f:
+            return toVec4f();
+        case Object:
+            return toObject();
+        case WeakObject:
+            return toWeakObject();
+        case Transform:
+            return toTransform();
+        case Array:
+            return toArray();
+        default:
+            btAssert(false);
+            return APropertyValue();
+        }
+    }
+
     bool APropertyValue::toBool() const
     {
         switch (type_) {

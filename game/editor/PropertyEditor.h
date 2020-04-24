@@ -67,6 +67,8 @@ namespace af3d { namespace editor
 
         AWeakObject wobj_;
         std::vector<PropInfo> properties_;
+
+        APropertyValue clipboard_;
     };
 
     using PropertyEditorPtr = std::shared_ptr<PropertyEditor>;

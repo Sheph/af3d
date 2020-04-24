@@ -73,6 +73,9 @@ namespace af3d
 
         inline bool empty() const { return type_ == None; }
 
+        bool convertibleTo(Type other) const;
+        APropertyValue convertTo(Type other) const;
+
         bool toBool() const;
         int toInt() const;
         float toFloat() const;
