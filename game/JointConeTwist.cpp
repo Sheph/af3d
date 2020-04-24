@@ -37,6 +37,12 @@ namespace af3d
     ACLASS_PROPERTY(JointConeTwist, WorldFrameA, AProperty_WorldTransform, "World frame A", Transform, btTransform::getIdentity(), Position, APropertyEditable|APropertyTransient)
     ACLASS_PROPERTY(JointConeTwist, LocalFrameB, "local frame B", "Local frame B", Transform, btTransform::getIdentity(), Position, APropertyEditable)
     ACLASS_PROPERTY(JointConeTwist, WorldFrameB, "world frame B", "World frame B", Transform, btTransform::getIdentity(), Position, APropertyEditable|APropertyTransient)
+    ACLASS_PROPERTY(JointConeTwist, Swing1, "swing1", "Swing 1", Float, BT_LARGE_FLOAT, Position, APropertyEditable)
+    ACLASS_PROPERTY(JointConeTwist, Swing2, "swing2", "Swing 2", Float, BT_LARGE_FLOAT, Position, APropertyEditable)
+    ACLASS_PROPERTY(JointConeTwist, Twist, "twist", "Twist", Float, BT_LARGE_FLOAT, Position, APropertyEditable)
+    ACLASS_PROPERTY(JointConeTwist, Softness, "softness", "Softness", Float, 1.0f, Physics, APropertyEditable)
+    ACLASS_PROPERTY(JointConeTwist, BiasFactor, "bias factor", "Bias factor", Float, 0.3f, Physics, APropertyEditable)
+    ACLASS_PROPERTY(JointConeTwist, RelaxationFactor, "relaxation factor", "Relaxation factor", Float, 1.0f, Physics, APropertyEditable)
     ACLASS_DEFINE_END(JointConeTwist)
 
     JointConeTwist::JointConeTwist(const SceneObjectPtr& objectA, const SceneObjectPtr& objectB,
@@ -73,6 +79,66 @@ namespace af3d
         frameB_ = value;
         if (constraint_) {
             constraint_->setFrames(constraint_->getAFrame(), value);
+        }
+        setDirty();
+    }
+
+    void JointConeTwist::setSwing1(float value)
+    {
+        swing1_ = value;
+        if (constraint_) {
+            constraint_->setLimit(5, value);
+        }
+        setDirty();
+    }
+
+    void JointConeTwist::setSwing2(float value)
+    {
+        swing2_ = value;
+        if (constraint_) {
+            constraint_->setLimit(4, value);
+        }
+        setDirty();
+    }
+
+    void JointConeTwist::setTwist(float value)
+    {
+        twist_ = value;
+        if (constraint_) {
+            constraint_->setLimit(3, value);
+        }
+        setDirty();
+    }
+
+    void JointConeTwist::setSoftness(float value)
+    {
+        softness_ = value;
+        if (constraint_) {
+            constraint_->setLimit(constraint_->getSwingSpan1(), constraint_->getSwingSpan2(),
+                constraint_->getTwistSpan(), value,
+                constraint_->getBiasFactor(), constraint_->getRelaxationFactor());
+        }
+        setDirty();
+    }
+
+    void JointConeTwist::setBiasFactor(float value)
+    {
+        biasFactor_ = value;
+        if (constraint_) {
+            constraint_->setLimit(constraint_->getSwingSpan1(), constraint_->getSwingSpan2(),
+                constraint_->getTwistSpan(), constraint_->getLimitSoftness(),
+                value, constraint_->getRelaxationFactor());
+        }
+        setDirty();
+    }
+
+    void JointConeTwist::setRelaxationFactor(float value)
+    {
+        relaxationFactor_ = value;
+        if (constraint_) {
+            constraint_->setLimit(constraint_->getSwingSpan1(), constraint_->getSwingSpan2(),
+                constraint_->getTwistSpan(), constraint_->getLimitSoftness(),
+                constraint_->getBiasFactor(), value);
         }
         setDirty();
     }
@@ -136,6 +202,9 @@ namespace af3d
                 } else {
                     constraint_ = new btConeTwistConstraint(*objA->body(), frameA_);
                 }
+            }
+            if (constraint_) {
+                constraint_->setLimit(swing1_, swing2_, twist_, softness_, biasFactor_, relaxationFactor_);
             }
         }
     }

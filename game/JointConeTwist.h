@@ -52,6 +52,24 @@ namespace af3d
         inline const btTransform& frameB() const { return frameB_; }
         void setFrameB(const btTransform& value);
 
+        inline float swing1() const { return swing1_; }
+        void setSwing1(float value);
+
+        inline float swing2() const { return swing2_; }
+        void setSwing2(float value);
+
+        inline float twist() const { return twist_; }
+        void setTwist(float value);
+
+        inline float softness() const { return softness_; }
+        void setSoftness(float value);
+
+        inline float biasFactor() const { return biasFactor_; }
+        void setBiasFactor(float value);
+
+        inline float relaxationFactor() const { return relaxationFactor_; }
+        void setRelaxationFactor(float value);
+
         btTransform worldFrameA() const;
         void setWorldFrameA(const btTransform& value);
 
@@ -70,6 +88,24 @@ namespace af3d
         APropertyValue propertyWorldFrameBGet(const std::string&) const { return worldFrameB(); }
         void propertyWorldFrameBSet(const std::string&, const APropertyValue& value) { setWorldFrameB(value.toTransform()); }
 
+        APropertyValue propertySwing1Get(const std::string&) const { return swing1(); }
+        void propertySwing1Set(const std::string&, const APropertyValue& value) { setSwing1(value.toFloat()); }
+
+        APropertyValue propertySwing2Get(const std::string&) const { return swing2(); }
+        void propertySwing2Set(const std::string&, const APropertyValue& value) { setSwing2(value.toFloat()); }
+
+        APropertyValue propertyTwistGet(const std::string&) const { return twist(); }
+        void propertyTwistSet(const std::string&, const APropertyValue& value) { setTwist(value.toFloat()); }
+
+        APropertyValue propertySoftnessGet(const std::string&) const { return softness(); }
+        void propertySoftnessSet(const std::string&, const APropertyValue& value) { setSoftness(value.toFloat()); }
+
+        APropertyValue propertyBiasFactorGet(const std::string&) const { return biasFactor(); }
+        void propertyBiasFactorSet(const std::string&, const APropertyValue& value) { setBiasFactor(value.toFloat()); }
+
+        APropertyValue propertyRelaxationFactorGet(const std::string&) const { return relaxationFactor(); }
+        void propertyRelaxationFactorSet(const std::string&, const APropertyValue& value) { setRelaxationFactor(value.toFloat()); }
+
     private:
         void doRefresh(bool forceDelete) override;
 
@@ -79,6 +115,12 @@ namespace af3d
 
         btTransform frameA_ = btTransform::getIdentity();
         btTransform frameB_ = btTransform::getIdentity();
+        float swing1_ = 0.0f;
+        float swing2_ = 0.0f;
+        float twist_ = 0.0f;
+        float softness_ = 0.0f;
+        float biasFactor_ = 0.0f;
+        float relaxationFactor_ = 0.0f;
 
         btConeTwistConstraint* constraint_ = nullptr;
 
