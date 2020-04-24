@@ -117,6 +117,10 @@ namespace af3d
 
         btVector3 getPointForAngle(float fAngleInRadians, float fLength) const;
 
+        static const btTransform& fixup();
+        btTransform frameAWithFixup() const;
+        btTransform frameBWithFixup() const;
+
         btTransform frameA_ = btTransform::getIdentity();
         btTransform frameB_ = btTransform::getIdentity();
         float swing1_ = 0.0f;

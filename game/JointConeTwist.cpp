@@ -39,9 +39,9 @@ namespace af3d
     ACLASS_PROPERTY(JointConeTwist, WorldFrameA, AProperty_WorldTransform, "World frame A", Transform, btTransform::getIdentity(), Position, APropertyEditable|APropertyTransient)
     ACLASS_PROPERTY(JointConeTwist, LocalFrameB, "local frame B", "Local frame B", Transform, btTransform::getIdentity(), Position, APropertyEditable)
     ACLASS_PROPERTY(JointConeTwist, WorldFrameB, "world frame B", "World frame B", Transform, btTransform::getIdentity(), Position, APropertyEditable|APropertyTransient)
-    ACLASS_PROPERTY(JointConeTwist, Swing1, "swing1", "Swing 1", FloatRadian, BT_LARGE_FLOAT, Position, APropertyEditable)
-    ACLASS_PROPERTY(JointConeTwist, Swing2, "swing2", "Swing 2", FloatRadian, BT_LARGE_FLOAT, Position, APropertyEditable)
-    ACLASS_PROPERTY(JointConeTwist, Twist, "twist", "Twist", FloatRadian, BT_LARGE_FLOAT, Position, APropertyEditable)
+    ACLASS_PROPERTY(JointConeTwist, Swing1, "swing1", "Swing 1", FloatRadian, 0.0f, Position, APropertyEditable)
+    ACLASS_PROPERTY(JointConeTwist, Swing2, "swing2", "Swing 2", FloatRadian, 0.0f, Position, APropertyEditable)
+    ACLASS_PROPERTY(JointConeTwist, Twist, "twist", "Twist", FloatRadian, 0.0f, Position, APropertyEditable)
     ACLASS_PROPERTY(JointConeTwist, Softness, "softness", "Softness", FloatPercentage, 1.0f, Physics, APropertyEditable)
     ACLASS_PROPERTY(JointConeTwist, BiasFactor, "bias factor", "Bias factor", FloatPercentage, 0.3f, Physics, APropertyEditable)
     ACLASS_PROPERTY(JointConeTwist, RelaxationFactor, "relaxation factor", "Relaxation factor", FloatPercentage, 1.0f, Physics, APropertyEditable)
@@ -69,7 +69,7 @@ namespace af3d
 
     void JointConeTwist::render(bool drawA, PhysicsDebugDraw& dd, const btVector3& c, float sz)
     {
-        btTransform tr = drawA ? worldFrameA() : worldFrameB();
+        btTransform tr = (drawA ? worldFrameA() : worldFrameB()) * fixup();
 
         const float length = sz;
         static int nSegments = 8 * 4;
@@ -94,7 +94,10 @@ namespace af3d
     {
         frameA_ = value;
         if (constraint_) {
-            constraint_->setFrames(objectA()->localCenter().inverse() * value, constraint_->getBFrame());
+            auto objA = objectA();
+            if (objA) {
+                constraint_->setFrames(objA->localCenter().inverse() * frameAWithFixup(), constraint_->getBFrame());
+            }
         }
         setDirty();
     }
@@ -103,7 +106,10 @@ namespace af3d
     {
         frameB_ = value;
         if (constraint_) {
-            constraint_->setFrames(constraint_->getAFrame(), objectB()->localCenter().inverse() * value);
+            auto objB = objectB();
+            if (objB) {
+                constraint_->setFrames(constraint_->getAFrame(), objB->localCenter().inverse() * frameBWithFixup());
+            }
         }
         setDirty();
     }
@@ -205,7 +211,7 @@ namespace af3d
         auto objA = objectA();
         auto objB = objectB();
 
-        if (objA && objB) {
+        if (objA) {
             setPos(objA->pos());
         }
 
@@ -223,10 +229,10 @@ namespace af3d
                 if (hasBodyB()) {
                     if (objB && objB->body() && objB->body()->isInWorld()) {
                         constraint_ = new btConeTwistConstraint(*objA->body(), *objB->body(),
-                            objA->localCenter().inverse() * frameA_, objB->localCenter().inverse() * frameB_);
+                            objA->localCenter().inverse() * frameAWithFixup(), objB->localCenter().inverse() * frameBWithFixup());
                     }
                 } else {
-                    constraint_ = new btConeTwistConstraint(*objA->body(), objA->localCenter().inverse() * frameA_);
+                    constraint_ = new btConeTwistConstraint(*objA->body(), objA->localCenter().inverse() * frameAWithFixup());
                 }
             }
             if (constraint_) {
@@ -244,11 +250,13 @@ namespace af3d
             jc->setIsA(true);
             editA_->addComponent(jc);
 
-            editB_ = createTransformEdit("world frame B", false);
-            jc = std::make_shared<RenderJointComponent>();
-            jc->setJoint(shared_from_this());
-            jc->setIsA(false);
-            editB_->addComponent(jc);
+            if (hasBodyB()) {
+                editB_ = createTransformEdit("world frame B", false);
+                jc = std::make_shared<RenderJointComponent>();
+                jc->setJoint(shared_from_this());
+                jc->setIsA(false);
+                editB_->addComponent(jc);
+            }
         }
     }
 
@@ -257,6 +265,8 @@ namespace af3d
         if (editA_) {
             editA_->removeFromParent();
             editA_.reset();
+        }
+        if (editB_) {
             editB_->removeFromParent();
             editB_.reset();
         }
@@ -279,5 +289,21 @@ namespace af3d
         btQuaternion qSwing(vSwingAxis, swingLimit);
         btVector3 vPointInConstraintSpace(fLength, 0, 0);
         return quatRotate(qSwing, vPointInConstraintSpace);
+    }
+
+    const btTransform& JointConeTwist::fixup()
+    {
+        static const btTransform xf(btQuaternion(btVector3_up, SIMD_HALF_PI) * btQuaternion(btVector3_right, SIMD_HALF_PI), btVector3_zero);
+        return xf;
+    }
+
+    btTransform JointConeTwist::frameAWithFixup() const
+    {
+        return frameA_ * fixup();
+    }
+
+    btTransform JointConeTwist::frameBWithFixup() const
+    {
+        return frameB_ * fixup();
     }
 }

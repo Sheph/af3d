@@ -69,7 +69,10 @@ namespace af3d
     {
         pivotA_ = value;
         if (constraint_) {
-            constraint_->setPivotA(objectA()->localCenter().inverse() * value);
+            auto objA = objectA();
+            if (objA) {
+                constraint_->setPivotA(objA->localCenter().inverse() * value);
+            }
         }
         setDirty();
     }
@@ -78,7 +81,10 @@ namespace af3d
     {
         pivotB_ = value;
         if (constraint_) {
-            constraint_->setPivotB(objectB()->localCenter().inverse() * value);
+            auto objB = objectB();
+            if (objB) {
+                constraint_->setPivotB(objB->localCenter().inverse() * value);
+            }
         }
         setDirty();
     }
@@ -150,7 +156,7 @@ namespace af3d
         auto objA = objectA();
         auto objB = objectB();
 
-        if (objA && objB) {
+        if (objA) {
             setPos(objA->pos());
         }
 
@@ -181,7 +187,9 @@ namespace af3d
     {
         if (withEdit) {
             editA_ = createTransformEdit(AProperty_WorldTransform, true, true);
-            editB_ = createTransformEdit("world pivot B transform", true);
+            if (hasBodyB()) {
+                editB_ = createTransformEdit("world pivot B transform", true);
+            }
         }
     }
 
@@ -190,6 +198,8 @@ namespace af3d
         if (editA_) {
             editA_->removeFromParent();
             editA_.reset();
+        }
+        if (editB_) {
             editB_->removeFromParent();
             editB_.reset();
         }

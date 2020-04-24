@@ -44,7 +44,7 @@ namespace af3d
       objectA_(objectA),
       objectB_(objectB),
       collideConnected_(collideConnected),
-      hasBodyB_(objectB && (objectA != objectB))
+      hasBodyB_(objectA && objectB && (objectA != objectB))
     {
     }
 
