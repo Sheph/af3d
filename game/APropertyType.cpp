@@ -38,8 +38,13 @@ namespace af3d
         visitor.visitBool(*this);
     }
 
-    APropertyTypeInt::APropertyTypeInt(int vMin, int vMax)
-    : APropertyTypeNumeric<int>("Int", vMin, vMax)
+    APropertyTypeInt::APropertyTypeInt(int vMin, int vMax, APropertyUnit unit)
+    : APropertyTypeNumeric<int>("Int", vMin, vMax, unit)
+    {
+    }
+
+    APropertyTypeInt::APropertyTypeInt(APropertyUnit unit)
+    : APropertyTypeNumeric<int>("Int", std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), unit)
     {
     }
 
@@ -48,8 +53,13 @@ namespace af3d
         visitor.visitInt(*this);
     }
 
-    APropertyTypeFloat::APropertyTypeFloat(float vMin, float vMax)
-    : APropertyTypeNumeric<float>("Float", vMin, vMax)
+    APropertyTypeFloat::APropertyTypeFloat(float vMin, float vMax, APropertyUnit unit)
+    : APropertyTypeNumeric<float>("Float", vMin, vMax, unit)
+    {
+    }
+
+    APropertyTypeFloat::APropertyTypeFloat(APropertyUnit unit)
+    : APropertyTypeNumeric<float>("Float", -std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), unit)
     {
     }
 

@@ -37,12 +37,12 @@ namespace af3d
     ACLASS_PROPERTY(JointConeTwist, WorldFrameA, AProperty_WorldTransform, "World frame A", Transform, btTransform::getIdentity(), Position, APropertyEditable|APropertyTransient)
     ACLASS_PROPERTY(JointConeTwist, LocalFrameB, "local frame B", "Local frame B", Transform, btTransform::getIdentity(), Position, APropertyEditable)
     ACLASS_PROPERTY(JointConeTwist, WorldFrameB, "world frame B", "World frame B", Transform, btTransform::getIdentity(), Position, APropertyEditable|APropertyTransient)
-    ACLASS_PROPERTY(JointConeTwist, Swing1, "swing1", "Swing 1", Float, BT_LARGE_FLOAT, Position, APropertyEditable)
-    ACLASS_PROPERTY(JointConeTwist, Swing2, "swing2", "Swing 2", Float, BT_LARGE_FLOAT, Position, APropertyEditable)
-    ACLASS_PROPERTY(JointConeTwist, Twist, "twist", "Twist", Float, BT_LARGE_FLOAT, Position, APropertyEditable)
-    ACLASS_PROPERTY(JointConeTwist, Softness, "softness", "Softness", Float, 1.0f, Physics, APropertyEditable)
-    ACLASS_PROPERTY(JointConeTwist, BiasFactor, "bias factor", "Bias factor", Float, 0.3f, Physics, APropertyEditable)
-    ACLASS_PROPERTY(JointConeTwist, RelaxationFactor, "relaxation factor", "Relaxation factor", Float, 1.0f, Physics, APropertyEditable)
+    ACLASS_PROPERTY(JointConeTwist, Swing1, "swing1", "Swing 1", FloatRadian, BT_LARGE_FLOAT, Position, APropertyEditable)
+    ACLASS_PROPERTY(JointConeTwist, Swing2, "swing2", "Swing 2", FloatRadian, BT_LARGE_FLOAT, Position, APropertyEditable)
+    ACLASS_PROPERTY(JointConeTwist, Twist, "twist", "Twist", FloatRadian, BT_LARGE_FLOAT, Position, APropertyEditable)
+    ACLASS_PROPERTY(JointConeTwist, Softness, "softness", "Softness", FloatPercentage, 1.0f, Physics, APropertyEditable)
+    ACLASS_PROPERTY(JointConeTwist, BiasFactor, "bias factor", "Bias factor", FloatPercentage, 0.3f, Physics, APropertyEditable)
+    ACLASS_PROPERTY(JointConeTwist, RelaxationFactor, "relaxation factor", "Relaxation factor", FloatPercentage, 1.0f, Physics, APropertyEditable)
     ACLASS_DEFINE_END(JointConeTwist)
 
     JointConeTwist::JointConeTwist(const SceneObjectPtr& objectA, const SceneObjectPtr& objectB,

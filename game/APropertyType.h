@@ -35,6 +35,12 @@ namespace af3d
 {
     class AClass;
 
+    enum class APropertyUnit
+    {
+        Other = 0,
+        Radian = 1
+    };
+
     class APropertyType : boost::noncopyable
     {
     public:
@@ -43,12 +49,18 @@ namespace af3d
         virtual void accept(APropertyTypeVisitor& visitor) const = 0;
 
         inline const char* name() const { return name_; }
+        inline APropertyUnit unit() const { return unit_; }
 
     protected:
-        explicit APropertyType(const char* name) { name_ = name; }
+        explicit APropertyType(const char* name, APropertyUnit unit = APropertyUnit::Other)
+        {
+            name_ = name;
+            unit_ = unit;
+        }
 
     private:
         const char* name_;
+        APropertyUnit unit_;
     };
 
     class APropertyTypeBool : public APropertyType
@@ -67,8 +79,8 @@ namespace af3d
         inline T vMax() const { return vMax_; }
 
     protected:
-        APropertyTypeNumeric(const char* name, T vMin, T vMax)
-        : APropertyType(name),
+        APropertyTypeNumeric(const char* name, T vMin, T vMax, APropertyUnit unit)
+        : APropertyType(name, unit),
           vMin_(vMin),
           vMax_(vMax) {}
 
@@ -81,7 +93,8 @@ namespace af3d
     {
     public:
         explicit APropertyTypeInt(int vMin = std::numeric_limits<int>::min(),
-            int vMax = std::numeric_limits<int>::max());
+            int vMax = std::numeric_limits<int>::max(), APropertyUnit unit = APropertyUnit::Other);
+        explicit APropertyTypeInt(APropertyUnit unit);
 
         void accept(APropertyTypeVisitor& visitor) const override;
     };
@@ -90,7 +103,8 @@ namespace af3d
     {
     public:
         explicit APropertyTypeFloat(float vMin = -std::numeric_limits<float>::max(),
-            float vMax = std::numeric_limits<float>::max());
+            float vMax = std::numeric_limits<float>::max(), APropertyUnit unit = APropertyUnit::Other);
+        explicit APropertyTypeFloat(APropertyUnit unit);
 
         void accept(APropertyTypeVisitor& visitor) const override;
     };

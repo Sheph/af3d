@@ -88,9 +88,32 @@ namespace af3d { namespace ImGuiUtils
 
             float v = value_.toFloat();
 
-            if (ImGui::InputFloat("##val", &v, 0.0f, 0.0f, "%.3f", flags) && !readOnly_) {
-                ret_ = true;
-                value_ = APropertyValue(v);
+            const char* fmt = "%.3f";
+
+            if (type.unit() == APropertyUnit::Radian) {
+                fmt = "%.3f°";
+                v = btDegrees(v);
+            }
+
+            if ((type.vMin() > -std::numeric_limits<float>::max()) ||
+                (type.vMax() < std::numeric_limits<float>::max())) {
+                ImGui::DragFloat("##val", &v, 0.001f, type.vMin(), type.vMax(), fmt);
+                if (!readOnly_) {
+                    ret_ = !ImGui::IsMouseDown(ImGuiMouseButton_Left);
+                    btClamp(v, type.vMin(), type.vMax());
+                    if (type.unit() == APropertyUnit::Radian) {
+                        v = btRadians(v);
+                    }
+                    value_ = APropertyValue(v);
+                }
+            } else {
+                if (ImGui::InputFloat("##val", &v, 0.0f, 0.0f, fmt, flags) && !readOnly_) {
+                    ret_ = true;
+                    if (type.unit() == APropertyUnit::Radian) {
+                        v = btRadians(v);
+                    }
+                    value_ = APropertyValue(v);
+                }
             }
         }
 

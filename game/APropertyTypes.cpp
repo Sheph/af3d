@@ -31,7 +31,9 @@ namespace af3d
     const APropertyTypeInt APropertyType_Int;
     const APropertyTypeInt APropertyType_UInt{0};
     const APropertyTypeFloat APropertyType_Float;
-    const APropertyTypeFloat APropertyType_UFloat{0};
+    const APropertyTypeFloat APropertyType_UFloat{0.0f};
+    const APropertyTypeFloat APropertyType_FloatPercentage{0.0f, 1.0f};
+    const APropertyTypeFloat APropertyType_FloatRadian{APropertyUnit::Radian};
     const APropertyTypeString APropertyType_String;
     const APropertyTypeVec2f APropertyType_Vec2f;
     const APropertyTypeVec3f APropertyType_Vec3f;

@@ -35,6 +35,8 @@ namespace af3d
     extern const APropertyTypeInt APropertyType_UInt;
     extern const APropertyTypeFloat APropertyType_Float;
     extern const APropertyTypeFloat APropertyType_UFloat;
+    extern const APropertyTypeFloat APropertyType_FloatPercentage;
+    extern const APropertyTypeFloat APropertyType_FloatRadian;
     extern const APropertyTypeString APropertyType_String;
     extern const APropertyTypeVec2f APropertyType_Vec2f;
     extern const APropertyTypeVec3f APropertyType_Vec3f;
