@@ -51,6 +51,7 @@
 #include "CollisionShapeConvexMesh.h"
 #include "PhysicsBodyComponent.h"
 #include "JointPointToPoint.h"
+#include "JointConeTwist.h"
 #include "MeshManager.h"
 #include "AssetManager.h"
 #include "ImGuiManager.h"
@@ -578,6 +579,7 @@ namespace editor {
             return Action::State(true);
         }, [this]() {
             actionOpMenuAddJointP2P_.doMenuItem();
+            actionOpMenuAddJointConeTwist_.doMenuItem();
         });
 
         actionOpMenuAddJointP2P_ = Action("Point to point", []() {
@@ -589,6 +591,17 @@ namespace editor {
                 std::make_shared<CommandAdd>(scene(),
                     scene()->sharedThis(),
                     JointPointToPoint::staticKlass(), "Point to point joint", initVals));
+        });
+
+        actionOpMenuAddJointConeTwist_ = Action("Cone twist", []() {
+            return Action::State(true);
+        }, [this]() {
+            APropertyValueMap initVals;
+            initVals.set(AProperty_WorldPosition, scene()->camera()->transform() * (btVector3_forward * 5.0f));
+            cmdHistory_.add(
+                std::make_shared<CommandAdd>(scene(),
+                    scene()->sharedThis(),
+                    JointConeTwist::staticKlass(), "Cone twist joint", initVals));
         });
 
         actionOpMenuAddPhysicsBody_ = Action("Physics body", [this]() {
@@ -678,6 +691,7 @@ namespace editor {
         actions_.push_back(&actionOpMenuAddCollisionConvexMesh_);
         actions_.push_back(&actionOpMenuAddJoint_);
         actions_.push_back(&actionOpMenuAddJointP2P_);
+        actions_.push_back(&actionOpMenuAddJointConeTwist_);
         actions_.push_back(&actionOpMenuAddPhysicsBody_);
         actions_.push_back(&actionOpMenuRemove_);
         actions_.push_back(&actionOpMenuRemovePhysicsBody_);

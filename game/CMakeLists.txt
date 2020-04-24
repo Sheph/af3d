@@ -114,6 +114,7 @@ set(SOURCES
     UITimerComponent.cpp
     Joint.cpp
     JointPointToPoint.cpp
+    JointConeTwist.cpp
     editor/Action.cpp
     editor/Workspace.cpp
     editor/MainPopup.cpp
