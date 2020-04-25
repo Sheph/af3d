@@ -119,6 +119,8 @@ namespace af3d
         world_.setWorldUserInfo(this);
 
         world_.setDebugDrawer(debugDraw);
+
+        //world_.getSolverInfo().m_numIterations = 10;
     }
 
     PhysicsComponentManager::~PhysicsComponentManager()
