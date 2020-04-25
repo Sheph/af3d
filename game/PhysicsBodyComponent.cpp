@@ -184,6 +184,8 @@ namespace af3d
             }
 
             btRigidBody::btRigidBodyConstructionInfo bci(totalMass, motionState, compound_->shape(), inertia);
+            bci.m_linearSleepingThreshold = 0.5f;
+            bci.m_angularSleepingThreshold = 0.5f;
             bci.m_linearDamping = parent()->linearDamping();
             bci.m_angularDamping = parent()->angularDamping();
             bci.m_friction = parent()->friction();
