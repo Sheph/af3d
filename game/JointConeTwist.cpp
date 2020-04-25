@@ -74,7 +74,8 @@ namespace af3d
 
     void JointConeTwist::render(bool drawA, PhysicsDebugDraw& dd, const btVector3& c, float sz)
     {
-        btTransform tr = (drawA ? worldFrameA() : worldFrameB()) * fixup();
+        btTransform trOrig = drawA ? worldFrameA() : worldFrameB();
+        btTransform tr = trOrig * fixup();
 
         const float length = sz;
         static int nSegments = 8 * 4;
@@ -92,6 +93,10 @@ namespace af3d
             }
 
             pPrev = pCur;
+        }
+
+        if (motorEnabled_ && drawA) {
+            dd.drawLine(tr.getOrigin(), tr.getOrigin() + quatRotate((trOrig.getRotation() * motorTarget_), btVector3_forward * length), c);
         }
     }
 
