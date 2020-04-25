@@ -98,6 +98,9 @@ namespace af3d
 
         auto viewExt = rl.frustum().getExtents(parent()->pos());
         auto sz = viewportSize_ * viewExt.y();
+        if (sz > radius_) {
+            sz = radius_;
+        }
 
         joint_->render(isA_, dd, toVector3(c), sz);
 

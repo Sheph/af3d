@@ -89,6 +89,9 @@ namespace af3d
 
         if (viewportHeight_ > 0.0f) {
             float h = viewportHeight_ * rl.frustum().getExtents(worldCenter_).y();
+            if (h > size_.y()) {
+                h = size_.y();
+            }
             updatePoints(Vector2f(h * size_.x() / size_.y(), h));
         }
 
@@ -123,6 +126,9 @@ namespace af3d
         Vector2f sz;
         if (viewportHeight_ > 0.0f) {
             float h = viewportHeight_ * frustum.getExtents(worldCenter_).y();
+            if (h > size_.y()) {
+                h = size_.y();
+            }
             sz = Vector2f(h * size_.x() / size_.y(), h);
         } else {
             sz = size_;

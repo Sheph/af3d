@@ -49,8 +49,6 @@ namespace af3d
 
         static Joint* fromConstraint(btTypedConstraint* constraint);
 
-        inline bool hasBodyB() const { return hasBodyB_; }
-
         virtual btTypedConstraint* constraint() = 0;
 
         virtual void render(bool drawA, PhysicsDebugDraw& dd, const btVector3& c, float sz) = 0;
@@ -111,7 +109,6 @@ namespace af3d
         std::weak_ptr<SceneObject> objectA_;
         std::weak_ptr<SceneObject> objectB_;
         bool collideConnected_ = false;
-        bool hasBodyB_ = false;
 
         Scene* parent_ = nullptr;
     };

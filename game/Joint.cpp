@@ -41,10 +41,9 @@ namespace af3d
         const SceneObjectPtr& objectA, const SceneObjectPtr& objectB,
         bool collideConnected)
     : AObject(klass),
-      objectA_(objectA),
-      objectB_(objectB),
-      collideConnected_(collideConnected),
-      hasBodyB_(objectA && objectB && (objectA != objectB))
+      objectA_((objectA && objectB && (objectA != objectB)) ? objectA : SceneObjectPtr()),
+      objectB_((objectA && objectB && (objectA != objectB)) ? objectB : SceneObjectPtr()),
+      collideConnected_(collideConnected)
     {
     }
 
@@ -144,9 +143,7 @@ namespace af3d
         if (enabled()) {
             auto c = constraint();
             c->getRigidBodyA().activate();
-            if (hasBodyB_) {
-                c->getRigidBodyB().activate();
-            }
+            c->getRigidBodyB().activate();
         }
     }
 
@@ -164,8 +161,8 @@ namespace af3d
         auto marker = std::make_shared<RenderQuadComponent>();
         marker->setDrawable(assetManager.getDrawable("common1/mode_joint.png"));
         marker->setDepthTest(false);
-        marker->setHeight(settings.editor.jointMarkerSizeWorld);
-        marker->setViewportHeight((float)settings.editor.jointMarkerSizePixels / settings.viewHeight);
+        marker->setHeight(settings.editor.jointMarkerSizeWorld * (isDefault ? 1.25f : 1.0f));
+        marker->setViewportHeight((isDefault ? 1.25f : 1.0f) * (float)settings.editor.jointMarkerSizePixels / settings.viewHeight);
         marker->setColor(settings.editor.jointMarkerColorInactive);
         marker->aflagsSet(AObjectMarkerJoint);
         marker->setVisible(false);

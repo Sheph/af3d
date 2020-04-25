@@ -94,10 +94,7 @@ namespace af3d
     {
         frameA_ = value;
         if (constraint_) {
-            auto objA = objectA();
-            if (objA) {
-                constraint_->setFrames(objA->localCenter().inverse() * frameAWithFixup(), constraint_->getBFrame());
-            }
+            constraint_->setFrames(objectA()->localCenter().inverse() * frameAWithFixup(), constraint_->getBFrame());
         }
         setDirty();
     }
@@ -106,10 +103,7 @@ namespace af3d
     {
         frameB_ = value;
         if (constraint_) {
-            auto objB = objectB();
-            if (objB) {
-                constraint_->setFrames(constraint_->getAFrame(), objB->localCenter().inverse() * frameBWithFixup());
-            }
+            constraint_->setFrames(constraint_->getAFrame(), objectB()->localCenter().inverse() * frameBWithFixup());
         }
         setDirty();
     }
@@ -210,8 +204,7 @@ namespace af3d
     {
         auto objA = objectA();
         auto objB = objectB();
-
-        if (objA) {
+        if (objA && objB) {
             setPos(objA->pos());
         }
 
@@ -223,16 +216,12 @@ namespace af3d
 
         if (constraint_) {
             constraint_->setEnabled(constraint_->getRigidBodyA().isInWorld() &&
-                (!hasBodyB() || constraint_->getRigidBodyB().isInWorld()));
+                constraint_->getRigidBodyB().isInWorld());
         } else {
             if (objA && objA->body() && objA->body()->isInWorld()) {
-                if (hasBodyB()) {
-                    if (objB && objB->body() && objB->body()->isInWorld()) {
-                        constraint_ = new btConeTwistConstraint(*objA->body(), *objB->body(),
-                            objA->localCenter().inverse() * frameAWithFixup(), objB->localCenter().inverse() * frameBWithFixup());
-                    }
-                } else {
-                    constraint_ = new btConeTwistConstraint(*objA->body(), objA->localCenter().inverse() * frameAWithFixup());
+                if (objB && objB->body() && objB->body()->isInWorld()) {
+                    constraint_ = new btConeTwistConstraint(*objA->body(), *objB->body(),
+                        objA->localCenter().inverse() * frameAWithFixup(), objB->localCenter().inverse() * frameBWithFixup());
                 }
             }
             if (constraint_) {
@@ -250,7 +239,7 @@ namespace af3d
             jc->setIsA(true);
             editA_->addComponent(jc);
 
-            if (hasBodyB()) {
+            if (objectB()) {
                 editB_ = createTransformEdit("world frame B", false);
                 jc = std::make_shared<RenderJointComponent>();
                 jc->setJoint(shared_from_this());

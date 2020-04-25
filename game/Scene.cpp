@@ -487,7 +487,7 @@ namespace af3d
     void Scene::reapJoints()
     {
         // If we're not in editor and joint doesn't have
-        // any bodies alive and constraint is no longer there
+        // some bodies alive and constraint is no longer there
         // then there's no way this joint can become active again, so
         // check it and remove such joints.
 
@@ -502,7 +502,7 @@ namespace af3d
         for (auto it = impl_->joints_.begin(); it != impl_->joints_.end();) {
             const auto& j = *it;
             ++it;
-            if (!j->constraint() && !j->objectA() && !j->objectB()) {
+            if (!j->constraint() && (!j->objectA() || !j->objectB())) {
                 removeJoint(j);
             }
         }

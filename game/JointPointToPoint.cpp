@@ -69,10 +69,7 @@ namespace af3d
     {
         pivotA_ = value;
         if (constraint_) {
-            auto objA = objectA();
-            if (objA) {
-                constraint_->setPivotA(objA->localCenter().inverse() * value);
-            }
+            constraint_->setPivotA(objectA()->localCenter().inverse() * value);
         }
         setDirty();
     }
@@ -81,10 +78,7 @@ namespace af3d
     {
         pivotB_ = value;
         if (constraint_) {
-            auto objB = objectB();
-            if (objB) {
-                constraint_->setPivotB(objB->localCenter().inverse() * value);
-            }
+            constraint_->setPivotB(objectB()->localCenter().inverse() * value);
         }
         setDirty();
     }
@@ -155,8 +149,7 @@ namespace af3d
     {
         auto objA = objectA();
         auto objB = objectB();
-
-        if (objA) {
+        if (objA && objB) {
             setPos(objA->pos());
         }
 
@@ -168,17 +161,11 @@ namespace af3d
 
         if (constraint_) {
             constraint_->setEnabled(constraint_->getRigidBodyA().isInWorld() &&
-                (!hasBodyB() || constraint_->getRigidBodyB().isInWorld()));
-        } else {
-            if (objA && objA->body() && objA->body()->isInWorld()) {
-                if (hasBodyB()) {
-                    if (objB && objB->body() && objB->body()->isInWorld()) {
-                        constraint_ = new btPoint2PointConstraint(*objA->body(), *objB->body(),
-                            objA->localCenter().inverse() * pivotA_, objB->localCenter().inverse() * pivotB_);
-                    }
-                } else {
-                    constraint_ = new btPoint2PointConstraint(*objA->body(), objA->localCenter().inverse() * pivotA_);
-                }
+                constraint_->getRigidBodyB().isInWorld());
+        } else if (objA && objA->body() && objA->body()->isInWorld()) {
+            if (objB && objB->body() && objB->body()->isInWorld()) {
+                constraint_ = new btPoint2PointConstraint(*objA->body(), *objB->body(),
+                    objA->localCenter().inverse() * pivotA_, objB->localCenter().inverse() * pivotB_);
             }
         }
     }
@@ -187,7 +174,7 @@ namespace af3d
     {
         if (withEdit) {
             editA_ = createTransformEdit(AProperty_WorldTransform, true, true);
-            if (hasBodyB()) {
+            if (objectB()) {
                 editB_ = createTransformEdit("world pivot B transform", true);
             }
         }

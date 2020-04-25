@@ -65,8 +65,8 @@ namespace af3d
 
         JointPtr joint_;
         bool isA_ = true;
-        float radius_ = 5.0f;
-        float viewportSize_ = 0.05f;
+        float radius_ = 2.0f;
+        float viewportSize_ = 0.075f;
 
         btTransform prevParentXf_ = btTransform::getIdentity();
         AABB prevAABB_;
