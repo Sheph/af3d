@@ -46,7 +46,7 @@ namespace af3d
     ACLASS_PROPERTY(JointConeTwist, BiasFactor, "bias factor", "Strength with which constraint resists zeroth order limit violation", FloatPercentage, 0.3f, Physics, APropertyEditable)
     ACLASS_PROPERTY(JointConeTwist, RelaxationFactor, "relaxation factor", "The lower the value, the less the constraint will fight velocities which violate the angular limits", FloatPercentage, 1.0f, Physics, APropertyEditable)
     ACLASS_PROPERTY(JointConeTwist, Damping, "damping", "Damping", Float, 0.01f, Physics, APropertyEditable)
-    ACLASS_PROPERTY(JointConeTwist, FixThreshold, "fixThreshold", "Fix threshold", Float, 0.05f, Physics, APropertyEditable)
+    ACLASS_PROPERTY(JointConeTwist, FixThreshold, "fix threshold", "Fix threshold", Float, 0.05f, Physics, APropertyEditable)
     ACLASS_DEFINE_END(JointConeTwist)
 
     JointConeTwist::JointConeTwist(const SceneObjectPtr& objectA, const SceneObjectPtr& objectB,
