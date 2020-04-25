@@ -32,7 +32,7 @@ btVector3 btPlaneProject(const btPlane& plane, const btVector3& point)
 
 af3d::PlaneSide btPlanePointTest(const btPlane& plane, const btVector3& p)
 {
-    float dist = p.dot(plane.normal) + plane.dist;
+    float dist = btPlanePointDistance(plane, p);
     if (dist < 0.0f) {
         return af3d::PlaneSide::Under;
     } else if (dist > 0.0f) {
@@ -40,6 +40,11 @@ af3d::PlaneSide btPlanePointTest(const btPlane& plane, const btVector3& p)
     } else {
         return af3d::PlaneSide::None;
     }
+}
+
+float btPlanePointDistance(const btPlane& plane, const btVector3& p)
+{
+    return p.dot(plane.normal) + plane.dist;
 }
 
 af3d::PlaneSide btPlaneAABBTest(const btPlane& plane, const btVector3& center, const btVector3& extents)

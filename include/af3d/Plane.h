@@ -67,6 +67,7 @@ inline btPlane btPlaneMake(const btVector3& point, const btVector3& n)
 
 btVector3 btPlaneProject(const btPlane& plane, const btVector3& point);
 af3d::PlaneSide btPlanePointTest(const btPlane& plane, const btVector3& p);
+float btPlanePointDistance(const btPlane& plane, const btVector3& p);
 af3d::PlaneSide btPlaneAABBTest(const btPlane& plane, const btVector3& center, const btVector3& extents);
 af3d::PlaneSide btPlaneAABBTest(const btPlane& plane, const af3d::AABB& aabb);
 

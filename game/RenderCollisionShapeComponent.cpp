@@ -71,6 +71,16 @@ namespace af3d
 
     void RenderCollisionShapeComponent::render(RenderList& rl, void* const* parts, size_t numParts)
     {
+        float alphaFactor = std::numeric_limits<float>::max();
+        for (int i = 0; i < 8; ++i) {
+            float dist = btPlanePointDistance(rl.frustum().plane(Frustum::Plane::Near), prevAABB_.getCorner(static_cast<AABB::Corner>(i)));
+            if (dist < alphaFactor) {
+                alphaFactor = dist;
+            }
+        }
+        btClamp(alphaFactor, 0.0f, 25.0f);
+        alphaFactor = 1.0f - 0.85f * (alphaFactor / 25.0f);
+
         auto w = scene()->workspace();
         auto em = w->emCollision();
         if (em->active() || (settings.editor.collisionColorOff.w() > 0.0f) || parent()->isSensor()) {
@@ -90,11 +100,13 @@ namespace af3d
                         c = settings.editor.collisionColorHovered;
                     } else {
                         c = settings.editor.collisionColorInactive;
+                        c.setW(c.w() * alphaFactor);
                     }
                 } else if (parent()->isSensor()) {
                     c = settings.editor.collisionColorInactive;
                 } else {
                     c = settings.editor.collisionColorOff;
+                    c.setW(c.w() * alphaFactor);
                 }
 
                 dd.setAlpha(c.w());

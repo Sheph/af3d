@@ -27,6 +27,7 @@
 #define _AF3D_AABB_H_
 
 #include "af3d/Types.h"
+#include "af3d/Vector3.h"
 #include "af3d/Utils.h"
 #include "bullet/LinearMath/btAabbUtil2.h"
 
@@ -35,6 +36,18 @@ namespace af3d
     class AABB
     {
     public:
+        enum Corner
+        {
+            FarLeftBottom = 0,
+            FarLeftTop = 1,
+            FarRightTop = 2,
+            FarRightBottom = 3,
+            NearRightBottom = 7,
+            NearLeftBottom = 6,
+            NearLeftTop = 5,
+            NearRightTop = 4
+        };
+
         btVector3 lowerBound;
         btVector3 upperBound;
 
@@ -142,6 +155,31 @@ namespace af3d
             auto hsz = getExtents() * s.absolute();
             lowerBound = c - hsz;
             upperBound = c + hsz;
+        }
+
+        btVector3 getCorner(Corner corner) const
+        {
+            switch(corner) {
+            case FarLeftBottom:
+                return lowerBound;
+            case FarLeftTop:
+                return btVector3(lowerBound.x(), upperBound.y(), lowerBound.z());
+            case FarRightTop:
+                return btVector3(upperBound.x(), upperBound.y(), lowerBound.z());
+            case FarRightBottom:
+                return btVector3(upperBound.x(), lowerBound.y(), lowerBound.z());
+            case NearRightBottom:
+                return btVector3(upperBound.x(), lowerBound.y(), upperBound.z());
+            case NearLeftBottom:
+                return btVector3(lowerBound.x(), lowerBound.y(), upperBound.z());
+            case NearLeftTop:
+                return btVector3(lowerBound.x(), upperBound.y(), upperBound.z());
+            case NearRightTop:
+                return upperBound;
+            default:
+                btAssert(false);
+                return btVector3_zero;
+            }
         }
 
         inline bool operator==(const AABB& other) const
