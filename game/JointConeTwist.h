@@ -72,6 +72,12 @@ namespace af3d
         inline float relaxationFactor() const { return relaxationFactor_; }
         void setRelaxationFactor(float value);
 
+        inline float damping() const { return damping_; }
+        void setDamping(float value);
+
+        inline float fixThreshold() const { return fixThreshold_; }
+        void setFixThreshold(float value);
+
         btTransform worldFrameA() const;
         void setWorldFrameA(const btTransform& value);
 
@@ -108,6 +114,12 @@ namespace af3d
         APropertyValue propertyRelaxationFactorGet(const std::string&) const { return relaxationFactor(); }
         void propertyRelaxationFactorSet(const std::string&, const APropertyValue& value) { setRelaxationFactor(value.toFloat()); }
 
+        APropertyValue propertyDampingGet(const std::string&) const { return damping(); }
+        void propertyDampingSet(const std::string&, const APropertyValue& value) { setDamping(value.toFloat()); }
+
+        APropertyValue propertyFixThresholdGet(const std::string&) const { return fixThreshold(); }
+        void propertyFixThresholdSet(const std::string&, const APropertyValue& value) { setFixThreshold(value.toFloat()); }
+
     private:
         void doRefresh(bool forceDelete) override;
 
@@ -129,6 +141,8 @@ namespace af3d
         float softness_ = 0.0f;
         float biasFactor_ = 0.0f;
         float relaxationFactor_ = 0.0f;
+        float damping_ = 0.0f;
+        float fixThreshold_ = 0.0f;
 
         btConeTwistConstraint* constraint_ = nullptr;
 

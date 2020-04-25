@@ -42,9 +42,11 @@ namespace af3d
     ACLASS_PROPERTY(JointConeTwist, Swing1, "swing1", "Swing 1", FloatRadian, 0.0f, Position, APropertyEditable)
     ACLASS_PROPERTY(JointConeTwist, Swing2, "swing2", "Swing 2", FloatRadian, 0.0f, Position, APropertyEditable)
     ACLASS_PROPERTY(JointConeTwist, Twist, "twist", "Twist", FloatRadian, 0.0f, Position, APropertyEditable)
-    ACLASS_PROPERTY(JointConeTwist, Softness, "softness", "Softness", FloatPercentage, 1.0f, Physics, APropertyEditable)
-    ACLASS_PROPERTY(JointConeTwist, BiasFactor, "bias factor", "Bias factor", FloatPercentage, 0.3f, Physics, APropertyEditable)
-    ACLASS_PROPERTY(JointConeTwist, RelaxationFactor, "relaxation factor", "Relaxation factor", FloatPercentage, 1.0f, Physics, APropertyEditable)
+    ACLASS_PROPERTY(JointConeTwist, Softness, "softness", "Describes % of limits where movement is free", FloatPercentage, 1.0f, Physics, APropertyEditable)
+    ACLASS_PROPERTY(JointConeTwist, BiasFactor, "bias factor", "Strength with which constraint resists zeroth order limit violation", FloatPercentage, 0.3f, Physics, APropertyEditable)
+    ACLASS_PROPERTY(JointConeTwist, RelaxationFactor, "relaxation factor", "The lower the value, the less the constraint will fight velocities which violate the angular limits", FloatPercentage, 1.0f, Physics, APropertyEditable)
+    ACLASS_PROPERTY(JointConeTwist, Damping, "damping", "Damping", Float, 0.01f, Physics, APropertyEditable)
+    ACLASS_PROPERTY(JointConeTwist, FixThreshold, "fixThreshold", "Fix threshold", Float, 0.05f, Physics, APropertyEditable)
     ACLASS_DEFINE_END(JointConeTwist)
 
     JointConeTwist::JointConeTwist(const SceneObjectPtr& objectA, const SceneObjectPtr& objectB,
@@ -168,6 +170,24 @@ namespace af3d
         setDirty();
     }
 
+    void JointConeTwist::setDamping(float value)
+    {
+        damping_ = value;
+        if (constraint_) {
+            constraint_->setDamping(value);
+        }
+        setDirty();
+    }
+
+    void JointConeTwist::setFixThreshold(float value)
+    {
+        fixThreshold_ = value;
+        if (constraint_) {
+            constraint_->setFixThresh(value);
+        }
+        setDirty();
+    }
+
     btTransform JointConeTwist::worldFrameA() const
     {
         auto objA = objectA();
@@ -226,6 +246,8 @@ namespace af3d
             }
             if (constraint_) {
                 constraint_->setLimit(swing1_, swing2_, twist_, softness_, biasFactor_, relaxationFactor_);
+                constraint_->setDamping(damping_);
+                constraint_->setFixThresh(fixThreshold_);
             }
         }
     }
