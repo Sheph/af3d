@@ -234,6 +234,33 @@ namespace af3d { namespace ImGuiUtils
             }
         }
 
+        void visitQuaternion(const APropertyTypeQuaternion& type) override
+        {
+            ImGuiInputTextFlags flags = ImGuiInputTextFlags_EnterReturnsTrue;
+
+            if (readOnly_) {
+                flags |= ImGuiInputTextFlags_ReadOnly;
+            }
+
+            btQuaternion rot = value_.toQuaternion();
+
+            btVector3 euler;
+            rot.getEulerZYX(euler[2], euler[1], euler[0]);
+
+            euler[0] = btDegrees(euler[0]);
+            euler[1] = btDegrees(euler[1]);
+            euler[2] = btDegrees(euler[2]);
+
+            if (ImGui::InputFloat3("##val", &euler.m_floats[0], "%.3f°", flags) && !readOnly_) {
+                ret_ = true;
+                euler[0] = btRadians(euler[0]);
+                euler[1] = btRadians(euler[1]);
+                euler[2] = btRadians(euler[2]);
+                rot.setEulerZYX(euler[2], euler[1], euler[0]);
+                value_ = APropertyValue(rot);
+            }
+        }
+
         void visitArray(const APropertyTypeArray& type) override
         {
         }

@@ -131,6 +131,16 @@ namespace af3d
             jsonValue_.append(q.w());
         }
 
+        void visitQuaternion(const APropertyTypeQuaternion& type) override
+        {
+            auto v = value_.toQuaternion();
+            jsonValue_ = Json::arrayValue;
+            jsonValue_.append(v.x());
+            jsonValue_.append(v.y());
+            jsonValue_.append(v.z());
+            jsonValue_.append(v.w());
+        }
+
         void visitArray(const APropertyTypeArray& type) override
         {
             jsonValue_ = Json::arrayValue;

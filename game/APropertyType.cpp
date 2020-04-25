@@ -151,6 +151,16 @@ namespace af3d
         visitor.visitTransform(*this);
     }
 
+    APropertyTypeQuaternion::APropertyTypeQuaternion()
+    : APropertyType("Quaternion")
+    {
+    }
+
+    void APropertyTypeQuaternion::accept(APropertyTypeVisitor& visitor) const
+    {
+        visitor.visitQuaternion(*this);
+    }
+
     APropertyTypeArray::APropertyTypeArray(const char* name, const APropertyType& type)
     : APropertyType(name),
       type_(type)

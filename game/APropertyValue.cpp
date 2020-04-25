@@ -101,6 +101,12 @@ namespace af3d
     {
     }
 
+    APropertyValue::APropertyValue(const btQuaternion& val)
+    : type_(Quaternion),
+      rot_(val)
+    {
+    }
+
     APropertyValue::APropertyValue(const std::vector<APropertyValue>& val)
     : type_(Array),
       arr_(val)
@@ -127,6 +133,8 @@ namespace af3d
             return (other == Object) || (other == WeakObject) || (other == String);
         case Transform:
             return (other == Transform) || (other == String);
+        case Quaternion:
+            return (other == Quaternion) || (other == String);
         case Array:
             return (other == Array) || (other == String);
         default:
@@ -158,6 +166,8 @@ namespace af3d
             return toWeakObject();
         case Transform:
             return toTransform();
+        case Quaternion:
+            return toQuaternion();
         case Array:
             return toArray();
         default:
@@ -241,6 +251,11 @@ namespace af3d
         case Transform: {
             std::ostringstream os;
             os << xf_;
+            return os.str();
+        }
+        case Quaternion: {
+            std::ostringstream os;
+            os << rot_;
             return os.str();
         }
         case Array: {
@@ -351,6 +366,16 @@ namespace af3d
         }
     }
 
+    btQuaternion APropertyValue::toQuaternion() const
+    {
+        switch (type_) {
+        case Quaternion:
+            return rot_;
+        default:
+            return btQuaternion::getIdentity();
+        }
+    }
+
     std::vector<APropertyValue> APropertyValue::toArray() const
     {
         switch (type_) {
@@ -386,6 +411,7 @@ namespace af3d
         case WeakObject:
             return wobj_.cookie() < rhs.wobj_.cookie();
         case Transform:
+        case Quaternion:
             btAssert(false);
             return false;
         case Array:
@@ -430,6 +456,8 @@ namespace af3d
             return wobj_ == rhs.wobj_;
         case Transform:
             return xf_ == rhs.xf_;
+        case Quaternion:
+            return rot_ == rhs.rot_;
         case Array:
             if (arr_.size() != rhs.arr_.size()) {
                 return false;

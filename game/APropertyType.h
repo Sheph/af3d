@@ -203,6 +203,14 @@ namespace af3d
         void accept(APropertyTypeVisitor& visitor) const override;
     };
 
+    class APropertyTypeQuaternion : public APropertyType
+    {
+    public:
+        APropertyTypeQuaternion();
+
+        void accept(APropertyTypeVisitor& visitor) const override;
+    };
+
     class APropertyTypeArray : public APropertyType
     {
     public:

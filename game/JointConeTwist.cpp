@@ -47,6 +47,9 @@ namespace af3d
     ACLASS_PROPERTY(JointConeTwist, RelaxationFactor, "relaxation factor", "The lower the value, the less the constraint will fight velocities which violate the angular limits", FloatPercentage, 1.0f, Physics, APropertyEditable)
     ACLASS_PROPERTY(JointConeTwist, Damping, "damping", "Damping", Float, 0.01f, Physics, APropertyEditable)
     ACLASS_PROPERTY(JointConeTwist, FixThreshold, "fix threshold", "Fix threshold", Float, 0.05f, Physics, APropertyEditable)
+    ACLASS_PROPERTY(JointConeTwist, MotorEnabled, "motor enabled", "Motor is enabled", Bool, false, Physics, APropertyEditable)
+    ACLASS_PROPERTY(JointConeTwist, MaxMotorImpulse, "max motor impulse", "Max motor impulse", Float, -1.0f, Physics, APropertyEditable)
+    ACLASS_PROPERTY(JointConeTwist, MotorTarget, "motor target", "Motor target", Quaternion, btQuaternion::getIdentity(), Physics, APropertyEditable)
     ACLASS_DEFINE_END(JointConeTwist)
 
     JointConeTwist::JointConeTwist(const SceneObjectPtr& objectA, const SceneObjectPtr& objectB,
@@ -220,6 +223,34 @@ namespace af3d
         }
     }
 
+    void JointConeTwist::enableMotor(bool value)
+    {
+        motorEnabled_ = value;
+        if (constraint_) {
+            constraint_->enableMotor(value);
+        }
+        setDirty();
+    }
+
+    void JointConeTwist::setMaxMotorImpulse(float value)
+    {
+        maxMotorImpulse_ = value;
+        if (constraint_) {
+            constraint_->setMaxMotorImpulse(value);
+        }
+        setDirty();
+    }
+
+    void JointConeTwist::setMotorTarget(const btQuaternion& value)
+    {
+        motorTarget_ = value;
+        if (constraint_) {
+            auto q = fixup().getRotation();
+            constraint_->setMotorTargetInConstraintSpace(q.inverse() * value.inverse() * q);
+        }
+        setDirty();
+    }
+
     void JointConeTwist::doRefresh(bool forceDelete)
     {
         auto objA = objectA();
@@ -248,6 +279,10 @@ namespace af3d
                 constraint_->setLimit(swing1_, swing2_, twist_, softness_, biasFactor_, relaxationFactor_);
                 constraint_->setDamping(damping_);
                 constraint_->setFixThresh(fixThreshold_);
+                constraint_->enableMotor(motorEnabled_);
+                constraint_->setMaxMotorImpulse(maxMotorImpulse_);
+                auto q = fixup().getRotation();
+                constraint_->setMotorTargetInConstraintSpace(q.inverse() * motorTarget_.inverse() * q);
             }
         }
     }

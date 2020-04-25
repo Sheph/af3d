@@ -84,6 +84,15 @@ namespace af3d
         btTransform worldFrameB() const;
         void setWorldFrameB(const btTransform& value);
 
+        inline bool motorEnabled() const { return motorEnabled_; }
+        void enableMotor(bool value);
+
+        inline float maxMotorImpulse() const { return maxMotorImpulse_; }
+        void setMaxMotorImpulse(float value);
+
+        inline const btQuaternion& motorTarget() const { return motorTarget_; }
+        void setMotorTarget(const btQuaternion& value);
+
         APropertyValue propertyLocalFrameAGet(const std::string&) const { return frameA(); }
         void propertyLocalFrameASet(const std::string&, const APropertyValue& value) { setFrameA(value.toTransform()); }
 
@@ -120,6 +129,15 @@ namespace af3d
         APropertyValue propertyFixThresholdGet(const std::string&) const { return fixThreshold(); }
         void propertyFixThresholdSet(const std::string&, const APropertyValue& value) { setFixThreshold(value.toFloat()); }
 
+        APropertyValue propertyMotorEnabledGet(const std::string&) const { return motorEnabled(); }
+        void propertyMotorEnabledSet(const std::string&, const APropertyValue& value) { enableMotor(value.toBool()); }
+
+        APropertyValue propertyMaxMotorImpulseGet(const std::string&) const { return maxMotorImpulse(); }
+        void propertyMaxMotorImpulseSet(const std::string&, const APropertyValue& value) { setMaxMotorImpulse(value.toFloat()); }
+
+        APropertyValue propertyMotorTargetGet(const std::string&) const { return motorTarget(); }
+        void propertyMotorTargetSet(const std::string&, const APropertyValue& value) { setMotorTarget(value.toQuaternion()); }
+
     private:
         void doRefresh(bool forceDelete) override;
 
@@ -138,11 +156,15 @@ namespace af3d
         float swing1_ = 0.0f;
         float swing2_ = 0.0f;
         float twist_ = 0.0f;
-        float softness_ = 0.0f;
-        float biasFactor_ = 0.0f;
-        float relaxationFactor_ = 0.0f;
-        float damping_ = 0.0f;
-        float fixThreshold_ = 0.0f;
+        float softness_ = 1.0f;
+        float biasFactor_ = 0.3f;
+        float relaxationFactor_ = 1.0f;
+        float damping_ = 0.01f;
+        float fixThreshold_ = 0.05f;
+
+        bool motorEnabled_ = false;
+        float maxMotorImpulse_ = -1.0f;
+        btQuaternion motorTarget_ = btQuaternion::getIdentity();
 
         btConeTwistConstraint* constraint_ = nullptr;
 

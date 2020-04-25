@@ -50,6 +50,7 @@ namespace af3d
             Object,
             WeakObject,
             Transform,
+            Quaternion,
             Array
         };
 
@@ -65,6 +66,7 @@ namespace af3d
         APropertyValue(const AObjectPtr& val);
         APropertyValue(const AWeakObject& val);
         APropertyValue(const btTransform& val);
+        APropertyValue(const btQuaternion& val);
         APropertyValue(const std::vector<APropertyValue>& val);
 
         ~APropertyValue() = default;
@@ -88,6 +90,7 @@ namespace af3d
         AObjectPtr toObject() const;
         AWeakObject toWeakObject() const;
         btTransform toTransform() const;
+        btQuaternion toQuaternion() const;
         std::vector<APropertyValue> toArray() const;
 
         template <class T>
@@ -122,6 +125,7 @@ namespace af3d
         AObjectPtr obj_;
         AWeakObject wobj_;
         btTransform xf_;
+        btQuaternion rot_;
         std::vector<APropertyValue> arr_;
     };
 }

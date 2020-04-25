@@ -212,6 +212,23 @@ namespace af3d
                 btVector3(jsonValue_[0].asFloat(), jsonValue_[1].asFloat(), jsonValue_[2].asFloat())));
         }
 
+        void visitQuaternion(const APropertyTypeQuaternion& type) override
+        {
+            if (!jsonValue_.isArray() || (jsonValue_.size() != 4)) {
+                LOG4CPLUS_ERROR(logger(), "Quaternion not a json array(4)");
+                value_ = APropertyValue(btQuaternion::getIdentity());
+                return;
+            }
+            if (!jsonValue_[0].isDouble() || !jsonValue_[1].isDouble() || !jsonValue_[2].isDouble() || !jsonValue_[3].isDouble()) {
+                LOG4CPLUS_ERROR(logger(), "Quaternion not a json array(float, float, float, float)");
+                value_ = APropertyValue(btQuaternion::getIdentity());
+                return;
+            }
+
+            value_ = APropertyValue(btQuaternion(
+                jsonValue_[0].asFloat(), jsonValue_[1].asFloat(), jsonValue_[2].asFloat(), jsonValue_[3].asFloat()));
+        }
+
         void visitArray(const APropertyTypeArray& type) override
         {
             if (!jsonValue_.isArray()) {

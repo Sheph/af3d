@@ -44,6 +44,7 @@ namespace af3d
     extern const APropertyTypeColor APropertyType_ColorRGB;
     extern const APropertyTypeColor APropertyType_ColorRGBA;
     extern const APropertyTypeTransform APropertyType_Transform;
+    extern const APropertyTypeQuaternion APropertyType_Quaternion;
 }
 
 #endif

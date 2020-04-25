@@ -41,4 +41,5 @@ namespace af3d
     const APropertyTypeColor APropertyType_ColorRGB{false};
     const APropertyTypeColor APropertyType_ColorRGBA{true};
     const APropertyTypeTransform APropertyType_Transform;
+    const APropertyTypeQuaternion APropertyType_Quaternion;
 }
