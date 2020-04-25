@@ -255,7 +255,7 @@ void btDiscreteDynamicsWorld::saveKinematicState(btScalar timeStep)
 	{
 		btCollisionObject* colObj = m_collisionObjects[i];
 		btRigidBody* body = btRigidBody::upcast(colObj);
-		if (body && body->getActivationState() != ISLAND_SLEEPING)
+		//if (body && body->getActivationState() != ISLAND_SLEEPING)
 		{
 			if (body->isKinematicObject())
 			{
