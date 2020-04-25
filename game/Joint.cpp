@@ -75,6 +75,7 @@ namespace af3d
         if (c) {
             c->setUserConstraintPtr(this);
             if (!beforeEnabled) {
+                c->setDbgDrawSize(2.0f);
                 setDirty();
             }
         }
