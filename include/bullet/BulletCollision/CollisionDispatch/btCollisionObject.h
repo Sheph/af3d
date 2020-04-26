@@ -48,7 +48,7 @@ typedef btAlignedObjectArray<class btCollisionObject*> btCollisionObjectArray;
 ATTRIBUTE_ALIGNED16(class)
 btCollisionObject
 {
-protected:
+public:
 	btTransform m_worldTransform;
 
 	///m_interpolationWorldTransform is used for CCD and interpolation
@@ -58,7 +58,7 @@ protected:
 	//without destroying the continuous interpolated motion (which uses this interpolation velocities)
 	btVector3 m_interpolationLinearVelocity;
 	btVector3 m_interpolationAngularVelocity;
-
+protected:
 	btVector3 m_anisotropicFriction;
 	int m_hasAnisotropicFriction;
 	btScalar m_contactProcessingThreshold;

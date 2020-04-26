@@ -336,7 +336,7 @@ void btDiscreteDynamicsWorld::synchronizeSingleMotionState(btRigidBody* body)
 {
 	btAssert(body);
 
-	if (body->getMotionState() && !body->isStaticOrKinematicObject())
+	if (body->getMotionState() && !body->isStaticObject())
 	{
 		//we need to call the update at least once, even for sleeping objects
 		//otherwise the 'graphics' transform never updates properly
@@ -424,8 +424,6 @@ int btDiscreteDynamicsWorld::stepSimulation(btScalar timeStep, int maxSubSteps, 
 	{
 		//clamp the number of substeps, to prevent simulation grinding spiralling down to a halt
 		int clampedSimulationSteps = (numSimulationSubSteps > maxSubSteps) ? maxSubSteps : numSimulationSubSteps;
-
-		saveKinematicState(fixedTimeStep * clampedSimulationSteps);
 
 		applyGravity();
 

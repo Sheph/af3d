@@ -147,6 +147,8 @@ namespace af3d
         void onLeave(SceneObject* obj);
 
     private:
+        static void worldPreTickCallback(btDynamicsWorld* world, btScalar timeStep);
+
         static void worldTickCallback(btDynamicsWorld* world, btScalar timeStep);
 
         void freezeThawObjects(const AABB& aabb);
@@ -156,6 +158,8 @@ namespace af3d
         std::vector<AObjectPtr> getChildren() const override;
 
         void setChildren(const std::vector<AObjectPtr>& value) override;
+
+        void updatePreStep(float dt);
 
         void updateStep(float dt);
 

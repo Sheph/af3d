@@ -210,6 +210,8 @@ namespace af3d
         impl_->renderComponentManager_->setScene(this);
         impl_->uiComponentManager_->setScene(this);
 
+        impl_->physicsComponentManager_->world().setInternalTickCallback(&Scene::worldPreTickCallback,
+            impl_->physicsComponentManager_->world().getWorldUserInfo(), true);
         impl_->physicsComponentManager_->world().setInternalTickCallback(&Scene::worldTickCallback,
             impl_->physicsComponentManager_->world().getWorldUserInfo());
 
@@ -448,6 +450,31 @@ namespace af3d
         renderer.swap(std::move(rnList));
 
         firstUpdate_ = false;
+    }
+
+    void Scene::updatePreStep(float dt)
+    {
+        if (dt != 0.0f) {
+            for (int i = 0; i < impl_->physicsComponentManager_->world().getNumCollisionObjects(); ++i) {
+                btCollisionObject* c = impl_->physicsComponentManager_->world().getCollisionObjectArray()[i];
+                btRigidBody* body = btRigidBody::upcast(c);
+                if (body && body->isKinematicObject()) {
+                    if (body->getActivationState() != DISABLE_DEACTIVATION) {
+                        body->m_linearVelocity.setZero();
+                        body->m_angularVelocity.setZero();
+                    } else {
+                        auto obj = SceneObject::fromBody(body);
+                        body->m_linearVelocity = obj->linearVelocity();
+                        body->m_angularVelocity = obj->angularVelocity();
+                        btTransformUtil::integrateTransform(body->m_interpolationWorldTransform,
+                            body->m_linearVelocity, body->m_angularVelocity, dt, body->m_worldTransform);
+                        body->m_interpolationWorldTransform = body->m_worldTransform;
+                    }
+                    body->m_interpolationLinearVelocity = body->m_linearVelocity;
+                    body->m_interpolationAngularVelocity = body->m_angularVelocity;
+                }
+            }
+        }
     }
 
     void Scene::updateStep(float dt)
@@ -695,6 +722,11 @@ namespace af3d
         if (obj->body()) {
             impl_->onBodyLeave(obj->body());
         }
+    }
+
+    void Scene::worldPreTickCallback(btDynamicsWorld* world, btScalar timeStep)
+    {
+        PhysicsComponentManager::fromWorld(world)->scene()->updatePreStep(timeStep);
     }
 
     void Scene::worldTickCallback(btDynamicsWorld* world, btScalar timeStep)

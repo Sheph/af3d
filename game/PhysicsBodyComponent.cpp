@@ -211,8 +211,10 @@ namespace af3d
                 body->setActivationState(DISABLE_SIMULATION);
             }
 
-            body->setLinearVelocity(parent()->linearVelocity());
-            body->setAngularVelocity(parent()->angularVelocity());
+            if (parent()->bodyType() == BodyType::Dynamic) {
+                body->setLinearVelocity(parent()->linearVelocity());
+                body->setAngularVelocity(parent()->angularVelocity());
+            }
         }
 
         if (!parent()->body()) {
