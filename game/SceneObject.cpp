@@ -181,6 +181,17 @@ namespace af3d
         return shape;
     }
 
+    SceneObjectPtr SceneObject::fromObjectAndPath(const SceneObjectPtr& obj, const std::string& path)
+    {
+        if (!obj) {
+            return SceneObjectPtr();
+        }
+        if (path.empty()) {
+            return obj;
+        }
+        return obj->findObjectByPath(path);
+    }
+
     void SceneObject::addComponent(const ComponentPtr& component)
     {
         btAssert(!component->parent());

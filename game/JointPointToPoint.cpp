@@ -31,7 +31,9 @@ namespace af3d
 {
     ACLASS_DEFINE_BEGIN(JointPointToPoint, Joint)
     JOINT_PARAM(JointPointToPoint, AProperty_ObjectA, "Object A", SceneObject, SceneObjectPtr())
+    JOINT_PARAM(JointPointToPoint, AProperty_ObjectAPath, "Object A path", String, "")
     JOINT_PARAM(JointPointToPoint, AProperty_ObjectB, "Object B", SceneObject, SceneObjectPtr())
+    JOINT_PARAM(JointPointToPoint, AProperty_ObjectBPath, "Object B path", String, "")
     JOINT_PARAM(JointPointToPoint, AProperty_CollideConnected, "Collide connected bodies", Bool, false)
     ACLASS_PROPERTY(JointPointToPoint, LocalPivotA, "local pivot A", "Local pivot A", Vec3f, btVector3(0.0f, 0.0f, 0.0f), Position, APropertyEditable)
     ACLASS_PROPERTY(JointPointToPoint, WorldPivotA, "world pivot A", "World pivot A", Vec3f, btVector3(0.0f, 0.0f, 0.0f), Position, APropertyEditable|APropertyTransient)
@@ -54,8 +56,9 @@ namespace af3d
 
     AObjectPtr JointPointToPoint::create(const APropertyValueMap& propVals)
     {
-        auto obj = std::make_shared<JointPointToPoint>(propVals.get(AProperty_ObjectA).toObject<SceneObject>(),
-            propVals.get(AProperty_ObjectB).toObject<SceneObject>(),
+        auto obj = std::make_shared<JointPointToPoint>(
+            SceneObject::fromObjectAndPath(propVals.get(AProperty_ObjectA).toObject<SceneObject>(), propVals.get(AProperty_ObjectAPath).toString()),
+            SceneObject::fromObjectAndPath(propVals.get(AProperty_ObjectB).toObject<SceneObject>(), propVals.get(AProperty_ObjectBPath).toString()),
             propVals.get(AProperty_CollideConnected).toBool());
         obj->afterCreate(propVals);
         return obj;

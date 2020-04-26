@@ -70,6 +70,8 @@ namespace af3d
 
         static const btCollisionShape* getBodyShape(const btCollisionObject* body, int childIdx);
 
+        static SceneObjectPtr fromObjectAndPath(const SceneObjectPtr& obj, const std::string& path);
+
         void addComponent(const ComponentPtr& component);
 
         void removeComponent(const ComponentPtr& component);

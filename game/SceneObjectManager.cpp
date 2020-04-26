@@ -156,6 +156,25 @@ namespace af3d
         return res;
     }
 
+    SceneObjectPtr SceneObjectManager::findObjectByPath(const std::string& path) const
+    {
+        auto pos = path.find_first_of('/');
+        if (pos == std::string::npos) {
+            for (const auto& obj : objects_) {
+                if (obj->name() == path) {
+                    return obj;
+                }
+            }
+        } else {
+            for (const auto& obj : objects_) {
+                if ((obj->name().size() == pos) && (obj->name().compare(0, pos, path) == 0)) {
+                    return obj->findObjectByPath(path.substr(pos + 1));
+                }
+            }
+        }
+        return SceneObjectPtr();
+    }
+
     void SceneObjectManager::setScene(Scene* value)
     {
         if (scene_ && (value != scene_)) {

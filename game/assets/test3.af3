@@ -2,15 +2,15 @@
    {
       "ambient color" : [ 0.3137255012989044, 0.3137255012989044, 0.3137255012989044, 1.0 ],
       "camera transform" : [
-         13.36718750,
-         22.49728775024414,
-         52.14836120605469,
-         -0.203830212354660,
-         0.07747567445039749,
-         0.01618349924683571,
-         0.9758015871047974
+         18.58396911621094,
+         29.46725463867188,
+         64.39987945556641,
+         -0.2306722402572632,
+         0.1170592159032822,
+         0.02796545252203941,
+         0.9655596613883972
       ],
-      "children" : [ 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 ],
+      "children" : [ 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 ],
       "class" : "SceneAsset",
       "clear color" : [ 0.2300000041723251, 0.2300000041723251, 0.2300000041723251, 1.0 ],
       "gravity" : [ 0.0, -15.0, 0.0 ],
@@ -23,37 +23,11 @@
       "angular damping" : 0.0,
       "angular velocity" : [ 0.0, 0.0, 0.0 ],
       "body type" : 0,
-      "children" : [ 12 ],
-      "class" : "SceneObject",
-      "friction" : 0.50,
-      "gravity enabled" : true,
-      "id" : 2,
-      "is sensor" : false,
-      "linear damping" : 0.0,
-      "linear velocity" : [ 0.0, 0.0, 0.0 ],
-      "name" : "sun",
-      "physics active" : true,
-      "restitution" : 0.0,
-      "type" : 0,
-      "world transform" : [
-         11.54784202575684,
-         17.18953323364258,
-         10.65213012695312,
-         -0.1321504116058350,
-         0.4769641160964966,
-         0.4318523108959198,
-         0.7540193796157837
-      ]
-   },
-   {
-      "angular damping" : 0.0,
-      "angular velocity" : [ 0.0, 0.0, 0.0 ],
-      "body type" : 0,
       "children" : [ 13 ],
       "class" : "SceneObject",
       "friction" : 0.50,
       "gravity enabled" : true,
-      "id" : 3,
+      "id" : 2,
       "is sensor" : false,
       "linear damping" : 0.0,
       "linear velocity" : [ 0.0, 0.0, 0.0 ],
@@ -69,6 +43,24 @@
          -0.5384963750839233,
          0.3521544933319092,
          -0.06296339631080627
+      ]
+   },
+   {
+      "angular velocity" : [ 0.0, 0.0, 0.0 ],
+      "asset" : "rope1.af3",
+      "children" : [],
+      "class" : "SceneObjectInstance",
+      "id" : 3,
+      "linear velocity" : [ 0.0, 0.0, 0.0 ],
+      "name" : "rope1",
+      "world transform" : [
+         11.4354715347290,
+         15.28724861145020,
+         35.23738479614258,
+         0.08957486599683762,
+         0.4378424882888794,
+         -0.1578969955444336,
+         0.8805332779884338
       ]
    },
    {
@@ -88,13 +80,13 @@
       "restitution" : 0.0,
       "type" : 5,
       "world transform" : [
-         0.9842872619628906,
-         1.758999943733215,
-         -13.58405494689941,
-         0.0,
-         0.0,
-         0.0,
-         1.0
+         14.10189628601074,
+         1.759001851081848,
+         -3.916227340698242,
+         3.665335257529989e-10,
+         -0.08323648571968079,
+         -5.043834150342263e-08,
+         0.9965297579765320
       ]
    },
    {
@@ -124,24 +116,6 @@
       ]
    },
    {
-      "angular velocity" : [ 0.0, 0.0, 0.0 ],
-      "asset" : "rope1.af3",
-      "children" : [],
-      "class" : "SceneObjectInstance",
-      "id" : 6,
-      "linear velocity" : [ 0.0, 0.0, 0.0 ],
-      "name" : "rope2",
-      "world transform" : [
-         12.44927978515625,
-         14.37424755096436,
-         34.97822189331055,
-         -0.3193531036376953,
-         -0.1504584550857544,
-         0.06051775813102722,
-         0.9336559176445007
-      ]
-   },
-   {
       "angular damping" : 0.0,
       "angular velocity" : [ 0.0, 0.0, 0.0 ],
       "body type" : 0,
@@ -149,7 +123,59 @@
       "class" : "SceneObject",
       "friction" : 0.50,
       "gravity enabled" : true,
+      "id" : 6,
+      "is sensor" : false,
+      "linear damping" : 0.0,
+      "linear velocity" : [ 0.0, 0.0, 0.0 ],
+      "name" : "sun",
+      "physics active" : true,
+      "restitution" : 0.0,
+      "type" : 0,
+      "world transform" : [
+         11.54784202575684,
+         17.18953323364258,
+         10.65213012695312,
+         -0.1321504116058350,
+         0.4769641160964966,
+         0.4318523108959198,
+         0.7540193796157837
+      ]
+   },
+   {
+      "angular damping" : 0.0,
+      "angular velocity" : [ 0.0, 0.0, 0.0 ],
+      "body type" : 0,
+      "children" : [ 21, 22, 23, 24 ],
+      "class" : "SceneObject",
+      "friction" : 0.50,
+      "gravity enabled" : true,
       "id" : 7,
+      "is sensor" : false,
+      "linear damping" : 0.0,
+      "linear velocity" : [ 0.0, 0.0, 0.0 ],
+      "name" : "terrain1",
+      "physics active" : true,
+      "restitution" : 0.0,
+      "type" : 5,
+      "world transform" : [
+         0.03304004669189453,
+         1.758993148803711,
+         6.480318069458008,
+         -3.574683944407298e-07,
+         0.02672417461872101,
+         -6.950160269525441e-08,
+         0.9996428489685059
+      ]
+   },
+   {
+      "angular damping" : 0.0,
+      "angular velocity" : [ 0.0, 0.0, 0.0 ],
+      "body type" : 0,
+      "children" : [ 25 ],
+      "class" : "SceneObject",
+      "friction" : 0.50,
+      "gravity enabled" : true,
+      "id" : 8,
       "is sensor" : false,
       "linear damping" : 0.0,
       "linear velocity" : [ 0.0, 0.0, 0.0 ],
@@ -171,11 +197,11 @@
       "angular damping" : 0.0,
       "angular velocity" : [ 0.0, 0.0, 0.0 ],
       "body type" : 0,
-      "children" : [ 21, 22, 23, 24 ],
+      "children" : [ 26, 27, 28, 29 ],
       "class" : "SceneObject",
       "friction" : 0.50,
       "gravity enabled" : true,
-      "id" : 8,
+      "id" : 9,
       "is sensor" : false,
       "linear damping" : 0.0,
       "linear velocity" : [ 0.0, 0.0, 0.0 ],
@@ -184,13 +210,13 @@
       "restitution" : 0.0,
       "type" : 5,
       "world transform" : [
-         14.10189628601074,
-         1.759001851081848,
-         -3.916227340698242,
-         3.665335257529989e-10,
-         -0.08323648571968079,
-         -5.043833439799528e-08,
-         0.9965297579765320
+         0.9842872619628906,
+         1.758999943733215,
+         -13.58405494689941,
+         0.0,
+         0.0,
+         0.0,
+         1.0
       ]
    },
    {
@@ -198,72 +224,44 @@
       "asset" : "rope1.af3",
       "children" : [],
       "class" : "SceneObjectInstance",
-      "id" : 9,
-      "linear velocity" : [ 0.0, 0.0, 0.0 ],
-      "name" : "rope1",
-      "world transform" : [
-         11.4354715347290,
-         15.28724861145020,
-         35.23738479614258,
-         0.08957486599683762,
-         0.4378424882888794,
-         -0.1578969955444336,
-         0.8805332779884338
-      ]
-   },
-   {
-      "angular damping" : 0.0,
-      "angular velocity" : [ 0.0, 0.0, 0.0 ],
-      "body type" : 0,
-      "children" : [ 25, 26, 27, 28 ],
-      "class" : "SceneObject",
-      "friction" : 0.50,
-      "gravity enabled" : true,
       "id" : 10,
-      "is sensor" : false,
-      "linear damping" : 0.0,
       "linear velocity" : [ 0.0, 0.0, 0.0 ],
-      "name" : "terrain1",
-      "physics active" : true,
-      "restitution" : 0.0,
-      "type" : 5,
+      "name" : "rope2",
       "world transform" : [
-         0.03304004669189453,
-         1.758993148803711,
-         6.480318069458008,
-         -3.574683944407298e-07,
-         0.02672417461872101,
-         -6.950160269525441e-08,
-         0.9996428489685059
+         12.44927978515625,
+         14.37424755096436,
+         34.97822189331055,
+         -0.3193531036376953,
+         -0.1504584550857544,
+         0.06051775813102722,
+         0.9336559176445007
       ]
    },
    {
       "class" : "JointPointToPoint",
       "collide connected" : false,
       "id" : 11,
+      "local pivot A" : [ 0.0, 0.0, -1.200000047683716 ],
+      "local pivot B" : [ 0.0, 0.0, -1.200000047683716 ],
+      "name" : "",
+      "object A" : 3,
+      "object A path" : "c4",
+      "object B" : 10,
+      "object B path" : "c4",
+      "world position" : [ 6.310272216796875, 17.32975387573242, 31.09365463256836 ]
+   },
+   {
+      "class" : "JointPointToPoint",
+      "collide connected" : false,
+      "id" : 12,
       "local pivot A" : [ 0.0, 0.0, 1.0 ],
       "local pivot B" : [ 0.08054924011230469, -0.03712463378906250, 1.088735580444336 ],
       "name" : "j1",
-      "object A" : 9,
-      "object B" : 6,
+      "object A" : 3,
+      "object A path" : "",
+      "object B" : 10,
+      "object B path" : "",
       "world position" : [ 11.4354715347290, 15.28724861145020, 35.23738479614258 ]
-   },
-   {
-      "class" : "DirectionalLight",
-      "color" : [ 0.6863387227058411, 0.8088235259056091, 0.1229094639420509, 1.0 ],
-      "id" : 12,
-      "intensity" : 0.8000000119209290,
-      "local transform" : [
-         0.0,
-         0.0,
-         0.0,
-         -5.587935447692871e-09,
-         0.0,
-         -3.725290298461914e-09,
-         1.0
-      ],
-      "name" : "sunlight",
-      "visible" : true
    },
    {
       "class" : "DirectionalLight",
@@ -286,7 +284,7 @@
       "class" : "RenderMeshComponent",
       "id" : 14,
       "local transform" : [ -8.116715431213379, 0.0, 0.0, 9.313225746154785e-10, 0.0, 0.0, 1.0 ],
-      "mesh" : 29,
+      "mesh" : 30,
       "name" : "rock",
       "scale" : [ 1.0, 1.0, 1.0 ],
       "visible" : true
@@ -303,7 +301,7 @@
          0.5882707834243774,
          0.3923490941524506
       ],
-      "mesh" : 30,
+      "mesh" : 31,
       "name" : "",
       "scale" : [ 1.365558385848999, 1.365558385848999, 1.365558385848999 ],
       "visible" : true
@@ -320,13 +318,13 @@
          -0.1728208065032959,
          0.6856621503829956
       ],
-      "mesh" : 31,
+      "mesh" : 32,
       "name" : "",
       "scale" : [ 1.561085462570190, 1.561085462570190, 1.561085462570190 ],
       "visible" : true
    },
    {
-      "children" : [ 32, 33, 34 ],
+      "children" : [ 33, 34, 35 ],
       "class" : "PhysicsBodyComponent",
       "id" : 17,
       "name" : ""
@@ -335,39 +333,39 @@
       "class" : "RenderMeshComponent",
       "id" : 18,
       "local transform" : [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0 ],
-      "mesh" : 29,
+      "mesh" : 30,
       "name" : "",
       "scale" : [ 15.0, 0.1000000014901161, 15.0 ],
       "visible" : true
    },
    {
-      "children" : [ 35 ],
+      "children" : [ 36 ],
       "class" : "PhysicsBodyComponent",
       "id" : 19,
       "name" : ""
    },
    {
       "class" : "DirectionalLight",
-      "color" : [ 0.8774510025978088, 0.08172338455915451, 0.2001359015703201, 1.0 ],
+      "color" : [ 0.6863387227058411, 0.8088235259056091, 0.1229094639420509, 1.0 ],
       "id" : 20,
-      "intensity" : 0.2000000029802322,
+      "intensity" : 0.8000000119209290,
       "local transform" : [
          0.0,
          0.0,
          0.0,
+         -5.587935447692871e-09,
          0.0,
-         -7.450580596923828e-09,
-         -1.490116119384766e-08,
+         -3.725290298461914e-09,
          1.0
       ],
-      "name" : "rimlight",
+      "name" : "sunlight",
       "visible" : true
    },
    {
       "class" : "RenderMeshComponent",
       "id" : 21,
       "local transform" : [ -8.116715431213379, 0.0, 0.0, 9.313225746154785e-10, 0.0, 0.0, 1.0 ],
-      "mesh" : 29,
+      "mesh" : 30,
       "name" : "rock",
       "scale" : [ 1.0, 1.0, 1.0 ],
       "visible" : true
@@ -384,7 +382,7 @@
          0.5882707834243774,
          0.3923490941524506
       ],
-      "mesh" : 30,
+      "mesh" : 31,
       "name" : "",
       "scale" : [ 1.365558385848999, 1.365558385848999, 1.365558385848999 ],
       "visible" : true
@@ -401,29 +399,46 @@
          -0.1728208065032959,
          0.6856621503829956
       ],
-      "mesh" : 31,
+      "mesh" : 32,
       "name" : "",
       "scale" : [ 1.561085462570190, 1.561085462570190, 1.561085462570190 ],
       "visible" : true
    },
    {
-      "children" : [ 36, 37, 38 ],
+      "children" : [ 37, 38, 39 ],
       "class" : "PhysicsBodyComponent",
       "id" : 24,
       "name" : ""
    },
    {
-      "class" : "RenderMeshComponent",
+      "class" : "DirectionalLight",
+      "color" : [ 0.8774510025978088, 0.08172338455915451, 0.2001359015703201, 1.0 ],
       "id" : 25,
+      "intensity" : 0.2000000029802322,
+      "local transform" : [
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         -7.450580596923828e-09,
+         -1.490116119384766e-08,
+         1.0
+      ],
+      "name" : "rimlight",
+      "visible" : true
+   },
+   {
+      "class" : "RenderMeshComponent",
+      "id" : 26,
       "local transform" : [ -8.116715431213379, 0.0, 0.0, 9.313225746154785e-10, 0.0, 0.0, 1.0 ],
-      "mesh" : 29,
+      "mesh" : 30,
       "name" : "rock",
       "scale" : [ 1.0, 1.0, 1.0 ],
       "visible" : true
    },
    {
       "class" : "RenderMeshComponent",
-      "id" : 26,
+      "id" : 27,
       "local transform" : [
          -4.618412971496582,
          -0.2853826284408569,
@@ -433,14 +448,14 @@
          0.5882707834243774,
          0.3923490941524506
       ],
-      "mesh" : 30,
+      "mesh" : 31,
       "name" : "",
       "scale" : [ 1.365558385848999, 1.365558385848999, 1.365558385848999 ],
       "visible" : true
    },
    {
       "class" : "RenderMeshComponent",
-      "id" : 27,
+      "id" : 28,
       "local transform" : [
          -2.130589485168457,
          2.174544334411621,
@@ -450,63 +465,63 @@
          -0.1728208065032959,
          0.6856621503829956
       ],
-      "mesh" : 31,
+      "mesh" : 32,
       "name" : "",
       "scale" : [ 1.561085462570190, 1.561085462570190, 1.561085462570190 ],
       "visible" : true
    },
    {
-      "children" : [ 39, 40, 41 ],
+      "children" : [ 40, 41, 42 ],
       "class" : "PhysicsBodyComponent",
-      "id" : 28,
+      "id" : 29,
       "name" : ""
    },
    {
       "class" : "Mesh",
-      "id" : 29,
+      "id" : 30,
       "name" : "mountain_canyon_01.fbx"
    },
    {
       "class" : "Mesh",
-      "id" : 30,
+      "id" : 31,
       "name" : "rock6.fbx"
    },
    {
       "class" : "Mesh",
-      "id" : 31,
+      "id" : 32,
       "name" : "rock8.fbx"
    },
    {
       "class" : "CollisionShapeStaticMesh",
-      "id" : 32,
+      "id" : 33,
       "local transform" : [ -8.109999656677246, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0 ],
       "mass" : 1.0,
-      "mesh" : 29,
+      "mesh" : 30,
       "name" : "",
       "scale" : [ 1.0, 1.0, 1.0 ],
       "submesh index" : -1
    },
    {
       "class" : "CollisionShapeStaticMesh",
-      "id" : 33,
+      "id" : 34,
       "local transform" : [
          -4.610000133514404,
          -0.2800000011920929,
          6.697999954223633,
-         0.3902781903743744,
-         -0.5896463394165039,
+         -0.3902782797813416,
          0.5896465778350830,
-         0.3902781903743744
+         -0.5896461009979248,
+         -0.3902782797813416
       ],
       "mass" : 1.0,
-      "mesh" : 30,
+      "mesh" : 31,
       "name" : "",
       "scale" : [ 1.366000056266785, 1.366000056266785, 1.366000056266785 ],
       "submesh index" : -1
    },
    {
       "class" : "CollisionShapeStaticMesh",
-      "id" : 34,
+      "id" : 35,
       "local transform" : [
          -2.130000114440918,
          2.174999952316284,
@@ -517,14 +532,14 @@
          0.6858030557632446
       ],
       "mass" : 1.0,
-      "mesh" : 31,
+      "mesh" : 32,
       "name" : "",
       "scale" : [ 1.560999989509583, 1.560999989509583, 1.560999989509583 ],
       "submesh index" : -1
    },
    {
       "class" : "CollisionShapePlane",
-      "id" : 35,
+      "id" : 36,
       "local transform" : [
          0.0,
          0.0,
@@ -540,64 +555,18 @@
    },
    {
       "class" : "CollisionShapeStaticMesh",
-      "id" : 36,
-      "local transform" : [ -8.109999656677246, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0 ],
-      "mass" : 1.0,
-      "mesh" : 29,
-      "name" : "",
-      "scale" : [ 1.0, 1.0, 1.0 ],
-      "submesh index" : -1
-   },
-   {
-      "class" : "CollisionShapeStaticMesh",
       "id" : 37,
-      "local transform" : [
-         -4.610000133514404,
-         -0.2800000011920929,
-         6.697999954223633,
-         -0.3902782797813416,
-         0.5896465778350830,
-         -0.5896461009979248,
-         -0.3902782797813416
-      ],
+      "local transform" : [ -8.109999656677246, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0 ],
       "mass" : 1.0,
       "mesh" : 30,
       "name" : "",
-      "scale" : [ 1.366000056266785, 1.366000056266785, 1.366000056266785 ],
+      "scale" : [ 1.0, 1.0, 1.0 ],
       "submesh index" : -1
    },
    {
       "class" : "CollisionShapeStaticMesh",
       "id" : 38,
       "local transform" : [
-         -2.130000114440918,
-         2.174999952316284,
-         0.1879999935626984,
-         -0.6858030557632446,
-         -0.1722618937492371,
-         -0.1722618937492371,
-         0.6858030557632446
-      ],
-      "mass" : 1.0,
-      "mesh" : 31,
-      "name" : "",
-      "scale" : [ 1.560999989509583, 1.560999989509583, 1.560999989509583 ],
-      "submesh index" : -1
-   },
-   {
-      "class" : "CollisionShapeStaticMesh",
-      "id" : 39,
-      "local transform" : [ -8.109999656677246, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0 ],
-      "mass" : 1.0,
-      "mesh" : 29,
-      "name" : "",
-      "scale" : [ 1.0, 1.0, 1.0 ],
-      "submesh index" : -1
-   },
-   {
-      "class" : "CollisionShapeStaticMesh",
-      "id" : 40,
-      "local transform" : [
          -4.610000133514404,
          -0.2800000011920929,
          6.697999954223633,
@@ -607,14 +576,14 @@
          -0.3902782797813416
       ],
       "mass" : 1.0,
-      "mesh" : 30,
+      "mesh" : 31,
       "name" : "",
       "scale" : [ 1.366000056266785, 1.366000056266785, 1.366000056266785 ],
       "submesh index" : -1
    },
    {
       "class" : "CollisionShapeStaticMesh",
-      "id" : 41,
+      "id" : 39,
       "local transform" : [
          -2.130000114440918,
          2.174999952316284,
@@ -625,7 +594,53 @@
          0.6858030557632446
       ],
       "mass" : 1.0,
+      "mesh" : 32,
+      "name" : "",
+      "scale" : [ 1.560999989509583, 1.560999989509583, 1.560999989509583 ],
+      "submesh index" : -1
+   },
+   {
+      "class" : "CollisionShapeStaticMesh",
+      "id" : 40,
+      "local transform" : [ -8.109999656677246, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0 ],
+      "mass" : 1.0,
+      "mesh" : 30,
+      "name" : "",
+      "scale" : [ 1.0, 1.0, 1.0 ],
+      "submesh index" : -1
+   },
+   {
+      "class" : "CollisionShapeStaticMesh",
+      "id" : 41,
+      "local transform" : [
+         -4.610000133514404,
+         -0.2800000011920929,
+         6.697999954223633,
+         0.3902781903743744,
+         -0.5896463394165039,
+         0.5896465778350830,
+         0.3902781903743744
+      ],
+      "mass" : 1.0,
       "mesh" : 31,
+      "name" : "",
+      "scale" : [ 1.366000056266785, 1.366000056266785, 1.366000056266785 ],
+      "submesh index" : -1
+   },
+   {
+      "class" : "CollisionShapeStaticMesh",
+      "id" : 42,
+      "local transform" : [
+         -2.130000114440918,
+         2.174999952316284,
+         0.1879999935626984,
+         -0.6858030557632446,
+         -0.1722618937492371,
+         -0.1722618937492371,
+         0.6858030557632446
+      ],
+      "mass" : 1.0,
+      "mesh" : 32,
       "name" : "",
       "scale" : [ 1.560999989509583, 1.560999989509583, 1.560999989509583 ],
       "submesh index" : -1

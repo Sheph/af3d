@@ -106,6 +106,8 @@ namespace af3d
     #define AProperty_CameraTransform "camera transform"
     #define AProperty_ObjectA "object A"
     #define AProperty_ObjectB "object B"
+    #define AProperty_ObjectAPath "object A path"
+    #define AProperty_ObjectBPath "object B path"
     #define AProperty_CollideConnected "collide connected"
 }
 

@@ -90,6 +90,8 @@ namespace af3d
 
         std::vector<SceneObjectPtr> getObjects() const;
 
+        SceneObjectPtr findObjectByPath(const std::string& path) const;
+
         inline SceneObjectManager* parent() { return parent_; }
         inline void setParent(SceneObjectManager* value) { parent_ = value; }
 
