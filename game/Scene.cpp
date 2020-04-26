@@ -280,6 +280,7 @@ namespace af3d
 
         camera_.reset();
         dummy_.reset();
+        root_.reset();
 
         imGuiC_.reset();
 

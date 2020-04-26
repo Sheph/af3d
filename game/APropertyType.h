@@ -185,14 +185,16 @@ namespace af3d
     class APropertyTypeObject : public APropertyType
     {
     public:
-        APropertyTypeObject(const char* name, const AClass& klass);
+        APropertyTypeObject(const char* name, const AClass& klass, bool isWeak = false);
 
         inline const AClass& klass() const { return klass_; }
+        inline bool isWeak() const { return isWeak_; }
 
         void accept(APropertyTypeVisitor& visitor) const override;
 
     private:
         const AClass& klass_;
+        bool isWeak_ = false;
     };
 
     class APropertyTypeTransform : public APropertyType

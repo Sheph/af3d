@@ -195,10 +195,10 @@ namespace af3d { namespace ImGuiUtils
         void visitObject(const APropertyTypeObject& type) override
         {
             if (type.klass().isSubClassOf(AClass_Mesh)) {
-                visitMesh();
+                visitMesh(type.isWeak());
             } else if (type.klass().isSubClassOf(AClass_SceneObject)) {
                 if (scene_->workspace()) {
-                    visitObject<SceneObject>(scene_->workspace()->emObject());
+                    visitObject<SceneObject>(scene_->workspace()->emObject(), type.isWeak());
                 }
             }
         }
@@ -268,7 +268,7 @@ namespace af3d { namespace ImGuiUtils
         inline bool ret() const { return ret_; }
 
     private:
-        void visitMesh()
+        void visitMesh(bool isWeak)
         {
             auto res = aobjectCast<Resource>(value_.toObject());
             std::string assetPath;
@@ -287,7 +287,7 @@ namespace af3d { namespace ImGuiUtils
                     auto mesh = meshManager.loadMesh(dlg->filePath());
                     if (mesh) {
                         ret_ = true;
-                        value_ = APropertyValue(mesh);
+                        value_ = isWeak ? APropertyValue(AWeakObject(mesh)) : APropertyValue(mesh);
                     }
                 }
                 dlg->endModal();
@@ -300,7 +300,7 @@ namespace af3d { namespace ImGuiUtils
         }
 
         template <class T>
-        void visitObject(editor::EditMode* em)
+        void visitObject(editor::EditMode* em, bool isWeak)
         {
             auto aObj = value_.toObject();
             std::string name;
@@ -316,9 +316,7 @@ namespace af3d { namespace ImGuiUtils
             if (pickObject(em, clicked, obj)) {
                 if (obj) {
                     ret_ = true;
-                    // Set as weak object, since it's picked from scene, we
-                    // don't want a strong reference!
-                    value_ = APropertyValue(AWeakObject(obj));
+                    value_ = isWeak ? APropertyValue(AWeakObject(obj)) : APropertyValue(obj);
                 }
             }
 

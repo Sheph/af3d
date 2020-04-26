@@ -171,17 +171,17 @@ namespace af3d
         {
             auto obj = reader_.serializer().fromJsonValue(jsonValue_);
             if (obj) {
-                value_ = APropertyValue(obj);
+                value_ = type.isWeak() ? APropertyValue(AWeakObject(obj)) : APropertyValue(obj);
                 return;
             }
             if (!jsonValue_.isInt() && !jsonValue_.isUInt()) {
                 LOG4CPLUS_ERROR(logger(), "Object id not an int");
-                value_ = APropertyValue(AObjectPtr());
+                value_ = type.isWeak() ? APropertyValue(AWeakObject()) : APropertyValue(AObjectPtr());
                 return;
             }
             std::uint32_t id = jsonValue_.asUInt();
             if (id == 0) {
-                value_ = APropertyValue(AObjectPtr());
+                value_ = type.isWeak() ? APropertyValue(AWeakObject()) : APropertyValue(AObjectPtr());
                 return;
             }
             auto optObj = reader_.getObject(id, true);
@@ -190,7 +190,7 @@ namespace af3d
                 deps_.insert(id);
                 return;
             }
-            value_ = APropertyValue(*optObj);
+            value_ = type.isWeak() ? APropertyValue(AWeakObject(*optObj)) : APropertyValue(*optObj);
         }
 
         void visitTransform(const APropertyTypeTransform& type) override

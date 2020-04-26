@@ -159,4 +159,25 @@ namespace af3d
 
         return asset;
     }
+
+    SceneAssetPtr AssetManager::getSceneObjectAsset(const std::string& name)
+    {
+        auto sa = getSceneAsset(name);
+        if (!sa) {
+            return SceneAssetPtr();
+        }
+
+        SceneObjectPtr obj;
+
+        if (sa->root()) {
+            obj = sa->root();
+        } else {
+            obj = std::make_shared<SceneObject>();
+        }
+
+        sa->apply(obj);
+        sa->setRoot(obj);
+
+        return sa;
+    }
 }

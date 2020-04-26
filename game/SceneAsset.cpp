@@ -54,6 +54,7 @@ namespace af3d
 
     void SceneAsset::apply(Scene* scene)
     {
+        scene->setRoot(root_);
         scene->setGravity(gravity_);
         scene->setName(name());
         scene->setScriptPath(scriptPath_);
@@ -70,10 +71,14 @@ namespace af3d
 
     void SceneAsset::apply(const SceneObjectPtr& parent)
     {
-        btAssert(!root());
+        auto xf = parent->transform();
+        parent->setTransform(btTransform::getIdentity());
 
         for (const auto& obj : objects_) {
-            parent->addObject(obj);
+            if (obj != parent) {
+                obj->setTransformRecursive(xf.inverse() * obj->transform());
+                parent->addObject(obj);
+            }
         }
 
         if (!joints_.empty()) {

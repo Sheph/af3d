@@ -129,6 +129,9 @@ namespace af3d
 
         inline float realDt() const { return realDt_; }
 
+        inline void setRoot(const SceneObjectPtr& value) { root_ = value; }
+        inline const SceneObjectPtr& root() const { return root_; }
+
         APropertyValue propertyGravityGet(const std::string&) const { return gravity(); }
         void propertyGravitySet(const std::string&, const APropertyValue& value) { setGravity(value.toVec3()); }
 
@@ -140,6 +143,9 @@ namespace af3d
 
         APropertyValue propertyScriptGet(const std::string&) const { return scriptPath(); }
         void propertyScriptSet(const std::string&, const APropertyValue& value) { setScriptPath(value.toString()); }
+
+        APropertyValue propertyRootGet(const std::string&) const { return APropertyValue(root()); }
+        void propertyRootSet(const std::string&, const APropertyValue& value) { setRoot(value.toObject<SceneObject>()); }
 
         APropertyValue propertyCameraTransformGet(const std::string&) const;
 
@@ -172,6 +178,7 @@ namespace af3d
         SceneObjectPtr workspaceObj_;
         SceneObjectPtr camera_;
         SceneObjectPtr dummy_;
+        SceneObjectPtr root_;
         editor::WorkspacePtr workspace_;
         ImGuiComponentPtr imGuiC_;
 

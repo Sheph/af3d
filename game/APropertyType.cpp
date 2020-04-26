@@ -130,9 +130,10 @@ namespace af3d
         visitor.visitEnum(*this);
     }
 
-    APropertyTypeObject::APropertyTypeObject(const char* name, const AClass& klass)
+    APropertyTypeObject::APropertyTypeObject(const char* name, const AClass& klass, bool isWeak)
     : APropertyType(name),
-      klass_(klass)
+      klass_(klass),
+      isWeak_(isWeak)
     {
     }
 

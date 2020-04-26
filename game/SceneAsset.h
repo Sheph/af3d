@@ -47,6 +47,7 @@ namespace af3d
 
         AObjectPtr sharedThis() override { return shared_from_this(); }
 
+        inline void setRoot(const SceneObjectPtr& value) { root_ = value; }
         inline const SceneObjectPtr& root() const { return root_; }
 
         inline const std::string& scriptPath() const { return scriptPath_; }
@@ -100,6 +101,9 @@ namespace af3d
         APropertyValue propertyScriptGet(const std::string&) const { return scriptPath_; }
         void propertyScriptSet(const std::string&, const APropertyValue& value) { scriptPath_ = value.toString(); }
 
+        APropertyValue propertyRootGet(const std::string&) const { return APropertyValue(root()); }
+        void propertyRootSet(const std::string&, const APropertyValue& value) { setRoot(value.toObject<SceneObject>()); }
+
         APropertyValue propertyCameraTransformGet(const std::string&) const { return cameraXf_; }
 
     private:
@@ -123,6 +127,7 @@ namespace af3d
         ACLASS_PROPERTY(Class, ClearColor, "clear color", "Clear Color", ColorRGB, Color(0.23f, 0.23f, 0.23f, 1.0f), General, APropertyEditable) \
         ACLASS_PROPERTY(Class, AmbientColor, "ambient color", "Ambient Color", ColorRGB, Color(0.2f, 0.2f, 0.2f, 1.0f), General, APropertyEditable) \
         ACLASS_PROPERTY(Class, Script, "script", "Scene script asset path", String, "", General, APropertyEditable) \
+        ACLASS_PROPERTY(Class, Root, "root", "Scene root body", SceneObject, SceneObjectPtr(), General, APropertyEditable) \
         ACLASS_PROPERTY_RO(Class, CameraTransform, AProperty_CameraTransform, "Camera transform", Transform, Position, APropertyEditable)
 }
 

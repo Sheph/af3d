@@ -50,6 +50,8 @@ namespace af3d
 
         SceneAssetPtr getSceneAsset(const std::string& name, bool editor = false);
 
+        SceneAssetPtr getSceneObjectAsset(const std::string& name);
+
     private:
         using TPSMap = std::unordered_map<std::string, TPSPtr>;
         using SceneAssetMap = std::unordered_map<std::string, Json::Value>;

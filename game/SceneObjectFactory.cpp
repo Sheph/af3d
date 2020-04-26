@@ -90,21 +90,13 @@ namespace af3d
 
     SceneObjectPtr SceneObjectFactory::createInstance(const std::string& assetPath)
     {
-        auto sa = assetManager.getSceneAsset(assetPath);
+        auto sa = assetManager.getSceneObjectAsset(assetPath);
 
         if (!sa) {
             return std::make_shared<SceneObject>();
         }
 
-        if (sa->root()) {
-            return sa->root();
-        }
-
-        auto obj = std::make_shared<SceneObject>();
-
-        sa->apply(obj);
-
-        return obj;
+        return sa->root();
     }
 
     SceneObjectPtr SceneObjectFactory::createSensor(bool allowSensor)
