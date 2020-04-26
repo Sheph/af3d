@@ -57,6 +57,8 @@ namespace af3d
     ACLASS_PROPERTY(SceneObject, AngularDamping, "angular damping", "Angular damping", Float, 0.0f, Physics, APropertyEditable)
     ACLASS_PROPERTY(SceneObject, LinearVelocity, "linear velocity", "Linear velocity", Vec3f, btVector3(0.0f, 0.0f, 0.0f), Physics, APropertyEditable)
     ACLASS_PROPERTY(SceneObject, AngularVelocity, "angular velocity", "Angular velocity", Vec3f, btVector3(0.0f, 0.0f, 0.0f), Physics, APropertyEditable)
+    ACLASS_PROPERTY(SceneObject, LinearSleepingThreshold, "linear sleep thres", "Linear sleeping threshold", Float, 0.5f, Physics, APropertyEditable)
+    ACLASS_PROPERTY(SceneObject, AngularSleepingThreshold, "angular sleep thres", "Angular sleeping threshold", FloatRadian, 0.5f, Physics, APropertyEditable)
     ACLASS_DEFINE_END(SceneObject)
 
     static void insertComponent(std::vector<ComponentPtr>& components,
@@ -706,6 +708,46 @@ namespace af3d
             body_->setRestitution(value);
         } else {
             bodyCi_.restitution = value;
+        }
+    }
+
+    float SceneObject::linearSleepingThreshold() const
+    {
+        if (body_) {
+            return body_->getLinearSleepingThreshold();
+        } else {
+            return bodyCi_.linearSleepingThreshold;
+        }
+    }
+
+    void SceneObject::setLinearSleepingThreshold(float value)
+    {
+        btAssert(btIsValid(value));
+
+        if (body_) {
+            body_->setSleepingThresholds(value, body_->getAngularSleepingThreshold());
+        } else {
+            bodyCi_.linearSleepingThreshold = value;
+        }
+    }
+
+    float SceneObject::angularSleepingThreshold() const
+    {
+        if (body_) {
+            return body_->getAngularSleepingThreshold();
+        } else {
+            return bodyCi_.angularSleepingThreshold;
+        }
+    }
+
+    void SceneObject::setAngularSleepingThreshold(float value)
+    {
+        btAssert(btIsValid(value));
+
+        if (body_) {
+            body_->setSleepingThresholds(body_->getLinearSleepingThreshold(), value);
+        } else {
+            bodyCi_.angularSleepingThreshold = value;
         }
     }
 

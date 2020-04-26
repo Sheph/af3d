@@ -206,6 +206,12 @@ namespace af3d
         float restitution() const;
         void setRestitution(float value);
 
+        float linearSleepingThreshold() const;
+        void setLinearSleepingThreshold(float value);
+
+        float angularSleepingThreshold() const;
+        void setAngularSleepingThreshold(float value);
+
         void applyForce(const btVector3& force, const btVector3& point);
         void applyForceToCenter(const btVector3& force);
         void applyTorque(const btVector3& torque);
@@ -307,6 +313,12 @@ namespace af3d
         APropertyValue propertyAngularVelocityGet(const std::string&) const { return angularVelocity(); }
         void propertyAngularVelocitySet(const std::string&, const APropertyValue& value) { setAngularVelocity(value.toVec3()); }
 
+        APropertyValue propertyLinearSleepingThresholdGet(const std::string&) const { return linearSleepingThreshold(); }
+        void propertyLinearSleepingThresholdSet(const std::string&, const APropertyValue& value) { setLinearSleepingThreshold(value.toFloat()); }
+
+        APropertyValue propertyAngularSleepingThresholdGet(const std::string&) const { return angularSleepingThreshold(); }
+        void propertyAngularSleepingThresholdSet(const std::string&, const APropertyValue& value) { setAngularSleepingThreshold(value.toFloat()); }
+
         APropertyValue propertyParamGet(const std::string& key) const { return params().get(key); }
 
     private:
@@ -331,6 +343,8 @@ namespace af3d
             float restitution = 0.0f;
             btVector3 linearVelocity = btVector3_zero;
             btVector3 angularVelocity = btVector3_zero;
+            float linearSleepingThreshold = 0.5f;
+            float angularSleepingThreshold = 0.5f;
         };
 
         using Flags = EnumSet<Flag>;
@@ -377,7 +391,9 @@ namespace af3d
         ACLASS_PROPERTY_RO(SceneObject, Friction, "friction", "Friction", Float, Physics, APropertyEditable|APropertyTransient) \
         ACLASS_PROPERTY_RO(SceneObject, Restitution, "restitution", "Restitution", Float, Physics, APropertyEditable|APropertyTransient) \
         ACLASS_PROPERTY_RO(SceneObject, LinearDamping, "linear damping", "Linear damping", Float, Physics, APropertyEditable|APropertyTransient) \
-        ACLASS_PROPERTY_RO(SceneObject, AngularDamping, "angular damping", "Angular damping", Float, Physics, APropertyEditable|APropertyTransient)
+        ACLASS_PROPERTY_RO(SceneObject, AngularDamping, "angular damping", "Angular damping", Float, Physics, APropertyEditable|APropertyTransient) \
+        ACLASS_PROPERTY_RO(SceneObject, LinearSleepingThreshold, "linear sleep thres", "Linear sleeping threshold", Float, Physics, APropertyEditable|APropertyTransient) \
+        ACLASS_PROPERTY_RO(SceneObject, AngularSleepingThreshold, "angular sleep thres", "Angular sleeping threshold", FloatRadian, Physics, APropertyEditable|APropertyTransient)
 
     #define SCENEOBJECT_PARAM(SName, Name, Tooltip, Type, Def) \
         {Name, Tooltip, APropertyType_##Type, APropertyValue(Def), APropertyCategory::Params, APropertyReadable|APropertyEditable, (APropertyGetter)&SceneObject::propertyParamGet, nullptr},
