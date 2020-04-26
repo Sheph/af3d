@@ -23,20 +23,20 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _JOINTCONETWIST_H_
-#define _JOINTCONETWIST_H_
+#ifndef _JOINTHINGE_H_
+#define _JOINTHINGE_H_
 
 #include "Joint.h"
 
 namespace af3d
 {
-    class JointConeTwist : public std::enable_shared_from_this<JointConeTwist>,
+    class JointHinge : public std::enable_shared_from_this<JointHinge>,
         public Joint
     {
     public:
-        JointConeTwist(const SceneObjectPtr& objectA, const SceneObjectPtr& objectB,
+        explicit JointHinge(const SceneObjectPtr& objectA, const SceneObjectPtr& objectB,
             bool collideConnected = false);
-        ~JointConeTwist() = default;
+        ~JointHinge() = default;
 
         static const AClass& staticKlass();
 
@@ -44,7 +44,7 @@ namespace af3d
 
         AObjectPtr sharedThis() override { return shared_from_this(); }
 
-        btConeTwistConstraint* constraint() override { return constraint_; }
+        btHingeConstraint* constraint() override { return constraint_; }
 
         void render(bool drawA, PhysicsDebugDraw& dd, const btVector3& c, float sz) override;
 
@@ -54,14 +54,11 @@ namespace af3d
         inline const btTransform& frameB() const { return frameB_; }
         void setFrameB(const btTransform& value);
 
-        inline float swing1() const { return swing1_; }
-        void setSwing1(float value);
+        inline float lowerLimit() const { return lowerLimit_; }
+        void setLowerLimit(float value);
 
-        inline float swing2() const { return swing2_; }
-        void setSwing2(float value);
-
-        inline float twist() const { return twist_; }
-        void setTwist(float value);
+        inline float upperLimit() const { return upperLimit_; }
+        void setUpperLimit(float value);
 
         inline float softness() const { return softness_; }
         void setSoftness(float value);
@@ -71,12 +68,6 @@ namespace af3d
 
         inline float relaxationFactor() const { return relaxationFactor_; }
         void setRelaxationFactor(float value);
-
-        inline float damping() const { return damping_; }
-        void setDamping(float value);
-
-        inline float fixThreshold() const { return fixThreshold_; }
-        void setFixThreshold(float value);
 
         btTransform worldFrameA() const;
         void setWorldFrameA(const btTransform& value);
@@ -90,8 +81,8 @@ namespace af3d
         inline float maxMotorImpulse() const { return maxMotorImpulse_; }
         void setMaxMotorImpulse(float value);
 
-        inline const btQuaternion& motorTarget() const { return motorTarget_; }
-        void setMotorTarget(const btQuaternion& value);
+        inline float motorVelocity() const { return motorVelocity_; }
+        void setMotorVelocity(float value);
 
         APropertyValue propertyLocalFrameAGet(const std::string&) const { return frameA(); }
         void propertyLocalFrameASet(const std::string&, const APropertyValue& value) { setFrameA(value.toTransform()); }
@@ -105,14 +96,11 @@ namespace af3d
         APropertyValue propertyWorldFrameBGet(const std::string&) const { return worldFrameB(); }
         void propertyWorldFrameBSet(const std::string&, const APropertyValue& value) { setWorldFrameB(value.toTransform()); }
 
-        APropertyValue propertySwing1Get(const std::string&) const { return swing1(); }
-        void propertySwing1Set(const std::string&, const APropertyValue& value) { setSwing1(value.toFloat()); }
+        APropertyValue propertyLowerLimitGet(const std::string&) const { return lowerLimit(); }
+        void propertyLowerLimitSet(const std::string&, const APropertyValue& value) { setLowerLimit(value.toFloat()); }
 
-        APropertyValue propertySwing2Get(const std::string&) const { return swing2(); }
-        void propertySwing2Set(const std::string&, const APropertyValue& value) { setSwing2(value.toFloat()); }
-
-        APropertyValue propertyTwistGet(const std::string&) const { return twist(); }
-        void propertyTwistSet(const std::string&, const APropertyValue& value) { setTwist(value.toFloat()); }
+        APropertyValue propertyUpperLimitGet(const std::string&) const { return upperLimit(); }
+        void propertyUpperLimitSet(const std::string&, const APropertyValue& value) { setUpperLimit(value.toFloat()); }
 
         APropertyValue propertySoftnessGet(const std::string&) const { return softness(); }
         void propertySoftnessSet(const std::string&, const APropertyValue& value) { setSoftness(value.toFloat()); }
@@ -123,20 +111,14 @@ namespace af3d
         APropertyValue propertyRelaxationFactorGet(const std::string&) const { return relaxationFactor(); }
         void propertyRelaxationFactorSet(const std::string&, const APropertyValue& value) { setRelaxationFactor(value.toFloat()); }
 
-        APropertyValue propertyDampingGet(const std::string&) const { return damping(); }
-        void propertyDampingSet(const std::string&, const APropertyValue& value) { setDamping(value.toFloat()); }
-
-        APropertyValue propertyFixThresholdGet(const std::string&) const { return fixThreshold(); }
-        void propertyFixThresholdSet(const std::string&, const APropertyValue& value) { setFixThreshold(value.toFloat()); }
-
         APropertyValue propertyMotorEnabledGet(const std::string&) const { return motorEnabled(); }
         void propertyMotorEnabledSet(const std::string&, const APropertyValue& value) { enableMotor(value.toBool()); }
 
         APropertyValue propertyMaxMotorImpulseGet(const std::string&) const { return maxMotorImpulse(); }
         void propertyMaxMotorImpulseSet(const std::string&, const APropertyValue& value) { setMaxMotorImpulse(value.toFloat()); }
 
-        APropertyValue propertyMotorTargetGet(const std::string&) const { return motorTarget(); }
-        void propertyMotorTargetSet(const std::string&, const APropertyValue& value) { setMotorTarget(value.toQuaternion()); }
+        APropertyValue propertyMotorVelocityGet(const std::string&) const { return motorVelocity(); }
+        void propertyMotorVelocitySet(const std::string&, const APropertyValue& value) { setMotorVelocity(value.toFloat()); }
 
     private:
         void doRefresh(bool forceDelete) override;
@@ -145,36 +127,31 @@ namespace af3d
 
         void doAbandon() override;
 
-        btVector3 getPointForAngle(float fAngleInRadians, float fLength) const;
-
         static const btTransform& fixup();
         btTransform frameAWithFixup() const;
         btTransform frameBWithFixup() const;
 
         btTransform frameA_ = btTransform::getIdentity();
         btTransform frameB_ = btTransform::getIdentity();
-        float swing1_ = 0.0f;
-        float swing2_ = 0.0f;
-        float twist_ = 0.0f;
-        float softness_ = 1.0f;
+        float lowerLimit_ = SIMD_HALF_PI;
+        float upperLimit_ = -SIMD_HALF_PI;
+        float softness_ = 0.9f;
         float biasFactor_ = 0.3f;
         float relaxationFactor_ = 1.0f;
-        float damping_ = 0.01f;
-        float fixThreshold_ = 0.05f;
 
         bool motorEnabled_ = false;
         float maxMotorImpulse_ = -1.0f;
-        btQuaternion motorTarget_ = btQuaternion::getIdentity();
+        float motorVelocity_ = 0.0f;
 
-        btConeTwistConstraint* constraint_ = nullptr;
+        btHingeConstraint* constraint_ = nullptr;
 
         SceneObjectPtr editA_;
         SceneObjectPtr editB_;
     };
 
-    using JointConeTwistPtr = std::shared_ptr<JointConeTwist>;
+    using JointHingePtr = std::shared_ptr<JointHinge>;
 
-    ACLASS_DECLARE(JointConeTwist)
+    ACLASS_DECLARE(JointHinge)
 }
 
 #endif

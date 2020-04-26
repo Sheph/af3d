@@ -34,7 +34,7 @@ namespace af3d
         public Joint
     {
     public:
-        explicit JointPointToPoint(const SceneObjectPtr& objectA, const SceneObjectPtr& objectB = SceneObjectPtr(),
+        JointPointToPoint(const SceneObjectPtr& objectA, const SceneObjectPtr& objectB,
             bool collideConnected = false);
         ~JointPointToPoint() = default;
 

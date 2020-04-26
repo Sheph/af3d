@@ -37,20 +37,20 @@ namespace af3d
     JOINT_PARAM(JointConeTwist, AProperty_ObjectB, "Object B", SceneObject, SceneObjectPtr())
     JOINT_PARAM(JointConeTwist, AProperty_ObjectBPath, "Object B path", String, "")
     JOINT_PARAM(JointConeTwist, AProperty_CollideConnected, "Collide connected bodies", Bool, false)
-    ACLASS_PROPERTY(JointConeTwist, LocalFrameA, "local frame A", "Local frame A", Transform, btTransform::getIdentity(), Position, APropertyEditable)
+    ACLASS_PROPERTY(JointConeTwist, LocalFrameA, AProperty_LocalFrameA, "Local frame A", Transform, btTransform::getIdentity(), Position, APropertyEditable)
     ACLASS_PROPERTY(JointConeTwist, WorldFrameA, AProperty_WorldTransform, "World frame A", Transform, btTransform::getIdentity(), Position, APropertyEditable|APropertyTransient)
-    ACLASS_PROPERTY(JointConeTwist, LocalFrameB, "local frame B", "Local frame B", Transform, btTransform::getIdentity(), Position, APropertyEditable)
-    ACLASS_PROPERTY(JointConeTwist, WorldFrameB, "world frame B", "World frame B", Transform, btTransform::getIdentity(), Position, APropertyEditable|APropertyTransient)
+    ACLASS_PROPERTY(JointConeTwist, LocalFrameB, AProperty_LocalFrameB, "Local frame B", Transform, btTransform::getIdentity(), Position, APropertyEditable)
+    ACLASS_PROPERTY(JointConeTwist, WorldFrameB, AProperty_WorldFrameB, "World frame B", Transform, btTransform::getIdentity(), Position, APropertyEditable|APropertyTransient)
     ACLASS_PROPERTY(JointConeTwist, Swing1, "swing1", "Swing 1", FloatRadian, 0.0f, Position, APropertyEditable)
     ACLASS_PROPERTY(JointConeTwist, Swing2, "swing2", "Swing 2", FloatRadian, 0.0f, Position, APropertyEditable)
     ACLASS_PROPERTY(JointConeTwist, Twist, "twist", "Twist", FloatRadian, 0.0f, Position, APropertyEditable)
-    ACLASS_PROPERTY(JointConeTwist, Softness, "softness", "Describes % of limits where movement is free", FloatPercentage, 1.0f, Physics, APropertyEditable)
-    ACLASS_PROPERTY(JointConeTwist, BiasFactor, "bias factor", "Strength with which constraint resists zeroth order limit violation", FloatPercentage, 0.3f, Physics, APropertyEditable)
-    ACLASS_PROPERTY(JointConeTwist, RelaxationFactor, "relaxation factor", "The lower the value, the less the constraint will fight velocities which violate the angular limits", FloatPercentage, 1.0f, Physics, APropertyEditable)
+    ACLASS_PROPERTY(JointConeTwist, Softness, AProperty_Softness, "Describes % of limits where movement is free", FloatPercentage, 1.0f, Physics, APropertyEditable)
+    ACLASS_PROPERTY(JointConeTwist, BiasFactor, AProperty_BiasFactor, "Strength with which constraint resists zeroth order limit violation", FloatPercentage, 0.3f, Physics, APropertyEditable)
+    ACLASS_PROPERTY(JointConeTwist, RelaxationFactor, AProperty_RelaxationFactor, "The lower the value, the less the constraint will fight velocities which violate the angular limits", FloatPercentage, 1.0f, Physics, APropertyEditable)
     ACLASS_PROPERTY(JointConeTwist, Damping, "damping", "Damping", Float, 0.01f, Physics, APropertyEditable)
     ACLASS_PROPERTY(JointConeTwist, FixThreshold, "fix threshold", "Fix threshold", Float, 0.05f, Physics, APropertyEditable)
-    ACLASS_PROPERTY(JointConeTwist, MotorEnabled, "motor enabled", "Motor is enabled", Bool, false, Physics, APropertyEditable)
-    ACLASS_PROPERTY(JointConeTwist, MaxMotorImpulse, "max motor impulse", "Max motor impulse", Float, -1.0f, Physics, APropertyEditable)
+    ACLASS_PROPERTY(JointConeTwist, MotorEnabled, AProperty_MotorEnabled, "Motor is enabled", Bool, false, Physics, APropertyEditable)
+    ACLASS_PROPERTY(JointConeTwist, MaxMotorImpulse, AProperty_MaxMotorImpulse, "Max motor impulse", Float, -1.0f, Physics, APropertyEditable)
     ACLASS_PROPERTY(JointConeTwist, MotorTarget, "motor target", "Motor target", Quaternion, btQuaternion::getIdentity(), Physics, APropertyEditable)
     ACLASS_DEFINE_END(JointConeTwist)
 
@@ -305,7 +305,7 @@ namespace af3d
             editA_->addComponent(jc);
 
             if (objectB()) {
-                editB_ = createTransformEdit("world frame B", false);
+                editB_ = createTransformEdit(AProperty_WorldFrameB, false);
                 jc = std::make_shared<RenderJointComponent>();
                 jc->setJoint(shared_from_this());
                 jc->setIsA(false);

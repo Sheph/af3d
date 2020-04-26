@@ -109,6 +109,14 @@ namespace af3d
     #define AProperty_ObjectAPath "object A path"
     #define AProperty_ObjectBPath "object B path"
     #define AProperty_CollideConnected "collide connected"
+    #define AProperty_LocalFrameA "local frame A"
+    #define AProperty_LocalFrameB "local frame B"
+    #define AProperty_WorldFrameB "world frame B"
+    #define AProperty_Softness "softness"
+    #define AProperty_BiasFactor "bias factor"
+    #define AProperty_RelaxationFactor "relaxation factor"
+    #define AProperty_MotorEnabled "motor enabled"
+    #define AProperty_MaxMotorImpulse "max motor impulse"
 }
 
 inline std::ostream& operator <<(std::ostream& os, af3d::APropertyCategory cat)

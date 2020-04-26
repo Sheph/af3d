@@ -116,6 +116,7 @@ set(SOURCES
     Joint.cpp
     JointPointToPoint.cpp
     JointConeTwist.cpp
+    JointHinge.cpp
     editor/Action.cpp
     editor/Workspace.cpp
     editor/MainPopup.cpp
