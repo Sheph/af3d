@@ -39,6 +39,10 @@ namespace af3d
             float linearSoftness = SLIDER_CONSTRAINT_DEF_SOFTNESS;
             float linearRestitution = SLIDER_CONSTRAINT_DEF_RESTITUTION;
             float linearDamping = SLIDER_CONSTRAINT_DEF_DAMPING;
+
+            float angularSoftness = SLIDER_CONSTRAINT_DEF_SOFTNESS;
+            float angularRestitution = SLIDER_CONSTRAINT_DEF_RESTITUTION;
+            float angularDamping = SLIDER_CONSTRAINT_DEF_DAMPING;
         };
 
         explicit JointSlider(const SceneObjectPtr& objectA, const SceneObjectPtr& objectB,
@@ -66,6 +70,12 @@ namespace af3d
 
         inline float upperLinearLimit() const { return upperLinearLimit_; }
         void setUpperLinearLimit(float value);
+
+        inline float lowerAngularLimit() const { return lowerAngularLimit_; }
+        void setLowerAngularLimit(float value);
+
+        inline float upperAngularLimit() const { return upperAngularLimit_; }
+        void setUpperAngularLimit(float value);
 
         inline const Config& dirConfig() const { return dirConfig_; }
         void setDirConfig(const Config& value);
@@ -100,6 +110,78 @@ namespace af3d
         APropertyValue propertyUpperLinearLimitGet(const std::string&) const { return upperLinearLimit(); }
         void propertyUpperLinearLimitSet(const std::string&, const APropertyValue& value) { setUpperLinearLimit(value.toFloat()); }
 
+        APropertyValue propertyLowerAngularLimitGet(const std::string&) const { return lowerAngularLimit(); }
+        void propertyLowerAngularLimitSet(const std::string&, const APropertyValue& value) { setLowerAngularLimit(value.toFloat()); }
+
+        APropertyValue propertyUpperAngularLimitGet(const std::string&) const { return upperAngularLimit(); }
+        void propertyUpperAngularLimitSet(const std::string&, const APropertyValue& value) { setUpperAngularLimit(value.toFloat()); }
+
+        APropertyValue propertyLinearSoftnessGet(const std::string&) const
+        {
+            return (dirConfig_.linearSoftness + limConfig_.linearSoftness + orthoConfig_.linearSoftness) / 3.0f;
+        }
+        void propertyLinearSoftnessSet(const std::string& s, const APropertyValue& value)
+        {
+            propertyDirLinearSoftnessSet(s, value);
+            propertyLimLinearSoftnessSet(s, value);
+            propertyOrthoLinearSoftnessSet(s, value);
+        }
+
+        APropertyValue propertyLinearRestitutionGet(const std::string&) const
+        {
+            return (dirConfig_.linearRestitution + limConfig_.linearRestitution + orthoConfig_.linearRestitution) / 3.0f;
+        }
+        void propertyLinearRestitutionSet(const std::string& s, const APropertyValue& value)
+        {
+            propertyDirLinearRestitutionSet(s, value);
+            propertyLimLinearRestitutionSet(s, value);
+            propertyOrthoLinearRestitutionSet(s, value);
+        }
+
+        APropertyValue propertyLinearDampingGet(const std::string&) const
+        {
+            return (dirConfig_.linearDamping + limConfig_.linearDamping + orthoConfig_.linearDamping) / 3.0f;
+        }
+        void propertyLinearDampingSet(const std::string& s, const APropertyValue& value)
+        {
+            propertyDirLinearDampingSet(s, value);
+            propertyLimLinearDampingSet(s, value);
+            propertyOrthoLinearDampingSet(s, value);
+        }
+
+        APropertyValue propertyAngularSoftnessGet(const std::string&) const
+        {
+            return (dirConfig_.angularSoftness + limConfig_.angularSoftness + orthoConfig_.angularSoftness) / 3.0f;
+        }
+        void propertyAngularSoftnessSet(const std::string& s, const APropertyValue& value)
+        {
+            propertyDirAngularSoftnessSet(s, value);
+            propertyLimAngularSoftnessSet(s, value);
+            propertyOrthoAngularSoftnessSet(s, value);
+        }
+
+        APropertyValue propertyAngularRestitutionGet(const std::string&) const
+        {
+            return (dirConfig_.angularRestitution + limConfig_.angularRestitution + orthoConfig_.angularRestitution) / 3.0f;
+        }
+        void propertyAngularRestitutionSet(const std::string& s, const APropertyValue& value)
+        {
+            propertyDirAngularRestitutionSet(s, value);
+            propertyLimAngularRestitutionSet(s, value);
+            propertyOrthoAngularRestitutionSet(s, value);
+        }
+
+        APropertyValue propertyAngularDampingGet(const std::string&) const
+        {
+            return (dirConfig_.angularDamping + limConfig_.angularDamping + orthoConfig_.angularDamping) / 3.0f;
+        }
+        void propertyAngularDampingSet(const std::string& s, const APropertyValue& value)
+        {
+            propertyDirAngularDampingSet(s, value);
+            propertyLimAngularDampingSet(s, value);
+            propertyOrthoAngularDampingSet(s, value);
+        }
+
         APropertyValue propertyDirLinearSoftnessGet(const std::string&) const { return dirConfig_.linearSoftness; }
         void propertyDirLinearSoftnessSet(const std::string&, const APropertyValue& value)
         {
@@ -121,6 +203,30 @@ namespace af3d
         {
             auto cfg = dirConfig();
             cfg.linearDamping = value.toFloat();
+            setDirConfig(cfg);
+        }
+
+        APropertyValue propertyDirAngularSoftnessGet(const std::string&) const { return dirConfig_.angularSoftness; }
+        void propertyDirAngularSoftnessSet(const std::string&, const APropertyValue& value)
+        {
+            auto cfg = dirConfig();
+            cfg.angularSoftness = value.toFloat();
+            setDirConfig(cfg);
+        }
+
+        APropertyValue propertyDirAngularRestitutionGet(const std::string&) const { return dirConfig_.angularRestitution; }
+        void propertyDirAngularRestitutionSet(const std::string&, const APropertyValue& value)
+        {
+            auto cfg = dirConfig();
+            cfg.angularRestitution = value.toFloat();
+            setDirConfig(cfg);
+        }
+
+        APropertyValue propertyDirAngularDampingGet(const std::string&) const { return dirConfig_.angularDamping; }
+        void propertyDirAngularDampingSet(const std::string&, const APropertyValue& value)
+        {
+            auto cfg = dirConfig();
+            cfg.angularDamping = value.toFloat();
             setDirConfig(cfg);
         }
 
@@ -148,6 +254,30 @@ namespace af3d
             setLimConfig(cfg);
         }
 
+        APropertyValue propertyLimAngularSoftnessGet(const std::string&) const { return limConfig_.angularSoftness; }
+        void propertyLimAngularSoftnessSet(const std::string&, const APropertyValue& value)
+        {
+            auto cfg = limConfig();
+            cfg.angularSoftness = value.toFloat();
+            setLimConfig(cfg);
+        }
+
+        APropertyValue propertyLimAngularRestitutionGet(const std::string&) const { return limConfig_.angularRestitution; }
+        void propertyLimAngularRestitutionSet(const std::string&, const APropertyValue& value)
+        {
+            auto cfg = limConfig();
+            cfg.angularRestitution = value.toFloat();
+            setLimConfig(cfg);
+        }
+
+        APropertyValue propertyLimAngularDampingGet(const std::string&) const { return limConfig_.angularDamping; }
+        void propertyLimAngularDampingSet(const std::string&, const APropertyValue& value)
+        {
+            auto cfg = limConfig();
+            cfg.angularDamping = value.toFloat();
+            setLimConfig(cfg);
+        }
+
         APropertyValue propertyOrthoLinearSoftnessGet(const std::string&) const { return orthoConfig_.linearSoftness; }
         void propertyOrthoLinearSoftnessSet(const std::string&, const APropertyValue& value)
         {
@@ -172,6 +302,30 @@ namespace af3d
             setOrthoConfig(cfg);
         }
 
+        APropertyValue propertyOrthoAngularSoftnessGet(const std::string&) const { return orthoConfig_.angularSoftness; }
+        void propertyOrthoAngularSoftnessSet(const std::string&, const APropertyValue& value)
+        {
+            auto cfg = orthoConfig();
+            cfg.angularSoftness = value.toFloat();
+            setOrthoConfig(cfg);
+        }
+
+        APropertyValue propertyOrthoAngularRestitutionGet(const std::string&) const { return orthoConfig_.angularRestitution; }
+        void propertyOrthoAngularRestitutionSet(const std::string&, const APropertyValue& value)
+        {
+            auto cfg = orthoConfig();
+            cfg.angularRestitution = value.toFloat();
+            setOrthoConfig(cfg);
+        }
+
+        APropertyValue propertyOrthoAngularDampingGet(const std::string&) const { return orthoConfig_.angularDamping; }
+        void propertyOrthoAngularDampingSet(const std::string&, const APropertyValue& value)
+        {
+            auto cfg = orthoConfig();
+            cfg.angularDamping = value.toFloat();
+            setOrthoConfig(cfg);
+        }
+
     private:
         void doRefresh(bool forceDelete) override;
 
@@ -187,6 +341,8 @@ namespace af3d
         btTransform frameB_ = btTransform::getIdentity();
         float lowerLinearLimit_ = -1.0f;
         float upperLinearLimit_ = 1.0f;
+        float lowerAngularLimit_ = 0.0f;
+        float upperAngularLimit_ = 0.0f;
 
         Config dirConfig_;
         Config limConfig_;

@@ -43,15 +43,32 @@ namespace af3d
     ACLASS_PROPERTY(JointSlider, WorldFrameB, AProperty_WorldFrameB, "World frame B", Transform, btTransform::getIdentity(), Position, APropertyEditable|APropertyTransient)
     ACLASS_PROPERTY(JointSlider, LowerLinearLimit, "lower lin limit", "Lower linear limit", Float, -1.0f, Position, APropertyEditable)
     ACLASS_PROPERTY(JointSlider, UpperLinearLimit, "upper lin limit", "Upper linear limit", Float, 1.0f, Position, APropertyEditable)
+    ACLASS_PROPERTY(JointSlider, LowerAngularLimit, "lower ang limit", "Lower angular limit", FloatRadian, 0.0f, Position, APropertyEditable)
+    ACLASS_PROPERTY(JointSlider, UpperAngularLimit, "upper ang limit", "Upper angular limit", FloatRadian, 0.0f, Position, APropertyEditable)
+    ACLASS_PROPERTY(JointSlider, LinearSoftness, "lin softness", "Linear softness", UFloat, SLIDER_CONSTRAINT_DEF_SOFTNESS, Physics, APropertyEditable|APropertyTransient)
+    ACLASS_PROPERTY(JointSlider, LinearRestitution, "lin restitution", "Linear restitution", UFloat, SLIDER_CONSTRAINT_DEF_RESTITUTION, Physics, APropertyEditable|APropertyTransient)
+    ACLASS_PROPERTY(JointSlider, LinearDamping, "lin damping", "Linear damping", UFloat, SLIDER_CONSTRAINT_DEF_DAMPING, Physics, APropertyEditable|APropertyTransient)
+    ACLASS_PROPERTY(JointSlider, AngularSoftness, "ang softness", "Angular softness", UFloat, SLIDER_CONSTRAINT_DEF_SOFTNESS, Physics, APropertyEditable|APropertyTransient)
+    ACLASS_PROPERTY(JointSlider, AngularRestitution, "ang restitution", "Angular restitution", UFloat, SLIDER_CONSTRAINT_DEF_RESTITUTION, Physics, APropertyEditable|APropertyTransient)
+    ACLASS_PROPERTY(JointSlider, AngularDamping, "ang damping", "Angular damping", UFloat, SLIDER_CONSTRAINT_DEF_DAMPING, Physics, APropertyEditable|APropertyTransient)
     ACLASS_PROPERTY(JointSlider, DirLinearSoftness, "dir lin softness", "Linear softness within limits", UFloat, SLIDER_CONSTRAINT_DEF_SOFTNESS, Physics, APropertyEditable)
     ACLASS_PROPERTY(JointSlider, DirLinearRestitution, "dir lin restitution", "Linear restitution within limits", UFloat, SLIDER_CONSTRAINT_DEF_RESTITUTION, Physics, APropertyEditable)
     ACLASS_PROPERTY(JointSlider, DirLinearDamping, "dir lin damping", "Linear damping within limits", UFloat, 0.0f, Physics, APropertyEditable)
+    ACLASS_PROPERTY(JointSlider, DirAngularSoftness, "dir ang softness", "Angular softness within limits", UFloat, SLIDER_CONSTRAINT_DEF_SOFTNESS, Physics, APropertyEditable)
+    ACLASS_PROPERTY(JointSlider, DirAngularRestitution, "dir ang restitution", "Angular restitution within limits", UFloat, SLIDER_CONSTRAINT_DEF_RESTITUTION, Physics, APropertyEditable)
+    ACLASS_PROPERTY(JointSlider, DirAngularDamping, "dir ang damping", "Angular damping within limits", UFloat, 0.0f, Physics, APropertyEditable)
     ACLASS_PROPERTY(JointSlider, LimLinearSoftness, "lim lin softness", "Linear softness when hitting limit", UFloat, SLIDER_CONSTRAINT_DEF_SOFTNESS, Physics, APropertyEditable)
     ACLASS_PROPERTY(JointSlider, LimLinearRestitution, "lim lin restitution", "Linear restitution when hitting limit", UFloat, SLIDER_CONSTRAINT_DEF_RESTITUTION, Physics, APropertyEditable)
     ACLASS_PROPERTY(JointSlider, LimLinearDamping, "lim lin damping", "Linear damping when hitting limit", UFloat, SLIDER_CONSTRAINT_DEF_DAMPING, Physics, APropertyEditable)
+    ACLASS_PROPERTY(JointSlider, LimAngularSoftness, "lim ang softness", "Angular softness when hitting limit", UFloat, SLIDER_CONSTRAINT_DEF_SOFTNESS, Physics, APropertyEditable)
+    ACLASS_PROPERTY(JointSlider, LimAngularRestitution, "lim ang restitution", "Angular restitution when hitting limit", UFloat, SLIDER_CONSTRAINT_DEF_RESTITUTION, Physics, APropertyEditable)
+    ACLASS_PROPERTY(JointSlider, LimAngularDamping, "lim ang damping", "Angular damping when hitting limit", UFloat, SLIDER_CONSTRAINT_DEF_DAMPING, Physics, APropertyEditable)
     ACLASS_PROPERTY(JointSlider, OrthoLinearSoftness, "ortho lin softness", "Linear softness against constraint axis", UFloat, SLIDER_CONSTRAINT_DEF_SOFTNESS, Physics, APropertyEditable)
     ACLASS_PROPERTY(JointSlider, OrthoLinearRestitution, "ortho lin restitution", "Linear restitution against constraint axis", UFloat, SLIDER_CONSTRAINT_DEF_RESTITUTION, Physics, APropertyEditable)
     ACLASS_PROPERTY(JointSlider, OrthoLinearDamping, "ortho lin damping", "Linear damping against constraint axis", UFloat, SLIDER_CONSTRAINT_DEF_DAMPING, Physics, APropertyEditable)
+    ACLASS_PROPERTY(JointSlider, OrthoAngularSoftness, "ortho ang softness", "Angular softness against constraint axis", UFloat, SLIDER_CONSTRAINT_DEF_SOFTNESS, Physics, APropertyEditable)
+    ACLASS_PROPERTY(JointSlider, OrthoAngularRestitution, "ortho ang restitution", "Angular restitution against constraint axis", UFloat, SLIDER_CONSTRAINT_DEF_RESTITUTION, Physics, APropertyEditable)
+    ACLASS_PROPERTY(JointSlider, OrthoAngularDamping, "ortho ang damping", "Angular damping against constraint axis", UFloat, SLIDER_CONSTRAINT_DEF_DAMPING, Physics, APropertyEditable)
     ACLASS_DEFINE_END(JointSlider)
 
     JointSlider::JointSlider(const SceneObjectPtr& objectA, const SceneObjectPtr& objectB,
@@ -59,6 +76,7 @@ namespace af3d
     : Joint(AClass_JointSlider, objectA, objectB, collideConnected)
     {
         dirConfig_.linearDamping = 0.0f;
+        dirConfig_.angularDamping = 0.0f;
     }
 
     const AClass& JointSlider::staticKlass()
@@ -134,6 +152,24 @@ namespace af3d
         setDirty();
     }
 
+    void JointSlider::setLowerAngularLimit(float value)
+    {
+        lowerAngularLimit_ = value;
+        if (constraint_) {
+            constraint_->setUpperAngLimit(-lowerAngularLimit_);
+        }
+        setDirty();
+    }
+
+    void JointSlider::setUpperAngularLimit(float value)
+    {
+        upperAngularLimit_ = value;
+        if (constraint_) {
+            constraint_->setLowerAngLimit(-upperAngularLimit_);
+        }
+        setDirty();
+    }
+
     void JointSlider::setDirConfig(const Config& value)
     {
         dirConfig_ = value;
@@ -141,6 +177,10 @@ namespace af3d
             constraint_->setSoftnessDirLin(dirConfig_.linearSoftness);
             constraint_->setRestitutionDirLin(dirConfig_.linearRestitution);
             constraint_->setDampingDirLin(dirConfig_.linearDamping);
+
+            constraint_->setSoftnessDirAng(dirConfig_.angularSoftness);
+            constraint_->setRestitutionDirAng(dirConfig_.angularRestitution);
+            constraint_->setDampingDirAng(dirConfig_.angularDamping);
         }
         setDirty();
     }
@@ -152,6 +192,10 @@ namespace af3d
             constraint_->setSoftnessLimLin(limConfig_.linearSoftness);
             constraint_->setRestitutionLimLin(limConfig_.linearRestitution);
             constraint_->setDampingLimLin(limConfig_.linearDamping);
+
+            constraint_->setSoftnessLimAng(limConfig_.angularSoftness);
+            constraint_->setRestitutionLimAng(limConfig_.angularRestitution);
+            constraint_->setDampingLimAng(limConfig_.angularDamping);
         }
         setDirty();
     }
@@ -163,6 +207,10 @@ namespace af3d
             constraint_->setSoftnessOrthoLin(orthoConfig_.linearSoftness);
             constraint_->setRestitutionOrthoLin(orthoConfig_.linearRestitution);
             constraint_->setDampingOrthoLin(orthoConfig_.linearDamping);
+
+            constraint_->setSoftnessOrthoAng(orthoConfig_.angularSoftness);
+            constraint_->setRestitutionOrthoAng(orthoConfig_.angularRestitution);
+            constraint_->setDampingOrthoAng(orthoConfig_.angularDamping);
         }
         setDirty();
     }
@@ -226,15 +274,26 @@ namespace af3d
             if (constraint_) {
                 constraint_->setLowerLinLimit(lowerLinearLimit_);
                 constraint_->setUpperLinLimit(upperLinearLimit_);
+                constraint_->setLowerAngLimit(-upperAngularLimit_);
+                constraint_->setUpperAngLimit(-lowerAngularLimit_);
                 constraint_->setSoftnessDirLin(dirConfig_.linearSoftness);
                 constraint_->setRestitutionDirLin(dirConfig_.linearRestitution);
                 constraint_->setDampingDirLin(dirConfig_.linearDamping);
+                constraint_->setSoftnessDirAng(dirConfig_.angularSoftness);
+                constraint_->setRestitutionDirAng(dirConfig_.angularRestitution);
+                constraint_->setDampingDirAng(dirConfig_.angularDamping);
                 constraint_->setSoftnessLimLin(limConfig_.linearSoftness);
                 constraint_->setRestitutionLimLin(limConfig_.linearRestitution);
                 constraint_->setDampingLimLin(limConfig_.linearDamping);
+                constraint_->setSoftnessLimAng(limConfig_.angularSoftness);
+                constraint_->setRestitutionLimAng(limConfig_.angularRestitution);
+                constraint_->setDampingLimAng(limConfig_.angularDamping);
                 constraint_->setSoftnessOrthoLin(orthoConfig_.linearSoftness);
                 constraint_->setRestitutionOrthoLin(orthoConfig_.linearRestitution);
                 constraint_->setDampingOrthoLin(orthoConfig_.linearDamping);
+                constraint_->setSoftnessOrthoAng(orthoConfig_.angularSoftness);
+                constraint_->setRestitutionOrthoAng(orthoConfig_.angularRestitution);
+                constraint_->setDampingOrthoAng(orthoConfig_.angularDamping);
             }
         }
     }
