@@ -69,6 +69,12 @@ namespace af3d
     ACLASS_PROPERTY(JointSlider, OrthoAngularSoftness, "ortho ang softness", "Angular softness against constraint axis", UFloat, SLIDER_CONSTRAINT_DEF_SOFTNESS, Physics, APropertyEditable)
     ACLASS_PROPERTY(JointSlider, OrthoAngularRestitution, "ortho ang restitution", "Angular restitution against constraint axis", UFloat, SLIDER_CONSTRAINT_DEF_RESTITUTION, Physics, APropertyEditable)
     ACLASS_PROPERTY(JointSlider, OrthoAngularDamping, "ortho ang damping", "Angular damping against constraint axis", UFloat, SLIDER_CONSTRAINT_DEF_DAMPING, Physics, APropertyEditable)
+    ACLASS_PROPERTY(JointSlider, LinearMotorEnabled, "lin motor enabled", "Linear motor is enabled", Bool, false, Physics, APropertyEditable)
+    ACLASS_PROPERTY(JointSlider, MaxLinearMotorForce, "lin max motor force", "Max linear motor force", Float, 0.0f, Physics, APropertyEditable)
+    ACLASS_PROPERTY(JointSlider, LinearMotorVelocity, "lin motor velocity", "Linear motor velocity", Float, 0.0f, Physics, APropertyEditable)
+    ACLASS_PROPERTY(JointSlider, AngularMotorEnabled, "ang motor enabled", "Angular motor is enabled", Bool, false, Physics, APropertyEditable)
+    ACLASS_PROPERTY(JointSlider, MaxAngularMotorForce, "ang max motor force", "Max angular motor force", Float, 0.0f, Physics, APropertyEditable)
+    ACLASS_PROPERTY(JointSlider, AngularMotorVelocity, "ang motor velocity", "Angular motor velocity", FloatRadian, 0.0f, Physics, APropertyEditable)
     ACLASS_DEFINE_END(JointSlider)
 
     JointSlider::JointSlider(const SceneObjectPtr& objectA, const SceneObjectPtr& objectB,
@@ -247,6 +253,60 @@ namespace af3d
         }
     }
 
+    void JointSlider::enableLinearMotor(bool value)
+    {
+        linearMotorEnabled_ = value;
+        if (constraint_) {
+            constraint_->setPoweredLinMotor(value);
+        }
+        setDirty();
+    }
+
+    void JointSlider::setMaxLinearMotorForce(float value)
+    {
+        maxLinearMotorForce_ = value;
+        if (constraint_) {
+            constraint_->setMaxLinMotorForce(value);
+        }
+        setDirty();
+    }
+
+    void JointSlider::setLinearMotorVelocity(float value)
+    {
+        linearMotorVelocity_ = value;
+        if (constraint_) {
+            constraint_->setTargetLinMotorVelocity(value);
+        }
+        setDirty();
+    }
+
+    void JointSlider::enableAngularMotor(bool value)
+    {
+        angularMotorEnabled_ = value;
+        if (constraint_) {
+            constraint_->setPoweredAngMotor(value);
+        }
+        setDirty();
+    }
+
+    void JointSlider::setMaxAngularMotorForce(float value)
+    {
+        maxAngularMotorForce_ = value;
+        if (constraint_) {
+            constraint_->setMaxAngMotorForce(value);
+        }
+        setDirty();
+    }
+
+    void JointSlider::setAngularMotorVelocity(float value)
+    {
+        angularMotorVelocity_ = value;
+        if (constraint_) {
+            constraint_->setTargetAngMotorVelocity(value);
+        }
+        setDirty();
+    }
+
     void JointSlider::doRefresh(bool forceDelete)
     {
         auto objA = objectA();
@@ -294,6 +354,12 @@ namespace af3d
                 constraint_->setSoftnessOrthoAng(orthoConfig_.angularSoftness);
                 constraint_->setRestitutionOrthoAng(orthoConfig_.angularRestitution);
                 constraint_->setDampingOrthoAng(orthoConfig_.angularDamping);
+                constraint_->setPoweredLinMotor(linearMotorEnabled_);
+                constraint_->setMaxLinMotorForce(maxLinearMotorForce_);
+                constraint_->setTargetLinMotorVelocity(linearMotorVelocity_);
+                constraint_->setPoweredAngMotor(angularMotorEnabled_);
+                constraint_->setMaxAngMotorForce(maxAngularMotorForce_);
+                constraint_->setTargetAngMotorVelocity(angularMotorVelocity_);
             }
         }
     }

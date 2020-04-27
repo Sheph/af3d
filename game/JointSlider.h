@@ -92,6 +92,24 @@ namespace af3d
         btTransform worldFrameB() const;
         void setWorldFrameB(const btTransform& value);
 
+        inline bool linearMotorEnabled() const { return linearMotorEnabled_; }
+        void enableLinearMotor(bool value);
+
+        inline float maxLinearMotorForce() const { return maxLinearMotorForce_; }
+        void setMaxLinearMotorForce(float value);
+
+        inline float linearMotorVelocity() const { return linearMotorVelocity_; }
+        void setLinearMotorVelocity(float value);
+
+        inline bool angularMotorEnabled() const { return angularMotorEnabled_; }
+        void enableAngularMotor(bool value);
+
+        inline float maxAngularMotorForce() const { return maxAngularMotorForce_; }
+        void setMaxAngularMotorForce(float value);
+
+        inline float angularMotorVelocity() const { return angularMotorVelocity_; }
+        void setAngularMotorVelocity(float value);
+
         APropertyValue propertyLocalFrameAGet(const std::string&) const { return frameA(); }
         void propertyLocalFrameASet(const std::string&, const APropertyValue& value) { setFrameA(value.toTransform()); }
 
@@ -326,6 +344,24 @@ namespace af3d
             setOrthoConfig(cfg);
         }
 
+        APropertyValue propertyLinearMotorEnabledGet(const std::string&) const { return linearMotorEnabled(); }
+        void propertyLinearMotorEnabledSet(const std::string&, const APropertyValue& value) { enableLinearMotor(value.toBool()); }
+
+        APropertyValue propertyMaxLinearMotorForceGet(const std::string&) const { return maxLinearMotorForce(); }
+        void propertyMaxLinearMotorForceSet(const std::string&, const APropertyValue& value) { setMaxLinearMotorForce(value.toFloat()); }
+
+        APropertyValue propertyLinearMotorVelocityGet(const std::string&) const { return linearMotorVelocity(); }
+        void propertyLinearMotorVelocitySet(const std::string&, const APropertyValue& value) { setLinearMotorVelocity(value.toFloat()); }
+
+        APropertyValue propertyAngularMotorEnabledGet(const std::string&) const { return angularMotorEnabled(); }
+        void propertyAngularMotorEnabledSet(const std::string&, const APropertyValue& value) { enableAngularMotor(value.toBool()); }
+
+        APropertyValue propertyMaxAngularMotorForceGet(const std::string&) const { return maxAngularMotorForce(); }
+        void propertyMaxAngularMotorForceSet(const std::string&, const APropertyValue& value) { setMaxAngularMotorForce(value.toFloat()); }
+
+        APropertyValue propertyAngularMotorVelocityGet(const std::string&) const { return angularMotorVelocity(); }
+        void propertyAngularMotorVelocitySet(const std::string&, const APropertyValue& value) { setAngularMotorVelocity(value.toFloat()); }
+
     private:
         void doRefresh(bool forceDelete) override;
 
@@ -347,6 +383,14 @@ namespace af3d
         Config dirConfig_;
         Config limConfig_;
         Config orthoConfig_;
+
+        bool linearMotorEnabled_ = false;
+        float maxLinearMotorForce_ = 0.0f;
+        float linearMotorVelocity_ = 0.0f;
+
+        bool angularMotorEnabled_ = false;
+        float maxAngularMotorForce_ = 0.0f;
+        float angularMotorVelocity_ = 0.0f;
 
         btSliderConstraint* constraint_ = nullptr;
 
