@@ -118,6 +118,7 @@ set(SOURCES
     JointConeTwist.cpp
     JointHinge.cpp
     JointSlider.cpp
+    Joint6DOF.cpp
     editor/Action.cpp
     editor/Workspace.cpp
     editor/MainPopup.cpp
