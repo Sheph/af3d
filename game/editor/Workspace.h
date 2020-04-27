@@ -129,6 +129,7 @@ namespace af3d { namespace editor
         inline Action& actionOpMenuAddJointP2P() { return actionOpMenuAddJointP2P_; }
         inline Action& actionOpMenuAddJointConeTwist() { return actionOpMenuAddJointConeTwist_; }
         inline Action& actionOpMenuAddJointHinge() { return actionOpMenuAddJointHinge_; }
+        inline Action& actionOpMenuAddJointSlider() { return actionOpMenuAddJointSlider_; }
         inline Action& actionOpMenuAddPhysicsBody() { return actionOpMenuAddPhysicsBody_; }
         inline Action& actionOpMenuRemove() { return actionOpMenuRemove_; }
         inline Action& actionOpMenuRemovePhysicsBody() { return actionOpMenuRemovePhysicsBody_; }
@@ -233,6 +234,7 @@ namespace af3d { namespace editor
         Action actionOpMenuAddJointP2P_;
         Action actionOpMenuAddJointConeTwist_;
         Action actionOpMenuAddJointHinge_;
+        Action actionOpMenuAddJointSlider_;
         Action actionOpMenuAddPhysicsBody_;
         Action actionOpMenuRemove_;
         Action actionOpMenuRemovePhysicsBody_;
