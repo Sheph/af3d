@@ -54,6 +54,15 @@ namespace af3d
         inline const btVector3& pivotB() const { return pivotB_; }
         void setPivotB(const btVector3& value);
 
+        inline float tau() const { return tau_; }
+        void setTau(float value);
+
+        inline float damping() const { return damping_; }
+        void setDamping(float value);
+
+        inline float impulseClamp() const { return impulseClamp_; }
+        void setImpulseClamp(float value);
+
         btVector3 worldPivotA() const;
         void setWorldPivotA(const btVector3& value);
 
@@ -78,6 +87,15 @@ namespace af3d
         APropertyValue propertyWorldPivotBTransformGet(const std::string&) const;
         void propertyWorldPivotBTransformSet(const std::string&, const APropertyValue& value);
 
+        APropertyValue propertyTauGet(const std::string&) const { return tau(); }
+        void propertyTauSet(const std::string&, const APropertyValue& value) { setTau(value.toFloat()); }
+
+        APropertyValue propertyDampingGet(const std::string&) const { return damping(); }
+        void propertyDampingSet(const std::string&, const APropertyValue& value) { setDamping(value.toFloat()); }
+
+        APropertyValue propertyImpulseClampGet(const std::string&) const { return impulseClamp(); }
+        void propertyImpulseClampSet(const std::string&, const APropertyValue& value) { setImpulseClamp(value.toFloat()); }
+
     private:
         void doRefresh(bool forceDelete) override;
 
@@ -87,6 +105,9 @@ namespace af3d
 
         btVector3 pivotA_ = btVector3_zero;
         btVector3 pivotB_ = btVector3_zero;
+        float tau_ = 0.3f;
+        float damping_ = 1.0f;
+        float impulseClamp_ = 0.0f;
 
         btPoint2PointConstraint* constraint_ = nullptr;
 

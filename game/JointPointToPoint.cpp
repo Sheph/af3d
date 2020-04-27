@@ -41,6 +41,9 @@ namespace af3d
     ACLASS_PROPERTY(JointPointToPoint, WorldPivotB, "world pivot B", "World pivot B", Vec3f, btVector3(0.0f, 0.0f, 0.0f), Position, APropertyEditable|APropertyTransient)
     ACLASS_PROPERTY(JointPointToPoint, WorldPivotATransform, AProperty_WorldTransform, "World pivot A transform", Transform, btTransform::getIdentity(), Position, APropertyTransient)
     ACLASS_PROPERTY(JointPointToPoint, WorldPivotBTransform, "world pivot B transform", "World pivot B transform", Transform, btTransform::getIdentity(), Position, APropertyTransient)
+    ACLASS_PROPERTY(JointPointToPoint, Tau, "tau", "Tau", Float, 0.3f, Physics, APropertyEditable)
+    ACLASS_PROPERTY(JointPointToPoint, Damping, "damping", "Damping", Float, 1.0f, Physics, APropertyEditable)
+    ACLASS_PROPERTY(JointPointToPoint, ImpulseClamp, "impulse clamp", "Impulse clamp", Float, 0.0f, Physics, APropertyEditable)
     ACLASS_DEFINE_END(JointPointToPoint)
 
     JointPointToPoint::JointPointToPoint(const SceneObjectPtr& objectA, const SceneObjectPtr& objectB,
@@ -82,6 +85,33 @@ namespace af3d
         pivotB_ = value;
         if (constraint_) {
             constraint_->setPivotB(objectB()->localCenter().inverse() * value);
+        }
+        setDirty();
+    }
+
+    void JointPointToPoint::setTau(float value)
+    {
+        tau_ = value;
+        if (constraint_) {
+            constraint_->m_setting.m_tau = tau_;
+        }
+        setDirty();
+    }
+
+    void JointPointToPoint::setDamping(float value)
+    {
+        damping_ = value;
+        if (constraint_) {
+            constraint_->m_setting.m_damping = damping_;
+        }
+        setDirty();
+    }
+
+    void JointPointToPoint::setImpulseClamp(float value)
+    {
+        impulseClamp_ = value;
+        if (constraint_) {
+            constraint_->m_setting.m_impulseClamp = impulseClamp_;
         }
         setDirty();
     }
@@ -169,6 +199,11 @@ namespace af3d
             if (objB && objB->body() && objB->body()->isInWorld()) {
                 constraint_ = new btPoint2PointConstraint(*objA->body(), *objB->body(),
                     objA->localCenter().inverse() * pivotA_, objB->localCenter().inverse() * pivotB_);
+            }
+            if (constraint_) {
+                constraint_->m_setting.m_tau = tau_;
+                constraint_->m_setting.m_damping = damping_;
+                constraint_->m_setting.m_impulseClamp = impulseClamp_;
             }
         }
     }
