@@ -350,7 +350,7 @@ namespace af3d
     bool SceneObject::isSensor() const
     {
         if (body_) {
-            return (body_->getCollisionFlags() & btCollisionObject::CF_NO_CONTACT_RESPONSE) != 0;
+            return !body_->hasContactResponse();
         } else {
             return bodyCi_.isSensor;
         }
