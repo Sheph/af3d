@@ -27,6 +27,7 @@
 #define _SCENEOBJECT_H_
 
 #include "SceneObjectManager.h"
+#include "Layer.h"
 #include "Component.h"
 #include "CollisionFilter.h"
 #include "AParameterized.h"

@@ -29,6 +29,7 @@
 #include "SceneObjectManager.h"
 #include "PhysicsComponent.h"
 #include "ImGuiComponent.h"
+#include "CollisionMatrix.h"
 #include "Joint.h"
 #include "editor/Workspace.h"
 #include "af3d/AABB.h"
@@ -134,6 +135,9 @@ namespace af3d
         inline void setRoot(const SceneObjectPtr& value) { root_ = value; }
         inline const SceneObjectPtr& root() const { return root_; }
 
+        inline void setCollisionMatrix(const CollisionMatrixPtr& value) { btAssert(value); collisionMatrix_ = value; }
+        inline const CollisionMatrixPtr& collisionMatrix() const { return collisionMatrix_; }
+
         APropertyValue propertyGravityGet(const std::string&) const { return gravity(); }
         void propertyGravitySet(const std::string&, const APropertyValue& value) { setGravity(value.toVec3()); }
 
@@ -148,6 +152,9 @@ namespace af3d
 
         APropertyValue propertyRootGet(const std::string&) const { return APropertyValue(root()); }
         void propertyRootSet(const std::string&, const APropertyValue& value) { setRoot(value.toObject<SceneObject>()); }
+
+        APropertyValue propertyCollisionMatrixGet(const std::string&) const { return APropertyValue(collisionMatrix()); }
+        void propertyCollisionMatrixSet(const std::string&, const APropertyValue& value) { setCollisionMatrix(value.toObject<CollisionMatrix>()); }
 
         APropertyValue propertyCameraTransformGet(const std::string&) const;
 
@@ -195,6 +202,8 @@ namespace af3d
         std::string nextAssetPath_;
 
         std::string scriptPath_;
+
+        CollisionMatrixPtr collisionMatrix_;
 
         bool firstUpdate_;
         int checkpoint_;

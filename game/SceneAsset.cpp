@@ -54,6 +54,9 @@ namespace af3d
 
     void SceneAsset::apply(Scene* scene)
     {
+        if (collisionMatrix_) {
+            scene->setCollisionMatrix(collisionMatrix_);
+        }
         scene->setRoot(root_);
         scene->setGravity(gravity_);
         scene->setName(name());

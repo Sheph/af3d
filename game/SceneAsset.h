@@ -28,6 +28,7 @@
 
 #include "SceneObject.h"
 #include "Joint.h"
+#include "CollisionMatrix.h"
 #include "Logger.h"
 
 namespace af3d
@@ -51,6 +52,9 @@ namespace af3d
         inline const SceneObjectPtr& root() const { return root_; }
 
         inline const std::string& scriptPath() const { return scriptPath_; }
+
+        inline void setCollisionMatrix(const CollisionMatrixPtr& value) { collisionMatrix_ = value; }
+        inline const CollisionMatrixPtr& collisionMatrix() const { return collisionMatrix_; }
 
         void apply(Scene* scene);
 
@@ -104,6 +108,9 @@ namespace af3d
         APropertyValue propertyRootGet(const std::string&) const { return APropertyValue(root()); }
         void propertyRootSet(const std::string&, const APropertyValue& value) { setRoot(value.toObject<SceneObject>()); }
 
+        APropertyValue propertyCollisionMatrixGet(const std::string&) const { return APropertyValue(collisionMatrix()); }
+        void propertyCollisionMatrixSet(const std::string&, const APropertyValue& value) { setCollisionMatrix(value.toObject<CollisionMatrix>()); }
+
         APropertyValue propertyCameraTransformGet(const std::string&) const { return cameraXf_; }
 
     private:
@@ -116,6 +123,7 @@ namespace af3d
         Color ambientColor_ = Color_zero;
         std::string scriptPath_;
         btTransform cameraXf_;
+        CollisionMatrixPtr collisionMatrix_;
     };
 
     using SceneAssetPtr = std::shared_ptr<SceneAsset>;
@@ -128,6 +136,7 @@ namespace af3d
         ACLASS_PROPERTY(Class, AmbientColor, "ambient color", "Ambient Color", ColorRGB, Color(0.2f, 0.2f, 0.2f, 1.0f), General, APropertyEditable) \
         ACLASS_PROPERTY(Class, Script, "script", "Scene script asset path", String, "", General, APropertyEditable) \
         ACLASS_PROPERTY(Class, Root, "root", "Scene root body", SceneObject, SceneObjectPtr(), General, APropertyEditable) \
+        ACLASS_PROPERTY(Class, CollisionMatrix, "collision matrix", "Scene collision matrix", CollisionMatrix, CollisionMatrixPtr(), General, APropertyEditable) \
         ACLASS_PROPERTY_RO(Class, CameraTransform, AProperty_CameraTransform, "Camera transform", Transform, Position, APropertyEditable)
 }
 

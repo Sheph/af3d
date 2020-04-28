@@ -29,9 +29,6 @@
 
 namespace af3d
 {
-    const Layers layersSolid = Layers(Layer::Player) |
-        Layer::Prop | Layer::Enemy | Layer::Ally | Layer::BigEnemy;
-
     ACLASS_DEFINE_BEGIN_ABSTRACT(SceneObjectManager, AObject)
     ACLASS_PROPERTY(SceneObjectManager, Children, AProperty_Children, "Children", ArrayAObject, std::vector<APropertyValue>{}, Hierarchy, 0)
     ACLASS_PROPERTY_RO(SceneObjectManager, Parent, AProperty_Parent, "Parent", AObject, Hierarchy, APropertyTransient)
@@ -56,24 +53,6 @@ namespace af3d
             "Vehicle",
             "Deadbody",
             "Liquid",
-        }
-    };
-
-    const APropertyTypeEnumImpl<Layer> APropertyType_Layer{"Layer",
-        {
-            "General",
-            "Player",
-            "Enemy",
-            "PlayerMissile",
-            "EnemyMissile",
-            "Floor",
-            "Wall",
-            "Blocker",
-            "Ally",
-            "AllyMissile",
-            "BigEnemy",
-            "Prop",
-            "NeutralMissile",
         }
     };
 

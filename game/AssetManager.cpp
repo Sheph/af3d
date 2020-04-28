@@ -30,6 +30,7 @@
 #include "AJsonReader.h"
 #include "Settings.h"
 #include <log4cplus/ndc.h>
+#include <fstream>
 
 namespace af3d
 {
@@ -49,6 +50,7 @@ namespace af3d
         LOG4CPLUS_DEBUG(logger(), "assetManager: shutdown...");
         tpsMap_.clear();
         sceneAssetMap_.clear();
+        collisionMatrixMap_.clear();
     }
 
     Image AssetManager::getImage(const std::string& name)
@@ -179,5 +181,28 @@ namespace af3d
         sa->setRoot(obj);
 
         return sa;
+    }
+
+    CollisionMatrixPtr AssetManager::getCollisionMatrix(const std::string& name)
+    {
+        auto it = collisionMatrixMap_.find(name);
+        if (it == collisionMatrixMap_.end()) {
+            PlatformIFStream is(name);
+            auto cm = CollisionMatrix::fromStream(name, is);
+            if (!cm) {
+                return cm;
+            }
+            cm->setName(name);
+            it = collisionMatrixMap_.insert(std::make_pair(name, cm)).first;
+        }
+        return it->second;
+    }
+
+    void AssetManager::saveCollisionMatrix(const CollisionMatrixPtr& cm)
+    {
+        collisionMatrixMap_[cm->name()] = cm;
+        std::ofstream os(platform->assetsPath() + "/" + cm->name(),
+            std::ios_base::binary | std::ios_base::out | std::ios_base::trunc);
+        os << Json::StyledWriter().write(cm->toJsonValue());
     }
 }

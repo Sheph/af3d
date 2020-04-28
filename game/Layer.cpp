@@ -23,51 +23,31 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _ASSETMANAGER_H_
-#define _ASSETMANAGER_H_
-
-#include "Drawable.h"
-#include "SceneAsset.h"
-#include "CollisionMatrix.h"
-#include "af3d/Single.h"
-#include "af3d/TPS.h"
-#include "json/json.h"
+#include "Layer.h"
 
 namespace af3d
 {
-    class AssetManager : public Single<AssetManager>
-    {
-    public:
-        AssetManager() = default;
-        ~AssetManager() = default;
+    const Layers layersSolid = Layers(Layer::Player) |
+        Layer::Prop | Layer::Enemy | Layer::Ally | Layer::BigEnemy;
 
-        bool init();
-
-        void shutdown();
-
-        Image getImage(const std::string& name);
-
-        DrawablePtr getDrawable(const std::string& name);
-
-        SceneAssetPtr getSceneAsset(const std::string& name, bool editor = false);
-
-        SceneAssetPtr getSceneObjectAsset(const std::string& name);
-
-        CollisionMatrixPtr getCollisionMatrix(const std::string& name);
-
-        void saveCollisionMatrix(const CollisionMatrixPtr& cm);
-
-    private:
-        using TPSMap = std::unordered_map<std::string, TPSPtr>;
-        using SceneAssetMap = std::unordered_map<std::string, Json::Value>;
-        using CollisionMatrixMap = std::unordered_map<std::string, CollisionMatrixPtr>;
-
-        TPSMap tpsMap_;
-        SceneAssetMap sceneAssetMap_;
-        CollisionMatrixMap collisionMatrixMap_;
+    const APropertyTypeEnumImpl<Layer> APropertyType_Layer{"Layer",
+        {
+            "General",
+            "Player",
+            "Enemy",
+            "PlayerMissile",
+            "EnemyMissile",
+            "Floor",
+            "Wall",
+            "Blocker",
+            "Ally",
+            "AllyMissile",
+            "BigEnemy",
+            "Prop",
+            "NeutralMissile",
+        }
     };
 
-    extern AssetManager assetManager;
+    const APropertyTypeArray APropertyType_ArrayLayer{"ArrayLayer", APropertyType_Layer};
+    const APropertyTypeArray APropertyType_ArrayArrayLayer{"ArrayArrayLayer", APropertyType_ArrayLayer};
 }
-
-#endif

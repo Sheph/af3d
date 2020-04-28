@@ -23,51 +23,39 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _ASSETMANAGER_H_
-#define _ASSETMANAGER_H_
+#ifndef _LAYER_H_
+#define _LAYER_H_
 
-#include "Drawable.h"
-#include "SceneAsset.h"
-#include "CollisionMatrix.h"
-#include "af3d/Single.h"
-#include "af3d/TPS.h"
-#include "json/json.h"
+#include "AObject.h"
+#include "af3d/EnumSet.h"
 
 namespace af3d
 {
-    class AssetManager : public Single<AssetManager>
+    enum class Layer
     {
-    public:
-        AssetManager() = default;
-        ~AssetManager() = default;
-
-        bool init();
-
-        void shutdown();
-
-        Image getImage(const std::string& name);
-
-        DrawablePtr getDrawable(const std::string& name);
-
-        SceneAssetPtr getSceneAsset(const std::string& name, bool editor = false);
-
-        SceneAssetPtr getSceneObjectAsset(const std::string& name);
-
-        CollisionMatrixPtr getCollisionMatrix(const std::string& name);
-
-        void saveCollisionMatrix(const CollisionMatrixPtr& cm);
-
-    private:
-        using TPSMap = std::unordered_map<std::string, TPSPtr>;
-        using SceneAssetMap = std::unordered_map<std::string, Json::Value>;
-        using CollisionMatrixMap = std::unordered_map<std::string, CollisionMatrixPtr>;
-
-        TPSMap tpsMap_;
-        SceneAssetMap sceneAssetMap_;
-        CollisionMatrixMap collisionMatrixMap_;
+        General = 0,
+        Player = 1,
+        Enemy = 2,
+        PlayerMissile = 3,
+        EnemyMissile = 4,
+        Floor = 5,
+        Wall = 6,
+        Blocker = 7,
+        Ally = 8,
+        AllyMissile = 9,
+        BigEnemy = 10,
+        Prop = 11,
+        NeutralMissile = 12,
+        Max = NeutralMissile
     };
 
-    extern AssetManager assetManager;
+    using Layers = EnumSet<Layer>;
+
+    extern const Layers layersSolid;
+
+    extern const APropertyTypeEnumImpl<Layer> APropertyType_Layer;
+    extern const APropertyTypeArray APropertyType_ArrayLayer;
+    extern const APropertyTypeArray APropertyType_ArrayArrayLayer;
 }
 
 #endif

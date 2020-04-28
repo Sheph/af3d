@@ -25,6 +25,7 @@ set(SOURCES
     Platform.cpp
     PlatformLinux.cpp
     Utils.cpp
+    Layer.cpp
     HardwareContext.cpp
     HardwareResource.cpp
     HardwareBuffer.cpp
@@ -90,6 +91,7 @@ set(SOURCES
     PhysicsComponent.cpp
     PhysicsBodyComponent.cpp
     PhysicsJointComponent.cpp
+    CollisionMatrix.cpp
     CollisionFilter.cpp
     CollisionShape.cpp
     CollisionShapeCompound.cpp

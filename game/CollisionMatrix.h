@@ -23,51 +23,51 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _ASSETMANAGER_H_
-#define _ASSETMANAGER_H_
+#ifndef _COLLISIONMATRIX_H_
+#define _COLLISIONMATRIX_H_
 
-#include "Drawable.h"
-#include "SceneAsset.h"
-#include "CollisionMatrix.h"
-#include "af3d/Single.h"
-#include "af3d/TPS.h"
-#include "json/json.h"
+#include "AObject.h"
+#include "Layer.h"
+#include "json/json-forwards.h"
 
 namespace af3d
 {
-    class AssetManager : public Single<AssetManager>
+    class CollisionMatrix;
+    using CollisionMatrixPtr = std::shared_ptr<CollisionMatrix>;
+
+    class CollisionMatrix : public std::enable_shared_from_this<CollisionMatrix>,
+        public AObject
     {
     public:
-        AssetManager() = default;
-        ~AssetManager() = default;
+        CollisionMatrix();
+        ~CollisionMatrix() = default;
 
-        bool init();
+        static CollisionMatrixPtr fromStream(const std::string& fileName, std::istream& is);
 
-        void shutdown();
+        static CollisionMatrixPtr fromString(const std::string& fileName, const std::string& json);
 
-        Image getImage(const std::string& name);
+        static CollisionMatrixPtr fromJsonValue(const Json::Value& jsonValue);
 
-        DrawablePtr getDrawable(const std::string& name);
+        static const AClass& staticKlass();
 
-        SceneAssetPtr getSceneAsset(const std::string& name, bool editor = false);
+        static AObjectPtr create(const APropertyValueMap& propVals);
 
-        SceneAssetPtr getSceneObjectAsset(const std::string& name);
+        AObjectPtr sharedThis() override { return shared_from_this(); }
 
-        CollisionMatrixPtr getCollisionMatrix(const std::string& name);
+        Json::Value toJsonValue() const;
 
-        void saveCollisionMatrix(const CollisionMatrixPtr& cm);
+        void save();
+
+        inline const Layers& row(Layer layer) const { return arr_[static_cast<int>(layer)]; }
+        inline Layers& row(Layer layer) { return arr_[static_cast<int>(layer)]; }
 
     private:
-        using TPSMap = std::unordered_map<std::string, TPSPtr>;
-        using SceneAssetMap = std::unordered_map<std::string, Json::Value>;
-        using CollisionMatrixMap = std::unordered_map<std::string, CollisionMatrixPtr>;
-
-        TPSMap tpsMap_;
-        SceneAssetMap sceneAssetMap_;
-        CollisionMatrixMap collisionMatrixMap_;
+        std::array<Layers, static_cast<int>(Layer::Max) + 1> arr_;
     };
 
-    extern AssetManager assetManager;
+    extern const APropertyTypeObject APropertyType_CollisionMatrix;
+
+    ACLASS_DECLARE(CollisionMatrix)
 }
 
 #endif

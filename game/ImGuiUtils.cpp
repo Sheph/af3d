@@ -27,6 +27,7 @@
 #include "ImGuiManager.h"
 #include "ImGuiFileDialog.h"
 #include "MeshManager.h"
+#include "AssetManager.h"
 #include "SceneObject.h"
 #include "Scene.h"
 #include "CameraComponent.h"
@@ -196,6 +197,8 @@ namespace af3d { namespace ImGuiUtils
         {
             if (type.klass().isSubClassOf(AClass_Mesh)) {
                 visitMesh(type.isWeak());
+            } else if (type.klass().isSubClassOf(AClass_CollisionMatrix)) {
+                visitCollisionMatrix(type.isWeak());
             } else if (type.klass().isSubClassOf(AClass_SceneObject)) {
                 if (scene_->workspace()) {
                     visitObject<SceneObject>(scene_->workspace()->emObject(), type.isWeak());
@@ -288,6 +291,37 @@ namespace af3d { namespace ImGuiUtils
                     if (mesh) {
                         ret_ = true;
                         value_ = isWeak ? APropertyValue(AWeakObject(mesh)) : APropertyValue(mesh);
+                    }
+                }
+                dlg->endModal();
+            }
+
+            if (!assetPath.empty()) {
+                ImGui::SameLine();
+                ImGui::Text("%s", assetPath.c_str());
+            }
+        }
+
+        void visitCollisionMatrix(bool isWeak)
+        {
+            auto res = value_.toObject();
+            std::string assetPath;
+            if (res && !res->name().empty()) {
+                assetPath = res->name();
+            }
+
+            bool clicked = ImGui::Button("...");
+
+            if (clicked) {
+                ImGui::OpenPopup("Open collision matrix");
+            }
+
+            if (auto dlg = ImGuiFileDialog::beginAssetsModal("Open collision matrix", assetPath, "Collision matrix files,.cm;All files")) {
+                if (dlg->ok() && !dlg->fileName().empty()) {
+                    auto cm = assetManager.getCollisionMatrix(dlg->filePath());
+                    if (cm) {
+                        ret_ = true;
+                        value_ = isWeak ? APropertyValue(AWeakObject(cm)) : APropertyValue(cm);
                     }
                 }
                 dlg->endModal();

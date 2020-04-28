@@ -50,6 +50,7 @@
 #include "HardwareResourceManager.h"
 #include "Const.h"
 #include "PhysicsDebugDraw.h"
+#include "AssetManager.h"
 #include "editor/Playbar.h"
 #include <Rocket/Core/ElementDocument.h>
 #include <cmath>
@@ -66,8 +67,12 @@ namespace af3d
 
     namespace
     {
-        struct OverlapFilterCallback : public btOverlapFilterCallback
+        class OverlapFilterCallback : public btOverlapFilterCallback
         {
+        public:
+            explicit OverlapFilterCallback(Scene* scene)
+            : scene_(scene) {}
+
             bool needBroadphaseCollision(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1) const override
             {
                 btRigidBody* bodyA = (btRigidBody*)proxy0->m_clientObject;
@@ -76,18 +81,26 @@ namespace af3d
                 SceneObject* objectA = SceneObject::fromBody(bodyA);
                 SceneObject* objectB = SceneObject::fromBody(bodyB);
 
+                const Layers& layersA = scene_->collisionMatrix()->row(objectA->layer());
+                const Layers& layersB = scene_->collisionMatrix()->row(objectB->layer());
+
                 return ((proxy0->m_collisionFilterGroup & proxy1->m_collisionFilterMask) != 0) &&
                     ((proxy1->m_collisionFilterGroup & proxy0->m_collisionFilterMask) != 0) &&
+                    layersB[objectA->layer()] && layersA[objectB->layer()] &&
                     (!objectA->collisionFilter() || objectA->collisionFilter()->shouldCollideWith(bodyA, bodyB)) &&
                     (!objectB->collisionFilter() || objectB->collisionFilter()->shouldCollideWith(bodyB, bodyA));
             }
+
+        private:
+            Scene* scene_;
         };
     }
 
     class Scene::Impl
     {
     public:
-        Impl()
+        explicit Impl(Scene* scene)
+        : filterCallback_(scene)
         {
             int debugMode = 0;
 
@@ -207,18 +220,24 @@ namespace af3d
 
     Scene::Scene(const std::string& assetPath)
     : SceneObjectManager(AClass_Scene),
-      impl_(new Impl()),
+      impl_(new Impl(this)),
       inputMode_(InputMode::Game),
       playable_(false),
       paused_(false),
       cutscene_(false),
       quit_(false),
       assetPath_(assetPath),
+      collisionMatrix_(assetManager.getCollisionMatrix("default.cm")),
       firstUpdate_(true),
       checkpoint_(0),
       timeScale_(1.0f),
       realDt_(0.0f)
     {
+        if (!collisionMatrix_) {
+            collisionMatrix_ = std::make_shared<CollisionMatrix>();
+            collisionMatrix_->setName("default.cm");
+        }
+
         aflagsSet(AObjectEditable);
 
         respawnPoint_.setIdentity();
