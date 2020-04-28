@@ -23,26 +23,39 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _IMGUIUTILS_H_
-#define _IMGUIUTILS_H_
+#ifndef _EDITOR_COLLISIONMATRIXEDITOR_H_
+#define _EDITOR_COLLISIONMATRIXEDITOR_H_
 
-#include "Utils.h"
-#include "AProperty.h"
-#include "Image.h"
-#include "imgui.h"
+#include "UIComponent.h"
 
-namespace af3d {
-    class Scene;
-
-namespace ImGuiUtils
+namespace af3d { namespace editor
 {
-    bool APropertyEdit(Scene* scene, const APropertyType& type, APropertyValue& val, bool readOnly);
-    bool inputText(const char* label, std::string& str, ImGuiInputTextFlags flags = 0, ImGuiInputTextCallback callback = nullptr, void* user_data = nullptr);
-    bool inputTextMultiline(const char* label, std::string& str, const ImVec2& size = ImVec2(0, 0), ImGuiInputTextFlags flags = 0, ImGuiInputTextCallback callback = nullptr, void* user_data = nullptr);
-    bool inputTextWithHint(const char* label, const char* hint, std::string& str, ImGuiInputTextFlags flags = 0, ImGuiInputTextCallback callback = nullptr, void* user_data = nullptr);
-    bool imageButton(const char* id, const Image& image, float size, bool enabled = true, bool checked = false);
-    bool imageButtonTooltip(const char* id, const Image& image, float size, const char* tooltip, bool enabled = true, bool checked = false);
-    void addTextVertical(ImDrawList* DrawList, const char* text, ImVec2 pos, ImU32 text_color);
-} }
+    class CollisionMatrixEditor : public std::enable_shared_from_this<CollisionMatrixEditor>,
+        public UIComponent
+    {
+    public:
+        CollisionMatrixEditor();
+        ~ CollisionMatrixEditor() = default;
+
+        static const AClass& staticKlass();
+
+        static AObjectPtr create(const APropertyValueMap& propVals);
+
+        AObjectPtr sharedThis() override { return shared_from_this(); }
+
+        void update(float dt) override;
+
+    private:
+        void onRegister() override;
+
+        void onUnregister() override;
+
+        bool show_ = true;
+    };
+
+    using CollisionMatrixEditorPtr = std::shared_ptr<CollisionMatrixEditor>;
+}
+    ACLASS_NS_DECLARE(editor, CollisionMatrixEditor)
+}
 
 #endif

@@ -139,6 +139,7 @@ namespace af3d { namespace editor
         inline Action& actionCommandHistory() { return actionCommandHistory_; }
         inline Action& actionPropertyEditor() { return actionPropertyEditor_; }
         inline Action& actionToolbox() { return actionToolbox_; }
+        inline Action& actionCollisionMatrixEditor() { return actionCollisionMatrixEditor_; }
 
         inline bool toolsActive() const { return toolsActive_; }
         void setToolsActive(bool value);
@@ -245,6 +246,7 @@ namespace af3d { namespace editor
         Action actionCommandHistory_;
         Action actionPropertyEditor_;
         Action actionToolbox_;
+        Action actionCollisionMatrixEditor_;
 
         std::vector<Action*> actions_;
 

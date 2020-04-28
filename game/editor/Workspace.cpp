@@ -28,6 +28,7 @@
 #include "editor/CommandHistoryWindow.h"
 #include "editor/PropertyEditor.h"
 #include "editor/Toolbox.h"
+#include "editor/CollisionMatrixEditor.h"
 #include "editor/CommandAdd.h"
 #include "editor/CommandSetProperty.h"
 #include "editor/CommandDelete.h"
@@ -292,6 +293,9 @@ namespace editor {
         }
         if (imGuiManager.cfgGetBool(ImGuiManager::strToolBoxOpened, true)) {
             actionToolbox().trigger();
+        }
+        if (imGuiManager.cfgGetBool(ImGuiManager::strCollisionMatrixEditorOpened, false)) {
+            actionCollisionMatrixEditor().trigger();
         }
     }
 
@@ -698,6 +702,13 @@ namespace editor {
             parent()->addComponent(w);
         });
 
+        actionCollisionMatrixEditor_ = Action("Collision matrix editor", [this]() {
+            return Action::State(!parent()->findComponent<CollisionMatrixEditor>());
+        }, [this]() {
+            auto w = std::make_shared<CollisionMatrixEditor>();
+            parent()->addComponent(w);
+        });
+
         actions_.push_back(&actionSceneNew_);
         actions_.push_back(&actionSceneOpen_);
         actions_.push_back(&actionSceneSave_);
@@ -741,6 +752,7 @@ namespace editor {
         actions_.push_back(&actionCommandHistory_);
         actions_.push_back(&actionPropertyEditor_);
         actions_.push_back(&actionToolbox_);
+        actions_.push_back(&actionCollisionMatrixEditor_);
     }
 
     float Workspace::mainMenu()
@@ -809,6 +821,8 @@ namespace editor {
             actionCommandHistory().doMenuItem();
             actionPropertyEditor().doMenuItem();
             actionToolbox().doMenuItem();
+            ImGui::Separator();
+            actionCollisionMatrixEditor().doMenuItem();
             ImGui::EndMenu();
         }
     }

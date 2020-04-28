@@ -152,6 +152,7 @@ set(SOURCES
     editor/Playbar.cpp
     editor/EditPart.cpp
     editor/EditPartTransform.cpp
+    editor/CollisionMatrixEditor.cpp
 )
 
 include_directories(.)

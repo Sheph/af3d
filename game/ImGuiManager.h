@@ -51,6 +51,7 @@ namespace af3d
         static constexpr const char* strPropertyEditorOpened = "PropertyEditorOpened";
         static constexpr const char* strPropertyEditorColumnWidth = "PropertyEditorColumnWidth";
         static constexpr const char* strToolBoxOpened = "ToolBoxOpened";
+        static constexpr const char* strCollisionMatrixEditorOpened = "CollisionMatrixEditorOpened";
 
         std::string cfgGet(const std::string& key, const std::string& def = "") const;
         void cfgSet(const std::string& key, const std::string& value);
