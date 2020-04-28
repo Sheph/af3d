@@ -46,6 +46,7 @@ namespace af3d
     ACLASS_DEFINE_BEGIN(SceneObject, SceneObjectManager)
     ACLASS_PROPERTY(SceneObject, Transform, AProperty_WorldTransform, "World transform", Transform, btTransform::getIdentity(), Position, APropertyEditable)
     ACLASS_PROPERTY(SceneObject, Type, "type", "Scene object type", SceneObjectType, static_cast<int>(SceneObjectType::Other), General, APropertyEditable)
+    ACLASS_PROPERTY(SceneObject, Layer, "layer", "Layer", Layer, static_cast<int>(Layer::General), General, APropertyEditable)
     ACLASS_PROPERTY(SceneObject, PhysicsActive, AProperty_PhysicsActive, "Physics is active", Bool, true, Physics, APropertyEditable)
     ACLASS_PROPERTY(SceneObject, BodyType, "body type", "Physics body type", BodyType, static_cast<int>(BodyType::Static), Physics, APropertyEditable)
     ACLASS_PROPERTY(SceneObject, IsSensor, "is sensor", "Is sensor", Bool, false, Physics, APropertyEditable)

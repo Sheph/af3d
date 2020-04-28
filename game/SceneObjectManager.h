@@ -52,7 +52,7 @@ namespace af3d
         Blocker = 7,
         Ally = 8,
         AllyMissile = 9,
-        EnemyBuilding = 10,
+        BigEnemy = 10,
         Gizmo = 11,
         NeutralMissile = 12,
         Garbage = 13,
@@ -65,6 +65,30 @@ namespace af3d
     using SceneObjectTypes = EnumSet<SceneObjectType>;
 
     extern const APropertyTypeEnumImpl<SceneObjectType> APropertyType_SceneObjectType;
+
+    enum class Layer
+    {
+        General = 0,
+        Player = 1,
+        Enemy = 2,
+        PlayerMissile = 3,
+        EnemyMissile = 4,
+        Floor = 5,
+        Wall = 6,
+        Blocker = 7,
+        Ally = 8,
+        AllyMissile = 9,
+        BigEnemy = 10,
+        Prop = 11,
+        NeutralMissile = 12,
+        Max = NeutralMissile
+    };
+
+    using Layers = EnumSet<Layer>;
+
+    extern const Layers layersSolid;
+
+    extern const APropertyTypeEnumImpl<Layer> APropertyType_Layer;
 
     class SceneObjectManager : public AObject
     {

@@ -90,7 +90,7 @@ namespace af3d
                     enum_value("SceneObjectTypeOther", SceneObjectType::Other),
                     enum_value("SceneObjectTypePlayer", SceneObjectType::Player),
                     enum_value("SceneObjectTypeEnemy", SceneObjectType::Enemy),
-                    enum_value("SceneObjectTypeEnemyBuilding", SceneObjectType::EnemyBuilding),
+                    enum_value("SceneObjectTypeBigEnemy", SceneObjectType::BigEnemy),
                     enum_value("SceneObjectTypePlayerMissile", SceneObjectType::PlayerMissile),
                     enum_value("SceneObjectTypeEnemyMissile", SceneObjectType::EnemyMissile),
                     enum_value("SceneObjectTypeTerrain", SceneObjectType::Terrain),

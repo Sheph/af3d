@@ -41,7 +41,7 @@ namespace af3d
 
         EnumSet(T value)
         {
-            bs_.set(value);
+            bs_.set(static_cast<size_t>(value));
         }
 
         ~EnumSet()
@@ -131,6 +131,11 @@ namespace af3d
         inline void flipAll()
         {
             bs_.flip();
+        }
+
+        inline std::uint32_t toUInt32() const
+        {
+            return bs_.to_ulong();
         }
 
     private:

@@ -147,6 +147,9 @@ namespace af3d
         inline SceneObjectType type() const { return type_; }
         void setType(SceneObjectType value) { type_ = value; }
 
+        inline Layer layer() const { return layer_; }
+        void setLayer(Layer value) { layer_ = value; }
+
         inline btRigidBody* body() { return body_; }
         inline const btRigidBody* body() const { return body_; }
         void setBody(btRigidBody* value);
@@ -285,6 +288,9 @@ namespace af3d
         APropertyValue propertyTypeGet(const std::string&) const { return static_cast<int>(type()); }
         void propertyTypeSet(const std::string&, const APropertyValue& value) { setType(static_cast<SceneObjectType>(value.toInt())); }
 
+        APropertyValue propertyLayerGet(const std::string&) const { return static_cast<int>(layer()); }
+        void propertyLayerSet(const std::string&, const APropertyValue& value) { setLayer(static_cast<Layer>(value.toInt())); }
+
         APropertyValue propertyPhysicsActiveGet(const std::string&) const { return physicsActive(); }
         void propertyPhysicsActiveSet(const std::string&, const APropertyValue& value) { setPhysicsActive(value.toBool()); }
 
@@ -358,6 +364,7 @@ namespace af3d
         void setChildren(const std::vector<AObjectPtr>& value) override;
 
         SceneObjectType type_ = SceneObjectType::Other;
+        Layer layer_ = Layer::General;
 
         mutable PhysicsBodyConstructionInfo bodyCi_;
         btRigidBody* body_ = nullptr;
@@ -389,6 +396,7 @@ namespace af3d
     #define SCENEOBJECT_DEFINE_PROPS(Name) \
         SCENEOBJECT_DEFINE_PROPS_NO_RESTRICT(Name) \
         ACLASS_PROPERTY_RO(SceneObject, Type, "type", "Scene object type", SceneObjectType, General, APropertyEditable|APropertyTransient) \
+        ACLASS_PROPERTY_RO(SceneObject, Layer, "layer", "Layer", Layer, General, APropertyEditable|APropertyTransient) \
         ACLASS_PROPERTY_RO(SceneObject, PhysicsActive, AProperty_PhysicsActive, "Physics is active", Bool, Physics, APropertyEditable|APropertyTransient) \
         ACLASS_PROPERTY_RO(SceneObject, BodyType, "body type", "Physics body type", BodyType, Physics, APropertyEditable|APropertyTransient) \
         ACLASS_PROPERTY_RO(SceneObject, IsSensor, "is sensor", "Is sensor", Bool, Physics, APropertyEditable|APropertyTransient) \
