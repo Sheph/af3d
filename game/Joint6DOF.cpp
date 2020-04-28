@@ -105,8 +105,12 @@ namespace af3d
     void Joint6DOF::render(bool drawA, PhysicsDebugDraw& dd, const btVector3& c, float tsz)
     {
         if (drawA) {
-            btTransform tr = worldFrameA();
-            dd.drawBox(lowerLinearLimit_, upperLinearLimit_, tr, c);
+            if (lowerLinearLimit_.x() <= upperLinearLimit_.x() ||
+                lowerLinearLimit_.y() <= upperLinearLimit_.y() ||
+                lowerLinearLimit_.z() <= upperLinearLimit_.z()) {
+                btTransform tr = worldFrameA();
+                dd.drawBox(lowerLinearLimit_, upperLinearLimit_, tr, c);
+            }
         } else {
             btTransform tr = worldFrameA();
             const btVector3& center = worldFrameB().getOrigin();
@@ -116,7 +120,11 @@ namespace af3d
             float maxTh = -angularCfg_[AxisY].lowerLimit;
             float minPs = -angularCfg_[AxisZ].upperLimit;
             float maxPs = -angularCfg_[AxisZ].lowerLimit;
-            dd.drawSpherePatch(center, up, axis, tsz * 0.7f, minTh, maxTh, minPs, maxPs, c, 20.0f);
+            bool haveSpherePatch = false;
+            if ((minTh <= maxTh) || (minPs <= maxPs)) {
+                dd.drawSpherePatch(center, up, axis, tsz * 0.7f, minTh, maxTh, minPs, maxPs, c, 20.0f);
+                haveSpherePatch = true;
+            }
 
             btVector3 angleDiff;
             btMatrix3x3 relativeFrame = tr.getBasis().inverse() * worldFrameB().getBasis();
@@ -138,7 +146,9 @@ namespace af3d
             float minFi = -angularCfg_[AxisX].upperLimit;
             float maxFi = -angularCfg_[AxisX].lowerLimit;
             if (minFi > maxFi) {
-                dd.drawArc(center, normal, ref, tsz, tsz, -SIMD_PI, SIMD_PI, c, false);
+                if (haveSpherePatch) {
+                    dd.drawArc(center, normal, ref, tsz, tsz, -SIMD_PI, SIMD_PI, c, false);
+                }
             } else if (minFi < maxFi) {
                 dd.drawArc(center, normal, ref, tsz, tsz, minFi, maxFi, c, true);
             }
