@@ -64,6 +64,26 @@ namespace af3d
     using JointSet = std::unordered_set<JointPtr>;
     using ConstraintJointMap = std::unordered_map<btTypedConstraint*, Joint*>;
 
+    namespace
+    {
+        struct OverlapFilterCallback : public btOverlapFilterCallback
+        {
+            bool needBroadphaseCollision(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1) const override
+            {
+                btRigidBody* bodyA = (btRigidBody*)proxy0->m_clientObject;
+                btRigidBody* bodyB = (btRigidBody*)proxy1->m_clientObject;
+
+                SceneObject* objectA = SceneObject::fromBody(bodyA);
+                SceneObject* objectB = SceneObject::fromBody(bodyB);
+
+                return ((proxy0->m_collisionFilterGroup & proxy1->m_collisionFilterMask) != 0) &&
+                    ((proxy1->m_collisionFilterGroup & proxy0->m_collisionFilterMask) != 0) &&
+                    (!objectA->collisionFilter() || objectA->collisionFilter()->shouldCollideWith(bodyA, bodyB)) &&
+                    (!objectB->collisionFilter() || objectB->collisionFilter()->shouldCollideWith(bodyB, bodyA));
+            }
+        };
+    }
+
     class Scene::Impl
     {
     public:
@@ -108,7 +128,7 @@ namespace af3d
 
             phasedComponentManager_.reset(new PhasedComponentManager());
             collisionComponentManager_.reset(new CollisionComponentManager());
-            physicsComponentManager_.reset(new PhysicsComponentManager(collisionComponentManager_.get(), &debugDraw_,
+            physicsComponentManager_.reset(new PhysicsComponentManager(collisionComponentManager_.get(), &debugDraw_, &filterCallback_,
                 std::bind(&Impl::onBodyAdd, this, std::placeholders::_1),
                 std::bind(&Impl::onBodyRemove, this, std::placeholders::_1)));
             renderComponentManager_.reset(new RenderComponentManager());
@@ -168,6 +188,7 @@ namespace af3d
             }
         }
 
+        OverlapFilterCallback filterCallback_;
         JointSet joints_;
         ConstraintJointMap constraintToJoint_;
         PhysicsDebugDraw debugDraw_;
@@ -632,6 +653,11 @@ namespace af3d
     void Scene::rayCast(const btVector3& p1, const btVector3& p2, const RayCastFn& fn) const
     {
         impl_->physicsComponentManager_->rayCast(p1, p2, fn);
+    }
+
+    bool Scene::collidesWith(btCollisionObject* thisObj, btCollisionObject* other) const
+    {
+        return impl_->filterCallback_.needBroadphaseCollision(thisObj->getBroadphaseHandle(), other->getBroadphaseHandle());
     }
 
     void Scene::setRespawnPoint(const btTransform& value)

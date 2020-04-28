@@ -913,9 +913,8 @@ namespace af3d
             return false;
         }
 
-        btOverlapFilterCallback* filter = nullptr; // TODO.
-
-        return filter->needBroadphaseCollision(body_->getBroadphaseHandle(), other->getBroadphaseHandle());
+        btAssert(scene());
+        return scene()->collidesWith(body_, other);
     }
 
     void SceneObject::freeze()

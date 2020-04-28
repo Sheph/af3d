@@ -97,6 +97,8 @@ namespace af3d
 
         void rayCast(const btVector3& p1, const btVector3& p2, const RayCastFn& fn) const;
 
+        bool collidesWith(btCollisionObject* thisObj, btCollisionObject* other) const;
+
         inline const editor::WorkspacePtr& workspace() const { return workspace_; }
 
         inline const SceneObjectPtr& camera() const { return camera_; }

@@ -90,6 +90,7 @@ set(SOURCES
     PhysicsComponent.cpp
     PhysicsBodyComponent.cpp
     PhysicsJointComponent.cpp
+    CollisionFilter.cpp
     CollisionShape.cpp
     CollisionShapeCompound.cpp
     CollisionShapeBox.cpp

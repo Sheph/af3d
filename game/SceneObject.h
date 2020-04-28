@@ -28,6 +28,7 @@
 
 #include "SceneObjectManager.h"
 #include "Component.h"
+#include "CollisionFilter.h"
 #include "AParameterized.h"
 #include "bullet/btBulletDynamicsCommon.h"
 #include <memory>
@@ -71,6 +72,9 @@ namespace af3d
         static const btCollisionShape* getBodyShape(const btCollisionObject* body, int childIdx);
 
         static SceneObjectPtr fromObjectAndPath(const SceneObjectPtr& obj, const std::string& path);
+
+        void setCollisionFilter(const CollisionFilterPtr& value) { collisionFilter_ = value; }
+        inline const CollisionFilterPtr& collisionFilter() const { return collisionFilter_; }
 
         void addComponent(const ComponentPtr& component);
 
@@ -362,6 +366,7 @@ namespace af3d
         float freezeRadius_ = 0.0f;
 
         std::vector<ComponentPtr> components_;
+        CollisionFilterPtr collisionFilter_;
 
         Flags flags_;
     };

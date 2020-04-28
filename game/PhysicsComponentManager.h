@@ -43,7 +43,7 @@ namespace af3d
     class PhysicsComponentManager : public ComponentManager
     {
     public:
-        PhysicsComponentManager(CollisionComponentManager* collisionMgr, btIDebugDraw* debugDraw,
+        PhysicsComponentManager(CollisionComponentManager* collisionMgr, btIDebugDraw* debugDraw, btOverlapFilterCallback* filterCallback,
             const BodyFn& bodyAddFn, const BodyFn& bodyRemoveFn);
         ~PhysicsComponentManager();
 

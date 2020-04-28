@@ -110,7 +110,7 @@ namespace af3d
         bodyRemoveFn_(body);
     }
 
-    PhysicsComponentManager::PhysicsComponentManager(CollisionComponentManager* collisionMgr, btIDebugDraw* debugDraw,
+    PhysicsComponentManager::PhysicsComponentManager(CollisionComponentManager* collisionMgr, btIDebugDraw* debugDraw, btOverlapFilterCallback* filterCallback,
         const BodyFn& bodyAddFn, const BodyFn& bodyRemoveFn)
     : collisionMgr_(collisionMgr),
       collisionDispatcher_(collisionMgr, &collisionCfg_),
@@ -119,6 +119,8 @@ namespace af3d
         world_.setWorldUserInfo(this);
 
         world_.setDebugDrawer(debugDraw);
+
+        world_.getPairCache()->setOverlapFilterCallback(filterCallback);
 
         //world_.getSolverInfo().m_numIterations = 10;
     }
