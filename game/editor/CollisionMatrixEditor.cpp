@@ -103,8 +103,10 @@ namespace editor {
                     auto layerJ = static_cast<Layer>(j);
                     if (val) {
                         cm->row(layerI).set(layerJ);
+                        cm->row(layerJ).set(layerI);
                     } else {
                         cm->row(layerI).reset(layerJ);
+                        cm->row(layerJ).reset(layerI);
                     }
                 }
             }
@@ -132,8 +134,10 @@ namespace editor {
                     auto layerJ = static_cast<Layer>(j);
                     if (val) {
                         cm->row(layerJ).set(layerI);
+                        cm->row(layerI).set(layerJ);
                     } else {
                         cm->row(layerJ).reset(layerI);
+                        cm->row(layerI).reset(layerJ);
                     }
                 }
             }
@@ -161,8 +165,10 @@ namespace editor {
                     auto layerJ = static_cast<Layer>(j);
                     if (val) {
                         cm->row(layerI).set(layerJ);
+                        cm->row(layerJ).set(layerI);
                     } else {
                         cm->row(layerI).reset(layerJ);
+                        cm->row(layerJ).reset(layerI);
                     }
                 }
             }
@@ -176,8 +182,10 @@ namespace editor {
                     changed = true;
                     if (val) {
                         cm->row(layerI).set(layerJ);
+                        cm->row(layerJ).set(layerI);
                     } else {
                         cm->row(layerI).reset(layerJ);
+                        cm->row(layerJ).reset(layerI);
                     }
                 }
                 ImGui::NextColumn();
