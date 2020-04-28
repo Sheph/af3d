@@ -67,6 +67,18 @@ namespace af3d
     ANGULAR_PROPS(x, X)
     ANGULAR_PROPS(y, Y)
     ANGULAR_PROPS(z, Z)
+    ACLASS_PROPERTY(Joint6DOF, LinearXSpringEnabled, "lin x spring enabled", "Linear x spring is enabled", Bool, false, Physics, APropertyEditable)
+    ACLASS_PROPERTY(Joint6DOF, LinearYSpringEnabled, "lin y spring enabled", "Linear y spring is enabled", Bool, false, Physics, APropertyEditable)
+    ACLASS_PROPERTY(Joint6DOF, LinearZSpringEnabled, "lin z spring enabled", "Linear z spring is enabled", Bool, false, Physics, APropertyEditable)
+    ACLASS_PROPERTY(Joint6DOF, AngularXSpringEnabled, "ang x spring enabled", "Angular x spring is enabled", Bool, false, Physics, APropertyEditable)
+    ACLASS_PROPERTY(Joint6DOF, AngularYSpringEnabled, "ang y spring enabled", "Angular y spring is enabled", Bool, false, Physics, APropertyEditable)
+    ACLASS_PROPERTY(Joint6DOF, AngularZSpringEnabled, "ang z spring enabled", "Angular z spring is enabled", Bool, false, Physics, APropertyEditable)
+    ACLASS_PROPERTY(Joint6DOF, LinearSpringStiffness, "lin spring stiffness", "Linear spring stiffness", Vec3f, btVector3(0.0f, 0.0f, 0.0f), Physics, APropertyEditable)
+    ACLASS_PROPERTY(Joint6DOF, AngularSpringStiffness, "ang spring stiffness", "Angular spring stiffness", Vec3f, btVector3(0.0f, 0.0f, 0.0f), Physics, APropertyEditable)
+    ACLASS_PROPERTY(Joint6DOF, LinearSpringDamping, "lin spring damping", "Linear spring damping", Vec3f, btVector3(1.0f, 1.0f, 1.0f), Physics, APropertyEditable)
+    ACLASS_PROPERTY(Joint6DOF, AngularSpringDamping, "ang spring damping", "Angular spring damping", Vec3f, btVector3(1.0f, 1.0f, 1.0f), Physics, APropertyEditable)
+    ACLASS_PROPERTY(Joint6DOF, LocalSpringEquilibriumPoint, "local spring eq pt", "Local spring equilibrium point", Transform, btTransform::getIdentity(), Position, APropertyEditable)
+    ACLASS_PROPERTY(Joint6DOF, WorldSpringEquilibriumPoint, "world spring eq pt", "World spring equilibrium point", Transform, btTransform::getIdentity(), Position, APropertyEditable|APropertyTransient)
     ACLASS_DEFINE_END(Joint6DOF)
 
     Joint6DOF::Joint6DOF(const SceneObjectPtr& objectA, const SceneObjectPtr& objectB,
@@ -304,6 +316,104 @@ namespace af3d
         setDirty();
     }
 
+    void Joint6DOF::enableLinearSpring(Axis axis, bool value)
+    {
+        linearSpringEnabled_[axis] = value;
+        if (constraint_) {
+            if (constraint_->isSpringEnabled(axis) ^ linearSpringEnabled_[axis]) {
+                constraint_->enableSpring(axis, linearSpringEnabled_[axis]);
+            }
+        }
+        setDirty();
+    }
+
+    void Joint6DOF::enableAngularSpring(Axis axis, bool value)
+    {
+        angularSpringEnabled_[axis] = value;
+        if (constraint_) {
+            if (constraint_->isSpringEnabled(axis + 3) ^ angularSpringEnabled_[axis]) {
+                constraint_->enableSpring(axis + 3, angularSpringEnabled_[axis]);
+            }
+        }
+        setDirty();
+    }
+
+    void Joint6DOF::setLinearSpringStiffness(const btVector3& value)
+    {
+        linearSpringStiffness_ = value;
+        if (constraint_) {
+            constraint_->setStiffness(AxisX, linearSpringStiffness_.x());
+            constraint_->setStiffness(AxisY, linearSpringStiffness_.y());
+            constraint_->setStiffness(AxisZ, linearSpringStiffness_.z());
+        }
+        setDirty();
+    }
+
+    void Joint6DOF::setAngularSpringStiffness(const btVector3& value)
+    {
+        angularSpringStiffness_ = value;
+        if (constraint_) {
+            constraint_->setStiffness(AxisX + 3, angularSpringStiffness_.x());
+            constraint_->setStiffness(AxisY + 3, angularSpringStiffness_.y());
+            constraint_->setStiffness(AxisZ + 3, angularSpringStiffness_.z());
+        }
+        setDirty();
+    }
+
+    void Joint6DOF::setLinearSpringDamping(const btVector3& value)
+    {
+        linearSpringDamping_ = value;
+        if (constraint_) {
+            constraint_->setDamping(AxisX, linearSpringDamping_.x());
+            constraint_->setDamping(AxisY, linearSpringDamping_.y());
+            constraint_->setDamping(AxisZ, linearSpringDamping_.z());
+        }
+        setDirty();
+    }
+
+    void Joint6DOF::setAngularSpringDamping(const btVector3& value)
+    {
+        angularSpringDamping_ = value;
+        if (constraint_) {
+            constraint_->setDamping(AxisX + 3, angularSpringDamping_.x());
+            constraint_->setDamping(AxisY + 3, angularSpringDamping_.y());
+            constraint_->setDamping(AxisZ + 3, angularSpringDamping_.z());
+        }
+        setDirty();
+    }
+
+    void Joint6DOF::setSpringEquilibriumPoint(const btTransform& value)
+    {
+        springEquilibriumPoint_ = value;
+        if (constraint_) {
+            constraint_->setEquilibriumPoint(AxisX, springEquilibriumPoint_.getOrigin().x());
+            constraint_->setEquilibriumPoint(AxisY, springEquilibriumPoint_.getOrigin().y());
+            constraint_->setEquilibriumPoint(AxisZ, springEquilibriumPoint_.getOrigin().z());
+            btVector3 euler;
+            matrixToEulerXYZ(springEquilibriumPoint_.getBasis(), euler);
+            constraint_->setEquilibriumPoint(AxisX + 3, euler.x());
+            constraint_->setEquilibriumPoint(AxisY + 3, euler.y());
+            constraint_->setEquilibriumPoint(AxisZ + 3, euler.z());
+        }
+        setDirty();
+    }
+
+    btTransform Joint6DOF::worldSpringEquilibriumPoint() const
+    {
+        auto objA = objectA();
+        return objA ? (objA->transform() * springEquilibriumPoint_) : (toTransform(pos()) * springEquilibriumPoint_);
+    }
+
+    void Joint6DOF::setWorldSpringEquilibriumPoint(const btTransform& value)
+    {
+        auto objA = objectA();
+        if (objA) {
+            setSpringEquilibriumPoint(objA->transform().inverse() * value);
+        } else {
+            setSpringEquilibriumPoint(toTransform(pos()).inverse() * value);
+        }
+    }
+
     btTransform Joint6DOF::worldFrameA() const
     {
         auto objA = objectA();
@@ -356,7 +466,7 @@ namespace af3d
         } else {
             if (objA && objA->body() && objA->body()->isInWorld()) {
                 if (objB && objB->body() && objB->body()->isInWorld()) {
-                    constraint_ = new btGeneric6DofConstraint(*objA->body(), *objB->body(),
+                    constraint_ = new btGeneric6DofSpringConstraint(*objA->body(), *objB->body(),
                         objA->localCenter().inverse() * frameA_, objB->localCenter().inverse() * frameB_, true);
                 }
             }
@@ -380,7 +490,25 @@ namespace af3d
                     rm->m_targetVelocity = -angularCfg_[axis].motorVelocity;
                     rm->m_maxMotorForce = angularCfg_[axis].maxMotorForce;
                     rm->m_maxLimitForce = angularCfg_[axis].maxLimitForce;
+                    if (constraint_->isSpringEnabled(axis) ^ linearSpringEnabled_[axis]) {
+                        constraint_->enableSpring(axis, linearSpringEnabled_[axis]);
+                    }
+                    if (constraint_->isSpringEnabled(axis + 3) ^ angularSpringEnabled_[axis]) {
+                        constraint_->enableSpring(axis + 3, angularSpringEnabled_[axis]);
+                    }
+                    constraint_->setStiffness(axis, linearSpringStiffness_[axis]);
+                    constraint_->setStiffness(axis + 3, angularSpringStiffness_[axis]);
+                    constraint_->setDamping(axis, linearSpringDamping_[axis]);
+                    constraint_->setDamping(axis + 3, angularSpringDamping_[axis]);
                 }
+                constraint_->setEquilibriumPoint(AxisX, springEquilibriumPoint_.getOrigin().x());
+                constraint_->setEquilibriumPoint(AxisY, springEquilibriumPoint_.getOrigin().y());
+                constraint_->setEquilibriumPoint(AxisZ, springEquilibriumPoint_.getOrigin().z());
+                btVector3 euler;
+                matrixToEulerXYZ(springEquilibriumPoint_.getBasis(), euler);
+                constraint_->setEquilibriumPoint(AxisX + 3, euler.x());
+                constraint_->setEquilibriumPoint(AxisY + 3, euler.y());
+                constraint_->setEquilibriumPoint(AxisZ + 3, euler.z());
             }
         }
     }

@@ -132,6 +132,30 @@ namespace af3d
         inline float maxAngularLimitForce(Axis axis) const { return angularCfg_[axis].maxLimitForce; }
         void setMaxAngularLimitForce(Axis axis, float value);
 
+        inline bool linearSpringEnabled(Axis axis) const { return linearSpringEnabled_[axis]; }
+        void enableLinearSpring(Axis axis, bool value);
+
+        inline bool angularSpringEnabled(Axis axis) const { return angularSpringEnabled_[axis]; }
+        void enableAngularSpring(Axis axis, bool value);
+
+        inline const btVector3& linearSpringStiffness() const { return linearSpringStiffness_; }
+        void setLinearSpringStiffness(const btVector3& value);
+
+        inline const btVector3& angularSpringStiffness() const { return angularSpringStiffness_; }
+        void setAngularSpringStiffness(const btVector3& value);
+
+        inline const btVector3& linearSpringDamping() const { return linearSpringDamping_; }
+        void setLinearSpringDamping(const btVector3& value);
+
+        inline const btVector3& angularSpringDamping() const { return angularSpringDamping_; }
+        void setAngularSpringDamping(const btVector3& value);
+
+        inline const btTransform& springEquilibriumPoint() const { return springEquilibriumPoint_; }
+        void setSpringEquilibriumPoint(const btTransform& value);
+
+        btTransform worldSpringEquilibriumPoint() const;
+        void setWorldSpringEquilibriumPoint(const btTransform& value);
+
         btTransform worldFrameA() const;
         void setWorldFrameA(const btTransform& value);
 
@@ -184,6 +208,42 @@ namespace af3d
         AF3D_JOINT_6DOF_ANGULAR_PROPS(Y)
         AF3D_JOINT_6DOF_ANGULAR_PROPS(Z)
 
+        APropertyValue propertyLinearXSpringEnabledGet(const std::string&) const { return linearSpringEnabled(AxisX); }
+        void propertyLinearXSpringEnabledSet(const std::string&, const APropertyValue& value) { enableLinearSpring(AxisX, value.toBool()); }
+
+        APropertyValue propertyLinearYSpringEnabledGet(const std::string&) const { return linearSpringEnabled(AxisY); }
+        void propertyLinearYSpringEnabledSet(const std::string&, const APropertyValue& value) { enableLinearSpring(AxisY, value.toBool()); }
+
+        APropertyValue propertyLinearZSpringEnabledGet(const std::string&) const { return linearSpringEnabled(AxisZ); }
+        void propertyLinearZSpringEnabledSet(const std::string&, const APropertyValue& value) { enableLinearSpring(AxisZ, value.toBool()); }
+
+        APropertyValue propertyAngularXSpringEnabledGet(const std::string&) const { return angularSpringEnabled(AxisX); }
+        void propertyAngularXSpringEnabledSet(const std::string&, const APropertyValue& value) { enableAngularSpring(AxisX, value.toBool()); }
+
+        APropertyValue propertyAngularYSpringEnabledGet(const std::string&) const { return angularSpringEnabled(AxisY); }
+        void propertyAngularYSpringEnabledSet(const std::string&, const APropertyValue& value) { enableAngularSpring(AxisY, value.toBool()); }
+
+        APropertyValue propertyAngularZSpringEnabledGet(const std::string&) const { return angularSpringEnabled(AxisZ); }
+        void propertyAngularZSpringEnabledSet(const std::string&, const APropertyValue& value) { enableAngularSpring(AxisZ, value.toBool()); }
+
+        APropertyValue propertyLinearSpringStiffnessGet(const std::string&) const { return linearSpringStiffness(); }
+        void propertyLinearSpringStiffnessSet(const std::string&, const APropertyValue& value) { setLinearSpringStiffness(value.toVec3()); }
+
+        APropertyValue propertyAngularSpringStiffnessGet(const std::string&) const { return angularSpringStiffness(); }
+        void propertyAngularSpringStiffnessSet(const std::string&, const APropertyValue& value) { setAngularSpringStiffness(value.toVec3()); }
+
+        APropertyValue propertyLinearSpringDampingGet(const std::string&) const { return linearSpringDamping(); }
+        void propertyLinearSpringDampingSet(const std::string&, const APropertyValue& value) { setLinearSpringDamping(value.toVec3()); }
+
+        APropertyValue propertyAngularSpringDampingGet(const std::string&) const { return angularSpringDamping(); }
+        void propertyAngularSpringDampingSet(const std::string&, const APropertyValue& value) { setAngularSpringDamping(value.toVec3()); }
+
+        APropertyValue propertyLocalSpringEquilibriumPointGet(const std::string&) const { return springEquilibriumPoint(); }
+        void propertyLocalSpringEquilibriumPointSet(const std::string&, const APropertyValue& value) { setSpringEquilibriumPoint(value.toTransform()); }
+
+        APropertyValue propertyWorldSpringEquilibriumPointGet(const std::string&) const { return worldSpringEquilibriumPoint(); }
+        void propertyWorldSpringEquilibriumPointSet(const std::string&, const APropertyValue& value) { setWorldSpringEquilibriumPoint(value.toTransform()); }
+
     private:
         struct AngularConfig
         {
@@ -220,7 +280,18 @@ namespace af3d
 
         AngularConfig angularCfg_[3];
 
-        btGeneric6DofConstraint* constraint_ = nullptr;
+        bool linearSpringEnabled_[3] = {false, false, false};
+        bool angularSpringEnabled_[3] = {false, false, false};
+
+        btVector3 linearSpringStiffness_ = btVector3_zero;
+        btVector3 angularSpringStiffness_ = btVector3_zero;
+
+        btVector3 linearSpringDamping_ = btVector3(1.0f, 1.0f, 1.0f);
+        btVector3 angularSpringDamping_ = btVector3(1.0f, 1.0f, 1.0f);
+
+        btTransform springEquilibriumPoint_ = btTransform::getIdentity();
+
+        btGeneric6DofSpringConstraint* constraint_ = nullptr;
 
         SceneObjectPtr editA_;
         SceneObjectPtr editB_;
