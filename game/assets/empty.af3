@@ -1,7 +1,1 @@
-[
-   {
-      "children" : [],
-      "class" : "SceneAsset",
-      "id" : 1
-   }
-]
+[{"ambient color":[0.2000000029802322,0.2000000029802322,0.2000000029802322,1.0],"camera transform":[0.0,0.0,0.0,0.0,0.0,0.0,1.0],"children":[],"class":"SceneAsset","clear color":[0.2300000041723251,0.2300000041723251,0.2300000041723251,1.0],"collision matrix":2,"gravity":[0.0,-10.0,0.0],"id":1,"name":"","root":0,"script":""},{"class":"CollisionMatrix","id":2,"name":"default.cm"}]

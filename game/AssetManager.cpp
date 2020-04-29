@@ -203,6 +203,6 @@ namespace af3d
         collisionMatrixMap_[cm->name()] = cm;
         std::ofstream os(platform->assetsPath() + "/" + cm->name(),
             std::ios_base::binary | std::ios_base::out | std::ios_base::trunc);
-        os << Json::StyledWriter().write(cm->toJsonValue());
+        os << Json::FastWriter().write(cm->toJsonValue());
     }
 }

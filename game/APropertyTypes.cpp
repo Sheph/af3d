@@ -46,4 +46,7 @@ namespace af3d
     const APropertyTypeQuaternion APropertyType_Quaternion;
     const APropertyTypeArray APropertyType_ArrayVec3f{"ArrayVec3f", APropertyType_Vec3f};
     const APropertyTypeArray APropertyType_ArrayVec3i{"ArrayVec3i", APropertyType_Vec3i};
+    const APropertyTypeArray APropertyType_ArrayInt{"ArrayInt", APropertyType_Int};
+    const APropertyTypeArray APropertyType_ArrayArrayInt{"ArrayArrayInt", APropertyType_ArrayInt};
+    const APropertyTypeArray APropertyType_ArrayVec4f{"ArrayVec4f", APropertyType_Vec4f};
 }

@@ -27,7 +27,6 @@
 #define _COLLISIONSHAPESTATICMESH_H_
 
 #include "CollisionShape.h"
-#include "Mesh.h"
 
 namespace af3d
 {

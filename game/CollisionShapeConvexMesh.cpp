@@ -24,44 +24,56 @@
  */
 
 #include "CollisionShapeConvexMesh.h"
+#include "MeshManager.h"
 #include "Logger.h"
 #include "PhysicsDebugDraw.h"
+#include "bullet/BulletCollision/CollisionShapes/btConvexPolyhedron.h"
 
 namespace af3d
 {
     ACLASS_DEFINE_BEGIN(CollisionShapeConvexMesh, CollisionShape)
-    COLLISIONSHAPE_PARAM(CollisionShapeConvexMesh, "mesh", "Mesh", Mesh, MeshPtr())
+    COLLISIONSHAPE_PARAM(CollisionShapeConvexMesh, "mesh", "Mesh", StringMesh, "")
     COLLISIONSHAPE_PARAM(CollisionShapeConvexMesh, "submesh index", "SubMesh index (< 0 - use all)", Int, -1)
     COLLISIONSHAPE_PARAM(CollisionShapeConvexMesh, "polyhedral", "Generate polyhedral features", Bool, false)
     COLLISIONSHAPE_PARAM(CollisionShapeConvexMesh, "offset", "Shape offset", Vec3f, btVector3(0.0f, 0.0f, 0.0f))
+    COLLISIONSHAPE_PARAM(CollisionShapeStaticMesh, "recreate", "Recreate", Bool, false)
+    COLLISIONSHAPE_PARAM_HIDDEN(CollisionShapeConvexMesh, "vertices", "Vertices", ArrayVec3f, std::vector<APropertyValue>{})
+    COLLISIONSHAPE_PARAM_HIDDEN(CollisionShapeConvexMesh, "faces", "Faces", ArrayArrayInt, std::vector<APropertyValue>{})
+    COLLISIONSHAPE_PARAM_HIDDEN(CollisionShapeConvexMesh, "planes", "Planes", ArrayVec4f, std::vector<APropertyValue>{})
     ACLASS_DEFINE_END(CollisionShapeConvexMesh)
 
-    CollisionShapeConvexMesh::CollisionShapeConvexMesh(const MeshPtr& mesh, int subMeshIndex, bool polyhedral,
-        const btVector3& offset)
-    : CollisionShape(AClass_CollisionShapeConvexMesh),
-      polyhedral_(polyhedral)
+    CollisionShapeConvexMesh::CollisionShapeConvexMesh(const std::vector<APropertyValue>& vertices,
+        const std::vector<APropertyValue>& faces, const std::vector<APropertyValue>& planes)
+    : CollisionShape(AClass_CollisionShapeConvexMesh)
     {
-        if (subMeshIndex >= static_cast<int>(mesh->subMeshes().size())) {
-            LOG4CPLUS_WARN(logger(), "subMeshIndex " << subMeshIndex << " too high, resetting to 0");
-            subMeshIndex = 0;
-        }
-
-        if (subMeshIndex < 0) {
-            for (size_t j = 0; j < mesh->subMeshes().size(); ++j) {
-                auto data = mesh->getSubMeshData(j);
-                for (size_t i = 0; i < data->vertices().size(); ++i) {
-                    shape_.addPoint(fromVector3f(data->vertices()[i]) + offset, i == (data->vertices().size() - 1));
-                }
+        if (faces.empty()) {
+            for (size_t i = 0; i < vertices.size(); ++i) {
+                shape_.addPoint(vertices[i].toVec3(), i == (vertices.size() - 1));
             }
         } else {
-            auto data = mesh->getSubMeshData(subMeshIndex);
-            for (size_t i = 0; i < data->vertices().size(); ++i) {
-                shape_.addPoint(fromVector3f(data->vertices()[i]) + offset, i == (data->vertices().size() - 1));
+            runtime_assert(faces.size() == planes.size());
+            btConvexPolyhedron polyhedron;
+            for (size_t i = 0; i < vertices.size(); ++i) {
+                btVector3& v = polyhedron.m_vertices.expand();
+                v = vertices[i].toVec3();
+                shape_.addPoint(v, i == (vertices.size() - 1));
             }
+            for (size_t i = 0; i < faces.size(); ++i) {
+                btFace& f = polyhedron.m_faces.expand();
+                auto indices = faces[i].toArray();
+                for (size_t j = 0; j < indices.size(); ++j) {
+                    int& idx = f.m_indices.expand();
+                    idx = indices[j].toInt();
+                }
+                auto plane = planes[i].toVec4f();
+                f.m_plane[0] = plane.x();
+                f.m_plane[1] = plane.y();
+                f.m_plane[2] = plane.z();
+                f.m_plane[3] = plane.w();
+            }
+            polyhedron.initialize();
+            shape_.setPolyhedralFeatures(polyhedron);
         }
-
-        shape_.optimizeConvexHull();
-        doSetScale(shape_.getLocalScaling());
     }
 
     const AClass& CollisionShapeConvexMesh::staticKlass()
@@ -71,19 +83,83 @@ namespace af3d
 
     AObjectPtr CollisionShapeConvexMesh::create(const APropertyValueMap& propVals)
     {
-        auto obj = std::make_shared<CollisionShapeConvexMesh>(propVals.get("mesh").toObject<Mesh>(),
-            propVals.get("submesh index").toInt(),
-            propVals.get("polyhedral").toBool(),
-            propVals.get("offset").toVec3());
-        obj->afterCreate(propVals);
-        return obj;
-    }
+        auto verts = propVals.get("vertices").toArray();
+        auto faces = propVals.get("faces").toArray();
+        auto planes = propVals.get("planes").toArray();
+        bool recreate = propVals.get("recreate").toBool() || verts.empty();
 
-    void CollisionShapeConvexMesh::doSetScale(const btVector3& value)
-    {
-        if (polyhedral_) {
-            shape_.initializePolyhedralFeatures();
+        if (recreate) {
+            verts.clear();
+            faces.clear();
+            planes.clear();
+
+            MeshPtr mesh = meshManager.loadMesh(propVals.get("mesh").toString());
+            if (!mesh) {
+                mesh = meshManager.loadMesh("cube.fbx");
+            }
+            int subMeshIndex = propVals.get("submesh index").toInt();
+            bool polyhedral = propVals.get("polyhedral").toBool();
+            btVector3 offset = propVals.get("offset").toVec3();
+
+            if (subMeshIndex >= static_cast<int>(mesh->subMeshes().size())) {
+                LOG4CPLUS_WARN(logger(), "subMeshIndex " << subMeshIndex << " too high, resetting to 0");
+                subMeshIndex = 0;
+            }
+
+            btConvexHullShape shape;
+
+            if (subMeshIndex < 0) {
+                for (size_t j = 0; j < mesh->subMeshes().size(); ++j) {
+                    auto data = mesh->getSubMeshData(j);
+                    for (size_t i = 0; i < data->vertices().size(); ++i) {
+                        shape.addPoint(fromVector3f(data->vertices()[i]) + offset, i == (data->vertices().size() - 1));
+                    }
+                }
+            } else {
+                auto data = mesh->getSubMeshData(subMeshIndex);
+                for (size_t i = 0; i < data->vertices().size(); ++i) {
+                    shape.addPoint(fromVector3f(data->vertices()[i]) + offset, i == (data->vertices().size() - 1));
+                }
+            }
+
+            shape.optimizeConvexHull();
+            if (polyhedral) {
+                shape.setLocalScaling(propVals.get(AProperty_Scale).toVec3());
+                shape.initializePolyhedralFeatures();
+                auto polyhedron = shape.getConvexPolyhedron();
+                for (int i = 0; i < polyhedron->m_vertices.size(); ++i) {
+                    verts.emplace_back(polyhedron->m_vertices[i]);
+                }
+                for (int i = 0; i < polyhedron->m_faces.size(); ++i) {
+                    std::vector<APropertyValue> indices;
+                    for (int j = 0; j < polyhedron->m_faces[i].m_indices.size(); ++j) {
+                        indices.emplace_back(polyhedron->m_faces[i].m_indices[j]);
+                    }
+                    faces.emplace_back(indices);
+                    planes.emplace_back(Vector4f(polyhedron->m_faces[i].m_plane[0],
+                        polyhedron->m_faces[i].m_plane[1],
+                        polyhedron->m_faces[i].m_plane[2],
+                        polyhedron->m_faces[i].m_plane[3]));
+                }
+            } else {
+                for (int i = 0; i < shape.getNumPoints(); ++i) {
+                    verts.emplace_back(shape.getPoints()[i]);
+                }
+            }
         }
+
+        auto obj = std::make_shared<CollisionShapeConvexMesh>(verts, faces, planes);
+        if (recreate) {
+            APropertyValueMap propVals2 = propVals;
+            propVals2.set("recreate", false);
+            propVals2.set("vertices", verts);
+            propVals2.set("faces", faces);
+            propVals2.set("planes", planes);
+            obj->afterCreate(propVals2);
+        } else {
+            obj->afterCreate(propVals);
+        }
+        return obj;
     }
 
     void CollisionShapeConvexMesh::render(PhysicsDebugDraw& dd, const btVector3& c)

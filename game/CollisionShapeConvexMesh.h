@@ -27,7 +27,6 @@
 #define _COLLISIONSHAPECONVEXMESH_H_
 
 #include "CollisionShape.h"
-#include "Mesh.h"
 
 namespace af3d
 {
@@ -35,8 +34,8 @@ namespace af3d
         public CollisionShape
     {
     public:
-        CollisionShapeConvexMesh(const MeshPtr& mesh, int subMeshIndex, bool polyhedral,
-            const btVector3& offset);
+        CollisionShapeConvexMesh(const std::vector<APropertyValue>& vertices,
+            const std::vector<APropertyValue>& faces, const std::vector<APropertyValue>& planes);
         ~CollisionShapeConvexMesh() = default;
 
         static const AClass& staticKlass();
@@ -50,10 +49,7 @@ namespace af3d
         void render(PhysicsDebugDraw& dd, const btVector3& c) override;
 
     private:
-        void doSetScale(const btVector3& value) override;
-
         btConvexHullShape shape_;
-        bool polyhedral_;
     };
 
     using CollisionShapeConvexMeshPtr = std::shared_ptr<CollisionShapeConvexMesh>;

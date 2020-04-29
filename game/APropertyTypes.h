@@ -49,6 +49,9 @@ namespace af3d
     extern const APropertyTypeQuaternion APropertyType_Quaternion;
     extern const APropertyTypeArray APropertyType_ArrayVec3f;
     extern const APropertyTypeArray APropertyType_ArrayVec3i;
+    extern const APropertyTypeArray APropertyType_ArrayInt;
+    extern const APropertyTypeArray APropertyType_ArrayArrayInt;
+    extern const APropertyTypeArray APropertyType_ArrayVec4f;
 }
 
 #endif

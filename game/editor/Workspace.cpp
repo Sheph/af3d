@@ -576,7 +576,8 @@ namespace editor {
             return Action::State(objectWithPhysicsBodySelected());
         }, [this]() {
             APropertyValueMap initVals;
-            initVals.set("mesh", APropertyValue(meshManager.loadMesh("cube.fbx")));
+            initVals.set("mesh", APropertyValue("cube.fbx"));
+            initVals.set("recreate", true);
             cmdHistory_.add(
                 std::make_shared<CommandAdd>(scene(),
                     emObject_->selectedTyped().back().obj()->findComponent<PhysicsBodyComponent>(),
@@ -895,7 +896,7 @@ namespace editor {
         writer.write(scene()->sharedThis());
         std::ofstream os(platform->assetsPath() + "/" + path,
             std::ios_base::binary | std::ios_base::out | std::ios_base::trunc);
-        os << Json::StyledWriter().write(val);
+        os << Json::FastWriter().write(val);
     }
 
     bool Workspace::objectWithPhysicsBodySelected() const
