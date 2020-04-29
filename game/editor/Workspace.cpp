@@ -564,7 +564,8 @@ namespace editor {
             return Action::State(objectWithPhysicsBodySelected());
         }, [this]() {
             APropertyValueMap initVals;
-            initVals.set("mesh", APropertyValue(meshManager.loadMesh("cube.fbx")));
+            initVals.set("mesh", APropertyValue("cube.fbx"));
+            initVals.set("recreate", true);
             cmdHistory_.add(
                 std::make_shared<CommandAdd>(scene(),
                     emObject_->selectedTyped().back().obj()->findComponent<PhysicsBodyComponent>(),
