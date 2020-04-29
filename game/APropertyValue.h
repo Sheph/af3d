@@ -46,6 +46,7 @@ namespace af3d
             String,
             Vec2f,
             Vec3f,
+            Vec3i,
             Vec4f,
             Object,
             WeakObject,
@@ -61,6 +62,7 @@ namespace af3d
         APropertyValue(const std::string& val);
         APropertyValue(const Vector2f& val);
         APropertyValue(const Vector3f& val);
+        APropertyValue(const Vector3i& val);
         APropertyValue(const btVector3& val);
         APropertyValue(const Vector4f& val);
         APropertyValue(const AObjectPtr& val);
@@ -84,6 +86,7 @@ namespace af3d
         std::string toString() const;
         Vector2f toVec2f() const;
         Vector3f toVec3f() const;
+        Vector3i toVec3i() const;
         btVector3 toVec3() const;
         Vector4f toVec4f() const;
         inline Color toColor() const { return toVec4f(); }
@@ -110,12 +113,14 @@ namespace af3d
             explicit Pod(float value) : floatVal(value) {}
             explicit Pod(const Vector2f& value) : vec2fVal(value) {}
             explicit Pod(const Vector3f& value) : vec3fVal(value) {}
+            explicit Pod(const Vector3i& value) : vec3iVal(value) {}
             explicit Pod(const Vector4f& value) : vec4fVal(value) {}
 
             int intVal;
             float floatVal;
             Vector2f vec2fVal;
             Vector3f vec3fVal;
+            Vector3i vec3iVal;
             Vector4f vec4fVal;
         };
 

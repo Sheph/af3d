@@ -79,6 +79,15 @@ namespace af3d
             jsonValue_.append(v.z());
         }
 
+        void visitVec3i(const APropertyTypeVec3i& type) override
+        {
+            auto v = value_.toVec3i();
+            jsonValue_ = Json::arrayValue;
+            jsonValue_.append(v.x());
+            jsonValue_.append(v.y());
+            jsonValue_.append(v.z());
+        }
+
         void visitVec4f(const APropertyTypeVec4f& type) override
         {
             auto v = value_.toVec4f();

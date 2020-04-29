@@ -68,8 +68,8 @@ namespace af3d
         visitor.visitFloat(*this);
     }
 
-    APropertyTypeString::APropertyTypeString()
-    : APropertyType("String")
+    APropertyTypeString::APropertyTypeString(APropertyUnit unit)
+    : APropertyType("String", unit)
     {
     }
 
@@ -96,6 +96,16 @@ namespace af3d
     void APropertyTypeVec3f::accept(APropertyTypeVisitor& visitor) const
     {
         visitor.visitVec3f(*this);
+    }
+
+    APropertyTypeVec3i::APropertyTypeVec3i()
+    : APropertyType("Vec3i")
+    {
+    }
+
+    void APropertyTypeVec3i::accept(APropertyTypeVisitor& visitor) const
+    {
+        visitor.visitVec3i(*this);
     }
 
     APropertyTypeVec4f::APropertyTypeVec4f()

@@ -121,6 +121,15 @@ namespace af3d { namespace ImGuiUtils
 
         void visitString(const APropertyTypeString& type) override
         {
+            if (type.unit() == APropertyUnit::Mesh) {
+                visitMesh(value_.toString(), false);
+                if (ret_) {
+                    auto mesh = value_.toObject<Mesh>();
+                    value_ = mesh ? mesh->name() : "";
+                }
+                return;
+            }
+
             ImGuiInputTextFlags flags = ImGuiInputTextFlags_EnterReturnsTrue;
 
             if (readOnly_) {
@@ -153,6 +162,10 @@ namespace af3d { namespace ImGuiUtils
                 ret_ = true;
                 value_ = APropertyValue(v);
             }
+        }
+
+        void visitVec3i(const APropertyTypeVec3i& type) override
+        {
         }
 
         void visitVec4f(const APropertyTypeVec4f& type) override
@@ -197,7 +210,8 @@ namespace af3d { namespace ImGuiUtils
         void visitObject(const APropertyTypeObject& type) override
         {
             if (type.klass().isSubClassOf(AClass_Mesh)) {
-                visitMesh(type.isWeak());
+                auto res = value_.toObject();
+                visitMesh(res ? res->name() : "", type.isWeak());
             } else if (type.klass().isSubClassOf(AClass_CollisionMatrix)) {
                 visitCollisionMatrix(type.isWeak());
             } else if (type.klass().isSubClassOf(AClass_SceneObject)) {
@@ -272,14 +286,8 @@ namespace af3d { namespace ImGuiUtils
         inline bool ret() const { return ret_; }
 
     private:
-        void visitMesh(bool isWeak)
+        void visitMesh(const std::string& assetPath, bool isWeak)
         {
-            auto res = aobjectCast<Resource>(value_.toObject());
-            std::string assetPath;
-            if (res && !res->name().empty()) {
-                assetPath = res->name();
-            }
-
             bool clicked = ImGui::Button("...");
 
             if (clicked) {

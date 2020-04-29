@@ -35,11 +35,15 @@ namespace af3d
     const APropertyTypeFloat APropertyType_FloatPercentage{0.0f, 1.0f};
     const APropertyTypeFloat APropertyType_FloatRadian{APropertyUnit::Radian};
     const APropertyTypeString APropertyType_String;
+    const APropertyTypeString APropertyType_StringMesh{APropertyUnit::Mesh};
     const APropertyTypeVec2f APropertyType_Vec2f;
     const APropertyTypeVec3f APropertyType_Vec3f;
+    const APropertyTypeVec3i APropertyType_Vec3i;
     const APropertyTypeVec4f APropertyType_Vec4f;
     const APropertyTypeColor APropertyType_ColorRGB{false};
     const APropertyTypeColor APropertyType_ColorRGBA{true};
     const APropertyTypeTransform APropertyType_Transform;
     const APropertyTypeQuaternion APropertyType_Quaternion;
+    const APropertyTypeArray APropertyType_ArrayVec3f{"ArrayVec3f", APropertyType_Vec3f};
+    const APropertyTypeArray APropertyType_ArrayVec3i{"ArrayVec3i", APropertyType_Vec3i};
 }

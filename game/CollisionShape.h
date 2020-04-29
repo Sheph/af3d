@@ -152,6 +152,9 @@ namespace af3d
 
     #define COLLISIONSHAPE_PARAM(SName, Name, Tooltip, Type, Def) \
         {Name, Tooltip, APropertyType_##Type, APropertyValue(Def), APropertyCategory::Params, APropertyReadable|APropertyEditable, (APropertyGetter)&CollisionShape::propertyParamGet, nullptr},
+
+    #define COLLISIONSHAPE_PARAM_HIDDEN(SName, Name, Tooltip, Type, Def) \
+        {Name, Tooltip, APropertyType_##Type, APropertyValue(Def), APropertyCategory::Params, APropertyReadable, (APropertyGetter)&CollisionShape::propertyParamGet, nullptr},
 }
 
 #endif

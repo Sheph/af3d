@@ -37,6 +37,7 @@ namespace af3d
     class APropertyTypeString;
     class APropertyTypeVec2f;
     class APropertyTypeVec3f;
+    class APropertyTypeVec3i;
     class APropertyTypeVec4f;
     class APropertyTypeColor;
     class APropertyTypeEnum;
@@ -57,6 +58,7 @@ namespace af3d
         virtual void visitString(const APropertyTypeString& type) = 0;
         virtual void visitVec2f(const APropertyTypeVec2f& type) = 0;
         virtual void visitVec3f(const APropertyTypeVec3f& type) = 0;
+        virtual void visitVec3i(const APropertyTypeVec3i& type) = 0;
         virtual void visitVec4f(const APropertyTypeVec4f& type) = 0;
         virtual void visitColor(const APropertyTypeColor& type) = 0;
         virtual void visitEnum(const APropertyTypeEnum& type) = 0;

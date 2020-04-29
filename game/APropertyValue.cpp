@@ -71,6 +71,12 @@ namespace af3d
     {
     }
 
+    APropertyValue::APropertyValue(const Vector3i& val)
+    : type_(Vec3i),
+      pod_(val)
+    {
+    }
+
     APropertyValue::APropertyValue(const btVector3& val)
     : type_(Vec3f),
       pod_(toVector3f(val))
@@ -126,8 +132,9 @@ namespace af3d
             return (other == String);
         case Vec2f:
         case Vec3f:
+        case Vec3i:
         case Vec4f:
-            return (other == Vec2f) || (other == Vec3f) || (other == Vec4f) || (other == String);
+            return (other == Vec2f) || (other == Vec3f) || (other == Vec3i) || (other == Vec4f) || (other == String);
         case Object:
         case WeakObject:
             return (other == Object) || (other == WeakObject) || (other == String);
@@ -158,6 +165,8 @@ namespace af3d
             return toVec2f();
         case Vec3f:
             return toVec3f();
+        case Vec3i:
+            return toVec3i();
         case Vec4f:
             return toVec4f();
         case Object:
@@ -233,6 +242,11 @@ namespace af3d
             os << pod_.vec3fVal;
             return os.str();
         }
+        case Vec3i: {
+            std::ostringstream os;
+            os << pod_.vec3iVal;
+            return os.str();
+        }
         case Vec4f: {
             std::ostringstream os;
             os << pod_.vec4fVal;
@@ -283,6 +297,8 @@ namespace af3d
             return pod_.vec2fVal;
         case Vec3f:
             return Vector2f(pod_.vec3fVal.x(), pod_.vec3fVal.y());
+        case Vec3i:
+            return Vector2f(pod_.vec3iVal.x(), pod_.vec3iVal.y());
         case Vec4f:
             return Vector2f(pod_.vec4fVal.x(), pod_.vec4fVal.y());
         default:
@@ -297,10 +313,28 @@ namespace af3d
             return Vector3f(pod_.vec2fVal.x(), pod_.vec2fVal.y(), 0.0f);
         case Vec3f:
             return pod_.vec3fVal;
+        case Vec3i:
+            return Vector3f(pod_.vec3iVal.x(), pod_.vec3iVal.y(), pod_.vec3iVal.z());
         case Vec4f:
             return Vector3f(pod_.vec4fVal.x(), pod_.vec4fVal.y(), pod_.vec4fVal.z());
         default:
             return Vector3f_zero;
+        }
+    }
+
+    Vector3i APropertyValue::toVec3i() const
+    {
+        switch (type_) {
+        case Vec2f:
+            return Vector3i(pod_.vec2fVal.x(), pod_.vec2fVal.y(), 0.0f);
+        case Vec3f:
+            return Vector3i(pod_.vec3fVal.x(), pod_.vec3fVal.y(), pod_.vec3fVal.z());
+        case Vec3i:
+            return pod_.vec3iVal;
+        case Vec4f:
+            return Vector3i(pod_.vec4fVal.x(), pod_.vec4fVal.y(), pod_.vec4fVal.z());
+        default:
+            return Vector3i_zero;
         }
     }
 
@@ -311,6 +345,8 @@ namespace af3d
             return btVector3(pod_.vec2fVal.x(), pod_.vec2fVal.y(), 0.0f);
         case Vec3f:
             return fromVector3f(pod_.vec3fVal);
+        case Vec3i:
+            return btVector3(pod_.vec3iVal.x(), pod_.vec3iVal.y(), pod_.vec3iVal.z());
         case Vec4f:
             return btVector3(pod_.vec4fVal.x(), pod_.vec4fVal.y(), pod_.vec4fVal.z());
         default:
@@ -325,6 +361,8 @@ namespace af3d
             return Vector4f(pod_.vec2fVal.x(), pod_.vec2fVal.y(), 0.0f, 0.0f);
         case Vec3f:
             return Vector4f(pod_.vec3fVal.x(), pod_.vec3fVal.y(), pod_.vec3fVal.z(), 0.0f);
+        case Vec3i:
+            return Vector4f(pod_.vec3iVal.x(), pod_.vec3iVal.y(), pod_.vec3iVal.z(), 0.0f);
         case Vec4f:
             return pod_.vec4fVal;
         default:
@@ -404,6 +442,8 @@ namespace af3d
             return pod_.vec2fVal < rhs.pod_.vec2fVal;
         case Vec3f:
             return pod_.vec3fVal < rhs.pod_.vec3fVal;
+        case Vec3i:
+            return pod_.vec3iVal < rhs.pod_.vec3iVal;
         case Vec4f:
             return pod_.vec4fVal < rhs.pod_.vec4fVal;
         case Object:
@@ -448,6 +488,8 @@ namespace af3d
             return pod_.vec2fVal == rhs.pod_.vec2fVal;
         case Vec3f:
             return pod_.vec3fVal == rhs.pod_.vec3fVal;
+        case Vec3i:
+            return pod_.vec3iVal == rhs.pod_.vec3iVal;
         case Vec4f:
             return pod_.vec4fVal == rhs.pod_.vec4fVal;
         case Object:

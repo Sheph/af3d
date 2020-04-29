@@ -35,7 +35,8 @@ namespace af3d
         public CollisionShape
     {
     public:
-        CollisionShapeStaticMesh(const MeshPtr& mesh, int subMeshIndex);
+        CollisionShapeStaticMesh(const std::vector<APropertyValue>& vertices,
+            const std::vector<APropertyValue>& faces);
         ~CollisionShapeStaticMesh() = default;
 
         static const AClass& staticKlass();
@@ -49,7 +50,8 @@ namespace af3d
         void render(PhysicsDebugDraw& dd, const btVector3& c) override;
 
     private:
-        btTriangleMesh* initMesh(const MeshPtr& mesh, int subMeshIndex);
+        btTriangleMesh* initMesh(const std::vector<APropertyValue>& vertices,
+            const std::vector<APropertyValue>& faces);
 
         btTriangleMesh mesh_;
         btBvhTriangleMeshShape shape_;

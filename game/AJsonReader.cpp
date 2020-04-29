@@ -119,6 +119,22 @@ namespace af3d
                 jsonValue_[1].asFloat(), jsonValue_[2].asFloat()));
         }
 
+        void visitVec3i(const APropertyTypeVec3i& type) override
+        {
+            if (!jsonValue_.isArray() || (jsonValue_.size() != 3)) {
+                LOG4CPLUS_ERROR(logger(), "Vec3i not a json array(3)");
+                value_ = APropertyValue(Vector3i_zero);
+                return;
+            }
+            if (!jsonValue_[0].isInt() || !jsonValue_[1].isInt() || !jsonValue_[2].isInt()) {
+                LOG4CPLUS_ERROR(logger(), "Vec3i not a json array(int, int, int)");
+                value_ = APropertyValue(Vector3i_zero);
+                return;
+            }
+            value_ = APropertyValue(Vector3i(jsonValue_[0].asInt(),
+                jsonValue_[1].asInt(), jsonValue_[2].asInt()));
+        }
+
         void visitVec4f(const APropertyTypeVec4f& type) override
         {
             if (!jsonValue_.isArray() || (jsonValue_.size() != 4)) {

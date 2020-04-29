@@ -38,13 +38,17 @@ namespace af3d
     extern const APropertyTypeFloat APropertyType_FloatPercentage;
     extern const APropertyTypeFloat APropertyType_FloatRadian;
     extern const APropertyTypeString APropertyType_String;
+    extern const APropertyTypeString APropertyType_StringMesh;
     extern const APropertyTypeVec2f APropertyType_Vec2f;
     extern const APropertyTypeVec3f APropertyType_Vec3f;
+    extern const APropertyTypeVec3i APropertyType_Vec3i;
     extern const APropertyTypeVec4f APropertyType_Vec4f;
     extern const APropertyTypeColor APropertyType_ColorRGB;
     extern const APropertyTypeColor APropertyType_ColorRGBA;
     extern const APropertyTypeTransform APropertyType_Transform;
     extern const APropertyTypeQuaternion APropertyType_Quaternion;
+    extern const APropertyTypeArray APropertyType_ArrayVec3f;
+    extern const APropertyTypeArray APropertyType_ArrayVec3i;
 }
 
 #endif

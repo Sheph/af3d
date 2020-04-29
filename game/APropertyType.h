@@ -38,7 +38,8 @@ namespace af3d
     enum class APropertyUnit
     {
         Other = 0,
-        Radian = 1
+        Radian = 1,
+        Mesh = 2
     };
 
     class APropertyType : boost::noncopyable
@@ -112,7 +113,7 @@ namespace af3d
     class APropertyTypeString : public APropertyType
     {
     public:
-        APropertyTypeString();
+        explicit APropertyTypeString(APropertyUnit unit = APropertyUnit::Other);
 
         void accept(APropertyTypeVisitor& visitor) const override;
     };
@@ -129,6 +130,14 @@ namespace af3d
     {
     public:
         APropertyTypeVec3f();
+
+        void accept(APropertyTypeVisitor& visitor) const override;
+    };
+
+    class APropertyTypeVec3i : public APropertyType
+    {
+    public:
+        APropertyTypeVec3i();
 
         void accept(APropertyTypeVisitor& visitor) const override;
     };

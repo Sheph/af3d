@@ -24,19 +24,24 @@
  */
 
 #include "CollisionShapeStaticMesh.h"
+#include "MeshManager.h"
 #include "Logger.h"
 #include "PhysicsDebugDraw.h"
 
 namespace af3d
 {
     ACLASS_DEFINE_BEGIN(CollisionShapeStaticMesh, CollisionShape)
-    COLLISIONSHAPE_PARAM(CollisionShapeStaticMesh, "mesh", "Mesh", Mesh, MeshPtr())
+    COLLISIONSHAPE_PARAM(CollisionShapeStaticMesh, "mesh", "Mesh", StringMesh, "")
     COLLISIONSHAPE_PARAM(CollisionShapeStaticMesh, "submesh index", "SubMesh index (< 0 - use all)", Int, -1)
+    COLLISIONSHAPE_PARAM(CollisionShapeStaticMesh, "recreate", "Recreate", Bool, false)
+    COLLISIONSHAPE_PARAM_HIDDEN(CollisionShapeStaticMesh, "vertices", "Vertices", ArrayVec3f, std::vector<APropertyValue>{})
+    COLLISIONSHAPE_PARAM_HIDDEN(CollisionShapeStaticMesh, "faces", "Faces", ArrayVec3i, std::vector<APropertyValue>{})
     ACLASS_DEFINE_END(CollisionShapeStaticMesh)
 
-    CollisionShapeStaticMesh::CollisionShapeStaticMesh(const MeshPtr& mesh, int subMeshIndex)
+    CollisionShapeStaticMesh::CollisionShapeStaticMesh(const std::vector<APropertyValue>& vertices,
+        const std::vector<APropertyValue>& faces)
     : CollisionShape(AClass_CollisionShapeStaticMesh),
-      shape_(initMesh(mesh, subMeshIndex), true, true)
+      shape_(initMesh(vertices, faces), true, true)
     {
     }
 
@@ -47,8 +52,58 @@ namespace af3d
 
     AObjectPtr CollisionShapeStaticMesh::create(const APropertyValueMap& propVals)
     {
-        auto obj = std::make_shared<CollisionShapeStaticMesh>(propVals.get("mesh").toObject<Mesh>(), propVals.get("submesh index").toInt());
-        obj->afterCreate(propVals);
+        auto verts = propVals.get("vertices").toArray();
+        auto faces = propVals.get("faces").toArray();
+        bool recreate = propVals.get("recreate").toBool() || verts.empty() || faces.empty();
+
+        if (recreate) {
+            verts.clear();
+            faces.clear();
+
+            MeshPtr mesh = meshManager.loadMesh(propVals.get("mesh").toString());
+            if (!mesh) {
+                mesh = meshManager.loadMesh("cube.fbx");
+            }
+            int subMeshIndex = propVals.get("submesh index").toInt();
+
+            if (subMeshIndex >= static_cast<int>(mesh->subMeshes().size())) {
+                LOG4CPLUS_WARN(logger(), "subMeshIndex " << subMeshIndex << " too high, resetting to 0");
+                subMeshIndex = 0;
+            }
+
+            if (subMeshIndex < 0) {
+                int base = 0;
+                for (size_t i = 0; i < mesh->subMeshes().size(); ++i) {
+                    auto data = mesh->getSubMeshData(i);
+                    for (const auto& v : data->vertices()) {
+                        verts.emplace_back(v);
+                    }
+                    for (const auto& f : data->faces()) {
+                        faces.emplace_back(TriFace(base + f[0], base + f[1], base + f[2]));
+                    }
+                    base += data->vertices().size();
+                }
+            } else {
+                auto data = mesh->getSubMeshData(subMeshIndex);
+                for (const auto& v : data->vertices()) {
+                    verts.emplace_back(v);
+                }
+                for (const auto& f : data->faces()) {
+                    faces.emplace_back(f);
+                }
+            }
+        }
+
+        auto obj = std::make_shared<CollisionShapeStaticMesh>(verts, faces);
+        if (recreate) {
+            APropertyValueMap propVals2 = propVals;
+            propVals2.set("recreate", false);
+            propVals2.set("vertices", verts);
+            propVals2.set("faces", faces);
+            obj->afterCreate(propVals2);
+        } else {
+            obj->afterCreate(propVals);
+        }
         return obj;
     }
 
@@ -57,35 +112,17 @@ namespace af3d
         dd.drawMesh(&shape_, worldTransform(), c);
     }
 
-    btTriangleMesh* CollisionShapeStaticMesh::initMesh(const MeshPtr& mesh, int subMeshIndex)
+    btTriangleMesh* CollisionShapeStaticMesh::initMesh(const std::vector<APropertyValue>& vertices,
+        const std::vector<APropertyValue>& faces)
     {
         // TODO: cache btBvhTriangleMeshShape, use from cache.
 
-        if (subMeshIndex >= static_cast<int>(mesh->subMeshes().size())) {
-            LOG4CPLUS_WARN(logger(), "subMeshIndex " << subMeshIndex << " too high, resetting to 0");
-            subMeshIndex = 0;
+        for (const auto& v : vertices) {
+            mesh_.findOrAddVertex(v.toVec3(), false);
         }
-
-        if (subMeshIndex < 0) {
-            int base = 0;
-            for (size_t i = 0; i < mesh->subMeshes().size(); ++i) {
-                auto data = mesh->getSubMeshData(i);
-                for (const auto& v : data->vertices()) {
-                    mesh_.findOrAddVertex(fromVector3f(v), false);
-                }
-                for (const auto& f : data->faces()) {
-                    mesh_.addTriangleIndices(base + f[0], base + f[1], base + f[2]);
-                }
-                base += data->vertices().size();
-            }
-        } else {
-            auto data = mesh->getSubMeshData(subMeshIndex);
-            for (const auto& v : data->vertices()) {
-                mesh_.findOrAddVertex(fromVector3f(v), false);
-            }
-            for (const auto& f : data->faces()) {
-                mesh_.addTriangleIndices(f[0], f[1], f[2]);
-            }
+        for (const auto& f : faces) {
+            const auto& fv = f.toVec3i();
+            mesh_.addTriangleIndices(fv.x(), fv.y(), fv.z());
         }
 
         return &mesh_;
