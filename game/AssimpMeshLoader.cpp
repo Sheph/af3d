@@ -53,7 +53,7 @@ namespace af3d
             auto mat = materialManager.getMaterial(matName);
             if (!mat) {
                 aiString texPath;
-                bool haveNormalMap = (matData->GetTexture(aiTextureType_NORMALS, 0, &texPath) == aiReturn_SUCCESS);
+                bool haveNormalMap = (matData->GetTexture(aiTextureType_NORMALS, 0, &texPath) == aiReturn_SUCCESS) && scene_->mMeshes[0]->mTangents;
 
                 mat = materialManager.createMaterial((haveNormalMap ? MaterialTypeBasicNM : MaterialTypeBasic), matName);
                 runtime_assert(mat);
