@@ -70,6 +70,8 @@ namespace af3d
                 if (matData->GetTexture(aiTextureType_SPECULAR, 0, &texPath) == aiReturn_SUCCESS) {
                     mat->setTextureBinding(SamplerName::Specular,
                         TextureBinding(textureManager.loadTexture(texPath.C_Str())));
+                } else if (mat->textureBinding(SamplerName::Main).tex) {
+                    mat->setTextureBinding(SamplerName::Specular, mat->textureBinding(SamplerName::Main));
                 }
                 aiColor4D color;
                 if (aiGetMaterialColor(matData, AI_MATKEY_COLOR_DIFFUSE, &color) == aiReturn_SUCCESS) {
