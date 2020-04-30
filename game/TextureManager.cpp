@@ -68,7 +68,7 @@ namespace af3d
 
                 if (decoder_->decode(data)) {
                     texture.hwTex()->upload(GL_RGBA, decoder_->hasAlpha() ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE,
-                        reinterpret_cast<const GLvoid*>(&data[0]), ctx);
+                        reinterpret_cast<const GLvoid*>(&data[0]), true, ctx);
                 }
 
                 decoder_.reset();
@@ -135,7 +135,7 @@ namespace af3d
             tex->load();
         }
         std::vector<Byte> data{255, 255, 255, 255};
-        white1x1_->upload(GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, std::move(data));
+        white1x1_->upload(GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, std::move(data), false);
     }
 
     bool TextureManager::renderReload(HardwareContext& ctx)

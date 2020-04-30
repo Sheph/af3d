@@ -26,13 +26,69 @@
 #ifndef _HARDWARE_CONTEXT_H_
 #define _HARDWARE_CONTEXT_H_
 
-#include "af3d/Types.h"
-#include "OGL.h"
+#include "HardwareSampler.h"
+#include "HardwareProgram.h"
 #include "assimp/Importer.hpp"
 #include <boost/noncopyable.hpp>
+#include <boost/optional.hpp>
+#include <sstream>
+#include <map>
 
 namespace af3d
 {
+    struct SamplerParams
+    {
+        SamplerParams() = default;
+        SamplerParams(GLenum texMinFilter,
+            GLenum texWrapU,
+            GLenum texWrapV,
+            GLenum texMagFilter)
+        : texMinFilter(texMinFilter),
+          texWrapU(texWrapU),
+          texWrapV(texWrapV),
+          texMagFilter(texMagFilter) {}
+        SamplerParams(GLenum texWrapU,
+            GLenum texWrapV,
+            GLenum texMagFilter)
+        : texWrapU(texWrapU),
+          texWrapV(texWrapV),
+          texMagFilter(texMagFilter) {}
+        explicit SamplerParams(GLenum texMinFilter, GLenum texMagFilter = GL_LINEAR)
+        : texMinFilter(texMinFilter),
+          texMagFilter(texMagFilter) {}
+
+        inline bool operator<(const SamplerParams& other) const
+        {
+            if (texMinFilter != other.texMinFilter) {
+                return texMinFilter < other.texMinFilter;
+            }
+            if (texWrapU != other.texWrapU) {
+                return texWrapU < other.texWrapU;
+            }
+            if (texWrapV != other.texWrapV) {
+                return texWrapV < other.texWrapV;
+            }
+            return texMagFilter < other.texMagFilter;
+        }
+
+        inline std::string toString() const
+        {
+            std::ostringstream os;
+            if (texMinFilter) {
+                os << *texMinFilter;
+            } else {
+                os << 0;
+            }
+            os << "|" << texWrapU << "|" << texWrapV << "|" << texMagFilter;
+            return os.str();
+        }
+
+        boost::optional<GLenum> texMinFilter;
+        GLenum texWrapU = GL_REPEAT;
+        GLenum texWrapV = GL_REPEAT;
+        GLenum texMagFilter = GL_LINEAR;
+    };
+
     class HardwareContext : boost::noncopyable
     {
     public:
@@ -41,8 +97,25 @@ namespace af3d
 
         inline Assimp::Importer& importer() { return importer_; }
 
+        void setActiveTextureUnit(int unit);
+
+        void bindTexture(GLuint texId);
+
+        void bindSampler(int unit, const SamplerParams& params);
+
     private:
+        struct TextureUnit
+        {
+            GLuint texId = 0;
+            GLuint samplerId = 0;
+        };
+
+        using SamplerMap = std::map<SamplerParams, HardwareSamplerPtr>;
+
         Assimp::Importer importer_;
+        SamplerMap samplers_;
+        std::array<TextureUnit, static_cast<int>(SamplerName::Max) + 1> texUnits_;
+        int activeTexUnit_ = 0;
     };
 }
 

@@ -23,51 +23,33 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "HardwareTexture.h"
-#include "HardwareContext.h"
+#ifndef _HARDWARE_SAMPLER_H_
+#define _HARDWARE_SAMPLER_H_
+
+#include "HardwareResource.h"
 
 namespace af3d
 {
-    HardwareTexture::HardwareTexture(HardwareResourceManager* mgr, std::uint32_t width, std::uint32_t height)
-    : HardwareResource(mgr),
-      width_(width),
-      height_(height)
+    class HardwareSampler : public HardwareResource
     {
-    }
+    public:
+        explicit HardwareSampler(HardwareResourceManager* mgr);
+        ~HardwareSampler();
 
-    HardwareTexture::~HardwareTexture()
-    {
-        GLuint id = id_;
-        if (id != 0) {
-            cleanup([id](HardwareContext& ctx) {
-                ogl.DeleteTextures(1, &id);
-            });
-        } else {
-            cleanup();
-        }
-    }
+        void invalidate(HardwareContext& ctx) override;
 
-    void HardwareTexture::invalidate(HardwareContext& ctx)
-    {
-        id_ = 0;
-    }
+        GLuint id(HardwareContext& ctx) const override;
 
-    GLuint HardwareTexture::id(HardwareContext& ctx) const
-    {
-        return id_;
-    }
+        void setParameterFloat(GLenum pname, GLfloat param, HardwareContext& ctx);
+        void setParameterInt(GLenum pname, GLint param, HardwareContext& ctx);
 
-    void HardwareTexture::upload(GLint internalFormat, GLenum format, GLenum type, const GLvoid* pixels, bool genMipmap, HardwareContext& ctx)
-    {
-        if (id_ == 0) {
-            ogl.GenTextures(1, &id_);
-            btAssert(id_ != 0);
-        }
+    private:
+        void createSampler();
 
-        ctx.bindTexture(id_);
-        ogl.TexImage2D(GL_TEXTURE_2D, 0, internalFormat, width_, height_, 0, format, type, pixels);
-        if (genMipmap) {
-            ogl.GenerateMipmap(GL_TEXTURE_2D);
-        }
-    }
+        GLuint id_ = 0;
+    };
+
+    using HardwareSamplerPtr = std::shared_ptr<HardwareSampler>;
 }
+
+#endif

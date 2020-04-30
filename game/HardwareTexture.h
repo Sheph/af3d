@@ -44,7 +44,7 @@ namespace af3d
 
         GLuint id(HardwareContext& ctx) const override;
 
-        void upload(GLint internalFormat, GLenum format, GLenum type, const GLvoid* pixels, HardwareContext& ctx);
+        void upload(GLint internalFormat, GLenum format, GLenum type, const GLvoid* pixels, bool genMipmap, HardwareContext& ctx);
 
     private:
         std::uint32_t width_;

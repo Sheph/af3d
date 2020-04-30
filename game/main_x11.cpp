@@ -1212,6 +1212,11 @@ static bool OGLPreInit()
         }
     }
 
+    GL_GET_PROC(GenSamplers, glGenSamplers);
+    GL_GET_PROC(DeleteSamplers, glDeleteSamplers);
+    GL_GET_PROC(BindSampler, glBindSampler);
+    GL_GET_PROC(SamplerParameterf, glSamplerParameterf);
+    GL_GET_PROC(SamplerParameteri, glSamplerParameteri);
     GL_GET_PROC(DrawElementsBaseVertex, glDrawElementsBaseVertex);
     GL_GET_PROC(DepthMask, glDepthMask);
     GL_GET_PROC(DepthFunc, glDepthFunc);

@@ -329,14 +329,16 @@ namespace af3d
 
     void RenderNode::applyTextures(HardwareContext& ctx) const
     {
-        // TODO: Handle multitexturing and samplers.
         for (int i = 0; i < static_cast<int>(textures_.size()); ++i) {
-            ogl.ActiveTexture(GL_TEXTURE0 + i);
+            ctx.setActiveTextureUnit(i);
             GLuint id = textures_[i].tex ? textures_[i].tex->id(ctx) : 0;
             if (id == 0) {
                 id = textureManager.white1x1()->hwTex()->id(ctx);
+                ctx.bindSampler(i, SamplerParams(GL_NEAREST, GL_NEAREST));
+            } else {
+                ctx.bindSampler(i, textures_[i].params);
             }
-            ogl.BindTexture(GL_TEXTURE_2D, id);
+            ctx.bindTexture(id);
         }
     }
 

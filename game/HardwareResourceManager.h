@@ -30,6 +30,7 @@
 #include "HardwareVertexArray.h"
 #include "HardwareShader.h"
 #include "HardwareProgram.h"
+#include "HardwareSampler.h"
 #include "af3d/Single.h"
 #include <mutex>
 #include <unordered_set>
@@ -56,6 +57,7 @@ namespace af3d
         HardwareVertexArrayPtr createVertexArray();
         HardwareShaderPtr createShader(HardwareShader::Type type);
         HardwareProgramPtr createProgram();
+        HardwareSamplerPtr createSampler();
 
         void onResourceDestroy(HardwareResource* res, const HardwareResource::CleanupFn& cleanupFn);
 

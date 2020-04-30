@@ -145,7 +145,7 @@ namespace af3d
         io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
 
         fontsTex_->upload(GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE,
-            std::vector<Byte>(pixels, pixels + (fontsTex_->width() * fontsTex_->height() * 4)));
+            std::vector<Byte>(pixels, pixels + (fontsTex_->width() * fontsTex_->height() * 4)), false);
     }
 
     std::string ImGuiManager::cfgGet(const std::string& key, const std::string& def) const

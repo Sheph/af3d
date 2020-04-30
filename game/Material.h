@@ -30,8 +30,6 @@
 #include "MaterialType.h"
 #include "Texture.h"
 #include "af3d/Utils.h"
-#include <boost/optional.hpp>
-#include <sstream>
 
 namespace af3d
 {
@@ -128,50 +126,6 @@ namespace af3d
         GLenum blendDfactor;
         GLenum blendSfactorAlpha;
         GLenum blendDfactorAlpha;
-    };
-
-    struct SamplerParams
-    {
-        SamplerParams() = default;
-        SamplerParams(GLenum texFilter,
-            GLenum texWrapU,
-            GLenum texWrapV)
-        : texFilter(texFilter),
-          texWrapU(texWrapU),
-          texWrapV(texWrapV) {}
-        SamplerParams(GLenum texWrapU,
-            GLenum texWrapV)
-        : texWrapU(texWrapU),
-          texWrapV(texWrapV) {}
-        explicit SamplerParams(GLenum texFilter)
-        : texFilter(texFilter) {}
-
-        inline bool operator<(const SamplerParams& other) const
-        {
-            if (texFilter != other.texFilter) {
-                return texFilter < other.texFilter;
-            }
-            if (texWrapU != other.texWrapU) {
-                return texWrapU < other.texWrapU;
-            }
-            return texWrapV < other.texWrapV;
-        }
-
-        inline std::string toString() const
-        {
-            std::ostringstream os;
-            if (texFilter) {
-                os << *texFilter;
-            } else {
-                os << 0;
-            }
-            os << "|" << texWrapU << "|" << texWrapV;
-            return os.str();
-        }
-
-        boost::optional<GLenum> texFilter;
-        GLenum texWrapU = GL_REPEAT;
-        GLenum texWrapV = GL_REPEAT;
     };
 
     struct TextureBinding

@@ -24,6 +24,8 @@
  */
 
 #include "HardwareContext.h"
+#include "Settings.h"
+#include "HardwareResourceManager.h"
 #include "AssimpIOSystem.h"
 
 namespace af3d
@@ -31,5 +33,44 @@ namespace af3d
     HardwareContext::HardwareContext()
     {
         importer_.SetIOHandler(new AssimpIOSystem());
+    }
+
+    void HardwareContext::setActiveTextureUnit(int unit)
+    {
+        btAssert(unit < static_cast<int>(texUnits_.size()));
+        activeTexUnit_ = unit;
+        ogl.ActiveTexture(GL_TEXTURE0 + unit);
+    }
+
+    void HardwareContext::bindTexture(GLuint texId)
+    {
+        if (texId != texUnits_[activeTexUnit_].texId) {
+            texUnits_[activeTexUnit_].texId = texId;
+            ogl.BindTexture(GL_TEXTURE_2D, texId);
+        }
+    }
+
+    void HardwareContext::bindSampler(int unit, const SamplerParams& params)
+    {
+        auto it = samplers_.find(params);
+        if (it == samplers_.end()) {
+            auto sampler = hwManager.createSampler();
+            sampler->setParameterInt(GL_TEXTURE_MAG_FILTER, params.texMagFilter, *this);
+            if (params.texMinFilter) {
+                sampler->setParameterInt(GL_TEXTURE_MIN_FILTER, *params.texMinFilter, *this);
+            } else if (settings.trilinearFilter) {
+                sampler->setParameterInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR, *this);
+            } else {
+                sampler->setParameterInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST, *this);
+            }
+            sampler->setParameterInt(GL_TEXTURE_WRAP_S, params.texWrapU, *this);
+            sampler->setParameterInt(GL_TEXTURE_WRAP_T, params.texWrapV, *this);
+            it = samplers_.emplace(params, sampler).first;
+        }
+        auto samplerId = it->second->id(*this);
+        if (samplerId != texUnits_[activeTexUnit_].samplerId) {
+            texUnits_[activeTexUnit_].samplerId = samplerId;
+            ogl.BindSampler(activeTexUnit_, samplerId);
+        }
     }
 }

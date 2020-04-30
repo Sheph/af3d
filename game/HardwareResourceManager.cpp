@@ -124,6 +124,13 @@ namespace af3d
         return res;
     }
 
+    HardwareSamplerPtr HardwareResourceManager::createSampler()
+    {
+        auto res = std::make_shared<HardwareSampler>(this);
+        onResourceCreate(res);
+        return res;
+    }
+
     void HardwareResourceManager::onResourceDestroy(HardwareResource* res, const HardwareResource::CleanupFn& cleanupFn)
     {
         {

@@ -26,13 +26,15 @@
 #ifndef _HARDWARE_RESOURCE_H_
 #define _HARDWARE_RESOURCE_H_
 
-#include "HardwareContext.h"
 #include "af3d/Assert.h"
+#include "OGL.h"
+#include <boost/noncopyable.hpp>
 #include <memory>
 #include <functional>
 
 namespace af3d
 {
+    class HardwareContext;
     class HardwareResourceManager;
 
     class HardwareResource : boost::noncopyable

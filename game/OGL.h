@@ -50,6 +50,11 @@ namespace af3d
         OGL();
         ~OGL();
 
+        void (GLAPIENTRY* GenSamplers)(GLsizei n, GLuint* samplers);
+        void (GLAPIENTRY* DeleteSamplers)(GLsizei n, const GLuint* samplers);
+        void (GLAPIENTRY* BindSampler)(GLuint unit, GLuint sampler);
+        void (GLAPIENTRY* SamplerParameterf)(GLuint sampler, GLenum pname, GLfloat param);
+        void (GLAPIENTRY* SamplerParameteri)(GLuint sampler, GLenum pname, GLint param);
         void (GLAPIENTRY* DrawElementsBaseVertex)(GLenum mode, GLsizei count, GLenum type, void* indices, GLint basevertex);
         void (GLAPIENTRY* DepthMask)(GLboolean flag);
         void (GLAPIENTRY* DepthFunc)(GLenum func);

@@ -116,7 +116,7 @@ namespace af3d
                             }
                             mat = material_->clone();
                             mat->setTextureBinding(SamplerName::Main,
-                                TextureBinding(imGuiManager.fromTextureId(pcmd->TextureId)));
+                                TextureBinding(imGuiManager.fromTextureId(pcmd->TextureId), SamplerParams(GL_LINEAR, GL_LINEAR)));
                         }
 
                         lastTexId = pcmd->TextureId;

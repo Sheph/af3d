@@ -23,51 +23,54 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "HardwareTexture.h"
-#include "HardwareContext.h"
+#include "HardwareSampler.h"
 
 namespace af3d
 {
-    HardwareTexture::HardwareTexture(HardwareResourceManager* mgr, std::uint32_t width, std::uint32_t height)
-    : HardwareResource(mgr),
-      width_(width),
-      height_(height)
+    HardwareSampler::HardwareSampler(HardwareResourceManager* mgr)
+    : HardwareResource(mgr)
     {
     }
 
-    HardwareTexture::~HardwareTexture()
+    HardwareSampler::~HardwareSampler()
     {
         GLuint id = id_;
         if (id != 0) {
             cleanup([id](HardwareContext& ctx) {
-                ogl.DeleteTextures(1, &id);
+                ogl.DeleteSamplers(1, &id);
             });
         } else {
             cleanup();
         }
     }
 
-    void HardwareTexture::invalidate(HardwareContext& ctx)
+    void HardwareSampler::invalidate(HardwareContext& ctx)
     {
         id_ = 0;
     }
 
-    GLuint HardwareTexture::id(HardwareContext& ctx) const
+    GLuint HardwareSampler::id(HardwareContext& ctx) const
     {
         return id_;
     }
 
-    void HardwareTexture::upload(GLint internalFormat, GLenum format, GLenum type, const GLvoid* pixels, bool genMipmap, HardwareContext& ctx)
+    void HardwareSampler::setParameterFloat(GLenum pname, GLfloat param, HardwareContext& ctx)
+    {
+        createSampler();
+        ogl.SamplerParameterf(id_, pname, param);
+    }
+
+    void HardwareSampler::setParameterInt(GLenum pname, GLint param, HardwareContext& ctx)
+    {
+        createSampler();
+        ogl.SamplerParameteri(id_, pname, param);
+    }
+
+    void HardwareSampler::createSampler()
     {
         if (id_ == 0) {
-            ogl.GenTextures(1, &id_);
+            ogl.GenSamplers(1, &id_);
             btAssert(id_ != 0);
-        }
-
-        ctx.bindTexture(id_);
-        ogl.TexImage2D(GL_TEXTURE_2D, 0, internalFormat, width_, height_, 0, format, type, pixels);
-        if (genMipmap) {
-            ogl.GenerateMipmap(GL_TEXTURE_2D);
         }
     }
 }

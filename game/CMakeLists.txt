@@ -36,6 +36,7 @@ set(SOURCES
     HardwareShader.cpp
     HardwareTexture.cpp
     HardwareVertexArray.cpp
+    HardwareSampler.cpp
     Material.cpp
     MaterialManager.cpp
     MaterialType.cpp

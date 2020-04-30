@@ -40,11 +40,13 @@ namespace af3d
             TextureUploader(GLint internalFormat,
                 GLenum format,
                 GLenum type,
-                std::vector<Byte>&& pixels)
+                std::vector<Byte>&& pixels,
+                bool genMipmap)
             : internalFormat_(internalFormat),
               format_(format),
               type_(type),
-              pixels_(std::move(pixels))
+              pixels_(std::move(pixels)),
+              genMipmap_(genMipmap)
             {
             }
 
@@ -52,10 +54,10 @@ namespace af3d
             {
                 Texture& texture = static_cast<Texture&>(res);
 
-                LOG4CPLUS_DEBUG(logger(), "textureManager: loading " << texture.width() << "x" << texture.height() << "...");
+                LOG4CPLUS_DEBUG(logger(), "textureManager: loading " << texture.width() << "x" << texture.height() << (genMipmap_ ? " + mipmap..." : "..."));
 
                 texture.hwTex()->upload(internalFormat_, format_, type_,
-                    reinterpret_cast<const GLvoid*>(&pixels_[0]), ctx);
+                    reinterpret_cast<const GLvoid*>(&pixels_[0]), genMipmap_, ctx);
 
                 pixels_.clear();
             }
@@ -65,6 +67,7 @@ namespace af3d
             GLenum format_;
             GLenum type_;
             std::vector<Byte> pixels_;
+            bool genMipmap_;
         };
     }
 
@@ -92,8 +95,8 @@ namespace af3d
         return TexturePtr();
     }
 
-    void Texture::upload(GLint internalFormat, GLenum format, GLenum type, std::vector<Byte>&& pixels)
+    void Texture::upload(GLint internalFormat, GLenum format, GLenum type, std::vector<Byte>&& pixels, bool genMipmap)
     {
-        load(std::make_shared<TextureUploader>(internalFormat, format, type, std::move(pixels)));
+        load(std::make_shared<TextureUploader>(internalFormat, format, type, std::move(pixels), genMipmap));
     }
 }
