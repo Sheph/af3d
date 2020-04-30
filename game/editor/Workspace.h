@@ -116,6 +116,7 @@ namespace af3d { namespace editor
         inline Action& actionOpMenuAddLight() { return actionOpMenuAddLight_; }
         inline Action& actionOpMenuAddLightDirectional() { return actionOpMenuAddLightDirectional_; }
         inline Action& actionOpMenuAddLightPoint() { return actionOpMenuAddLightPoint_; }
+        inline Action& actionOpMenuAddLightSpot() { return actionOpMenuAddLightSpot_; }
         inline Action& actionOpMenuAddCollision() { return actionOpMenuAddCollision_; }
         inline Action& actionOpMenuAddCollisionBox() { return actionOpMenuAddCollisionBox_; }
         inline Action& actionOpMenuAddCollisionCapsule() { return actionOpMenuAddCollisionCapsule_; }
@@ -223,6 +224,7 @@ namespace af3d { namespace editor
         Action actionOpMenuAddLight_;
         Action actionOpMenuAddLightDirectional_;
         Action actionOpMenuAddLightPoint_;
+        Action actionOpMenuAddLightSpot_;
         Action actionOpMenuAddCollision_;
         Action actionOpMenuAddCollisionBox_;
         Action actionOpMenuAddCollisionCapsule_;

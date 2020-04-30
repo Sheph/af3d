@@ -11,6 +11,9 @@ uniform vec3 eyePos;
 uniform vec4 lightPos;
 uniform vec3 lightColor;
 uniform vec3 lightDir;
+uniform float lightCutoffCos;
+uniform float lightCutoffInnerCos;
+uniform float lightPower;
 
 in vec2 v_texCoord;
 in vec3 v_pos;
@@ -46,7 +49,17 @@ void main()
     } else {
         vec3 positionToLightSource = vec3(lightPos.xyz - v_pos);
         lightDirection = normalize(positionToLightSource);
-        attenuation = max(0.0, 1.0 - length(positionToLightSource) / lightDir.x);
+        attenuation = max(0.0, 1.0 - length(positionToLightSource) / length(lightDir));
+        if (lightPos.w == 3.0) {
+            // spot
+            float spotCosine = dot(-lightDirection, normalize(lightDir));
+            if (spotCosine < lightCutoffCos) {
+                attenuation = 0.0;
+            } else {
+                float spotValue = smoothstep(lightCutoffCos, lightCutoffInnerCos, spotCosine);
+                attenuation = attenuation * pow(spotValue, lightPower);
+            }
+        }
     }
 
     float diffuseCoeff = max(0.0, dot(normalDirection, lightDirection));

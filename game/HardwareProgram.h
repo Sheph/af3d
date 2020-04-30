@@ -53,6 +53,9 @@ namespace af3d
         LightPos, // LightPos = vec4(x,y,z,lightType)
         LightColor, // LightColor = vec3(r,g,b)
         LightDir, // length = distance
+        LightCutoffCos,
+        LightCutoffInnerCos,
+        LightPower,
         ViewportSize,
         FirstAuto = ViewProjMatrix,
         MaxAuto = ViewportSize,

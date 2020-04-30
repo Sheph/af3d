@@ -42,6 +42,7 @@
 #include "RenderGridComponent.h"
 #include "DirectionalLight.h"
 #include "PointLight.h"
+#include "SpotLight.h"
 #include "CollisionShapeBox.h"
 #include "CollisionShapeCapsule.h"
 #include "CollisionShapeSphere.h"
@@ -465,6 +466,7 @@ namespace editor {
         }, [this]() {
             actionOpMenuAddLightDirectional_.doMenuItem();
             actionOpMenuAddLightPoint_.doMenuItem();
+            actionOpMenuAddLightSpot_.doMenuItem();
         });
 
         actionOpMenuAddLightDirectional_ = Action("Directional", [this]() {
@@ -485,6 +487,16 @@ namespace editor {
                 std::make_shared<CommandAdd>(scene(),
                     emObject_->selected().back().lock().obj(),
                     PointLight::staticKlass(), "Point light", initVals));
+        });
+
+        actionOpMenuAddLightSpot_ = Action("Spot", [this]() {
+            return Action::State(!emObject_->selected().empty());
+        }, [this]() {
+            APropertyValueMap initVals;
+            cmdHistory_.add(
+                std::make_shared<CommandAdd>(scene(),
+                    emObject_->selected().back().lock().obj(),
+                    SpotLight::staticKlass(), "Spot light", initVals));
         });
 
         actionOpMenuAddCollision_ = Action("Collision", [this]() {
@@ -732,6 +744,7 @@ namespace editor {
         actions_.push_back(&actionOpMenuAddLight_);
         actions_.push_back(&actionOpMenuAddLightDirectional_);
         actions_.push_back(&actionOpMenuAddLightPoint_);
+        actions_.push_back(&actionOpMenuAddLightSpot_);
         actions_.push_back(&actionOpMenuAddCollision_);
         actions_.push_back(&actionOpMenuAddCollisionBox_);
         actions_.push_back(&actionOpMenuAddCollisionCapsule_);
