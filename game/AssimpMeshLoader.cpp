@@ -52,9 +52,17 @@ namespace af3d
             std::string matName = path_ + "/" + matData->GetName().C_Str();
             auto mat = materialManager.getMaterial(matName);
             if (!mat) {
-                mat = materialManager.createMaterial(MaterialTypeBasic, matName);
-                runtime_assert(mat);
                 aiString texPath;
+                bool haveNormalMap = (matData->GetTexture(aiTextureType_NORMALS, 0, &texPath) == aiReturn_SUCCESS);
+
+                mat = materialManager.createMaterial((haveNormalMap ? MaterialTypeBasicNM : MaterialTypeBasic), matName);
+                runtime_assert(mat);
+
+                if (haveNormalMap) {
+                    mat->setTextureBinding(SamplerName::Normal,
+                        TextureBinding(textureManager.loadTexture(texPath.C_Str())));
+                }
+
                 if (matData->GetTexture(aiTextureType_DIFFUSE, 0, &texPath) == aiReturn_SUCCESS) {
                     mat->setTextureBinding(SamplerName::Main,
                         TextureBinding(textureManager.loadTexture(texPath.C_Str())));
@@ -91,12 +99,6 @@ namespace af3d
             mats[i] = mat;
         }
 
-        VertexArrayLayout vaLayout;
-
-        vaLayout.addEntry(VertexArrayEntry(VertexAttribName::Pos, GL_FLOAT_VEC3, 0, 0));
-        vaLayout.addEntry(VertexArrayEntry(VertexAttribName::UV, GL_FLOAT_VEC2, 12, 0));
-        vaLayout.addEntry(VertexArrayEntry(VertexAttribName::Normal, GL_FLOAT_VEC3, 20, 0));
-
         for (std::uint32_t i = 0; i < scene_->mNumMeshes; ++i) {
             auto meshData = scene_->mMeshes[i];
 
@@ -109,7 +111,20 @@ namespace af3d
                 aabb.combine(fromAssimp(meshData->mVertices[j]));
             }
 
-            auto vbo = hwManager.createVertexBuffer(HardwareBuffer::Usage::StaticDraw, 32);
+            VertexArrayLayout vaLayout;
+            GLsizeiptr vboElSize = 32;
+
+            vaLayout.addEntry(VertexArrayEntry(VertexAttribName::Pos, GL_FLOAT_VEC3, 0, 0));
+            vaLayout.addEntry(VertexArrayEntry(VertexAttribName::UV, GL_FLOAT_VEC2, 12, 0));
+            vaLayout.addEntry(VertexArrayEntry(VertexAttribName::Normal, GL_FLOAT_VEC3, 20, 0));
+
+            if (mats[meshData->mMaterialIndex]->type()->name() == MaterialTypeBasicNM) {
+                vaLayout.addEntry(VertexArrayEntry(VertexAttribName::Tangent, GL_FLOAT_VEC3, 32, 0));
+                vaLayout.addEntry(VertexArrayEntry(VertexAttribName::Bitangent, GL_FLOAT_VEC3, 44, 0));
+                vboElSize = 56;
+            }
+
+            auto vbo = hwManager.createVertexBuffer(HardwareBuffer::Usage::StaticDraw, vboElSize);
             auto ebo = hwManager.createIndexBuffer(HardwareBuffer::Usage::StaticDraw, HardwareIndexBuffer::UInt16);
 
             auto va = std::make_shared<VertexArray>(hwManager.createVertexArray(), vaLayout, VBOList{vbo}, ebo);
@@ -136,6 +151,7 @@ namespace af3d
             const auto& va = mesh.subMeshes()[i]->vaSlice().va();
             auto vbo = va->vbos()[0];
             auto ebo = va->ebo();
+            bool withTangent = (mesh.subMeshes()[i]->material()->type()->name() == MaterialTypeBasicNM);
 
             vbo->resize(meshData->mNumVertices, ctx);
             ebo->resize(meshData->mNumFaces * 3, ctx);
@@ -165,6 +181,20 @@ namespace af3d
                 ++verts;
                 *verts = meshData->mNormals[j].z;
                 ++verts;
+                if (withTangent) {
+                    *verts = meshData->mTangents[j].x;
+                    ++verts;
+                    *verts = meshData->mTangents[j].y;
+                    ++verts;
+                    *verts = meshData->mTangents[j].z;
+                    ++verts;
+                    *verts = meshData->mBitangents[j].x;
+                    ++verts;
+                    *verts = meshData->mBitangents[j].y;
+                    ++verts;
+                    *verts = meshData->mBitangents[j].z;
+                    ++verts;
+                }
             }
 
             for (std::uint32_t j = 0; j < meshData->mNumFaces; ++j) {
@@ -193,6 +223,9 @@ namespace af3d
 
     AssimpScenePtr AssimpMeshLoader::loadScene(Assimp::Importer& importer)
     {
-        return assimpImport(importer, path_, aiProcess_Triangulate);
+        return assimpImport(importer, path_, aiProcess_CalcTangentSpace |
+            aiProcess_JoinIdenticalVertices |
+            aiProcess_Triangulate |
+            aiProcess_SortByPType);
     }
 }

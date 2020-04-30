@@ -39,7 +39,9 @@ namespace af3d
         UV,
         Normal,
         Color, // Unlit shader only!
-        Max = Color
+        Tangent,
+        Bitangent,
+        Max = Bitangent
     };
 
     enum class UniformName

@@ -39,6 +39,7 @@ namespace af3d
     enum MaterialTypeName
     {
         MaterialTypeBasic = 0, // Basic lit shader.
+        MaterialTypeBasicNM,   // Basic lit shader /w normal map.
         MaterialTypeUnlit,     // Unlit shader.
         MaterialTypeUnlitVC,   // Unlit shader with per-vertex color.
         MaterialTypeImm,       // Immediate draw shader. pos(3d), color(4d) and one texture(2d)

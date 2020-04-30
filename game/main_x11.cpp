@@ -1212,6 +1212,7 @@ static bool OGLPreInit()
         }
     }
 
+    GL_GET_PROC(PixelStorei, glPixelStorei);
     GL_GET_PROC(GenSamplers, glGenSamplers);
     GL_GET_PROC(DeleteSamplers, glDeleteSamplers);
     GL_GET_PROC(BindSampler, glBindSampler);

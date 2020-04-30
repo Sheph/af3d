@@ -50,6 +50,7 @@ namespace af3d
         OGL();
         ~OGL();
 
+        void (GLAPIENTRY* PixelStorei)(GLenum pname, GLint param);
         void (GLAPIENTRY* GenSamplers)(GLsizei n, GLuint* samplers);
         void (GLAPIENTRY* DeleteSamplers)(GLsizei n, const GLuint* samplers);
         void (GLAPIENTRY* BindSampler)(GLuint unit, GLuint sampler);

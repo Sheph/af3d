@@ -1,6 +1,7 @@
-#version 330 core
-
 uniform sampler2D texMain;
+#ifdef NM
+uniform sampler2D texNormal;
+#endif
 uniform sampler2D texSpecular;
 
 uniform vec4 mainColor;
@@ -12,8 +13,12 @@ uniform vec3 lightColor;
 uniform vec3 lightDir;
 
 in vec2 v_texCoord;
-in vec3 v_normal;
 in vec3 v_pos;
+#ifdef NM
+in mat3 v_tbn;
+#else
+in vec3 v_normal;
+#endif
 
 out vec4 fragColor;
 
@@ -25,7 +30,11 @@ void main()
         return;
     }
 
+#ifdef NM
+    vec3 normalDirection = normalize(v_tbn * normalize(2.0 * texture(texNormal, v_texCoord).rgb - 1.0));
+#else
     vec3 normalDirection = normalize(v_normal);
+#endif
     vec3 viewDirection = normalize(eyePos - v_pos);
     vec3 lightDirection;
     float attenuation;

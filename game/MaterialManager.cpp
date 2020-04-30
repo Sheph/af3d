@@ -37,13 +37,15 @@ namespace af3d
         const char* vert;
         const char* frag;
         bool usesLight;
+        const char* header;
     } shaders[MaterialTypeMax + 1] = {
-        {"shaders/basic.vert", "shaders/basic.frag", true},
-        {"shaders/unlit.vert", "shaders/unlit.frag", false},
-        {"shaders/unlit-vc.vert", "shaders/unlit-vc.frag", false},
-        {"shaders/imm.vert", "shaders/imm.frag", false},
-        {"shaders/outline.vert", "shaders/outline.frag", false},
-        {"shaders/grid.vert", "shaders/grid.frag", false}
+        {"shaders/basic.vert", "shaders/basic.frag", true, "#version 330 core\n"},
+        {"shaders/basic.vert", "shaders/basic.frag", true, "#version 330 core\n#define NM 1\n"},
+        {"shaders/unlit.vert", "shaders/unlit.frag", false, nullptr},
+        {"shaders/unlit-vc.vert", "shaders/unlit-vc.frag", false, nullptr},
+        {"shaders/imm.vert", "shaders/imm.frag", false, nullptr},
+        {"shaders/outline.vert", "shaders/outline.frag", false, nullptr},
+        {"shaders/grid.vert", "shaders/grid.frag", false, nullptr}
     };
 
     MaterialManager materialManager;
@@ -117,6 +119,11 @@ namespace af3d
             if (!readStream(isFrag, fragSource)) {
                 LOG4CPLUS_ERROR(logger(), "Unable to read \"" << shaders[mat->name()].frag << "\"");
                 return false;
+            }
+
+            if (shaders[mat->name()].header) {
+                vertSource = shaders[mat->name()].header + vertSource;
+                fragSource = shaders[mat->name()].header + fragSource;
             }
 
             if (!mat->reload(vertSource, fragSource, ctx)) {

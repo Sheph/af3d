@@ -41,13 +41,17 @@ namespace af3d
         {"texCoord", VertexAttribName::UV},
         {"normal", VertexAttribName::Normal},
         {"color", VertexAttribName::Color},
+        {"tangent", VertexAttribName::Tangent},
+        {"bitangent", VertexAttribName::Bitangent},
     };
 
     static const GLint staticVertexAttribLocations[static_cast<int>(VertexAttribName::Max) + 1] = {
         0,
         1,
         2,
-        3
+        3,
+        4,
+        5
     };
 
     static const std::unordered_map<std::string, UniformName> staticUniformMap = {
@@ -230,6 +234,8 @@ namespace af3d
         GLint cnt = 0;
         ogl.GetProgramiv(id_, GL_ACTIVE_UNIFORMS, &cnt);
 
+        std::array<GLint, static_cast<int>(SamplerName::Max) + 1> samplerLocations;
+
         for (GLuint i = 0; i < static_cast<GLuint>(cnt); ++i) {
             GLint size = 0;
             GLenum type = 0;
@@ -249,6 +255,8 @@ namespace af3d
 
                 samplers_.set(it->second);
 
+                samplerLocations[static_cast<int>(it->second)] = ogl.GetUniformLocation(id_, name);
+
                 continue;
             }
 
@@ -262,6 +270,16 @@ namespace af3d
 
             activeUniforms_[it->second] = VariableInfo(type, size, location);
         }
+
+        ogl.UseProgram(id_);
+        int texUnit = 0;
+        for (int i = 0; i <= static_cast<int>(SamplerName::Max); ++i) {
+            SamplerName sName = static_cast<SamplerName>(i);
+            if (samplers_[sName]) {
+                ogl.Uniform1i(samplerLocations[i], texUnit++);
+            }
+        }
+        ogl.UseProgram(0);
 
         return true;
     }
