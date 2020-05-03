@@ -152,10 +152,9 @@ namespace af3d
         auto obj = std::make_shared<SceneObject>();
 
         auto cam = std::make_shared<Camera>();
-        cam->setOrder(1);
+        cam->setOrder(-1);
         cam->setAspect(settings.viewAspect);
-        cam->setViewport(AABB2i(Vector2i(10, 10), Vector2i(500 * settings.viewAspect, 500)));
-        cam->setClearMask(GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        cam->setViewport(AABB2i(Vector2i(0, 0), Vector2i(400, 225)));
         cam->setTargetTexture(textureManager.createRenderTexture(4.0f));
 
         auto c = std::make_shared<CameraUsageComponent>(cam);
@@ -176,7 +175,8 @@ namespace af3d
         auto mesh = meshManager.loadMesh("cube.fbx");
         if (c && c->camera()->targetTexture()) {
             mesh = mesh->clone();
-            mesh->subMeshes()[0]->material()->setTextureBinding(SamplerName::Main, TextureBinding(c->camera()->targetTexture()));
+            mesh->subMeshes()[0]->material()->setTextureBinding(SamplerName::Main,
+                TextureBinding(c->camera()->targetTexture(), SamplerParams(GL_LINEAR)));
         }
 
         auto obj = std::make_shared<SceneObject>();

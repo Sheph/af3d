@@ -27,6 +27,7 @@
 #include "Settings.h"
 #include "HardwareResourceManager.h"
 #include "AssimpIOSystem.h"
+#include "Logger.h"
 
 namespace af3d
 {
@@ -76,5 +77,50 @@ namespace af3d
 
     void HardwareContext::setRenderTarget(const HardwareTexturePtr& tex)
     {
+        HardwareFramebufferPtr fb;
+
+        for (auto it = framebuffers_.begin(); it != framebuffers_.end();) {
+            const auto& res = (*it)->attachment(HardwareFramebuffer::ColorAttachment, *this);
+            if (res == tex) {
+                btAssert(tex);
+                fb = *it;
+                ++it;
+            } else if (res.use_count() == 1) {
+                LOG4CPLUS_DEBUG(logger(), "hwContext: framebuffer " << res.get() << " is done");
+                framebuffers_.erase(it++);
+            } else {
+                ++it;
+            }
+        }
+
+        if (!fb && tex) {
+            fb = hwManager.createFramebuffer();
+            fb->attachTexture(HardwareFramebuffer::ColorAttachment, tex, *this);
+            auto rb = hwManager.createRenderbuffer(tex->width(), tex->height());
+            rb->allocate(GL_DEPTH24_STENCIL8, *this);
+            fb->attachTexture(HardwareFramebuffer::ColorAttachment, tex, *this);
+            fb->attachRenderbuffer(HardwareFramebuffer::DepthAttachment, rb, *this);
+            fb->attachRenderbuffer(HardwareFramebuffer::StencilAttachment, rb, *this);
+            if (!fb->checkStatus()) {
+                LOG4CPLUS_ERROR(logger(), "hwContext: framebuffer not complete, wtf ???");
+            }
+            framebuffers_.push_back(fb);
+        }
+
+        if (fb) {
+            if (currentFbId_ == 0) {
+                ogl.GetIntegerv(GL_FRAMEBUFFER_BINDING, (GLint*)&defaultFbId_);
+            }
+
+            GLuint fbId = fb->id(*this);
+            if (fbId != currentFbId_) {
+                currentFbId_ = fbId;
+                ogl.BindFramebuffer(GL_FRAMEBUFFER, fbId);
+            }
+        } else if (currentFbId_ != 0) {
+            currentFbId_ = 0;
+            ogl.BindFramebuffer(GL_FRAMEBUFFER, defaultFbId_);
+            defaultFbId_ = 0;
+        }
     }
 }

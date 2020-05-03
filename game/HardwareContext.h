@@ -114,13 +114,16 @@ namespace af3d
         };
 
         using SamplerMap = std::map<SamplerParams, HardwareSamplerPtr>;
+        using FramebufferList = std::list<HardwareFramebufferPtr>;
 
         Assimp::Importer importer_;
         SamplerMap samplers_;
+        FramebufferList framebuffers_;
         std::array<TextureUnit, static_cast<int>(SamplerName::Max) + 1> texUnits_;
         int activeTexUnit_ = 0;
 
-        GLuint defaultFb_ = 0;
+        GLuint defaultFbId_ = 0;
+        GLuint currentFbId_ = 0;
     };
 }
 

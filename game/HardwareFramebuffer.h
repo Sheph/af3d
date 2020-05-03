@@ -49,6 +49,8 @@ namespace af3d
 
         GLuint id(HardwareContext& ctx) const override;
 
+        inline const HardwareResourcePtr& attachment(Attachment attachment, HardwareContext& ctx) const { return attachments_[attachment]; }
+
         void attachTexture(Attachment attachment, const HardwareTexturePtr& texture, HardwareContext& ctx);
 
         void attachRenderbuffer(Attachment attachment, const HardwareRenderbufferPtr& rb, HardwareContext& ctx);
