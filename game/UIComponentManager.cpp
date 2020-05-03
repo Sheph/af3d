@@ -39,6 +39,17 @@ namespace af3d
         }
     }
 
+    UIComponentManager::UIComponentManager()
+    : uiCamera_(std::make_shared<Camera>())
+    {
+        uiCamera_->setProjectionType(ProjectionType::Orthographic);
+        uiCamera_->setAspect(settings.viewAspect);
+        uiCamera_->setNearDist(-1.0f);
+        uiCamera_->setFarDist(1.0f);
+        uiCamera_->setFlipY(true);
+        uiCamera_->setClearMask(0);
+    }
+
     UIComponentManager::~UIComponentManager()
     {
         btAssert(components_.empty());
@@ -110,22 +121,13 @@ namespace af3d
         AABB2i viewport(Vector2i(settings.viewX, settings.viewY),
                 Vector2i(settings.viewX + settings.viewWidth, settings.viewY + settings.viewHeight));
 
-        Frustum frustum;
-
-        frustum.setProjectionType(ProjectionType::Orthographic);
-        frustum.setOrthoHeight(settings.viewHeight);
-        frustum.setAspect(settings.viewAspect);
-        frustum.setNearDist(-1.0f);
-        frustum.setFarDist(1.0f);
-        frustum.setFlipY(true);
+        uiCamera_->setOrthoHeight(settings.viewHeight);
         btTransform xf = btTransform::getIdentity();
         xf.setOrigin(btVector3(0.5f * settings.viewWidth, 0.5f * settings.viewHeight, 0.0f));
-        frustum.setTransform(xf);
+        uiCamera_->setTransform(xf);
+        uiCamera_->setViewport(viewport);
 
-        RenderSettings rs;
-        rs.setClearMask(0);
-
-        RenderList rl(viewport, frustum, rs, defaultVa);
+        RenderList rl(uiCamera_, defaultVa);
 
         for (const auto& c : components_) {
             if (c->visible()) {

@@ -25,8 +25,8 @@
 
 #include "CameraComponent.h"
 #include "SceneObject.h"
+#include "Scene.h"
 #include "InputManager.h"
-#include "Logger.h"
 #include "imgui.h"
 
 namespace af3d
@@ -34,9 +34,8 @@ namespace af3d
     ACLASS_DEFINE_BEGIN(CameraComponent, PhasedComponent)
     ACLASS_DEFINE_END(CameraComponent)
 
-    CameraComponent::CameraComponent(const btTransform& xf)
-    : PhasedComponent(AClass_CameraComponent, phasePreRender),
-      xf_(xf)
+    CameraComponent::CameraComponent()
+    : PhasedComponent(AClass_CameraComponent, phasePreRender)
     {
     }
 
@@ -54,6 +53,8 @@ namespace af3d
 
     void CameraComponent::preRender(float dt)
     {
+        parent()->setTransform(scene()->mainCamera()->transform());
+
         ImGuiIO& io = ImGui::GetIO();
 
         if (io.WantCaptureMouse || io.WantCaptureKeyboard) {
@@ -87,71 +88,32 @@ namespace af3d
 
         if (!inputManager.mouse().pressed(false)) {
             mousePressed_ = false;
+            scene()->mainCamera()->setTransform(parent()->smoothTransform());
             return;
         }
 
         if (!mousePressed_) {
             mousePressed_ = true;
             mousePrevPos_ = inputManager.mouse().pos();
+            scene()->mainCamera()->setTransform(parent()->smoothTransform());
             return;
         }
 
-        auto sz = viewport_.upperBound - viewport_.lowerBound;
-
-        auto diff = (inputManager.mouse().pos() - mousePrevPos_) / Vector2f(sz.x(), sz.y());
+        auto diff = scene()->mainCamera()->screenToViewport(inputManager.mouse().pos()) - scene()->mainCamera()->screenToViewport(mousePrevPos_);
 
         auto dir = quatRotate(btQuaternion(btVector3_up, btRadians(-diff.x() * 80.0f)), parent()->getForward());
-        dir = quatRotate(btQuaternion(parent()->getRight(), btRadians(-diff.y() * 80.0f)), dir);
+        dir = quatRotate(btQuaternion(parent()->getRight(), btRadians(diff.y() * 80.0f)), dir);
 
         parent()->setBasis(makeLookBasis(dir, btVector3_up));
 
         mousePrevPos_ = inputManager.mouse().pos();
-    }
 
-    const Frustum& CameraComponent::getFrustum() const
-    {
-        frustum_.setTransform(parent()->smoothTransform() * xf_);
-        return frustum_;
-    }
-
-    Vector2f CameraComponent::screenToViewport(const Vector2f& pt) const
-    {
-        auto sz = viewport_.upperBound - viewport_.lowerBound;
-
-        return Vector2f(pt.x() / sz.x(), (sz.y() - pt.y()) / sz.y());
-    }
-
-    Ray CameraComponent::screenPointToRay(const Vector2f& pt) const
-    {
-        return viewportPointToRay(screenToViewport(pt));
-    }
-
-    Ray CameraComponent::viewportPointToRay(const Vector2f& pt) const
-    {
-        float nx = (2.0f * pt.x()) - 1.0f;
-        float ny = (2.0f * pt.y()) - 1.0f;
-
-        Vector4f near(nx, ny, -1.0f, 1.0f);
-        // Use midPoint rather than far point to avoid issues with infinite projection.
-        Vector4f mid(nx, ny, 0.0f, 1.0f);
-
-        const auto& frustum = getFrustum();
-        auto invM = frustum.viewProjMat().inverse();
-
-        auto pos4 = invM * near;
-        auto target4 = invM * mid;
-
-        auto pos = toVector3(pos4 / pos4.w());
-        auto target = toVector3(target4 / target4.w());
-
-        auto dir = target - pos;
-        btZeroNormalize(dir);
-
-        return Ray(pos, dir);
+        scene()->mainCamera()->setTransform(parent()->smoothTransform());
     }
 
     void CameraComponent::onRegister()
     {
+        parent()->setTransform(scene()->mainCamera()->transform());
     }
 
     void CameraComponent::onUnregister()

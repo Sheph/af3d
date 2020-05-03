@@ -55,8 +55,7 @@ namespace af3d
     void Light::update(float dt)
     {
         if (markerRc_) {
-            auto cc = scene()->camera()->findComponent<CameraComponent>();
-            auto viewExt = cc->getFrustum().getExtents((parent()->transform() * xf_).getOrigin());
+            auto viewExt = scene()->mainCamera()->frustum().getExtents((parent()->transform() * xf_).getOrigin());
             float markerSz = markerRc_->mesh()->aabb().getLargestSize();
             if ((markerSz * settings.viewHeight / viewExt.y()) > settings.editor.lightMarkerSizePixels) {
                 markerRc_->setScale(btVector3_one * viewExt.y() *
@@ -66,7 +65,7 @@ namespace af3d
             }
             if (!usesDirection_) {
                 markerRc_->setTransform(
-                    btTransform(parent()->basis().inverse() * scene()->camera()->basis(),
+                    btTransform(parent()->basis().inverse() * scene()->mainCamera()->transform().getBasis(),
                         markerRc_->transform().getOrigin()));
             }
 

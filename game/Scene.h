@@ -31,6 +31,7 @@
 #include "ImGuiComponent.h"
 #include "CollisionMatrix.h"
 #include "Joint.h"
+#include "Camera.h"
 #include "editor/Workspace.h"
 #include "af3d/AABB.h"
 #include <functional>
@@ -102,7 +103,13 @@ namespace af3d
 
         inline const editor::WorkspacePtr& workspace() const { return workspace_; }
 
-        inline const SceneObjectPtr& camera() const { return camera_; }
+        inline const std::unordered_set<CameraPtr>& cameras() const { return cameras_; }
+
+        inline const CameraPtr& mainCamera() const { return mainCamera_; }
+
+        void addCamera(const CameraPtr& c);
+
+        void removeCamera(const CameraPtr& c);
 
         inline bool playable() const { return playable_; }
 
@@ -183,9 +190,11 @@ namespace af3d
         class Impl;
         std::unique_ptr<Impl> impl_;
 
+        std::unordered_set<CameraPtr> cameras_;
+        CameraPtr mainCamera_;
+
         InputMode inputMode_;
         SceneObjectPtr workspaceObj_;
-        SceneObjectPtr camera_;
         SceneObjectPtr dummy_;
         SceneObjectPtr root_;
         editor::WorkspacePtr workspace_;

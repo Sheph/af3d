@@ -234,7 +234,6 @@ namespace af3d
                 .def("removeTimer", &Scene::removeTimer)
                 .def("setNextLevel", &Scene::setNextLevel)
                 .def("restartLevel", &Scene::restartLevel)
-                .property("camera", &Scene::camera)
                 .property("respawnPoint", &Scene::respawnPoint, &Scene::setRespawnPoint, luabind::copy(luabind::result))
                 .property("checkpoint", &Scene::checkpoint, &Scene::setCheckpoint)
                 .property("cutscene", &Scene::cutscene, &Scene::setCutscene)
@@ -267,8 +266,6 @@ namespace af3d
 
             luabind::class_<UIComponent, Component, AObjectPtr>("UIComponent")
                 .property("zOrder", &UIComponent::zOrder),
-
-            luabind::class_<CameraComponent, PhasedComponent, AObjectPtr>("CameraComponent"),
 
             luabind::class_<UITimerComponent, UIComponent, ScriptUITimerComponent, AObjectPtr>("UITimerComponent")
                 .def(luabind::constructor<luabind::object, float, int>()),
@@ -304,7 +301,6 @@ namespace af3d
                 .property("rotation", &SceneObject::rotation, &SceneObject::setRotation)
                 .property("linearVelocity", &SceneObject::linearVelocity, &SceneObject::setLinearVelocity)
                 .property("angularVelocity", &SceneObject::angularVelocity, &SceneObject::setAngularVelocity)
-                .def("findCameraComponent", &SceneObject::findComponent<CameraComponent>)
                 .def("findPhysicsBodyComponent", &SceneObject::findComponent<PhysicsBodyComponent>)
                 .def("findCollisionSensorComponent", &SceneObject::findComponent<CollisionSensorComponent>)
                 .property("bodyType", &SceneObject::bodyType, &SceneObject::setBodyType)

@@ -27,10 +27,7 @@
 #define _CAMERACOMPONENT_H_
 
 #include "PhasedComponent.h"
-#include "RenderSettings.h"
-#include "af3d/Frustum.h"
-#include "af3d/AABB2.h"
-#include "af3d/Ray.h"
+#include "Camera.h"
 
 namespace af3d
 {
@@ -38,7 +35,7 @@ namespace af3d
         public PhasedComponent
     {
     public:
-        explicit CameraComponent(const btTransform& xf = btTransform::getIdentity());
+        CameraComponent();
         ~CameraComponent() = default;
 
         static const AClass& staticKlass();
@@ -49,54 +46,10 @@ namespace af3d
 
         void preRender(float dt) override;
 
-        inline const btTransform& transform() const { return xf_; }
-        inline void setTransform(const btTransform& value) { xf_ = value; }
-
-        inline ProjectionType projectionType() const { return frustum_.projectionType(); }
-        inline void setProjectionType(ProjectionType value) { frustum_.setProjectionType(value); }
-
-        inline float fov() const { return frustum_.fov(); }
-        inline void setFov(float value) { frustum_.setFov(value); }
-
-        inline float orthoHeight() const { return frustum_.orthoHeight(); }
-        inline void setOrthoHeight(float value) { frustum_.setOrthoHeight(value); }
-
-        inline float aspect() const { return frustum_.aspect(); }
-        inline void setAspect(float value) { frustum_.setAspect(value); }
-
-        inline float nearDist() const { return frustum_.nearDist(); }
-        inline void setNearDist(float value) { frustum_.setNearDist(value); }
-
-        inline float farDist() const { return frustum_.farDist(); }
-        inline void setFarDist(float value) { frustum_.setFarDist(value); }
-
-        inline const AABB2i& viewport() const { return viewport_; }
-        inline void setViewport(const AABB2i& value) { viewport_ = value; }
-
-        const Frustum& getFrustum() const;
-
-        inline RenderSettings& renderSettings() { return renderSettings_; }
-
-        Vector2f screenToViewport(const Vector2f& pt) const;
-
-        // pt is pixels, (0,0) - top-left, (w,h) - bottom-right
-        Ray screenPointToRay(const Vector2f& pt) const;
-
-        // pt is in range 0.0-1.0, (0,0) - bottom-left, (1,1) - top-right
-        Ray viewportPointToRay(const Vector2f& pt) const;
-
     private:
         void onRegister() override;
 
         void onUnregister() override;
-
-        btTransform xf_;
-
-        AABB2i viewport_{Vector2i(0, 0), Vector2i(0, 0)};
-
-        mutable Frustum frustum_;
-
-        RenderSettings renderSettings_;
 
         bool mousePressed_ = false;
         Vector2f mousePrevPos_;

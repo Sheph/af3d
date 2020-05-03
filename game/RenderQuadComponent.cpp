@@ -84,11 +84,11 @@ namespace af3d
             material_ = materialManager.loadImmMaterial(image.texture(), SamplerParams(), depthTest_);
         }
 
-        const auto& vRight = rl.frustum().transform().getBasis().getColumn(0);
-        const auto& vUp = rl.frustum().transform().getBasis().getColumn(1);
+        const auto& vRight = rl.camera()->frustum().transform().getBasis().getColumn(0);
+        const auto& vUp = rl.camera()->frustum().transform().getBasis().getColumn(1);
 
         if (viewportHeight_ > 0.0f) {
-            float h = viewportHeight_ * rl.frustum().getExtents(worldCenter_).y();
+            float h = viewportHeight_ * rl.camera()->frustum().getExtents(worldCenter_).y();
             if (h > size_.y()) {
                 h = size_.y();
             }

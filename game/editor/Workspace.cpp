@@ -226,7 +226,7 @@ namespace editor {
         }
 
         APropertyValueMap initVals;
-        initVals.set(AProperty_WorldTransform, scene()->camera()->transform() * toTransform(btVector3_forward * 5.0f));
+        initVals.set(AProperty_WorldTransform, scene()->mainCamera()->transform() * toTransform(btVector3_forward * 5.0f));
 
         cmdHistory_.add(
              std::make_shared<CommandAdd>(scene(), scene()->sharedThis(), *klass, "\"" + kind + "\" object",
@@ -610,7 +610,7 @@ namespace editor {
             return Action::State(true);
         }, [this]() {
             APropertyValueMap initVals;
-            initVals.set(AProperty_WorldPosition, scene()->camera()->transform() * (btVector3_forward * 5.0f));
+            initVals.set(AProperty_WorldPosition, scene()->mainCamera()->transform() * (btVector3_forward * 5.0f));
             cmdHistory_.add(
                 std::make_shared<CommandAdd>(scene(),
                     scene()->sharedThis(),
@@ -621,7 +621,7 @@ namespace editor {
             return Action::State(true);
         }, [this]() {
             APropertyValueMap initVals;
-            initVals.set(AProperty_WorldPosition, scene()->camera()->transform() * (btVector3_forward * 5.0f));
+            initVals.set(AProperty_WorldPosition, scene()->mainCamera()->transform() * (btVector3_forward * 5.0f));
             cmdHistory_.add(
                 std::make_shared<CommandAdd>(scene(),
                     scene()->sharedThis(),
@@ -632,7 +632,7 @@ namespace editor {
             return Action::State(true);
         }, [this]() {
             APropertyValueMap initVals;
-            initVals.set(AProperty_WorldPosition, scene()->camera()->transform() * (btVector3_forward * 5.0f));
+            initVals.set(AProperty_WorldPosition, scene()->mainCamera()->transform() * (btVector3_forward * 5.0f));
             cmdHistory_.add(
                 std::make_shared<CommandAdd>(scene(),
                     scene()->sharedThis(),
@@ -643,7 +643,7 @@ namespace editor {
             return Action::State(true);
         }, [this]() {
             APropertyValueMap initVals;
-            initVals.set(AProperty_WorldPosition, scene()->camera()->transform() * (btVector3_forward * 5.0f));
+            initVals.set(AProperty_WorldPosition, scene()->mainCamera()->transform() * (btVector3_forward * 5.0f));
             cmdHistory_.add(
                 std::make_shared<CommandAdd>(scene(),
                     scene()->sharedThis(),
@@ -654,7 +654,7 @@ namespace editor {
             return Action::State(true);
         }, [this]() {
             APropertyValueMap initVals;
-            initVals.set(AProperty_WorldPosition, scene()->camera()->transform() * (btVector3_forward * 5.0f));
+            initVals.set(AProperty_WorldPosition, scene()->mainCamera()->transform() * (btVector3_forward * 5.0f));
             cmdHistory_.add(
                 std::make_shared<CommandAdd>(scene(),
                     scene()->sharedThis(),

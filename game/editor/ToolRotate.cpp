@@ -147,9 +147,7 @@ namespace af3d { namespace editor
 
                 if (rc_->rotateType() == RotateType::Trackball) {
                     if (capturedMousePos() != inputManager.mouse().pos()) {
-                        auto cc = scene()->camera()->findComponent<CameraComponent>();
-
-                        auto diff = cc->screenToViewport(inputManager.mouse().pos()) - cc->screenToViewport(capturedMousePos());
+                        auto diff = scene()->mainCamera()->screenToViewport(inputManager.mouse().pos()) - scene()->mainCamera()->screenToViewport(capturedMousePos());
 
                         xf.setRotation(btQuaternion((p2 - p1).cross(plane.normal), -diff.length() * SIMD_PI * 2.0f) *
                             xf.getRotation());

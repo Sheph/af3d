@@ -66,8 +66,8 @@ namespace af3d
 
     void RenderGridComponent::render(RenderList& rl, void* const* parts, size_t numParts)
     {
-        auto p = btPlaneProject(plane_, rl.frustum().transform().getOrigin());
-        float dist = (p - rl.frustum().transform().getOrigin()).length();
+        auto p = btPlaneProject(plane_, rl.camera()->frustum().transform().getOrigin());
+        float dist = (p - rl.camera()->frustum().transform().getOrigin()).length();
         auto vRight = parent()->getSmoothRight();
         auto vUp = parent()->getSmoothUp();
 
@@ -78,7 +78,7 @@ namespace af3d
 
         material_->params().setUniform(UniformName::GridStep, step_ * btPow(10.0f, power));
 
-        auto sz = rl.frustum().farDist();
+        auto sz = rl.camera()->frustum().farDist();
 
         auto p0 = p + (- vRight - vUp) * sz;
         auto p1 = p + (vRight - vUp) * sz;

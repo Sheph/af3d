@@ -393,8 +393,7 @@ namespace af3d { namespace ImGuiUtils
                 if (inputManager.keyboard().triggered(KI_ESCAPE)) {
                     ret = true;
                 } else {
-                    auto cc = scene_->camera()->findComponent<CameraComponent>();
-                    auto res = em->rayCast(cc->getFrustum(), cc->screenPointToRay(inputManager.mouse().pos()));
+                    auto res = em->rayCast(scene_->mainCamera()->frustum(), scene_->mainCamera()->screenPointToRay(inputManager.mouse().pos()));
                     if (!res.empty()) {
                         if (inputManager.mouse().triggered(true)) {
                             obj = aobjectCast<T>(res.obj());

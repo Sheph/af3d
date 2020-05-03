@@ -26,13 +26,11 @@
 #ifndef _RENDER_LIST_H_
 #define _RENDER_LIST_H_
 
+#include "Camera.h"
 #include "Material.h"
 #include "VertexArraySlice.h"
 #include "VertexArrayWriter.h"
 #include "RenderNode.h"
-#include "RenderSettings.h"
-#include "af3d/Frustum.h"
-#include "af3d/Vector2.h"
 
 namespace af3d
 {
@@ -99,11 +97,10 @@ namespace af3d
     class RenderList : boost::noncopyable
     {
     public:
-        RenderList(const AABB2i& viewport, const Frustum& frustum,
-            const RenderSettings& rs, VertexArrayWriter& defaultVa);
+        RenderList(const CameraPtr& camera, VertexArrayWriter& defaultVa);
         ~RenderList() = default;
 
-        inline const Frustum& frustum() const { return frustum_; }
+        inline const CameraPtr& camera() const { return camera_; }
 
         void addGeometry(const Matrix4f& modelMat, const AABB& aabb, const MaterialPtr& material,
             const VertexArraySlice& vaSlice, GLenum primitiveMode,
@@ -185,9 +182,7 @@ namespace af3d
         using GeometryList = std::vector<Geometry>;
         using LightList = std::vector<LightPtr>;
 
-        AABB2i viewport_;
-        const Frustum& frustum_;
-        const RenderSettings& rs_;
+        const CameraPtr& camera_;
         VertexArrayWriter& defaultVa_;
 
         GeometryList geomList_;

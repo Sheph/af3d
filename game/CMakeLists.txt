@@ -5,6 +5,7 @@ set(SOURCES
     RenderComponentManager.cpp
     PhasedComponentManager.cpp
     CameraComponent.cpp
+    Camera.cpp
     DummyShell.cpp
     Game.cpp
     GameLogAppender.cpp

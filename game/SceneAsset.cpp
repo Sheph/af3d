@@ -61,9 +61,9 @@ namespace af3d
         scene->setGravity(gravity_);
         scene->setName(name());
         scene->setScriptPath(scriptPath_);
-        scene->camera()->setTransform(cameraXf_);
-        scene->camera()->findComponent<CameraComponent>()->renderSettings().setClearColor(clearColor_);
-        scene->camera()->findComponent<CameraComponent>()->renderSettings().setAmbientColor(ambientColor_);
+        scene->mainCamera()->setTransform(cameraXf_);
+        scene->mainCamera()->setClearColor(clearColor_);
+        scene->mainCamera()->setAmbientColor(ambientColor_);
         for (const auto& obj : objects_) {
             scene->addObject(obj);
         }

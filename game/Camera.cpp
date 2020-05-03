@@ -23,52 +23,62 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _UICOMPONENTMANAGER_H_
-#define _UICOMPONENTMANAGER_H_
-
-#include "ComponentManager.h"
 #include "Camera.h"
-#include "RenderNode.h"
-#include "VertexArrayWriter.h"
-#include <set>
 
 namespace af3d
 {
-    class UIComponent;
-    using UIComponentPtr = std::shared_ptr<UIComponent>;
+    ACLASS_DEFINE_BEGIN(Camera, AObject)
+    ACLASS_DEFINE_END(Camera)
 
-    class UIComponentComparer : public std::binary_function<UIComponentPtr, UIComponentPtr, bool>
+    Camera::Camera()
+    : AObject(AClass_Camera)
     {
-    public:
-        bool operator()(const UIComponentPtr& l, const UIComponentPtr& r) const;
-    };
+    }
 
-    class UIComponentManager : public ComponentManager
+    const AClass& Camera::staticKlass()
     {
-    public:
-        UIComponentManager();
-        ~UIComponentManager();
+        return AClass_Camera;
+    }
 
-        virtual void cleanup() override;
+    AObjectPtr Camera::create(const APropertyValueMap& propVals)
+    {
+        auto obj = std::make_shared<Camera>();
+        obj->propertiesSet(propVals);
+        return obj;
+    }
 
-        virtual void addComponent(const ComponentPtr& component) override;
+    Vector2f Camera::screenToViewport(const Vector2f& pt) const
+    {
+        auto sz = viewport().upperBound - viewport().lowerBound;
 
-        virtual void removeComponent(const ComponentPtr& component) override;
+        return Vector2f(pt.x() / sz.x(), (sz.y() - pt.y()) / sz.y());
+    }
 
-        virtual void freezeComponent(const ComponentPtr& component) override;
+    Ray Camera::screenPointToRay(const Vector2f& pt) const
+    {
+        return viewportPointToRay(screenToViewport(pt));
+    }
 
-        virtual void thawComponent(const ComponentPtr& component) override;
+    Ray Camera::viewportPointToRay(const Vector2f& pt) const
+    {
+        float nx = (2.0f * pt.x()) - 1.0f;
+        float ny = (2.0f * pt.y()) - 1.0f;
 
-        virtual bool update(float dt) override;
+        Vector4f near(nx, ny, -1.0f, 1.0f);
+        // Use midPoint rather than far point to avoid issues with infinite projection.
+        Vector4f mid(nx, ny, 0.0f, 1.0f);
 
-        virtual void debugDraw(RenderList& rl) override;
+        auto invM = frustum().viewProjMat().inverse();
 
-        RenderNodePtr render(VertexArrayWriter& defaultVa);
+        auto pos4 = invM * near;
+        auto target4 = invM * mid;
 
-    private:
-        std::set<UIComponentPtr, UIComponentComparer> components_;
-        CameraPtr uiCamera_;
-    };
+        auto pos = toVector3(pos4 / pos4.w());
+        auto target = toVector3(target4 / target4.w());
+
+        auto dir = target - pos;
+        btZeroNormalize(dir);
+
+        return Ray(pos, dir);
+    }
 }
-
-#endif

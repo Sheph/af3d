@@ -34,7 +34,6 @@
 #include "SequentialTweening.h"
 #include "ScriptComponent.h"
 #include "ScriptUITimerComponent.h"
-#include "CameraComponent.h"
 #include "PhysicsBodyComponent.h"
 #include "CollisionSensorComponent.h"
 #include "ScriptCollisionComponent.h"

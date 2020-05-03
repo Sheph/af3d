@@ -106,15 +106,13 @@ namespace af3d { namespace editor
                 capturedRay_ = Ray_empty;
                 workspace().unlock();
             } else {
-                auto cc = scene()->camera()->findComponent<CameraComponent>();
-                auto ray = cc->screenPointToRay(inputManager.mouse().pos());
-                gizmoMove(cc->getFrustum(), ray);
+                auto ray = scene()->mainCamera()->screenPointToRay(inputManager.mouse().pos());
+                gizmoMove(scene()->mainCamera()->frustum(), ray);
             }
         } else if (!uiInput && inputManager.mouse().triggered(true)) {
             if (workspace().lock()) {
-                auto cc = scene()->camera()->findComponent<CameraComponent>();
-                auto ray = cc->screenPointToRay(inputManager.mouse().pos());
-                if (gizmoCapture(cc->getFrustum(), ray)) {
+                auto ray = scene()->mainCamera()->screenPointToRay(inputManager.mouse().pos());
+                if (gizmoCapture(scene()->mainCamera()->frustum(), ray)) {
                     capturedRay_ = ray;
                     capturedMousePos_ = inputManager.mouse().pos();
                 } else {
@@ -122,9 +120,8 @@ namespace af3d { namespace editor
                 }
             }
         } else if (!uiInput && !inputManager.mouse().pressed(true)) {
-            auto cc = scene()->camera()->findComponent<CameraComponent>();
-            auto ray = cc->screenPointToRay(inputManager.mouse().pos());
-            gizmoMove(cc->getFrustum(), ray);
+            auto ray = scene()->mainCamera()->screenPointToRay(inputManager.mouse().pos());
+            gizmoMove(scene()->mainCamera()->frustum(), ray);
         }
     }
 

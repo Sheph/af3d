@@ -70,7 +70,7 @@ namespace af3d
 
     void RenderGizmoAxesComponent::render(RenderList& rl, void* const* parts, size_t numParts)
     {
-        auto sz = getSizes(rl.frustum());
+        auto sz = getSizes(rl.camera()->frustum());
 
         auto rop = rl.addGeometry(materialManager.matImmDefault(false, false), GL_TRIANGLES, 1.0f);
 
@@ -109,7 +109,7 @@ namespace af3d
                 {vRight * sz.boxSize, vForward * sz.boxSize, vUp * sz.boxSize}, Color(1.0f, 1.0f, 1.0f, alpha(MoveType::PlaneCurrent)));
         } else {
             rop.addRing(txf.getOrigin(),
-                rl.frustum().plane(Frustum::Plane::Far).normal * sz.lineRadius, sz.ringRadius, Color(1.0f, 1.0f, 1.0f, alpha(MoveType::PlaneCurrent)));
+                rl.camera()->frustum().plane(Frustum::Plane::Far).normal * sz.lineRadius, sz.ringRadius, Color(1.0f, 1.0f, 1.0f, alpha(MoveType::PlaneCurrent)));
         }
     }
 

@@ -96,7 +96,7 @@ namespace af3d
 
         dd.setAlpha(c.w());
 
-        auto viewExt = rl.frustum().getExtents(parent()->pos());
+        auto viewExt = rl.camera()->frustum().getExtents(parent()->pos());
         auto sz = viewportSize_ * viewExt.y();
         if (sz > radius_) {
             sz = radius_;

@@ -382,11 +382,8 @@ namespace af3d
         }
     }
 
-    RenderList::RenderList(const AABB2i& viewport, const Frustum& frustum,
-        const RenderSettings& rs, VertexArrayWriter& defaultVa)
-    : viewport_(viewport),
-      frustum_(frustum),
-      rs_(rs),
+    RenderList::RenderList(const CameraPtr& camera, VertexArrayWriter& defaultVa)
+    : camera_(camera),
       defaultVa_(defaultVa)
     {
     }
@@ -442,7 +439,7 @@ namespace af3d
 
     RenderNodePtr RenderList::compile() const
     {
-        auto rn = std::make_shared<RenderNode>(viewport_, rs_.clearMask(), rs_.clearColor());
+        auto rn = std::make_shared<RenderNode>(camera_->viewport(), camera_->clearMask(), camera_->clearColor());
         RenderNode tmpNode;
         for (const auto& geom : geomList_) {
             auto& params = rn->add(std::move(tmpNode), 0, geom.material,
@@ -455,7 +452,7 @@ namespace af3d
                 params.setUniform(UniformName::LightPos, Vector4f_zero);
             }
             if (activeUniforms.count(UniformName::LightColor) > 0) {
-                auto ac = rs_.ambientColor();
+                auto ac = camera_->ambientColor();
                 params.setUniform(UniformName::LightColor, Vector3f(ac.x(), ac.y(), ac.z()) * ac.w());
             }
         }
@@ -473,7 +470,7 @@ namespace af3d
                     GL_EQUAL, geom.depthValue,
                     lightBp, geom.flipCull, geom.vaSlice, geom.primitiveMode, geom.scissorParams);
                 setAutoParams(geom, params);
-                light->setupMaterial(frustum_.transform().getOrigin(), params);
+                light->setupMaterial(camera_->frustum().transform().getOrigin(), params);
             }
         }
 
@@ -482,7 +479,7 @@ namespace af3d
 
     void RenderList::setAutoParams(const Geometry& geom, MaterialParams& params) const
     {
-        const Matrix4f& viewProjMat = frustum_.viewProjMat();
+        const Matrix4f& viewProjMat = camera_->frustum().viewProjMat();
 
         const auto& activeUniforms = geom.material->type()->prog()->activeUniforms();
 
@@ -496,10 +493,10 @@ namespace af3d
             params.setUniform(UniformName::ModelMatrix, geom.modelMat);
         }
         if (activeUniforms.count(UniformName::EyePos) > 0) {
-            params.setUniform(UniformName::EyePos, frustum_.transform().getOrigin());
+            params.setUniform(UniformName::EyePos, camera_->frustum().transform().getOrigin());
         }
         if (activeUniforms.count(UniformName::ViewportSize) > 0) {
-            params.setUniform(UniformName::ViewportSize, Vector2f::fromVector2i(viewport_.getSize()));
+            params.setUniform(UniformName::ViewportSize, Vector2f::fromVector2i(camera_->viewport().getSize()));
         }
     }
 }

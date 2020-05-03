@@ -63,9 +63,7 @@ namespace af3d { namespace editor
             return;
         }
 
-        auto cc = scene()->camera()->findComponent<CameraComponent>();
-
-        auto res = em->rayCast(cc->getFrustum(), cc->screenPointToRay(inputManager.mouse().pos()));
+        auto res = em->rayCast(scene()->mainCamera()->frustum(), scene()->mainCamera()->screenPointToRay(inputManager.mouse().pos()));
 
         if (!res.empty()) {
             em->setHovered(EditMode::AWeakList{res.toWItem()});

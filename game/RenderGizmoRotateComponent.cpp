@@ -70,7 +70,7 @@ namespace af3d
 
     void RenderGizmoRotateComponent::render(RenderList& rl, void* const* parts, size_t numParts)
     {
-        auto sz = getSizes(rl.frustum());
+        auto sz = getSizes(rl.camera()->frustum());
 
         auto rop = rl.addGeometry(materialManager.matImmDefault(false, true), GL_TRIANGLES, 1.0f);
 
@@ -81,14 +81,14 @@ namespace af3d
         auto vRight = txf.getBasis() * btVector3_right;
 
         rop.addCircle(txf.getOrigin(),
-            rl.frustum().plane(Frustum::Plane::Far).normal * sz.radius1, Color(1.0f, 1.0f, 1.0f, alpha(RotateType::Trackball) * 0.15f));
+            rl.camera()->frustum().plane(Frustum::Plane::Far).normal * sz.radius1, Color(1.0f, 1.0f, 1.0f, alpha(RotateType::Trackball) * 0.15f));
 
         rop.addRing(txf.getOrigin(), vRight * sz.width, sz.radius1, Color(1.0f, 0.0f, 0.0f, alpha(RotateType::PlaneX)));
         rop.addRing(txf.getOrigin(), vUp * sz.width, sz.radius1, Color(0.0f, 1.0f, 0.0f, alpha(RotateType::PlaneY)));
         rop.addRing(txf.getOrigin(), vForward * sz.width, sz.radius1, Color(0.0f, 0.0f, 1.0f, alpha(RotateType::PlaneZ)));
 
         rop.addRing(txf.getOrigin(),
-            rl.frustum().plane(Frustum::Plane::Far).normal * sz.width, sz.radius2, Color(1.0f, 1.0f, 1.0f, alpha(RotateType::PlaneCurrent)));
+            rl.camera()->frustum().plane(Frustum::Plane::Far).normal * sz.width, sz.radius2, Color(1.0f, 1.0f, 1.0f, alpha(RotateType::PlaneCurrent)));
     }
 
     std::pair<AObjectPtr, float> RenderGizmoRotateComponent::testRay(const Frustum& frustum, const Ray& ray, void* part)

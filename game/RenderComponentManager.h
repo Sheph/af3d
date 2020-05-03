@@ -27,8 +27,7 @@
 #define _RENDERCOMPONENTMANAGER_H_
 
 #include "ComponentManager.h"
-#include "CameraComponent.h"
-#include "af3d/Ray.h"
+#include "Camera.h"
 #include "bullet/BulletCollision/BroadphaseCollision/btDbvt.h"
 #include <unordered_set>
 #include <list>
@@ -73,7 +72,7 @@ namespace af3d
 
         void removeAABB(RenderCookie* cookie);
 
-        void cull(const CameraComponentPtr& cc);
+        void cull(const CameraPtr& cc);
 
         void render(RenderList& rl);
 

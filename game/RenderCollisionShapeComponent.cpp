@@ -73,7 +73,7 @@ namespace af3d
     {
         float alphaFactor = std::numeric_limits<float>::max();
         for (int i = 0; i < 8; ++i) {
-            float dist = btPlanePointDistance(rl.frustum().plane(Frustum::Plane::Near), prevAABB_.getCorner(static_cast<AABB::Corner>(i)));
+            float dist = btPlanePointDistance(rl.camera()->frustum().plane(Frustum::Plane::Near), prevAABB_.getCorner(static_cast<AABB::Corner>(i)));
             if (dist < alphaFactor) {
                 alphaFactor = dist;
             }

@@ -75,7 +75,7 @@ namespace af3d
         auto vUp = xf.getBasis() * btVector3_up;
         auto vRight = xf.getBasis() * btVector3_right;
 
-        auto viewExt = rl.frustum().getExtents(xf.getOrigin());
+        auto viewExt = rl.camera()->frustum().getExtents(xf.getOrigin());
         float lineLength = viewportLength_ * viewExt.y();
         float lineRadius = viewportRadius_ * viewExt.y();
 
