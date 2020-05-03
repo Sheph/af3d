@@ -72,9 +72,7 @@ namespace af3d
 
         void removeAABB(RenderCookie* cookie);
 
-        void cull(const CameraPtr& cc);
-
-        void render(RenderList& rl);
+        void render(RenderList& rl) const;
 
         void rayCast(const Frustum& frustum, const Ray& ray, const RayCastRenderFn& fn) const;
 

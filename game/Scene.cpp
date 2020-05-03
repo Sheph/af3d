@@ -271,6 +271,8 @@ namespace af3d
 
         mainCamera_ = std::make_shared<Camera>();
         mainCamera_->setAspect(settings.viewAspect);
+        mainCamera_->setViewport(AABB2i(Vector2i(settings.viewX, settings.viewY),
+            Vector2i(settings.viewX + settings.viewWidth, settings.viewY + settings.viewHeight)));
         addCamera(mainCamera_);
 
         auto cameraObj = std::make_shared<SceneObject>();
@@ -442,7 +444,6 @@ namespace af3d
             * it can run custom logic...
             */
             impl_->renderComponentManager_->update(dt);
-            impl_->renderComponentManager_->cull(mainCamera_);
         } else {
             mainCamera_->setViewport(AABB2i(Vector2i(settings.viewX, settings.viewY),
                 Vector2i(settings.viewX + settings.viewWidth, settings.viewY + settings.viewHeight)));
@@ -450,28 +451,34 @@ namespace af3d
             impl_->uiComponentManager_->update(dt);
             if (forceUpdateRender || !paused_) {
                 impl_->renderComponentManager_->update(dt);
-                impl_->renderComponentManager_->cull(mainCamera_);
             }
         }
 
-        RenderNodeList rnList;
-        rnList.reserve(2);
+        std::vector<CameraPtr> cams(cameras_.begin(), cameras_.end());
+        std::sort(cams.begin(), cams.end(), [](const CameraPtr& a, const CameraPtr& b) {
+            return a->order() < b->order();
+        });
 
-        {
-            RenderList rl(mainCamera_, impl_->defaultVa_);
+        RenderNodeList rnList;
+        rnList.reserve(cams.size() + 1);
+
+        for (const auto& c : cams) {
+            RenderList rl(c, impl_->defaultVa_);
 
             impl_->renderComponentManager_->render(rl);
 
-            if (inputManager.physicsDebugPressed()) {
-                impl_->debugDraw_.setRenderList(&rl);
-                impl_->physicsComponentManager_->world().debugDrawWorld();
-                impl_->debugDraw_.setRenderList(nullptr);
-            }
+            if (c == mainCamera_) {
+                if (inputManager.physicsDebugPressed()) {
+                    impl_->debugDraw_.setRenderList(&rl);
+                    impl_->physicsComponentManager_->world().debugDrawWorld();
+                    impl_->debugDraw_.setRenderList(nullptr);
+                }
 
-            if (inputManager.gameDebugPressed()) {
-                impl_->physicsComponentManager_->debugDraw(rl);
-                impl_->phasedComponentManager_->debugDraw(rl);
-                impl_->renderComponentManager_->debugDraw(rl);
+                if (inputManager.gameDebugPressed()) {
+                    impl_->physicsComponentManager_->debugDraw(rl);
+                    impl_->phasedComponentManager_->debugDraw(rl);
+                    impl_->renderComponentManager_->debugDraw(rl);
+                }
             }
 
             rnList.push_back(rl.compile());
