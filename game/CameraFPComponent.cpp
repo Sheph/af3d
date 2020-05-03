@@ -23,7 +23,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "CameraComponent.h"
+#include "CameraFPComponent.h"
 #include "SceneObject.h"
 #include "Scene.h"
 #include "InputManager.h"
@@ -31,29 +31,28 @@
 
 namespace af3d
 {
-    ACLASS_DEFINE_BEGIN(CameraComponent, PhasedComponent)
-    ACLASS_DEFINE_END(CameraComponent)
+    ACLASS_DEFINE_BEGIN(CameraFPComponent, PhasedComponent)
+    ACLASS_DEFINE_END(CameraFPComponent)
 
-    CameraComponent::CameraComponent()
-    : PhasedComponent(AClass_CameraComponent, phasePreRender)
+    CameraFPComponent::CameraFPComponent(const CameraPtr& camera)
+    : PhasedComponent(AClass_CameraFPComponent, phasePreRender),
+      camera_(camera)
     {
     }
 
-    const AClass& CameraComponent::staticKlass()
+    const AClass& CameraFPComponent::staticKlass()
     {
-        return AClass_CameraComponent;
+        return AClass_CameraFPComponent;
     }
 
-    AObjectPtr CameraComponent::create(const APropertyValueMap& propVals)
+    AObjectPtr CameraFPComponent::create(const APropertyValueMap& propVals)
     {
-        auto obj = std::make_shared<CameraComponent>();
-        obj->propertiesSet(propVals);
-        return obj;
+        return AObjectPtr();
     }
 
-    void CameraComponent::preRender(float dt)
+    void CameraFPComponent::preRender(float dt)
     {
-        parent()->setTransform(scene()->mainCamera()->transform());
+        parent()->setTransform(camera_->transform());
 
         ImGuiIO& io = ImGui::GetIO();
 
@@ -88,18 +87,18 @@ namespace af3d
 
         if (!inputManager.mouse().pressed(false)) {
             mousePressed_ = false;
-            scene()->mainCamera()->setTransform(parent()->smoothTransform());
+            camera_->setTransform(parent()->smoothTransform());
             return;
         }
 
         if (!mousePressed_) {
             mousePressed_ = true;
             mousePrevPos_ = inputManager.mouse().pos();
-            scene()->mainCamera()->setTransform(parent()->smoothTransform());
+            camera_->setTransform(parent()->smoothTransform());
             return;
         }
 
-        auto diff = scene()->mainCamera()->screenToViewport(inputManager.mouse().pos()) - scene()->mainCamera()->screenToViewport(mousePrevPos_);
+        auto diff = camera_->screenToViewport(inputManager.mouse().pos()) - camera_->screenToViewport(mousePrevPos_);
 
         auto dir = quatRotate(btQuaternion(btVector3_up, btRadians(-diff.x() * 80.0f)), parent()->getForward());
         dir = quatRotate(btQuaternion(parent()->getRight(), btRadians(diff.y() * 80.0f)), dir);
@@ -108,15 +107,15 @@ namespace af3d
 
         mousePrevPos_ = inputManager.mouse().pos();
 
-        scene()->mainCamera()->setTransform(parent()->smoothTransform());
+        camera_->setTransform(parent()->smoothTransform());
     }
 
-    void CameraComponent::onRegister()
+    void CameraFPComponent::onRegister()
     {
-        parent()->setTransform(scene()->mainCamera()->transform());
+        parent()->setTransform(camera_->transform());
     }
 
-    void CameraComponent::onUnregister()
+    void CameraFPComponent::onUnregister()
     {
     }
 }

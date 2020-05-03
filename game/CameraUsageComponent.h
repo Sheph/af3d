@@ -23,56 +23,44 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "editor/ToolSelect.h"
-#include "editor/Workspace.h"
-#include "editor/EditMode.h"
-#include "AssetManager.h"
-#include "InputManager.h"
-#include "Scene.h"
-#include "SceneObject.h"
-#include "imgui.h"
+#ifndef _CAMERAUSAGECOMPONENT_H_
+#define _CAMERAUSAGECOMPONENT_H_
 
-namespace af3d { namespace editor
+#include "PhasedComponent.h"
+#include "Camera.h"
+
+namespace af3d
 {
-    ToolSelect::ToolSelect(Workspace* workspace)
-    : Tool(workspace, "Select", assetManager.getImage("common1/tool_select.png"), KeySequence(KI_Q))
+    class CameraUsageComponent : public std::enable_shared_from_this<CameraUsageComponent>,
+        public PhasedComponent
     {
-    }
+    public:
+        explicit CameraUsageComponent(const CameraPtr& camera);
+        ~CameraUsageComponent() = default;
 
-    void ToolSelect::onActivate()
-    {
-    }
+        static const AClass& staticKlass();
 
-    void ToolSelect::onDeactivate()
-    {
-        auto em = workspace().em();
+        static AObjectPtr create(const APropertyValueMap& propVals);
 
-        em->setHovered(EditMode::AWeakList());
-    }
+        AObjectPtr sharedThis() override { return shared_from_this(); }
 
-    void ToolSelect::doUpdate(float dt)
-    {
-        auto em = workspace().em();
+        void preRender(float dt) override;
 
-        ImGuiIO& io = ImGui::GetIO();
+        void incUseCount();
+        void decUseCount();
 
-        em->setHovered(EditMode::AWeakList());
+    private:
+        void onRegister() override;
 
-        if (io.WantCaptureMouse || io.WantCaptureKeyboard) {
-            return;
-        }
+        void onUnregister() override;
 
-        auto res = em->rayCast(scene()->mainCamera()->frustum(), scene()->mainCamera()->screenPointToRay(inputManager.mouse().pos()));
+        CameraPtr camera_;
+        int useCount_ = 0;
+    };
 
-        if (!res.empty()) {
-            em->setHovered(EditMode::AWeakList{res.toWItem()});
-            if (inputManager.mouse().triggered(true)) {
-                em->select({res});
-            }
-        }
-    }
+    using CameraUsageComponentPtr = std::shared_ptr<CameraUsageComponent>;
 
-    void ToolSelect::doOptions()
-    {
-    }
-} }
+    ACLASS_DECLARE(CameraUsageComponent)
+}
+
+#endif

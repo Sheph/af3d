@@ -73,6 +73,10 @@ namespace af3d
 
     void RenderMeshComponent::render(RenderList& rl, void* const* parts, size_t numParts)
     {
+        if (isMarker() && !rl.camera()->isMain()) {
+            return;
+        }
+
         auto modelMat = Matrix4f(parent()->smoothTransform() * xf_).scaled(scale_);
 
         render(rl, modelMat, MaterialPtr());
@@ -95,7 +99,7 @@ namespace af3d
             }
         }
 
-        if (om) {
+        if (om && rl.camera()->isMain()) {
             render(rl, modelMat, om);
         }
     }

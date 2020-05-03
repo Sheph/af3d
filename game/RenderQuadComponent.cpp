@@ -73,6 +73,10 @@ namespace af3d
 
     void RenderQuadComponent::render(RenderList& rl, void* const* parts, size_t numParts)
     {
+        if (isMarker() && !rl.camera()->isMain()) {
+            return;
+        }
+
         if (!drawable_ || !drawable_->image()) {
             return;
         }
@@ -89,6 +93,9 @@ namespace af3d
 
         if (viewportHeight_ > 0.0f) {
             float h = viewportHeight_ * rl.camera()->frustum().getExtents(worldCenter_).y();
+            if (h * h < 0.0000001f) {
+                return;
+            }
             if (h > size_.y()) {
                 h = size_.y();
             }
@@ -126,6 +133,9 @@ namespace af3d
         Vector2f sz;
         if (viewportHeight_ > 0.0f) {
             float h = viewportHeight_ * frustum.getExtents(worldCenter_).y();
+            if (h * h < 0.0000001f) {
+                return std::make_pair(AObjectPtr(), 0.0f);
+            }
             if (h > size_.y()) {
                 h = size_.y();
             }

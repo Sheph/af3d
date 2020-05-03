@@ -28,7 +28,6 @@
 #include "InputManager.h"
 #include "Scene.h"
 #include "SceneObject.h"
-#include "CameraComponent.h"
 #include "imgui.h"
 
 namespace af3d { namespace editor

@@ -4,7 +4,8 @@ set(SOURCES
     RenderMeshComponent.cpp
     RenderComponentManager.cpp
     PhasedComponentManager.cpp
-    CameraComponent.cpp
+    CameraFPComponent.cpp
+    CameraUsageComponent.cpp
     Camera.cpp
     DummyShell.cpp
     Game.cpp

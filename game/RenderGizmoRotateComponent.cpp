@@ -70,7 +70,14 @@ namespace af3d
 
     void RenderGizmoRotateComponent::render(RenderList& rl, void* const* parts, size_t numParts)
     {
+        if (!rl.camera()->isMain()) {
+            return;
+        }
+
         auto sz = getSizes(rl.camera()->frustum());
+        if (sz.radius1 * sz.radius1 < 0.0000001f) {
+            return;
+        }
 
         auto rop = rl.addGeometry(materialManager.matImmDefault(false, true), GL_TRIANGLES, 1.0f);
 
@@ -106,6 +113,9 @@ namespace af3d
         auto txf = targetXfOriented();
 
         auto sz = getSizes(frustum);
+        if (sz.radius1 * sz.radius1 < 0.0000001f) {
+            return RotateType::None;
+        }
 
         auto res = ray.testPlane(btPlaneMake(txf.getOrigin(), frustum.plane(Frustum::Plane::Far).normal));
         if (res.first) {

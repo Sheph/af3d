@@ -69,6 +69,10 @@ namespace af3d
 
     void RenderAxesComponent::render(RenderList& rl, void* const* parts, size_t numParts)
     {
+        if (!rl.camera()->isMain()) {
+            return;
+        }
+
         auto xf = parent()->smoothTransform() * xf_;
 
         auto vForward = xf.getBasis() * btVector3_forward;
@@ -76,6 +80,9 @@ namespace af3d
         auto vRight = xf.getBasis() * btVector3_right;
 
         auto viewExt = rl.camera()->frustum().getExtents(xf.getOrigin());
+        if (viewExt.y() * viewExt.y() < 0.0000001f) {
+            return;
+        }
         float lineLength = viewportLength_ * viewExt.y();
         float lineRadius = viewportRadius_ * viewExt.y();
 

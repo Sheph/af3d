@@ -69,6 +69,10 @@ namespace af3d
 
     void RenderJointComponent::render(RenderList& rl, void* const* parts, size_t numParts)
     {
+        if (!rl.camera()->isMain()) {
+            return;
+        }
+
         auto emJoint = scene()->workspace()->emJoint();
 
         bool show = emJoint->active() || scene()->workspace()->emObject()->active() ||
@@ -97,6 +101,10 @@ namespace af3d
         dd.setAlpha(c.w());
 
         auto viewExt = rl.camera()->frustum().getExtents(parent()->pos());
+        if (viewExt.y() * viewExt.y() < 0.0000001f) {
+            return;
+        }
+
         auto sz = viewportSize_ * viewExt.y();
         if (sz > radius_) {
             sz = radius_;

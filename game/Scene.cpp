@@ -41,7 +41,7 @@
 #include "PhysicsComponent.h"
 #include "RenderComponent.h"
 #include "CollisionComponent.h"
-#include "CameraComponent.h"
+#include "CameraFPComponent.h"
 #include "UIComponent.h"
 #include "MeshManager.h"
 #include "PointLight.h"
@@ -270,13 +270,14 @@ namespace af3d
         }
 
         mainCamera_ = std::make_shared<Camera>();
+        mainCamera_->setIsMain(true);
         mainCamera_->setAspect(settings.viewAspect);
         mainCamera_->setViewport(AABB2i(Vector2i(settings.viewX, settings.viewY),
             Vector2i(settings.viewX + settings.viewWidth, settings.viewY + settings.viewHeight)));
         addCamera(mainCamera_);
 
         auto cameraObj = std::make_shared<SceneObject>();
-        auto cc = std::make_shared<CameraComponent>();
+        auto cc = std::make_shared<CameraFPComponent>(mainCamera_);
         cameraObj->addComponent(cc);
         addObject(cameraObj);
 

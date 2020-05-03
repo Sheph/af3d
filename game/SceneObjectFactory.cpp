@@ -34,6 +34,7 @@
 #include "CollisionShapeBox.h"
 #include "PhysicsJointComponent.h"
 #include "JointPointToPoint.h"
+#include "CameraUsageComponent.h"
 #include "Settings.h"
 #include "Utils.h"
 #include "Logger.h"
@@ -145,6 +146,23 @@ namespace af3d
         return obj;
     }
 
+    SceneObjectPtr SceneObjectFactory::createTestCamera()
+    {
+        auto obj = std::make_shared<SceneObject>();
+
+        auto cam = std::make_shared<Camera>();
+        cam->setOrder(1);
+        cam->setAspect(settings.viewAspect);
+        cam->setViewport(AABB2i(Vector2i(10, 10), Vector2i(500 * settings.viewAspect, 500)));
+        cam->setClearMask(GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        auto c = std::make_shared<CameraUsageComponent>(cam);
+        c->incUseCount();
+        obj->addComponent(c);
+
+        return obj;
+    }
+
     SCENEOBJECT_DEFINE_BEGIN(Dummy)
     {
         return sceneObjectFactory.createDummy();
@@ -204,4 +222,11 @@ namespace af3d
     SCENEOBJECT_PARAM(LinkedBoxes, "color1", "Box color #1", ColorRGB, Color(1.0f, 0.0f, 0.0f, 1.0f))
     SCENEOBJECT_PARAM(LinkedBoxes, "color2", "Box color #2", ColorRGB, Color(0.0f, 1.0f, 0.0f, 1.0f))
     SCENEOBJECT_DEFINE_END(LinkedBoxes)
+
+    SCENEOBJECT_DEFINE_BEGIN(TestCamera)
+    {
+        return sceneObjectFactory.createTestCamera();
+    }
+    SCENEOBJECT_DEFINE_PROPS(TestCamera)
+    SCENEOBJECT_DEFINE_END(TestCamera)
 }

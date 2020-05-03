@@ -68,6 +68,8 @@ namespace af3d
         inline void aflagsSet(std::uint32_t value) { aflags_ |= value; }
         inline void aflagsClear(std::uint32_t value) { aflags_ &= ~value; }
 
+        inline bool isMarker() const { return (aflags_ & (AObjectMarkerObject | AObjectMarkerLight | AObjectMarkerJoint)) != 0; }
+
         bool propertyCanGet(const std::string& key) const;
         bool propertyCanSet(const std::string& key) const;
         const AProperty* propertyFind(const std::string& key) const;

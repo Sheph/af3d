@@ -70,7 +70,14 @@ namespace af3d
 
     void RenderGizmoAxesComponent::render(RenderList& rl, void* const* parts, size_t numParts)
     {
+        if (!rl.camera()->isMain()) {
+            return;
+        }
+
         auto sz = getSizes(rl.camera()->frustum());
+        if (sz.lineLength * sz.lineLength < 0.0000001f) {
+            return;
+        }
 
         auto rop = rl.addGeometry(materialManager.matImmDefault(false, false), GL_TRIANGLES, 1.0f);
 
@@ -126,6 +133,9 @@ namespace af3d
     MoveType RenderGizmoAxesComponent::testRay(const Frustum& frustum, const Ray& ray) const
     {
         auto sz = getSizes(frustum);
+        if (sz.lineLength * sz.lineLength < 0.0000001f) {
+            return MoveType::None;
+        }
 
         auto txf = targetXfOriented();
 

@@ -56,37 +56,39 @@ namespace af3d
     {
         if (markerRc_) {
             auto viewExt = scene()->mainCamera()->frustum().getExtents((parent()->transform() * xf_).getOrigin());
-            float markerSz = markerRc_->mesh()->aabb().getLargestSize();
-            if ((markerSz * settings.viewHeight / viewExt.y()) > settings.editor.lightMarkerSizePixels) {
-                markerRc_->setScale(btVector3_one * viewExt.y() *
-                    (static_cast<float>(settings.editor.lightMarkerSizePixels) / settings.viewHeight) / markerSz);
-            } else {
-                markerRc_->setScale(btVector3_one);
-            }
-            if (!usesDirection_) {
-                markerRc_->setTransform(
-                    btTransform(parent()->basis().inverse() * scene()->mainCamera()->transform().getBasis(),
-                        markerRc_->transform().getOrigin()));
-            }
-
-            auto w = scene()->workspace();
-            auto em = w->emLight();
-
-            bool showMarker = em->active() || w->emObject()->active();
-
-            markerRc_->setVisible(showMarker);
-
-            if (showMarker) {
-                if (em->active()) {
-                    if (em->isSelected(sharedThis())) {
-                        setMarkerParams(settings.editor.lightMarkerAlphaSelected, false);
-                    } else if (em->isHovered(sharedThis())) {
-                        setMarkerParams(settings.editor.lightMarkerAlphaHovered, false);
-                    } else {
-                        setMarkerParams(settings.editor.lightMarkerAlphaInactive, false);
-                    }
+            if (viewExt.y() * viewExt.y() >= 0.0000001f) {
+                float markerSz = markerRc_->mesh()->aabb().getLargestSize();
+                if ((markerSz * settings.viewHeight / viewExt.y()) > settings.editor.lightMarkerSizePixels) {
+                    markerRc_->setScale(btVector3_one * viewExt.y() *
+                        (static_cast<float>(settings.editor.lightMarkerSizePixels) / settings.viewHeight) / markerSz);
                 } else {
-                    setMarkerParams(settings.editor.lightMarkerAlphaOff, true);
+                    markerRc_->setScale(btVector3_one);
+                }
+                if (!usesDirection_) {
+                    markerRc_->setTransform(
+                        btTransform(parent()->basis().inverse() * scene()->mainCamera()->transform().getBasis(),
+                            markerRc_->transform().getOrigin()));
+                }
+
+                auto w = scene()->workspace();
+                auto em = w->emLight();
+
+                bool showMarker = em->active() || w->emObject()->active();
+
+                markerRc_->setVisible(showMarker);
+
+                if (showMarker) {
+                    if (em->active()) {
+                        if (em->isSelected(sharedThis())) {
+                            setMarkerParams(settings.editor.lightMarkerAlphaSelected, false);
+                        } else if (em->isHovered(sharedThis())) {
+                            setMarkerParams(settings.editor.lightMarkerAlphaHovered, false);
+                        } else {
+                            setMarkerParams(settings.editor.lightMarkerAlphaInactive, false);
+                        }
+                    } else {
+                        setMarkerParams(settings.editor.lightMarkerAlphaOff, true);
+                    }
                 }
             }
         }

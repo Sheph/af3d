@@ -26,7 +26,7 @@
 #ifndef _CAMERA_H_
 #define _CAMERA_H_
 
-#include "AObject.h"
+#include "Texture.h"
 #include "OGL.h"
 #include "af3d/Frustum.h"
 #include "af3d/AABB2.h"
@@ -49,6 +49,9 @@ namespace af3d
 
         inline int order() const { return order_; }
         inline void setOrder(int value) { order_ = value; }
+
+        inline bool isMain() const { return isMain_; }
+        inline void setIsMain(bool value) { isMain_ = value; }
 
         inline const btTransform& transform() const { return frustum_.transform(); }
         inline void setTransform(const btTransform& value) { frustum_.setTransform(value); }
@@ -88,6 +91,9 @@ namespace af3d
         inline const Color& ambientColor() const { return ambientColor_; }
         inline void setAmbientColor(const Color& value) { ambientColor_ = value; }
 
+        inline const TexturePtr& targetTexture() const { return targetTexture_; }
+        inline void setTargetTexture(const TexturePtr& value) { targetTexture_ = value; }
+
         Vector2f screenToViewport(const Vector2f& pt) const;
 
         // pt is pixels, (0,0) - top-left, (w,h) - bottom-right
@@ -98,11 +104,14 @@ namespace af3d
 
     private:
         int order_ = 0;
+        bool isMain_ = false;
         Frustum frustum_;
         AABB2i viewport_ = AABB2i(Vector2i(0, 0), Vector2i(0, 0));
         GLenum clearMask_ = GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT;
         Color clearColor_ = Color(0.23f, 0.23f, 0.23f, 1.0f);
         Color ambientColor_ = Color(0.2f, 0.2f, 0.2f, 1.0f);
+
+        TexturePtr targetTexture_;
     };
 
     using CameraPtr = std::shared_ptr<Camera>;

@@ -30,7 +30,6 @@
 #include "AssetManager.h"
 #include "SceneObject.h"
 #include "Scene.h"
-#include "CameraComponent.h"
 #include "imgui_internal.h"
 
 namespace af3d { namespace ImGuiUtils

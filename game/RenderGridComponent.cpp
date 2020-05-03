@@ -66,6 +66,10 @@ namespace af3d
 
     void RenderGridComponent::render(RenderList& rl, void* const* parts, size_t numParts)
     {
+        if (!rl.camera()->isMain()) {
+            return;
+        }
+
         auto p = btPlaneProject(plane_, rl.camera()->frustum().transform().getOrigin());
         float dist = (p - rl.camera()->frustum().transform().getOrigin()).length();
         auto vRight = parent()->getSmoothRight();

@@ -23,41 +23,64 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _CAMERACOMPONENT_H_
-#define _CAMERACOMPONENT_H_
-
-#include "PhasedComponent.h"
-#include "Camera.h"
+#include "CameraUsageComponent.h"
+#include "Scene.h"
 
 namespace af3d
 {
-    class CameraComponent : public std::enable_shared_from_this<CameraComponent>,
-        public PhasedComponent
+    ACLASS_DEFINE_BEGIN(CameraUsageComponent, PhasedComponent)
+    ACLASS_DEFINE_END(CameraUsageComponent)
+
+    CameraUsageComponent::CameraUsageComponent(const CameraPtr& camera)
+    : PhasedComponent(AClass_CameraUsageComponent, phasePreRender),
+      camera_(camera)
     {
-    public:
-        CameraComponent();
-        ~CameraComponent() = default;
+    }
 
-        static const AClass& staticKlass();
+    const AClass& CameraUsageComponent::staticKlass()
+    {
+        return AClass_CameraUsageComponent;
+    }
 
-        static AObjectPtr create(const APropertyValueMap& propVals);
+    AObjectPtr CameraUsageComponent::create(const APropertyValueMap& propVals)
+    {
+        return AObjectPtr();
+    }
 
-        AObjectPtr sharedThis() override { return shared_from_this(); }
+    void CameraUsageComponent::preRender(float dt)
+    {
+        camera_->setTransform(parent()->smoothTransform());
+    }
 
-        void preRender(float dt) override;
+    void CameraUsageComponent::incUseCount()
+    {
+        ++useCount_;
+        if ((useCount_ == 1) && scene()) {
+            scene()->addCamera(camera_);
+        }
+    }
 
-    private:
-        void onRegister() override;
+    void CameraUsageComponent::decUseCount()
+    {
+        --useCount_;
+        if (useCount_ <= 0) {
+            btAssert(useCount_ == 0);
+            if (scene()) {
+                scene()->removeCamera(camera_);
+            }
+        }
+    }
 
-        void onUnregister() override;
+    void CameraUsageComponent::onRegister()
+    {
+        camera_->setTransform(parent()->smoothTransform());
+        if (useCount_ > 0) {
+            scene()->addCamera(camera_);
+        }
+    }
 
-        bool mousePressed_ = false;
-        Vector2f mousePrevPos_;
-    };
-
-    using CameraComponentPtr = std::shared_ptr<CameraComponent>;
-
-    ACLASS_DECLARE(CameraComponent)
+    void CameraUsageComponent::onUnregister()
+    {
+        scene()->removeCamera(camera_);
+    }
 }
-
-#endif
