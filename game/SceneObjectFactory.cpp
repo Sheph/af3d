@@ -27,6 +27,7 @@
 #include "MaterialManager.h"
 #include "MeshManager.h"
 #include "AssetManager.h"
+#include "TextureManager.h"
 #include "RenderMeshComponent.h"
 #include "RenderQuadComponent.h"
 #include "PhysicsBodyComponent.h"
@@ -155,10 +156,33 @@ namespace af3d
         cam->setAspect(settings.viewAspect);
         cam->setViewport(AABB2i(Vector2i(10, 10), Vector2i(500 * settings.viewAspect, 500)));
         cam->setClearMask(GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        cam->setTargetTexture(textureManager.createRenderTexture(4.0f));
 
         auto c = std::make_shared<CameraUsageComponent>(cam);
         c->incUseCount();
         obj->addComponent(c);
+
+        return obj;
+    }
+
+    SceneObjectPtr SceneObjectFactory::createTestCameraDisplay(const SceneObjectPtr& camObj)
+    {
+        CameraUsageComponentPtr c;
+
+        if (camObj) {
+            c = camObj->findComponent<CameraUsageComponent>();
+        }
+
+        auto mesh = meshManager.loadMesh("cube.fbx");
+        if (c && c->camera()->targetTexture()) {
+            mesh = mesh->clone();
+            mesh->subMeshes()[0]->material()->setTextureBinding(SamplerName::Main, TextureBinding(c->camera()->targetTexture()));
+        }
+
+        auto obj = std::make_shared<SceneObject>();
+        auto rc = std::make_shared<RenderMeshComponent>();
+        rc->setMesh(mesh);
+        obj->addComponent(rc);
 
         return obj;
     }
@@ -229,4 +253,12 @@ namespace af3d
     }
     SCENEOBJECT_DEFINE_PROPS(TestCamera)
     SCENEOBJECT_DEFINE_END(TestCamera)
+
+    SCENEOBJECT_DEFINE_BEGIN(TestCameraDisplay)
+    {
+        return sceneObjectFactory.createTestCameraDisplay(params.get("camera object").toObject<SceneObject>());
+    }
+    SCENEOBJECT_DEFINE_PROPS(TestCameraDisplay)
+    SCENEOBJECT_PARAM(TestCameraDisplay, "camera object", "Camera object", SceneObject, SceneObjectPtr())
+    SCENEOBJECT_DEFINE_END(TestCameraDisplay)
 }

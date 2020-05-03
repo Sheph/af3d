@@ -27,6 +27,7 @@
 #include "HardwareResourceManager.h"
 #include "Platform.h"
 #include "Logger.h"
+#include "Settings.h"
 #include "af3d/Assert.h"
 #include "af3d/PNGDecoder.h"
 
@@ -94,6 +95,40 @@ namespace af3d
             std::string path_;
             std::shared_ptr<PlatformIFStream> is_;
             std::shared_ptr<PNGDecoder> decoder_;
+        };
+
+        class OffscreenTextureGenerator : public ResourceLoader
+        {
+        public:
+            explicit OffscreenTextureGenerator(float scale)
+            : scale_(scale)
+            {
+            }
+
+            void load(Resource& res, HardwareContext& ctx) override
+            {
+                Texture& texture = static_cast<Texture&>(res);
+
+                if (scale_ > 0.0f) {
+                    std::uint32_t newWidth = static_cast<float>(settings.viewWidth) / scale_;
+                    std::uint32_t newHeight = static_cast<float>(settings.viewHeight) / scale_;
+
+                    if ((newWidth != texture.width()) && (newHeight != texture.height())) {
+                        LOG4CPLUS_DEBUG(logger(), "textureManager: offscreen scaled texture (recreate) " << newWidth << "x" << newHeight << "...");
+                        auto hwTex = hwManager.createTexture(newWidth, newHeight);
+                        texture.setHwTex(hwTex);
+                    } else {
+                        LOG4CPLUS_DEBUG(logger(), "textureManager: offscreen scaled texture " << newWidth << "x" << newHeight << "...");
+                    }
+                    texture.hwTex()->upload(GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, NULL, false, ctx);
+                } else {
+                    LOG4CPLUS_DEBUG(logger(), "textureManager: offscreen fixed texture " << texture.width() << "x" << texture.height() << "...");
+                    texture.hwTex()->upload(GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, NULL, false, ctx);
+                }
+            }
+
+        private:
+            float scale_ = 0.0f;
         };
     }
 
@@ -177,6 +212,21 @@ namespace af3d
         tex->load();
         immediateTextures_.insert(tex.get());
         return tex;
+    }
+
+    TexturePtr TextureManager::createRenderTexture(float scale)
+    {
+        btAssert(scale > 0.0f);
+
+        std::uint32_t width = static_cast<float>(settings.viewWidth) / scale;
+        std::uint32_t height = static_cast<float>(settings.viewHeight) / scale;
+
+        return createTexture(width, height, std::make_shared<OffscreenTextureGenerator>(scale));
+    }
+
+    TexturePtr TextureManager::createRenderTexture(std::uint32_t width, std::uint32_t height)
+    {
+        return createTexture(width, height, std::make_shared<OffscreenTextureGenerator>(0.0f));
     }
 
     void TextureManager::onTextureDestroy(Texture* tex)

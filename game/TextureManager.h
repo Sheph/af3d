@@ -54,6 +54,12 @@ namespace af3d
         TexturePtr createTexture(std::uint32_t width, std::uint32_t height,
             const ResourceLoaderPtr& loader = ResourceLoaderPtr());
 
+        // Render texture that scales with window viewport.
+        TexturePtr createRenderTexture(float scale);
+
+        // Render texture with fixed size.
+        TexturePtr createRenderTexture(std::uint32_t width, std::uint32_t height);
+
         void onTextureDestroy(Texture* tex);
 
         inline TexturePtr white1x1() const { return white1x1_; }

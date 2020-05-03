@@ -46,6 +46,8 @@ namespace af3d
 
         void preRender(float dt) override;
 
+        inline const CameraPtr& camera() const { return camera_; }
+
         void incUseCount();
         void decUseCount();
 
