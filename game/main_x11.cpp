@@ -1212,6 +1212,11 @@ static bool OGLPreInit()
         }
     }
 
+    GL_GET_PROC(GenRenderbuffers, glGenRenderbuffers);
+    GL_GET_PROC(DeleteRenderbuffers, glDeleteRenderbuffers);
+    GL_GET_PROC(BindRenderbuffer, glBindRenderbuffer);
+    GL_GET_PROC(RenderbufferStorage, glRenderbufferStorage);
+    GL_GET_PROC(FramebufferRenderbuffer, glFramebufferRenderbuffer);
     GL_GET_PROC(PixelStorei, glPixelStorei);
     GL_GET_PROC(GenSamplers, glGenSamplers);
     GL_GET_PROC(DeleteSamplers, glDeleteSamplers);

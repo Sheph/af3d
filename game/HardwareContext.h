@@ -28,6 +28,7 @@
 
 #include "HardwareSampler.h"
 #include "HardwareProgram.h"
+#include "HardwareFramebuffer.h"
 #include "assimp/Importer.hpp"
 #include <boost/noncopyable.hpp>
 #include <boost/optional.hpp>
@@ -103,6 +104,8 @@ namespace af3d
 
         void bindSampler(int unit, const SamplerParams& params);
 
+        void setRenderTarget(const HardwareTexturePtr& tex);
+
     private:
         struct TextureUnit
         {
@@ -116,6 +119,8 @@ namespace af3d
         SamplerMap samplers_;
         std::array<TextureUnit, static_cast<int>(SamplerName::Max) + 1> texUnits_;
         int activeTexUnit_ = 0;
+
+        GLuint defaultFb_ = 0;
     };
 }
 

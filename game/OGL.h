@@ -50,6 +50,11 @@ namespace af3d
         OGL();
         ~OGL();
 
+        void (GLAPIENTRY* GenRenderbuffers)(GLsizei n, GLuint* renderbuffers);
+        void (GLAPIENTRY* DeleteRenderbuffers)(GLsizei n, const GLuint* renderbuffers);
+        void (GLAPIENTRY* BindRenderbuffer)(GLenum target, GLuint renderbuffer);
+        void (GLAPIENTRY* RenderbufferStorage)(GLenum target, GLenum internalformat, GLsizei width, GLsizei height);
+        void (GLAPIENTRY* FramebufferRenderbuffer)(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer);
         void (GLAPIENTRY* PixelStorei)(GLenum pname, GLint param);
         void (GLAPIENTRY* GenSamplers)(GLsizei n, GLuint* samplers);
         void (GLAPIENTRY* DeleteSamplers)(GLsizei n, const GLuint* samplers);

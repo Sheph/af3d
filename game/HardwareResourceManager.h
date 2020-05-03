@@ -31,6 +31,8 @@
 #include "HardwareShader.h"
 #include "HardwareProgram.h"
 #include "HardwareSampler.h"
+#include "HardwareFramebuffer.h"
+#include "HardwareRenderbuffer.h"
 #include "af3d/Single.h"
 #include <mutex>
 #include <unordered_set>
@@ -58,6 +60,8 @@ namespace af3d
         HardwareShaderPtr createShader(HardwareShader::Type type);
         HardwareProgramPtr createProgram();
         HardwareSamplerPtr createSampler();
+        HardwareFramebufferPtr createFramebuffer();
+        HardwareRenderbufferPtr createRenderbuffer(std::uint32_t width, std::uint32_t height);
 
         void onResourceDestroy(HardwareResource* res, const HardwareResource::CleanupFn& cleanupFn);
 

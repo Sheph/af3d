@@ -56,7 +56,7 @@ namespace af3d
     class RenderNode
     {
     public:
-        RenderNode(const AABB2i& viewport, GLenum clearMask, const Color& clearColor);
+        RenderNode(const AABB2i& viewport, GLenum clearMask, const Color& clearColor, const HardwareTexturePtr& target);
         RenderNode() = default;
         ~RenderNode() = default;
 
@@ -148,6 +148,7 @@ namespace af3d
         AABB2i viewport_;
         GLenum clearMask_;
         Color clearColor_;
+        HardwareTexturePtr target_;
         int numDraws_;
 
         union

@@ -131,6 +131,20 @@ namespace af3d
         return res;
     }
 
+    HardwareFramebufferPtr HardwareResourceManager::createFramebuffer()
+    {
+        auto res = std::make_shared<HardwareFramebuffer>(this);
+        onResourceCreate(res);
+        return res;
+    }
+
+    HardwareRenderbufferPtr HardwareResourceManager::createRenderbuffer(std::uint32_t width, std::uint32_t height)
+    {
+        auto res = std::make_shared<HardwareRenderbuffer>(this, width, height);
+        onResourceCreate(res);
+        return res;
+    }
+
     void HardwareResourceManager::onResourceDestroy(HardwareResource* res, const HardwareResource::CleanupFn& cleanupFn)
     {
         {

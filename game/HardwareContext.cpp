@@ -73,4 +73,8 @@ namespace af3d
             ogl.BindSampler(activeTexUnit_, samplerId);
         }
     }
+
+    void HardwareContext::setRenderTarget(const HardwareTexturePtr& tex)
+    {
+    }
 }
