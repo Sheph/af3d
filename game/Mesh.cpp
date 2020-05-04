@@ -159,12 +159,13 @@ namespace af3d
         return meshManager.loadMesh(name);
     }
 
-    MeshPtr Mesh::clone() const
+    MeshPtr Mesh::clone(const ConvertFn& convertFn) const
     {
         std::vector<SubMeshPtr> subMeshes;
-        for (const auto& subMesh : subMeshes_) {
+        for (int i = 0; i < static_cast<int>(subMeshes_.size()); ++i) {
+            const auto& subMesh = subMeshes_[i];
             subMeshes.push_back(std::make_shared<SubMesh>(
-                subMesh->material()->clone(), subMesh->vaSlice()));
+                (convertFn ? convertFn(i, subMesh->material()) : subMesh->material()->clone()), subMesh->vaSlice()));
         }
         return meshManager.createMesh(aabb(), subMeshes, subMeshesData_);
     }

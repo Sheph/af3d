@@ -63,6 +63,8 @@ namespace af3d
         public Resource
     {
     public:
+        using ConvertFn = std::function<MaterialPtr(int, const MaterialPtr&)>;
+
         Mesh(MeshManager* mgr,
             const std::string& name,
             const AABB& aabb,
@@ -83,7 +85,7 @@ namespace af3d
         virtual AObjectPtr sharedThis() override { return shared_from_this(); }
 
         // Create new unnamed mesh with unnamed cloned materials.
-        MeshPtr clone() const;
+        MeshPtr clone(const ConvertFn& convertFn = ConvertFn()) const;
 
         inline const AABB& aabb() const { return aabb_; }
 

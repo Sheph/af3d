@@ -54,9 +54,9 @@ namespace af3d
 
         SceneObjectPtr createLinkedBoxes(const btVector3& size, const Color& color1, const Color& color2);
 
-        SceneObjectPtr createTestCamera();
+        SceneObjectPtr createTestCamera(const Color& clearColor, const Color& ambientColor, float scale);
 
-        SceneObjectPtr createTestCameraDisplay(const SceneObjectPtr& camObj);
+        SceneObjectPtr createTestCameraDisplay(const SceneObjectPtr& camObj, float scale);
     };
 
     extern SceneObjectFactory sceneObjectFactory;

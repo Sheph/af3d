@@ -131,7 +131,7 @@ namespace af3d
             }
 
             mat->setDefaultUniform(UniformName::MainColor, Color_one);
-            mat->setDefaultUniform(UniformName::SpecularColor, Color(0.0f, 0.0f, 0.0f, 1.0f));
+            mat->setDefaultUniform(UniformName::SpecularColor, Color_zero);
             mat->setDefaultUniform(UniformName::Shininess, 1.0f);
         }
 

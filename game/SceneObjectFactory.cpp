@@ -147,14 +147,16 @@ namespace af3d
         return obj;
     }
 
-    SceneObjectPtr SceneObjectFactory::createTestCamera()
+    SceneObjectPtr SceneObjectFactory::createTestCamera(const Color& clearColor, const Color& ambientColor, float scale)
     {
         auto obj = std::make_shared<SceneObject>();
 
         auto cam = std::make_shared<Camera>();
         cam->setOrder(-1);
         cam->setAspect(settings.viewAspect);
-        cam->setTargetTexture(textureManager.createRenderTexture(2.0f));
+        cam->setTargetTexture(textureManager.createRenderTexture(scale));
+        cam->setClearColor(clearColor);
+        cam->setAmbientColor(ambientColor);
 
         auto c = std::make_shared<CameraUsageComponent>(cam);
         c->incUseCount();
@@ -163,7 +165,7 @@ namespace af3d
         return obj;
     }
 
-    SceneObjectPtr SceneObjectFactory::createTestCameraDisplay(const SceneObjectPtr& camObj)
+    SceneObjectPtr SceneObjectFactory::createTestCameraDisplay(const SceneObjectPtr& camObj, float scale)
     {
         CameraUsageComponentPtr c;
 
@@ -171,17 +173,29 @@ namespace af3d
             c = camObj->findComponent<CameraUsageComponent>();
         }
 
-        auto mesh = meshManager.loadMesh("cube.fbx");
+        auto mesh = meshManager.loadMesh("tv.fbx");
         if (c && c->camera()->targetTexture()) {
-            mesh = mesh->clone();
-            mesh->subMeshes()[0]->material()->setTextureBinding(SamplerName::Main,
+            int i;
+            for (i = 0; i < static_cast<int>(mesh->subMeshes().size()); ++i) {
+                if (mesh->subMeshes()[i]->material()->name() == "tv.fbx/video") {
+                    break;
+                }
+            }
+            mesh = mesh->clone([i](int j, const MaterialPtr& m) {
+                if (i == j) {
+                    return m->convert(MaterialTypeUnlit);
+                } else {
+                    return m->clone();
+                }
+            });
+            mesh->subMeshes()[i]->material()->setTextureBinding(SamplerName::Main,
                 TextureBinding(c->camera()->targetTexture(), SamplerParams(GL_LINEAR)));
         }
 
         auto obj = std::make_shared<SceneObject>();
         auto rc = std::make_shared<RenderMeshComponent>();
         rc->setMesh(mesh);
-        rc->setScale(btVector3_one * 3.0f);
+        rc->setScale(btVector3_one * scale);
         obj->addComponent(rc);
 
         return obj;
@@ -249,16 +263,22 @@ namespace af3d
 
     SCENEOBJECT_DEFINE_BEGIN(TestCamera)
     {
-        return sceneObjectFactory.createTestCamera();
+        return sceneObjectFactory.createTestCamera(params.get("clear color").toColor(),
+            params.get("ambient color").toColor(), params.get("scale").toFloat());
     }
     SCENEOBJECT_DEFINE_PROPS(TestCamera)
+    SCENEOBJECT_PARAM(TestCamera, "clear color", "Clear color", ColorRGB, Color(0.23f, 0.23f, 0.23f, 1.0f))
+    SCENEOBJECT_PARAM(TestCamera, "ambient color", "Ambient color", ColorRGB, Color(0.2f, 0.2f, 0.2f, 1.0f))
+    SCENEOBJECT_PARAM(TestCamera, "scale", "Scale", Float, 2.0f)
     SCENEOBJECT_DEFINE_END(TestCamera)
 
     SCENEOBJECT_DEFINE_BEGIN(TestCameraDisplay)
     {
-        return sceneObjectFactory.createTestCameraDisplay(params.get("camera object").toObject<SceneObject>());
+        return sceneObjectFactory.createTestCameraDisplay(params.get("camera object").toObject<SceneObject>(),
+            params.get("scale").toFloat());
     }
     SCENEOBJECT_DEFINE_PROPS(TestCameraDisplay)
     SCENEOBJECT_PARAM(TestCameraDisplay, "camera object", "Camera object", SceneObject, SceneObjectPtr())
+    SCENEOBJECT_PARAM(TestCameraDisplay, "scale", "Scale", Float, 1.0f)
     SCENEOBJECT_DEFINE_END(TestCameraDisplay)
 }

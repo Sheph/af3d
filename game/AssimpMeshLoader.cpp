@@ -77,9 +77,6 @@ namespace af3d
                 if (aiGetMaterialColor(matData, AI_MATKEY_COLOR_DIFFUSE, &color) == aiReturn_SUCCESS) {
                     mat->params().setUniform(UniformName::MainColor, fromAssimp(color));
                 }
-                if (aiGetMaterialColor(matData, AI_MATKEY_COLOR_SPECULAR, &color) == aiReturn_SUCCESS) {
-                    mat->params().setUniform(UniformName::SpecularColor, fromAssimp(color));
-                }
                 float val;
                 std::uint32_t mx = 1;
                 if (aiGetMaterialFloatArray(matData, AI_MATKEY_SHININESS, &val, &mx) == aiReturn_SUCCESS) {
@@ -87,9 +84,13 @@ namespace af3d
                     mx = 1;
                     if (aiGetMaterialFloatArray(matData, AI_MATKEY_SHININESS_STRENGTH, &val2, &mx) == aiReturn_SUCCESS) {
                         if (val * val2 <= SIMD_EPSILON) {
-                            LOG4CPLUS_WARN(logger(), "Shininess near 0! Check your model, probably it wasn't saved correctly");
+                            //LOG4CPLUS_WARN(logger(), "Shininess near 0! Check your model, probably it wasn't saved correctly");
+                        } else {
+                            mat->params().setUniform(UniformName::Shininess, val * val2);
+                            if (aiGetMaterialColor(matData, AI_MATKEY_COLOR_SPECULAR, &color) == aiReturn_SUCCESS) {
+                                mat->params().setUniform(UniformName::SpecularColor, fromAssimp(color));
+                            }
                         }
-                        mat->params().setUniform(UniformName::Shininess, val * val2);
                     }
                 }
                 int twoSided = 0;
