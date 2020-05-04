@@ -98,7 +98,6 @@ namespace af3d
             fb->attachTexture(HardwareFramebuffer::ColorAttachment, tex, *this);
             auto rb = hwManager.createRenderbuffer(tex->width(), tex->height());
             rb->allocate(GL_DEPTH24_STENCIL8, *this);
-            fb->attachTexture(HardwareFramebuffer::ColorAttachment, tex, *this);
             fb->attachRenderbuffer(HardwareFramebuffer::DepthAttachment, rb, *this);
             fb->attachRenderbuffer(HardwareFramebuffer::StencilAttachment, rb, *this);
             if (!fb->checkStatus()) {

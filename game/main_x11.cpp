@@ -1285,11 +1285,11 @@ static bool OGLPreInit()
     GL_GET_PROC(GenerateMipmap, glGenerateMipmap);
     GL_GET_PROC(PointSize, glPointSize);
     GL_GET_PROC(LineWidth, glLineWidth);
-    GL_GET_PROC(GenFramebuffers, glGenFramebuffersEXT);
-    GL_GET_PROC(DeleteFramebuffers, glDeleteFramebuffersEXT);
-    GL_GET_PROC(BindFramebuffer, glBindFramebufferEXT);
-    GL_GET_PROC(FramebufferTexture2D, glFramebufferTexture2DEXT);
-    GL_GET_PROC(CheckFramebufferStatus, glCheckFramebufferStatusEXT);
+    GL_GET_PROC(GenFramebuffers, glGenFramebuffers);
+    GL_GET_PROC(DeleteFramebuffers, glDeleteFramebuffers);
+    GL_GET_PROC(BindFramebuffer, glBindFramebuffer);
+    GL_GET_PROC(FramebufferTexture2D, glFramebufferTexture2D);
+    GL_GET_PROC(CheckFramebufferStatus, glCheckFramebufferStatus);
     GL_GET_PROC(Uniform1f, glUniform1f);
     GL_GET_PROC(Uniform2f, glUniform2f);
     GL_GET_PROC(ColorMask, glColorMask);
