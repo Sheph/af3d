@@ -154,8 +154,7 @@ namespace af3d
         auto cam = std::make_shared<Camera>();
         cam->setOrder(-1);
         cam->setAspect(settings.viewAspect);
-        cam->setViewport(AABB2i(Vector2i(0, 0), Vector2i(400, 225)));
-        cam->setTargetTexture(textureManager.createRenderTexture(4.0f));
+        cam->setTargetTexture(textureManager.createRenderTexture(2.0f));
 
         auto c = std::make_shared<CameraUsageComponent>(cam);
         c->incUseCount();
@@ -182,6 +181,7 @@ namespace af3d
         auto obj = std::make_shared<SceneObject>();
         auto rc = std::make_shared<RenderMeshComponent>();
         rc->setMesh(mesh);
+        rc->setScale(btVector3_one * 3.0f);
         obj->addComponent(rc);
 
         return obj;

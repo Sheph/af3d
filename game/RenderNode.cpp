@@ -276,9 +276,13 @@ namespace af3d
     {
         //LOG4CPLUS_DEBUG(logger(), "draw(" << numDraws_ << ")");
         ctx.setRenderTarget(target_);
-        ogl.Viewport(viewport_.lowerBound[0], viewport_.lowerBound[1],
-            viewport_.upperBound[0] - viewport_.lowerBound[0],
-            viewport_.upperBound[1] - viewport_.lowerBound[1]);
+        if (target_) {
+            ogl.Viewport(0, 0, target_->width(), target_->height());
+        } else {
+            ogl.Viewport(viewport_.lowerBound[0], viewport_.lowerBound[1],
+                viewport_.upperBound[0] - viewport_.lowerBound[0],
+                viewport_.upperBound[1] - viewport_.lowerBound[1]);
+        }
         if (clearMask_ != 0) {
             ogl.ClearColor(clearColor_[0], clearColor_[1], clearColor_[2], clearColor_[3]);
             ogl.Clear(clearMask_);
