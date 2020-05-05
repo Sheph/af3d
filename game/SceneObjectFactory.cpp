@@ -168,6 +168,7 @@ namespace af3d
         if (settings.editor.enabled && !settings.editor.playing) {
             auto mesh = meshManager.loadConvertedMesh("camera.fbx", MaterialTypeUnlit);
             auto rc = std::make_shared<RenderMeshComponent>();
+            rc->aflagsSet(AObjectMarkerOther);
             rc->setMesh(mesh);
             obj->addComponent(rc);
         }
