@@ -41,7 +41,8 @@
 #include "PhysicsComponent.h"
 #include "RenderComponent.h"
 #include "CollisionComponent.h"
-#include "CameraFPComponent.h"
+#include "FPComponent.h"
+#include "CameraComponent.h"
 #include "UIComponent.h"
 #include "MeshManager.h"
 #include "PointLight.h"
@@ -269,17 +270,17 @@ namespace af3d
             }
         }
 
-        mainCamera_ = std::make_shared<Camera>();
-        mainCamera_->setIsMain(true);
-        mainCamera_->setAspect(settings.viewAspect);
-        mainCamera_->setViewport(AABB2i(Vector2i(settings.viewX, settings.viewY),
+        auto mc = std::make_shared<Camera>();
+        mc->setIsMain(true);
+        mc->setAspect(settings.viewAspect);
+        mc->setViewport(AABB2i(Vector2i(settings.viewX, settings.viewY),
             Vector2i(settings.viewX + settings.viewWidth, settings.viewY + settings.viewHeight)));
-        addCamera(mainCamera_);
+        addCamera(mc);
 
-        auto cameraObj = std::make_shared<SceneObject>();
-        auto cc = std::make_shared<CameraFPComponent>(mainCamera_);
-        cameraObj->addComponent(cc);
-        addObject(cameraObj);
+        mainCamera_ = std::make_shared<SceneObject>();
+        mainCamera_->addComponent(std::make_shared<CameraComponent>(mc));
+        mainCamera_->addComponent(std::make_shared<FPComponent>());
+        addObject(mainCamera_);
 
         dummy_ = std::make_shared<SceneObject>();
 
@@ -407,6 +408,8 @@ namespace af3d
 
         bool inputProcessed = true;
 
+        auto cc = mainCamera()->findComponent<CameraComponent>();
+
         if (!paused_) {
             impl_->firstPhysicsStep_ = true;
 
@@ -421,7 +424,7 @@ namespace af3d
                 inputProcessed = false;
             }
 
-            mainCamera_->setViewport(AABB2i(Vector2i(settings.viewX, settings.viewY),
+            cc->camera()->setViewport(AABB2i(Vector2i(settings.viewX, settings.viewY),
                 Vector2i(settings.viewX + settings.viewWidth, settings.viewY + settings.viewHeight)));
 
             impl_->phasedComponentManager_->preRender(dt);
@@ -446,7 +449,7 @@ namespace af3d
             */
             impl_->renderComponentManager_->update(dt);
         } else {
-            mainCamera_->setViewport(AABB2i(Vector2i(settings.viewX, settings.viewY),
+            cc->camera()->setViewport(AABB2i(Vector2i(settings.viewX, settings.viewY),
                 Vector2i(settings.viewX + settings.viewWidth, settings.viewY + settings.viewHeight)));
 
             impl_->uiComponentManager_->update(dt);
@@ -468,7 +471,7 @@ namespace af3d
 
             impl_->renderComponentManager_->render(rl);
 
-            if (c == mainCamera_) {
+            if (c == cc->camera()) {
                 if (inputManager.physicsDebugPressed()) {
                     impl_->debugDraw_.setRenderList(&rl);
                     impl_->physicsComponentManager_->world().debugDrawWorld();
@@ -695,7 +698,7 @@ namespace af3d
 
     void Scene::removeCamera(const CameraPtr& c)
     {
-        if (c != mainCamera_) {
+        if (!c->isMain()) {
             cameras_.erase(c);
         }
     }
@@ -761,27 +764,27 @@ namespace af3d
 
     APropertyValue Scene::propertyClearColorGet(const std::string&) const
     {
-        return mainCamera_->clearColor();
+        return mainCamera()->findComponent<CameraComponent>()->camera()->clearColor();
     }
 
     void Scene::propertyClearColorSet(const std::string&, const APropertyValue& value)
     {
-        mainCamera_->setClearColor(value.toColor());
+        mainCamera()->findComponent<CameraComponent>()->camera()->setClearColor(value.toColor());
     }
 
     APropertyValue Scene::propertyAmbientColorGet(const std::string&) const
     {
-        return mainCamera_->ambientColor();
+        return mainCamera()->findComponent<CameraComponent>()->camera()->ambientColor();
     }
 
     void Scene::propertyAmbientColorSet(const std::string&, const APropertyValue& value)
     {
-        mainCamera_->setAmbientColor(value.toColor());
+        mainCamera()->findComponent<CameraComponent>()->camera()->setAmbientColor(value.toColor());
     }
 
     APropertyValue Scene::propertyCameraTransformGet(const std::string&) const
     {
-        return mainCamera_->transform();
+        return mainCamera()->transform();
     }
 
     void Scene::onLeave(SceneObject* obj)

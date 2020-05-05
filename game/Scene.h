@@ -105,7 +105,7 @@ namespace af3d
 
         inline const std::unordered_set<CameraPtr>& cameras() const { return cameras_; }
 
-        inline const CameraPtr& mainCamera() const { return mainCamera_; }
+        inline const SceneObjectPtr& mainCamera() const { return mainCamera_; }
 
         void addCamera(const CameraPtr& c);
 
@@ -191,7 +191,7 @@ namespace af3d
         std::unique_ptr<Impl> impl_;
 
         std::unordered_set<CameraPtr> cameras_;
-        CameraPtr mainCamera_;
+        SceneObjectPtr mainCamera_;
 
         InputMode inputMode_;
         SceneObjectPtr workspaceObj_;

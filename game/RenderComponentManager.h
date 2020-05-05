@@ -28,6 +28,7 @@
 
 #include "ComponentManager.h"
 #include "Camera.h"
+#include "af3d/Ray.h"
 #include "bullet/BulletCollision/BroadphaseCollision/btDbvt.h"
 #include <unordered_set>
 #include <list>

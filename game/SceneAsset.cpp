@@ -26,6 +26,7 @@
 #include "SceneAsset.h"
 #include "Scene.h"
 #include "PhysicsJointComponent.h"
+#include "CameraComponent.h"
 
 namespace af3d
 {
@@ -61,9 +62,12 @@ namespace af3d
         scene->setGravity(gravity_);
         scene->setName(name());
         scene->setScriptPath(scriptPath_);
+
+        auto camera = scene->mainCamera()->findComponent<CameraComponent>()->camera();
+
         scene->mainCamera()->setTransform(cameraXf_);
-        scene->mainCamera()->setClearColor(clearColor_);
-        scene->mainCamera()->setAmbientColor(ambientColor_);
+        camera->setClearColor(clearColor_);
+        camera->setAmbientColor(ambientColor_);
         for (const auto& obj : objects_) {
             scene->addObject(obj);
         }

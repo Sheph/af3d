@@ -28,6 +28,7 @@
 #include "InputManager.h"
 #include "Scene.h"
 #include "SceneObject.h"
+#include "CameraComponent.h"
 #include "imgui.h"
 
 namespace af3d { namespace editor
@@ -105,13 +106,15 @@ namespace af3d { namespace editor
                 capturedRay_ = Ray_empty;
                 workspace().unlock();
             } else {
-                auto ray = scene()->mainCamera()->screenPointToRay(inputManager.mouse().pos());
-                gizmoMove(scene()->mainCamera()->frustum(), ray);
+                auto cc = scene()->mainCamera()->findComponent<CameraComponent>();
+                auto ray = cc->screenPointToRay(inputManager.mouse().pos());
+                gizmoMove(cc->camera()->frustum(), ray);
             }
         } else if (!uiInput && inputManager.mouse().triggered(true)) {
             if (workspace().lock()) {
-                auto ray = scene()->mainCamera()->screenPointToRay(inputManager.mouse().pos());
-                if (gizmoCapture(scene()->mainCamera()->frustum(), ray)) {
+                auto cc = scene()->mainCamera()->findComponent<CameraComponent>();
+                auto ray = cc->screenPointToRay(inputManager.mouse().pos());
+                if (gizmoCapture(cc->camera()->frustum(), ray)) {
                     capturedRay_ = ray;
                     capturedMousePos_ = inputManager.mouse().pos();
                 } else {
@@ -119,8 +122,9 @@ namespace af3d { namespace editor
                 }
             }
         } else if (!uiInput && !inputManager.mouse().pressed(true)) {
-            auto ray = scene()->mainCamera()->screenPointToRay(inputManager.mouse().pos());
-            gizmoMove(scene()->mainCamera()->frustum(), ray);
+            auto cc = scene()->mainCamera()->findComponent<CameraComponent>();
+            auto ray = cc->screenPointToRay(inputManager.mouse().pos());
+            gizmoMove(cc->camera()->frustum(), ray);
         }
     }
 

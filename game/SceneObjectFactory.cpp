@@ -35,6 +35,7 @@
 #include "CollisionShapeBox.h"
 #include "PhysicsJointComponent.h"
 #include "JointPointToPoint.h"
+#include "CameraComponent.h"
 #include "CameraUsageComponent.h"
 #include "Settings.h"
 #include "Utils.h"
@@ -157,6 +158,8 @@ namespace af3d
         cam->setTargetTexture(textureManager.createRenderTexture(scale));
         cam->setClearColor(clearColor);
         cam->setAmbientColor(ambientColor);
+
+        obj->addComponent(std::make_shared<CameraComponent>(cam));
 
         auto c = std::make_shared<CameraUsageComponent>(cam);
         c->incUseCount();

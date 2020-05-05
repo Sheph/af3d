@@ -30,7 +30,6 @@
 #include "OGL.h"
 #include "af3d/Frustum.h"
 #include "af3d/AABB2.h"
-#include "af3d/Ray.h"
 
 namespace af3d
 {
@@ -93,14 +92,6 @@ namespace af3d
 
         inline const TexturePtr& targetTexture() const { return targetTexture_; }
         inline void setTargetTexture(const TexturePtr& value) { targetTexture_ = value; }
-
-        Vector2f screenToViewport(const Vector2f& pt) const;
-
-        // pt is pixels, (0,0) - top-left, (w,h) - bottom-right
-        Ray screenPointToRay(const Vector2f& pt) const;
-
-        // pt is in range 0.0-1.0, (0,0) - bottom-left, (1,1) - top-right
-        Ray viewportPointToRay(const Vector2f& pt) const;
 
     private:
         int order_ = 0;

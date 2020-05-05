@@ -25,6 +25,7 @@
 
 #include "Light.h"
 #include "SceneObject.h"
+#include "CameraComponent.h"
 #include "Scene.h"
 #include "MeshManager.h"
 #include "MaterialManager.h"
@@ -55,7 +56,8 @@ namespace af3d
     void Light::update(float dt)
     {
         if (markerRc_) {
-            auto viewExt = scene()->mainCamera()->frustum().getExtents((parent()->transform() * xf_).getOrigin());
+            auto camera = scene()->mainCamera()->findComponent<CameraComponent>()->camera();
+            auto viewExt = camera->frustum().getExtents((parent()->transform() * xf_).getOrigin());
             if (viewExt.y() * viewExt.y() >= 0.0000001f) {
                 float markerSz = markerRc_->mesh()->aabb().getLargestSize();
                 if ((markerSz * settings.viewHeight / viewExt.y()) > settings.editor.lightMarkerSizePixels) {

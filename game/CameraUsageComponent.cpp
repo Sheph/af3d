@@ -49,7 +49,6 @@ namespace af3d
 
     void CameraUsageComponent::preRender(float dt)
     {
-        camera_->setTransform(parent()->smoothTransform());
     }
 
     void CameraUsageComponent::incUseCount()
@@ -73,7 +72,6 @@ namespace af3d
 
     void CameraUsageComponent::onRegister()
     {
-        camera_->setTransform(parent()->smoothTransform());
         if (useCount_ > 0) {
             scene()->addCamera(camera_);
         }

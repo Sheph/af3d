@@ -23,27 +23,40 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Camera.h"
+#ifndef _FPCOMPONENT_H_
+#define _FPCOMPONENT_H_
+
+#include "PhasedComponent.h"
 
 namespace af3d
 {
-    ACLASS_DEFINE_BEGIN(Camera, AObject)
-    ACLASS_DEFINE_END(Camera)
-
-    Camera::Camera()
-    : AObject(AClass_Camera)
+    class FPComponent : public std::enable_shared_from_this<FPComponent>,
+        public PhasedComponent
     {
-    }
+    public:
+        FPComponent();
+        ~FPComponent() = default;
 
-    const AClass& Camera::staticKlass()
-    {
-        return AClass_Camera;
-    }
+        static const AClass& staticKlass();
 
-    AObjectPtr Camera::create(const APropertyValueMap& propVals)
-    {
-        auto obj = std::make_shared<Camera>();
-        obj->propertiesSet(propVals);
-        return obj;
-    }
+        static AObjectPtr create(const APropertyValueMap& propVals);
+
+        AObjectPtr sharedThis() override { return shared_from_this(); }
+
+        void preRender(float dt) override;
+
+    private:
+        void onRegister() override;
+
+        void onUnregister() override;
+
+        bool mousePressed_ = false;
+        Vector2f mousePrevPos_;
+    };
+
+    using FPComponentPtr = std::shared_ptr<FPComponent>;
+
+    ACLASS_DECLARE(FPComponent)
 }
+
+#endif

@@ -28,6 +28,7 @@
 #include "AssetManager.h"
 #include "Scene.h"
 #include "SceneObject.h"
+#include "CameraComponent.h"
 #include "imgui.h"
 
 namespace af3d { namespace editor
@@ -146,7 +147,8 @@ namespace af3d { namespace editor
 
                 if (rc_->rotateType() == RotateType::Trackball) {
                     if (capturedMousePos() != inputManager.mouse().pos()) {
-                        auto diff = scene()->mainCamera()->screenToViewport(inputManager.mouse().pos()) - scene()->mainCamera()->screenToViewport(capturedMousePos());
+                        auto cc = scene()->mainCamera()->findComponent<CameraComponent>();
+                        auto diff = cc->screenToViewport(inputManager.mouse().pos()) - cc->screenToViewport(capturedMousePos());
 
                         xf.setRotation(btQuaternion((p2 - p1).cross(plane.normal), -diff.length() * SIMD_PI * 2.0f) *
                             xf.getRotation());

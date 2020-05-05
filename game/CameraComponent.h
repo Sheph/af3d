@@ -23,20 +23,21 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _CAMERAFPCOMPONENT_H_
-#define _CAMERAFPCOMPONENT_H_
+#ifndef _CAMERACOMPONENT_H_
+#define _CAMERACOMPONENT_H_
 
 #include "PhasedComponent.h"
 #include "Camera.h"
+#include "af3d/Ray.h"
 
 namespace af3d
 {
-    class CameraFPComponent : public std::enable_shared_from_this<CameraFPComponent>,
+    class CameraComponent : public std::enable_shared_from_this<CameraComponent>,
         public PhasedComponent
     {
     public:
-        explicit CameraFPComponent(const CameraPtr& camera);
-        ~CameraFPComponent() = default;
+        explicit CameraComponent(const CameraPtr& camera);
+        ~CameraComponent() = default;
 
         static const AClass& staticKlass();
 
@@ -46,19 +47,27 @@ namespace af3d
 
         void preRender(float dt) override;
 
+        inline const CameraPtr& camera() const { return camera_; }
+
+        Vector2f screenToViewport(const Vector2f& pt) const;
+
+        // pt is pixels, (0,0) - top-left, (w,h) - bottom-right
+        Ray screenPointToRay(const Vector2f& pt) const;
+
+        // pt is in range 0.0-1.0, (0,0) - bottom-left, (1,1) - top-right
+        Ray viewportPointToRay(const Vector2f& pt) const;
+
     private:
         void onRegister() override;
 
         void onUnregister() override;
 
         CameraPtr camera_;
-        bool mousePressed_ = false;
-        Vector2f mousePrevPos_;
     };
 
-    using CameraFPComponentPtr = std::shared_ptr<CameraFPComponent>;
+    using CameraComponentPtr = std::shared_ptr<CameraComponent>;
 
-    ACLASS_DECLARE(CameraFPComponent)
+    ACLASS_DECLARE(CameraComponent)
 }
 
 #endif

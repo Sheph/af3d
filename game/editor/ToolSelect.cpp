@@ -30,6 +30,7 @@
 #include "InputManager.h"
 #include "Scene.h"
 #include "SceneObject.h"
+#include "CameraComponent.h"
 #include "imgui.h"
 
 namespace af3d { namespace editor
@@ -62,7 +63,8 @@ namespace af3d { namespace editor
             return;
         }
 
-        auto res = em->rayCast(scene()->mainCamera()->frustum(), scene()->mainCamera()->screenPointToRay(inputManager.mouse().pos()));
+        auto cc = scene()->mainCamera()->findComponent<CameraComponent>();
+        auto res = em->rayCast(cc->camera()->frustum(), cc->screenPointToRay(inputManager.mouse().pos()));
 
         if (!res.empty()) {
             em->setHovered(EditMode::AWeakList{res.toWItem()});

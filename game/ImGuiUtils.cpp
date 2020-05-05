@@ -29,6 +29,7 @@
 #include "MeshManager.h"
 #include "AssetManager.h"
 #include "SceneObject.h"
+#include "CameraComponent.h"
 #include "Scene.h"
 #include "imgui_internal.h"
 
@@ -392,7 +393,8 @@ namespace af3d { namespace ImGuiUtils
                 if (inputManager.keyboard().triggered(KI_ESCAPE)) {
                     ret = true;
                 } else {
-                    auto res = em->rayCast(scene_->mainCamera()->frustum(), scene_->mainCamera()->screenPointToRay(inputManager.mouse().pos()));
+                    auto cc = scene_->mainCamera()->findComponent<CameraComponent>();
+                    auto res = em->rayCast(cc->camera()->frustum(), cc->screenPointToRay(inputManager.mouse().pos()));
                     if (!res.empty()) {
                         if (inputManager.mouse().triggered(true)) {
                             obj = aobjectCast<T>(res.obj());
