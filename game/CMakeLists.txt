@@ -129,6 +129,7 @@ set(SOURCES
     JointHinge.cpp
     JointSlider.cpp
     Joint6DOF.cpp
+    TVComponent.cpp
     editor/Action.cpp
     editor/Workspace.cpp
     editor/MainPopup.cpp

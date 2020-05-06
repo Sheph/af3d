@@ -37,6 +37,7 @@
 #include "JointPointToPoint.h"
 #include "CameraComponent.h"
 #include "CameraUsageComponent.h"
+#include "TVComponent.h"
 #include "Settings.h"
 #include "Utils.h"
 #include "Logger.h"
@@ -162,7 +163,6 @@ namespace af3d
         obj->addComponent(std::make_shared<CameraComponent>(cam));
 
         auto c = std::make_shared<CameraUsageComponent>(cam);
-        c->incUseCount();
         obj->addComponent(c);
 
         if (settings.editor.enabled && !settings.editor.playing) {
@@ -208,6 +208,9 @@ namespace af3d
         rc->setMesh(mesh);
         rc->setScale(btVector3_one * scale);
         obj->addComponent(rc);
+        if (c) {
+            obj->addComponent(std::make_shared<TVComponent>(c, mesh->aabb().scaledAt0(rc->scale())));
+        }
 
         return obj;
     }

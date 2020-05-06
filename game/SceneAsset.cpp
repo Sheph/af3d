@@ -66,6 +66,9 @@ namespace af3d
         auto camera = scene->mainCamera()->findComponent<CameraComponent>()->camera();
 
         scene->mainCamera()->setTransform(cameraXf_);
+        // FIXME: Camera::setTransform is a bit hacky here, but we need to set this up
+        // so that initial object's onRegister gets correct frustum.
+        camera->setTransform(cameraXf_);
         camera->setClearColor(clearColor_);
         camera->setAmbientColor(ambientColor_);
         for (const auto& obj : objects_) {
