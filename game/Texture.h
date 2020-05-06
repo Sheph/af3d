@@ -50,6 +50,8 @@ namespace af3d
 
         inline const HardwareTexturePtr& hwTex() const { return hwTex_; }
 
+        inline TextureType type() const { return hwTex_->type(); }
+
         inline std::uint32_t width() const { return hwTex_->width(); }
 
         inline std::uint32_t height() const { return hwTex_->height(); }

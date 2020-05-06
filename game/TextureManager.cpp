@@ -100,8 +100,13 @@ namespace af3d
         class OffscreenTextureGenerator : public ResourceLoader
         {
         public:
-            explicit OffscreenTextureGenerator(float scale)
-            : scale_(scale)
+            OffscreenTextureGenerator(float scale, GLint internalFormat,
+                GLenum format,
+                GLenum dataType)
+            : scale_(scale),
+              internalFormat_(internalFormat),
+              format_(format),
+              dataType_(dataType)
             {
             }
 
@@ -115,20 +120,23 @@ namespace af3d
 
                     if ((newWidth != texture.width()) && (newHeight != texture.height())) {
                         LOG4CPLUS_DEBUG(logger(), "textureManager: offscreen scaled texture (recreate) " << newWidth << "x" << newHeight << "...");
-                        auto hwTex = hwManager.createTexture(newWidth, newHeight);
+                        auto hwTex = hwManager.createTexture(texture.type(), newWidth, newHeight);
                         texture.setHwTex(hwTex);
                     } else {
                         LOG4CPLUS_DEBUG(logger(), "textureManager: offscreen scaled texture " << newWidth << "x" << newHeight << "...");
                     }
-                    texture.hwTex()->upload(GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, NULL, false, ctx);
+                    texture.hwTex()->upload(internalFormat_, format_, dataType_, nullptr, false, ctx);
                 } else {
                     LOG4CPLUS_DEBUG(logger(), "textureManager: offscreen fixed texture " << texture.width() << "x" << texture.height() << "...");
-                    texture.hwTex()->upload(GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, NULL, false, ctx);
+                    texture.hwTex()->upload(internalFormat_, format_, dataType_, nullptr, false, ctx);
                 }
             }
 
         private:
             float scale_ = 0.0f;
+            GLint internalFormat_;
+            GLenum format_;
+            GLenum dataType_;
         };
     }
 
@@ -146,7 +154,7 @@ namespace af3d
     bool TextureManager::init()
     {
         LOG4CPLUS_DEBUG(logger(), "textureManager: init...");
-        white1x1_ = createTexture(1, 1);
+        white1x1_ = createTexture(TextureType2D, 1, 1);
         return true;
     }
 
@@ -197,36 +205,36 @@ namespace af3d
         }
 
         auto tex = std::make_shared<Texture>(this, path,
-            hwManager.createTexture(width, height), loader);
+            hwManager.createTexture(TextureType2D, width, height), loader);
         tex->load();
         cachedTextures_.emplace(path, tex);
 
         return tex;
     }
 
-    TexturePtr TextureManager::createTexture(std::uint32_t width, std::uint32_t height,
+    TexturePtr TextureManager::createTexture(TextureType type, std::uint32_t width, std::uint32_t height,
         const ResourceLoaderPtr& loader)
     {
         auto tex = std::make_shared<Texture>(this, "",
-            hwManager.createTexture(width, height), loader);
+            hwManager.createTexture(type, width, height), loader);
         tex->load();
         immediateTextures_.insert(tex.get());
         return tex;
     }
 
-    TexturePtr TextureManager::createRenderTexture(float scale)
+    TexturePtr TextureManager::createRenderTexture(TextureType type, float scale, GLint internalFormat, GLenum format, GLenum dataType)
     {
         btAssert(scale > 0.0f);
 
         std::uint32_t width = static_cast<float>(settings.viewWidth) / scale;
         std::uint32_t height = static_cast<float>(settings.viewHeight) / scale;
 
-        return createTexture(width, height, std::make_shared<OffscreenTextureGenerator>(scale));
+        return createTexture(type, width, height, std::make_shared<OffscreenTextureGenerator>(scale, internalFormat, format, dataType));
     }
 
-    TexturePtr TextureManager::createRenderTexture(std::uint32_t width, std::uint32_t height)
+    TexturePtr TextureManager::createRenderTexture(TextureType type, std::uint32_t width, std::uint32_t height, GLint internalFormat, GLenum format, GLenum dataType)
     {
-        return createTexture(width, height, std::make_shared<OffscreenTextureGenerator>(0.0f));
+        return createTexture(type, width, height, std::make_shared<OffscreenTextureGenerator>(0.0f, internalFormat, format, dataType));
     }
 
     void TextureManager::onTextureDestroy(Texture* tex)

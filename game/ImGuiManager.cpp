@@ -106,7 +106,7 @@ namespace af3d
         int width, height;
         io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
 
-        fontsTex_ = textureManager.createTexture(width, height);
+        fontsTex_ = textureManager.createTexture(TextureType2D, width, height);
 
         io.Fonts->TexID = fontsTex_.get();
 

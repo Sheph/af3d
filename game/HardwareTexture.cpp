@@ -28,8 +28,9 @@
 
 namespace af3d
 {
-    HardwareTexture::HardwareTexture(HardwareResourceManager* mgr, std::uint32_t width, std::uint32_t height)
+    HardwareTexture::HardwareTexture(HardwareResourceManager* mgr, TextureType type, std::uint32_t width, std::uint32_t height)
     : HardwareResource(mgr),
+      type_(type),
       width_(width),
       height_(height)
     {
@@ -47,6 +48,25 @@ namespace af3d
         }
     }
 
+    GLenum HardwareTexture::glType(TextureType type)
+    {
+        return (type == TextureType2D) ? GL_TEXTURE_2D : GL_TEXTURE_CUBE_MAP;
+    }
+
+    GLenum HardwareTexture::glCubeFace(TextureCubeFace face)
+    {
+        switch (face) {
+        case TextureCubeXN: return GL_TEXTURE_CUBE_MAP_NEGATIVE_X;
+        case TextureCubeYP: return GL_TEXTURE_CUBE_MAP_POSITIVE_Y;
+        case TextureCubeYN: return GL_TEXTURE_CUBE_MAP_NEGATIVE_Y;
+        case TextureCubeZP: return GL_TEXTURE_CUBE_MAP_POSITIVE_Z;
+        case TextureCubeZN: return GL_TEXTURE_CUBE_MAP_NEGATIVE_Z;
+        default:
+            btAssert(false);
+        case TextureCubeXP: return GL_TEXTURE_CUBE_MAP_POSITIVE_X;
+        }
+    }
+
     void HardwareTexture::invalidate(HardwareContext& ctx)
     {
         id_ = 0;
@@ -57,17 +77,44 @@ namespace af3d
         return id_;
     }
 
-    void HardwareTexture::upload(GLint internalFormat, GLenum format, GLenum type, const GLvoid* pixels, bool genMipmap, HardwareContext& ctx)
+    void HardwareTexture::upload(GLint internalFormat, GLenum format, GLenum dataType, const GLvoid* pixels, bool genMipmap, HardwareContext& ctx)
+    {
+        createTexture();
+        ctx.bindTexture(type_, id_);
+        if (type_ == TextureType2D) {
+            ogl.TexImage2D(GL_TEXTURE_2D, 0, internalFormat, width_, height_, 0, format, dataType, pixels);
+            if (genMipmap) {
+                ogl.GenerateMipmap(GL_TEXTURE_2D);
+            }
+        } else {
+            uploadCubeFace(TextureCubeXP, internalFormat, format, dataType, pixels, false, ctx);
+            uploadCubeFace(TextureCubeXN, internalFormat, format, dataType, pixels, false, ctx);
+            uploadCubeFace(TextureCubeYP, internalFormat, format, dataType, pixels, false, ctx);
+            uploadCubeFace(TextureCubeYN, internalFormat, format, dataType, pixels, false, ctx);
+            uploadCubeFace(TextureCubeZP, internalFormat, format, dataType, pixels, false, ctx);
+            uploadCubeFace(TextureCubeZN, internalFormat, format, dataType, pixels, false, ctx);
+            if (genMipmap) {
+                ogl.GenerateMipmap(GL_TEXTURE_CUBE_MAP);
+            }
+        }
+    }
+
+    void HardwareTexture::uploadCubeFace(TextureCubeFace face, GLint internalFormat, GLenum format, GLenum dataType, const GLvoid* pixels, bool genMipmap, HardwareContext& ctx)
+    {
+        createTexture();
+        ctx.bindTexture(type_, id_);
+        btAssert(type_ == TextureTypeCubeMap);
+        ogl.TexImage2D(glCubeFace(face), 0, internalFormat, width_, height_, 0, format, dataType, pixels);
+        if (genMipmap) {
+            ogl.GenerateMipmap(GL_TEXTURE_CUBE_MAP);
+        }
+    }
+
+    void HardwareTexture::createTexture()
     {
         if (id_ == 0) {
             ogl.GenTextures(1, &id_);
             btAssert(id_ != 0);
-        }
-
-        ctx.bindTexture(id_);
-        ogl.TexImage2D(GL_TEXTURE_2D, 0, internalFormat, width_, height_, 0, format, type, pixels);
-        if (genMipmap) {
-            ogl.GenerateMipmap(GL_TEXTURE_2D);
         }
     }
 }

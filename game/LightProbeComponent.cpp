@@ -37,7 +37,7 @@ namespace af3d
     LightProbeComponent::LightProbeComponent(float resolution)
     : PhasedComponent(AClass_LightProbeComponent, phasePreRender)
     {
-        irradianceTexture_ = textureManager.createRenderTexture(resolution, resolution);
+        irradianceTexture_ = textureManager.createRenderTexture(TextureTypeCubeMap, resolution, resolution, GL_RGB16F, GL_RGB, GL_FLOAT);
     }
 
     const AClass& LightProbeComponent::staticKlass()

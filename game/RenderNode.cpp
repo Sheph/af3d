@@ -341,10 +341,11 @@ namespace af3d
             if (id == 0) {
                 id = textureManager.white1x1()->hwTex()->id(ctx);
                 ctx.bindSampler(i, SamplerParams(GL_NEAREST, GL_NEAREST));
+                ctx.bindTexture(textureManager.white1x1()->type(), id);
             } else {
                 ctx.bindSampler(i, textures_[i].params);
+                ctx.bindTexture(textures_[i].tex->type(), id);
             }
-            ctx.bindTexture(id);
         }
     }
 

@@ -159,7 +159,7 @@ namespace af3d
         auto cam = std::make_shared<Camera>();
         cam->setOrder(camOrderTestCamera);
         cam->setAspect(settings.viewAspect);
-        cam->setTargetTexture(textureManager.createRenderTexture(scale));
+        cam->setTargetTexture(textureManager.createRenderTexture(TextureType2D, scale, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE));
         cam->setClearColor(clearColor);
         cam->setAmbientColor(ambientColor);
 
@@ -209,8 +209,8 @@ namespace af3d
 
             filterCam = Camera::createFilterCamera();
             filterCam->setOrder(camOrderTestDisplayFilter);
-            filterCam->setTargetTexture(textureManager.createRenderTexture(
-                static_cast<float>(settings.viewHeight) / c->camera()->targetTexture()->height()));
+            filterCam->setTargetTexture(textureManager.createRenderTexture(TextureType2D,
+                static_cast<float>(settings.viewHeight) / c->camera()->targetTexture()->height(), GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE));
 
             auto filterRc = std::make_shared<RenderFilterComponent>();
             auto filterMat = materialManager.createMaterial(MaterialTypeFilterVHS);
@@ -218,7 +218,7 @@ namespace af3d
             filterMat->setDepthWrite(false);
             filterMat->setTimeOffset(getRandom(0.0f, 5.0f));
             filterMat->setTextureBinding(SamplerName::Main,
-                TextureBinding(c->camera()->targetTexture(), SamplerParams(GL_NEAREST, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST)));
+                TextureBinding(c->camera()->targetTexture(), SamplerParams(GL_NEAREST, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST)));
             filterMat->setTextureBinding(SamplerName::Noise,
                 TextureBinding(textureManager.loadTexture("noise1.png"), SamplerParams(GL_LINEAR)));
             filterRc->setMaterial(filterMat);

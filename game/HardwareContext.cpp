@@ -34,6 +34,8 @@ namespace af3d
     HardwareContext::HardwareContext()
     {
         importer_.SetIOHandler(new AssimpIOSystem());
+
+        ogl.PixelStorei(GL_UNPACK_ALIGNMENT, 1);
     }
 
     void HardwareContext::setActiveTextureUnit(int unit)
@@ -43,11 +45,11 @@ namespace af3d
         ogl.ActiveTexture(GL_TEXTURE0 + unit);
     }
 
-    void HardwareContext::bindTexture(GLuint texId)
+    void HardwareContext::bindTexture(TextureType texType, GLuint texId)
     {
-        if (texId != texUnits_[activeTexUnit_].texId) {
-            texUnits_[activeTexUnit_].texId = texId;
-            ogl.BindTexture(GL_TEXTURE_2D, texId);
+        if (texId != texUnits_[activeTexUnit_].texIds[texType]) {
+            texUnits_[activeTexUnit_].texIds[texType] = texId;
+            ogl.BindTexture(HardwareTexture::glType(texType), texId);
         }
     }
 

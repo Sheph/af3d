@@ -30,11 +30,35 @@
 
 namespace af3d
 {
+    enum TextureType
+    {
+        TextureType2D = 0,
+        TextureTypeCubeMap,
+        TextureTypeMax = TextureTypeCubeMap
+    };
+
+    enum TextureCubeFace
+    {
+        TextureCubeXP = 0,
+        TextureCubeXN = 1,
+        TextureCubeYP = 2,
+        TextureCubeYN = 3,
+        TextureCubeZP = 4,
+        TextureCubeZN = 5,
+        TextureCubeFaceMax = TextureCubeZN
+    };
+
     class HardwareTexture : public HardwareResource
     {
     public:
-        HardwareTexture(HardwareResourceManager* mgr, std::uint32_t width, std::uint32_t height);
+        HardwareTexture(HardwareResourceManager* mgr, TextureType type, std::uint32_t width, std::uint32_t height);
         ~HardwareTexture();
+
+        static GLenum glType(TextureType type);
+
+        static GLenum glCubeFace(TextureCubeFace face);
+
+        inline TextureType type() const { return type_; }
 
         inline std::uint32_t width() const { return width_; }
 
@@ -44,9 +68,14 @@ namespace af3d
 
         GLuint id(HardwareContext& ctx) const override;
 
-        void upload(GLint internalFormat, GLenum format, GLenum type, const GLvoid* pixels, bool genMipmap, HardwareContext& ctx);
+        void upload(GLint internalFormat, GLenum format, GLenum dataType, const GLvoid* pixels, bool genMipmap, HardwareContext& ctx);
+
+        void uploadCubeFace(TextureCubeFace face, GLint internalFormat, GLenum format, GLenum dataType, const GLvoid* pixels, bool genMipmap, HardwareContext& ctx);
 
     private:
+        void createTexture();
+
+        TextureType type_;
         std::uint32_t width_;
         std::uint32_t height_;
         GLuint id_ = 0;

@@ -82,9 +82,9 @@ namespace af3d
         return true;
     }
 
-    HardwareTexturePtr HardwareResourceManager::createTexture(std::uint32_t width, std::uint32_t height)
+    HardwareTexturePtr HardwareResourceManager::createTexture(TextureType type, std::uint32_t width, std::uint32_t height)
     {
-        auto res = std::make_shared<HardwareTexture>(this, width, height);
+        auto res = std::make_shared<HardwareTexture>(this, type, width, height);
         onResourceCreate(res);
         return res;
     }

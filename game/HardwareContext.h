@@ -43,13 +43,16 @@ namespace af3d
         SamplerParams(GLenum texMinFilter,
             GLenum texWrapU,
             GLenum texWrapV,
+            GLenum texWrapW,
             GLenum texMagFilter)
         : texMinFilter(texMinFilter),
           texWrapU(texWrapU),
           texWrapV(texWrapV),
+          texWrapW(texWrapW),
           texMagFilter(texMagFilter) {}
         SamplerParams(GLenum texWrapU,
             GLenum texWrapV,
+            GLenum texWrapW,
             GLenum texMagFilter)
         : texWrapU(texWrapU),
           texWrapV(texWrapV),
@@ -69,6 +72,9 @@ namespace af3d
             if (texWrapV != other.texWrapV) {
                 return texWrapV < other.texWrapV;
             }
+            if (texWrapW != other.texWrapW) {
+                return texWrapW < other.texWrapW;
+            }
             return texMagFilter < other.texMagFilter;
         }
 
@@ -80,13 +86,14 @@ namespace af3d
             } else {
                 os << 0;
             }
-            os << "|" << texWrapU << "|" << texWrapV << "|" << texMagFilter;
+            os << "|" << texWrapU << "|" << texWrapV << "|" << texWrapV << "|" << texMagFilter;
             return os.str();
         }
 
         boost::optional<GLenum> texMinFilter;
         GLenum texWrapU = GL_REPEAT;
         GLenum texWrapV = GL_REPEAT;
+        GLenum texWrapW = GL_REPEAT;
         GLenum texMagFilter = GL_LINEAR;
     };
 
@@ -100,7 +107,7 @@ namespace af3d
 
         void setActiveTextureUnit(int unit);
 
-        void bindTexture(GLuint texId);
+        void bindTexture(TextureType texType, GLuint texId);
 
         void bindSampler(int unit, const SamplerParams& params);
 
@@ -109,7 +116,7 @@ namespace af3d
     private:
         struct TextureUnit
         {
-            GLuint texId = 0;
+            std::array<GLuint, TextureTypeMax + 1> texIds;
             GLuint samplerId = 0;
         };
 
