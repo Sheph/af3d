@@ -166,6 +166,7 @@ namespace af3d
         marker->setViewportHeight((isDefault ? 1.25f : 1.0f) * (float)settings.editor.jointMarkerSizePixels / settings.viewHeight);
         marker->setColor(settings.editor.jointMarkerColorInactive);
         marker->aflagsSet(AObjectMarkerJoint);
+        marker->cameraFilter().layers() = CameraLayer::Main;
         marker->setVisible(false);
         edit->addComponent(marker);
         edit->addComponent(

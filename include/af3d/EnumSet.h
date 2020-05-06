@@ -133,11 +133,6 @@ namespace af3d
             bs_.flip();
         }
 
-        inline std::uint32_t toUInt32() const
-        {
-            return bs_.to_ulong();
-        }
-
     private:
         std::bitset<N> bs_;
     };

@@ -35,8 +35,7 @@ namespace af3d
         AObjectEditable = 1 << 0,
         AObjectMarkerObject = 1 << 1,
         AObjectMarkerLight = 1 << 2,
-        AObjectMarkerJoint = 1 << 3,
-        AObjectMarkerOther = 1 << 4
+        AObjectMarkerJoint = 1 << 3
     };
 
     class AObject : boost::noncopyable
@@ -68,8 +67,6 @@ namespace af3d
         inline std::uint32_t aflags() const { return aflags_; }
         inline void aflagsSet(std::uint32_t value) { aflags_ |= value; }
         inline void aflagsClear(std::uint32_t value) { aflags_ &= ~value; }
-
-        inline bool isMarker() const { return (aflags_ & (AObjectMarkerObject | AObjectMarkerLight | AObjectMarkerJoint | AObjectMarkerOther)) != 0; }
 
         bool propertyCanGet(const std::string& key) const;
         bool propertyCanSet(const std::string& key) const;

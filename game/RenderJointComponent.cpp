@@ -38,6 +38,7 @@ namespace af3d
     RenderJointComponent::RenderJointComponent()
     : RenderComponent(AClass_RenderJointComponent)
     {
+        cameraFilter().layers() = CameraLayer::Main;
     }
 
     const AClass& RenderJointComponent::staticKlass()
@@ -69,10 +70,6 @@ namespace af3d
 
     void RenderJointComponent::render(RenderList& rl, void* const* parts, size_t numParts)
     {
-        if (!rl.camera()->isMain()) {
-            return;
-        }
-
         auto emJoint = scene()->workspace()->emJoint();
 
         bool show = emJoint->active() || scene()->workspace()->emObject()->active() ||

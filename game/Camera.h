@@ -27,6 +27,7 @@
 #define _CAMERA_H_
 
 #include "Texture.h"
+#include "CameraLayer.h"
 #include "OGL.h"
 #include "af3d/Frustum.h"
 #include "af3d/AABB2.h"
@@ -49,8 +50,8 @@ namespace af3d
         inline int order() const { return order_; }
         inline void setOrder(int value) { order_ = value; }
 
-        inline bool isMain() const { return isMain_; }
-        inline void setIsMain(bool value) { isMain_ = value; }
+        inline CameraLayer layer() const { return layer_; }
+        inline void setLayer(CameraLayer value) { layer_ = value; }
 
         inline const btTransform& transform() const { return frustum_.transform(); }
         inline void setTransform(const btTransform& value) { frustum_.setTransform(value); }
@@ -95,7 +96,7 @@ namespace af3d
 
     private:
         int order_ = 0;
-        bool isMain_ = false;
+        CameraLayer layer_ = CameraLayer::General;
         Frustum frustum_;
         AABB2i viewport_ = AABB2i(Vector2i(0, 0), Vector2i(0, 0));
         GLenum clearMask_ = GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT;

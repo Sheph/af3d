@@ -23,24 +23,22 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "RenderComponent.h"
+#ifndef _CAMERALAYER_H_
+#define _CAMERALAYER_H_
+
+#include "af3d/EnumSet.h"
 
 namespace af3d
 {
-    ACLASS_DEFINE_BEGIN_ABSTRACT(RenderComponent, Component)
-    ACLASS_PROPERTY(RenderComponent, Visible, AProperty_Visible, "Component is visible", Bool, true, General, APropertyEditable)
-    ACLASS_DEFINE_END(RenderComponent)
-
-    RenderComponent::RenderComponent(const AClass& klass, bool renderAlways)
-    : Component(klass),
-      renderAlways_(renderAlways)
+    enum class CameraLayer
     {
-        camFilter_.layers().set(CameraLayer::General);
-        camFilter_.layers().set(CameraLayer::Main);
-    }
+        General = 0,
+        Main,
+        Filter,
+        Max = Filter
+    };
 
-    const AClass& RenderComponent::staticKlass()
-    {
-        return AClass_RenderComponent;
-    }
+    using CameraLayers = EnumSet<CameraLayer>;
 }
+
+#endif

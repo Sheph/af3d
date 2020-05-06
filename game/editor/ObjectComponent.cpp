@@ -159,6 +159,7 @@ namespace editor {
         markerRc_->setViewportHeight((float)settings.editor.objMarkerSizePixels / settings.viewHeight);
         markerRc_->setColor(settings.editor.objMarkerColorInactive);
         markerRc_->aflagsSet(AObjectMarkerObject);
+        markerRc_->cameraFilter().layers() = CameraLayer::Main;
         markerRc_->setVisible(false);
         parent()->addComponent(markerRc_);
 

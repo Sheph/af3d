@@ -35,6 +35,7 @@ namespace af3d
     RenderAxesComponent::RenderAxesComponent()
     : RenderComponent(AClass_RenderAxesComponent)
     {
+        cameraFilter().layers() = CameraLayer::Main;
     }
 
     const AClass& RenderAxesComponent::staticKlass()
@@ -69,10 +70,6 @@ namespace af3d
 
     void RenderAxesComponent::render(RenderList& rl, void* const* parts, size_t numParts)
     {
-        if (!rl.camera()->isMain()) {
-            return;
-        }
-
         auto xf = parent()->smoothTransform() * xf_;
 
         auto vForward = xf.getBasis() * btVector3_forward;

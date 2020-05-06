@@ -173,6 +173,7 @@ namespace af3d
             markerRc_->setMesh(mesh);
             markerRc_->setTransform(xf_);
             markerRc_->aflagsSet(AObjectMarkerLight);
+            markerRc_->cameraFilter().layers() = CameraLayer::Main;
             setMarkerParams(settings.editor.lightMarkerAlphaOff, true);
             parent()->addComponent(markerRc_);
         }

@@ -35,6 +35,8 @@ namespace af3d
     RenderGridComponent::RenderGridComponent()
     : RenderComponent(AClass_RenderGridComponent, true)
     {
+        cameraFilter().layers() = CameraLayer::Main;
+
         material_ = materialManager.createMaterial(MaterialTypeGrid);
         material_->setBlendingParams(BlendingParams(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
         material_->setDepthWrite(false);
@@ -66,10 +68,6 @@ namespace af3d
 
     void RenderGridComponent::render(RenderList& rl, void* const* parts, size_t numParts)
     {
-        if (!rl.camera()->isMain()) {
-            return;
-        }
-
         auto p = btPlaneProject(plane_, rl.camera()->frustum().transform().getOrigin());
         float dist = (p - rl.camera()->frustum().transform().getOrigin()).length();
         auto vRight = parent()->getSmoothRight();

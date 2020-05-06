@@ -204,13 +204,23 @@ namespace af3d
 
     void RenderComponentManager::render(RenderList& rl) const
     {
-        CullResultList cr = cullResults_;
-        CollideCull collide(rl.camera()->frustum(), cr);
-        btDbvt::collideTU(tree_.m_root, collide);
+        if (rl.camera()->layer() == CameraLayer::Filter) {
+            for (const auto& kv : cullResults_) {
+                if (kv.first->visible() &&
+                    kv.first->cameraFilter().visibleTo(rl.camera())) {
+                    kv.first->render(rl, &kv.second[0], kv.second.size());
+                }
+            }
+        } else {
+            CullResultList cr = cullResults_;
+            CollideCull collide(rl.camera()->frustum(), cr);
+            btDbvt::collideTU(tree_.m_root, collide);
 
-        for (const auto& kv : cr) {
-            if (kv.first->visible()) {
-                kv.first->render(rl, &kv.second[0], kv.second.size());
+            for (const auto& kv : cr) {
+                if (kv.first->visible() &&
+                    kv.first->cameraFilter().visibleTo(rl.camera())) {
+                    kv.first->render(rl, &kv.second[0], kv.second.size());
+                }
             }
         }
     }

@@ -28,6 +28,7 @@
 
 #include "RenderComponentManager.h"
 #include "RenderList.h"
+#include "CameraFilter.h"
 #include "af3d/Ray.h"
 
 namespace af3d
@@ -52,6 +53,9 @@ namespace af3d
         inline bool visible() const { return visible_; }
         inline void setVisible(bool value) { visible_ = value; }
 
+        inline const CameraFilter& cameraFilter() const { return camFilter_; }
+        inline CameraFilter& cameraFilter() { return camFilter_; }
+
         virtual void update(float dt) = 0;
 
         virtual void render(RenderList& rl, void* const* parts, size_t numParts) = 0;
@@ -64,6 +68,7 @@ namespace af3d
     private:
         bool renderAlways_;
         bool visible_ = true;
+        CameraFilter camFilter_;
         RenderComponentManager* manager_ = nullptr;
     };
 

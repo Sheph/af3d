@@ -35,6 +35,7 @@ namespace af3d
     RenderGizmoAxesComponent::RenderGizmoAxesComponent()
     : RenderComponent(AClass_RenderGizmoAxesComponent)
     {
+        cameraFilter().layers() = CameraLayer::Main;
     }
 
     const AClass& RenderGizmoAxesComponent::staticKlass()
@@ -70,10 +71,6 @@ namespace af3d
 
     void RenderGizmoAxesComponent::render(RenderList& rl, void* const* parts, size_t numParts)
     {
-        if (!rl.camera()->isMain()) {
-            return;
-        }
-
         auto sz = getSizes(rl.camera()->frustum());
         if (sz.lineLength * sz.lineLength < 0.0000001f) {
             return;

@@ -23,24 +23,35 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "RenderComponent.h"
+#ifndef _CAMERAFILTER_H_
+#define _CAMERAFILTER_H_
+
+#include "Camera.h"
+#include <unordered_set>
 
 namespace af3d
 {
-    ACLASS_DEFINE_BEGIN_ABSTRACT(RenderComponent, Component)
-    ACLASS_PROPERTY(RenderComponent, Visible, AProperty_Visible, "Component is visible", Bool, true, General, APropertyEditable)
-    ACLASS_DEFINE_END(RenderComponent)
-
-    RenderComponent::RenderComponent(const AClass& klass, bool renderAlways)
-    : Component(klass),
-      renderAlways_(renderAlways)
+    class CameraFilter
     {
-        camFilter_.layers().set(CameraLayer::General);
-        camFilter_.layers().set(CameraLayer::Main);
-    }
+    public:
+        CameraFilter() = default;
+        ~CameraFilter() = default;
 
-    const AClass& RenderComponent::staticKlass()
-    {
-        return AClass_RenderComponent;
-    }
+        inline const CameraLayers& layers() const { return layers_; }
+        inline CameraLayers& layers() { return layers_; }
+
+        inline const std::unordered_set<ACookie>& cookies() const { return cookies_; }
+        inline std::unordered_set<ACookie>& cookies() { return cookies_; }
+
+        inline bool visibleTo(const CameraPtr& camera)
+        {
+            return layers_[camera->layer()] || (cookies_.count(camera->cookie()) > 0);
+        }
+
+    private:
+        CameraLayers layers_;
+        std::unordered_set<ACookie> cookies_;
+    };
 }
+
+#endif

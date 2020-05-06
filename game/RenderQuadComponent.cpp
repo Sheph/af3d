@@ -73,10 +73,6 @@ namespace af3d
 
     void RenderQuadComponent::render(RenderList& rl, void* const* parts, size_t numParts)
     {
-        if (isMarker() && !rl.camera()->isMain()) {
-            return;
-        }
-
         if (!drawable_ || !drawable_->image()) {
             return;
         }

@@ -35,6 +35,7 @@ namespace af3d
     RenderGizmoRotateComponent::RenderGizmoRotateComponent()
     : RenderComponent(AClass_RenderGizmoRotateComponent)
     {
+        cameraFilter().layers() = CameraLayer::Main;
     }
 
     const AClass& RenderGizmoRotateComponent::staticKlass()
@@ -70,10 +71,6 @@ namespace af3d
 
     void RenderGizmoRotateComponent::render(RenderList& rl, void* const* parts, size_t numParts)
     {
-        if (!rl.camera()->isMain()) {
-            return;
-        }
-
         auto sz = getSizes(rl.camera()->frustum());
         if (sz.radius1 * sz.radius1 < 0.0000001f) {
             return;

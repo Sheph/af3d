@@ -271,7 +271,7 @@ namespace af3d
         }
 
         auto mc = std::make_shared<Camera>();
-        mc->setIsMain(true);
+        mc->setLayer(CameraLayer::Main);
         mc->setAspect(settings.viewAspect);
         mc->setViewport(AABB2i(Vector2i(settings.viewX, settings.viewY),
             Vector2i(settings.viewX + settings.viewWidth, settings.viewY + settings.viewHeight)));
@@ -698,7 +698,7 @@ namespace af3d
 
     void Scene::removeCamera(const CameraPtr& c)
     {
-        if (!c->isMain()) {
+        if (c->layer() != CameraLayer::Main) {
             cameras_.erase(c);
         }
     }
