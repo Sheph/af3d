@@ -217,7 +217,7 @@ namespace af3d
             filterMat->setDepthWrite(false);
             filterMat->setTimeOffset(getRandom(0.0f, 5.0f));
             filterMat->setTextureBinding(SamplerName::Main,
-                TextureBinding(c->camera()->targetTexture(), SamplerParams(GL_NEAREST, GL_CLAMP, GL_CLAMP, GL_NEAREST)));
+                TextureBinding(c->camera()->targetTexture(), SamplerParams(GL_NEAREST, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST)));
             filterMat->setTextureBinding(SamplerName::Noise,
                 TextureBinding(textureManager.loadTexture("noise1.png"), SamplerParams(GL_LINEAR)));
             filterRc->setMaterial(filterMat);
