@@ -41,7 +41,8 @@ namespace af3d
         inline CameraLayers& layers() { return layers_; }
 
         inline const std::unordered_set<ACookie>& cookies() const { return cookies_; }
-        inline std::unordered_set<ACookie>& cookies() { return cookies_; }
+
+        inline void addCookie(const CameraPtr& camera) { cookies_.insert(camera->cookie()); }
 
         inline bool visibleTo(const CameraPtr& camera)
         {

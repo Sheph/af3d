@@ -30,6 +30,7 @@
 #include "TextureManager.h"
 #include "RenderMeshComponent.h"
 #include "RenderQuadComponent.h"
+#include "RenderFilterComponent.h"
 #include "PhysicsBodyComponent.h"
 #include "CollisionSensorComponent.h"
 #include "CollisionShapeBox.h"
@@ -41,6 +42,7 @@
 #include "Settings.h"
 #include "Utils.h"
 #include "Logger.h"
+#include "Const.h"
 #include "af3d/Utils.h"
 
 namespace af3d
@@ -154,7 +156,7 @@ namespace af3d
         auto obj = std::make_shared<SceneObject>();
 
         auto cam = std::make_shared<Camera>();
-        cam->setOrder(-1);
+        cam->setOrder(camOrderTestCamera);
         cam->setAspect(settings.viewAspect);
         cam->setTargetTexture(textureManager.createRenderTexture(scale));
         cam->setClearColor(clearColor);
@@ -184,6 +186,10 @@ namespace af3d
             c = camObj->findComponent<CameraUsageComponent>();
         }
 
+        CameraPtr filterCam;
+
+        auto obj = std::make_shared<SceneObject>();
+
         auto mesh = meshManager.loadMesh("tv.fbx");
         if (c && c->camera()->targetTexture()) {
             int i;
@@ -199,17 +205,35 @@ namespace af3d
                     return m->clone();
                 }
             });
+
+            filterCam = Camera::createFilterCamera();
+            filterCam->setOrder(camOrderTestDisplayFilter);
+            filterCam->setTargetTexture(textureManager.createRenderTexture(
+                static_cast<float>(settings.viewHeight) / c->camera()->targetTexture()->height()));
+
+            auto filterRc = std::make_shared<RenderFilterComponent>();
+            auto filterMat = materialManager.createMaterial(MaterialTypeFilterVHS);
+            filterMat->setDepthTest(false);
+            filterMat->setDepthWrite(false);
+            filterMat->setTimeOffset(getRandom(0.0f, 5.0f));
+            filterMat->setTextureBinding(SamplerName::Main,
+                TextureBinding(c->camera()->targetTexture(), SamplerParams(GL_NEAREST, GL_CLAMP, GL_CLAMP, GL_NEAREST)));
+            filterMat->setTextureBinding(SamplerName::Noise,
+                TextureBinding(textureManager.loadTexture("noise1.png"), SamplerParams(GL_LINEAR)));
+            filterRc->setMaterial(filterMat);
+            filterRc->cameraFilter().addCookie(filterCam);
+            obj->addComponent(filterRc);
+
             mesh->subMeshes()[i]->material()->setTextureBinding(SamplerName::Main,
-                TextureBinding(c->camera()->targetTexture(), SamplerParams(GL_LINEAR)));
+                TextureBinding(filterCam->targetTexture(), SamplerParams(GL_LINEAR)));
         }
 
-        auto obj = std::make_shared<SceneObject>();
         auto rc = std::make_shared<RenderMeshComponent>();
         rc->setMesh(mesh);
         rc->setScale(btVector3_one * scale);
         obj->addComponent(rc);
         if (c) {
-            obj->addComponent(std::make_shared<TVComponent>(c, mesh->aabb().scaledAt0(rc->scale())));
+            obj->addComponent(std::make_shared<TVComponent>(c, mesh->aabb().scaledAt0(rc->scale()), filterCam));
         }
 
         return obj;

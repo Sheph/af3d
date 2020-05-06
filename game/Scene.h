@@ -218,6 +218,7 @@ namespace af3d
         int checkpoint_;
         float timeScale_;
         float realDt_;
+        float gameTime_ = 0.0f;
     };
 
     ACLASS_DECLARE(Scene)

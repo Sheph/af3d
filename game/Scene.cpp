@@ -396,6 +396,8 @@ namespace af3d
             dt /= settings.physics.slowmoFactor;
         }
 
+        gameTime_ += dt;
+
         bool forceUpdateRender = false;
 
         if (!paused_ && (inputMode_ != InputMode::Menu) && inputManager.keyboard().triggered(KI_ESCAPE)) {
@@ -467,7 +469,7 @@ namespace af3d
         rnList.reserve(cams.size() + 1);
 
         for (const auto& c : cams) {
-            RenderList rl(c, impl_->defaultVa_);
+            RenderList rl(c, impl_->defaultVa_, gameTime_);
 
             impl_->renderComponentManager_->render(rl);
 
@@ -488,7 +490,7 @@ namespace af3d
             rnList.push_back(rl.compile());
         }
 
-        rnList.push_back(impl_->uiComponentManager_->render(impl_->defaultVa_));
+        rnList.push_back(impl_->uiComponentManager_->render(impl_->defaultVa_, gameTime_));
 
         impl_->defaultVa_.upload();
 

@@ -382,9 +382,10 @@ namespace af3d
         }
     }
 
-    RenderList::RenderList(const CameraPtr& camera, VertexArrayWriter& defaultVa)
+    RenderList::RenderList(const CameraPtr& camera, VertexArrayWriter& defaultVa, float gameTime)
     : camera_(camera),
-      defaultVa_(defaultVa)
+      defaultVa_(defaultVa),
+      gameTime_(gameTime)
     {
     }
 
@@ -498,6 +499,9 @@ namespace af3d
         }
         if (activeUniforms.count(UniformName::ViewportSize) > 0) {
             params.setUniform(UniformName::ViewportSize, Vector2f::fromVector2i(camera_->viewport().getSize()));
+        }
+        if (activeUniforms.count(UniformName::Time) > 0) {
+            params.setUniform(UniformName::Time, gameTime_ + geom.material->timeOffset());
         }
     }
 }

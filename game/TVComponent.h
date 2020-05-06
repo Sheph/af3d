@@ -35,7 +35,7 @@ namespace af3d
         public PhasedComponent
     {
     public:
-        TVComponent(const CameraUsageComponentPtr& cameraUsage, const AABB& tvAabb);
+        TVComponent(const CameraUsageComponentPtr& cameraUsage, const AABB& tvAabb, const CameraPtr& filterCam);
         ~TVComponent() = default;
 
         static const AClass& staticKlass();
@@ -55,6 +55,7 @@ namespace af3d
 
         CameraUsageComponentPtr cameraUsage_;
         AABB tvAabb_;
+        CameraPtr filterCam_;
         bool showing_ = false;
     };
 

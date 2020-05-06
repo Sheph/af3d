@@ -45,8 +45,9 @@ namespace af3d
         MaterialTypeImm,       // Immediate draw shader. pos(3d), color(4d) and one texture(2d)
         MaterialTypeOutline,   // Selection outline.
         MaterialTypeGrid,
+        MaterialTypeFilterVHS,
         MaterialTypeFirst = MaterialTypeBasic,
-        MaterialTypeMax = MaterialTypeGrid
+        MaterialTypeMax = MaterialTypeFilterVHS
     };
 
     class MaterialType : boost::noncopyable

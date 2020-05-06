@@ -33,10 +33,11 @@ namespace af3d
     ACLASS_DEFINE_BEGIN(TVComponent, PhasedComponent)
     ACLASS_DEFINE_END(TVComponent)
 
-    TVComponent::TVComponent(const CameraUsageComponentPtr& cameraUsage, const AABB& tvAabb)
+    TVComponent::TVComponent(const CameraUsageComponentPtr& cameraUsage, const AABB& tvAabb, const CameraPtr& filterCam)
     : PhasedComponent(AClass_TVComponent, phasePreRender),
       cameraUsage_(cameraUsage),
-      tvAabb_(tvAabb)
+      tvAabb_(tvAabb),
+      filterCam_(filterCam)
     {
     }
 
@@ -64,6 +65,7 @@ namespace af3d
     {
         if (showing_) {
             cameraUsage_->decUseCount();
+            scene()->removeCamera(filterCam_);
             showing_ = false;
         }
     }
@@ -75,9 +77,11 @@ namespace af3d
             (parent()->getSmoothForward().dot(parent()->smoothPos() - frustum.transform().getOrigin()) >= 0);
         if (!showing_ && show) {
             cameraUsage_->incUseCount();
+            scene()->addCamera(filterCam_);
             showing_ = true;
         } else if (showing_ && !show) {
             cameraUsage_->decUseCount();
+            scene()->removeCamera(filterCam_);
             showing_ = false;
         }
     }

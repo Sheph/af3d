@@ -34,6 +34,9 @@
 
 namespace af3d
 {
+    class Camera;
+    using CameraPtr = std::shared_ptr<Camera>;
+
     class Camera : public std::enable_shared_from_this<Camera>,
         public AObject
     {
@@ -46,6 +49,8 @@ namespace af3d
         static AObjectPtr create(const APropertyValueMap& propVals);
 
         AObjectPtr sharedThis() override { return shared_from_this(); }
+
+        static CameraPtr createFilterCamera();
 
         inline int order() const { return order_; }
         inline void setOrder(int value) { order_ = value; }
@@ -105,8 +110,6 @@ namespace af3d
 
         TexturePtr targetTexture_;
     };
-
-    using CameraPtr = std::shared_ptr<Camera>;
 
     ACLASS_DECLARE(Camera)
 }

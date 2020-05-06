@@ -57,8 +57,9 @@ namespace af3d
         LightCutoffInnerCos,
         LightPower,
         ViewportSize,
+        Time,
         FirstAuto = ViewProjMatrix,
-        MaxAuto = ViewportSize,
+        MaxAuto = Time,
         MainColor, // Light only!
         SpecularColor, // Light only!
         Shininess, // Light only!
@@ -77,7 +78,8 @@ namespace af3d
         Main = 0,
         Normal,
         Specular,
-        Max = Specular
+        Noise,
+        Max = Noise
     };
 
     struct VariableTypeInfo

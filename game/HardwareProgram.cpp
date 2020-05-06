@@ -66,6 +66,7 @@ namespace af3d
         {"lightCutoffInnerCos", UniformName::LightCutoffInnerCos},
         {"lightPower", UniformName::LightPower},
         {"viewportSize", UniformName::ViewportSize},
+        {"time", UniformName::Time},
         {"mainColor", UniformName::MainColor},
         {"specularColor", UniformName::SpecularColor},
         {"shininess", UniformName::Shininess},
@@ -80,7 +81,8 @@ namespace af3d
     static const std::unordered_map<std::string, SamplerName> staticSamplerMap = {
         {"texMain", SamplerName::Main},
         {"texNormal", SamplerName::Normal},
-        {"texSpecular", SamplerName::Specular}
+        {"texSpecular", SamplerName::Specular},
+        {"texNoise", SamplerName::Noise}
     };
 
     GLint VariableInfo::sizeInBytes() const

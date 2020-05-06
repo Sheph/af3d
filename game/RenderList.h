@@ -97,7 +97,7 @@ namespace af3d
     class RenderList : boost::noncopyable
     {
     public:
-        RenderList(const CameraPtr& camera, VertexArrayWriter& defaultVa);
+        RenderList(const CameraPtr& camera, VertexArrayWriter& defaultVa, float gameTime);
         ~RenderList() = default;
 
         inline const CameraPtr& camera() const { return camera_; }
@@ -184,6 +184,7 @@ namespace af3d
 
         const CameraPtr& camera_;
         VertexArrayWriter& defaultVa_;
+        float gameTime_;
 
         GeometryList geomList_;
         LightList lightList_;

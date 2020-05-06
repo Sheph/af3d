@@ -23,52 +23,50 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _UICOMPONENTMANAGER_H_
-#define _UICOMPONENTMANAGER_H_
+#ifndef _RENDERFILTERCOMPONENT_H_
+#define _RENDERFILTERCOMPONENT_H_
 
-#include "ComponentManager.h"
-#include "Camera.h"
-#include "RenderNode.h"
-#include "VertexArrayWriter.h"
-#include <set>
+#include "RenderComponent.h"
 
 namespace af3d
 {
-    class UIComponent;
-    using UIComponentPtr = std::shared_ptr<UIComponent>;
-
-    class UIComponentComparer : public std::binary_function<UIComponentPtr, UIComponentPtr, bool>
+    class RenderFilterComponent : public std::enable_shared_from_this<RenderFilterComponent>,
+        public RenderComponent
     {
     public:
-        bool operator()(const UIComponentPtr& l, const UIComponentPtr& r) const;
-    };
+        RenderFilterComponent();
+        ~RenderFilterComponent() = default;
 
-    class UIComponentManager : public ComponentManager
-    {
-    public:
-        UIComponentManager();
-        ~UIComponentManager();
+        static const AClass& staticKlass();
 
-        virtual void cleanup() override;
+        static AObjectPtr create(const APropertyValueMap& propVals);
 
-        virtual void addComponent(const ComponentPtr& component) override;
+        AObjectPtr sharedThis() override { return shared_from_this(); }
 
-        virtual void removeComponent(const ComponentPtr& component) override;
+        void update(float dt) override;
 
-        virtual void freezeComponent(const ComponentPtr& component) override;
+        void render(RenderList& rl, void* const* parts, size_t numParts) override;
 
-        virtual void thawComponent(const ComponentPtr& component) override;
+        std::pair<AObjectPtr, float> testRay(const Frustum& frustum, const Ray& ray, void* part) override;
 
-        virtual bool update(float dt) override;
+        inline const MaterialPtr& material() const { return material_; }
+        inline void setMaterial(const MaterialPtr& value) { material_ = value; }
 
-        virtual void debugDraw(RenderList& rl) override;
-
-        RenderNodePtr render(VertexArrayWriter& defaultVa, float gameTime);
+        inline const Color& color() const { return color_; }
+        inline void setColor(const Color& value) { color_ = value; }
 
     private:
-        std::set<UIComponentPtr, UIComponentComparer> components_;
-        CameraPtr uiCamera_;
+        void onRegister() override;
+
+        void onUnregister() override;
+
+        MaterialPtr material_;
+        Color color_ = Color_one;
     };
+
+    using RenderFilterComponentPtr = std::shared_ptr<RenderFilterComponent>;
+
+    ACLASS_DECLARE(RenderFilterComponent)
 }
 
 #endif

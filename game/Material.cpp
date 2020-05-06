@@ -426,12 +426,23 @@ namespace af3d
         cullFaceMode_ = value;
     }
 
+    float Material::timeOffset() const
+    {
+        return timeOffset_;
+    }
+
+    void Material::setTimeOffset(float value)
+    {
+        timeOffset_ = value;
+    }
+
     bool Material::cloneImpl(const MaterialPtr& cloned) const
     {
         cloned->blendingParams_ = blendingParams_;
         cloned->depthTest_ = depthTest_;
         cloned->depthWrite_ = depthWrite_;
         cloned->cullFaceMode_ = cullFaceMode_;
+        cloned->timeOffset_ = timeOffset_;
         return mgr_->onMaterialClone(cloned);
     }
 }

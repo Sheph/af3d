@@ -181,6 +181,9 @@ namespace af3d
         GLenum cullFaceMode() const;
         void setCullFaceMode(GLenum value);
 
+        float timeOffset() const;
+        void setTimeOffset(float value);
+
     private:
         bool cloneImpl(const MaterialPtr& cloned) const;
 
@@ -192,6 +195,7 @@ namespace af3d
         bool depthTest_ = true;
         bool depthWrite_ = true;
         GLenum cullFaceMode_ = GL_BACK;
+        float timeOffset_ = 0.0f;
     };
 
     ACLASS_DECLARE(Material)
