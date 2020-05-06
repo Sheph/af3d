@@ -41,6 +41,7 @@
 #include "PhysicsComponent.h"
 #include "RenderComponent.h"
 #include "CollisionComponent.h"
+#include "LightProbeComponent.h"
 #include "FPComponent.h"
 #include "CameraComponent.h"
 #include "UIComponent.h"
@@ -705,6 +706,16 @@ namespace af3d
         }
     }
 
+    void Scene::addLightProbe(LightProbeComponent* probe)
+    {
+        lightProbes_.insert(probe);
+    }
+
+    void Scene::removeLightProbe(LightProbeComponent* probe)
+    {
+        lightProbes_.erase(probe);
+    }
+
     void Scene::setRespawnPoint(const btTransform& value)
     {
         playable_ = true;
@@ -787,6 +798,17 @@ namespace af3d
     APropertyValue Scene::propertyCameraTransformGet(const std::string&) const
     {
         return mainCamera()->transform();
+    }
+
+    void Scene::propertyUpdateLightProbesSet(const std::string&, const APropertyValue& value)
+    {
+        if (!value.toBool()) {
+            return;
+        }
+
+        for (auto probe : lightProbes_) {
+            probe->recreate();
+        }
     }
 
     void Scene::onLeave(SceneObject* obj)

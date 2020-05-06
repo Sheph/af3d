@@ -38,6 +38,8 @@
 
 namespace af3d
 {
+    class LightProbeComponent;
+
     class Scene : public SceneObjectManager
     {
     public:
@@ -111,6 +113,10 @@ namespace af3d
 
         void removeCamera(const CameraPtr& c);
 
+        void addLightProbe(LightProbeComponent* probe);
+
+        void removeLightProbe(LightProbeComponent* probe);
+
         inline bool playable() const { return playable_; }
 
         inline const btTransform& respawnPoint() const { return respawnPoint_; }
@@ -165,6 +171,9 @@ namespace af3d
 
         APropertyValue propertyCameraTransformGet(const std::string&) const;
 
+        APropertyValue propertyUpdateLightProbesGet(const std::string&) const { return false; }
+        void propertyUpdateLightProbesSet(const std::string&, const APropertyValue& value);
+
         // Internal, do not call.
         void onLeave(SceneObject* obj);
 
@@ -192,6 +201,8 @@ namespace af3d
 
         std::unordered_set<CameraPtr> cameras_;
         SceneObjectPtr mainCamera_;
+
+        std::unordered_set<LightProbeComponent*> lightProbes_;
 
         InputMode inputMode_;
         SceneObjectPtr workspaceObj_;

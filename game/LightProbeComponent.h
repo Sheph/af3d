@@ -23,45 +23,44 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _SCENEOBJECTFACTORY_H_
-#define _SCENEOBJECTFACTORY_H_
+#ifndef _LIGHTPROBECOMPONENT_H_
+#define _LIGHTPROBECOMPONENT_H_
 
-#include "af3d/Types.h"
-#include "af3d/Single.h"
-#include "SceneObject.h"
+#include "PhasedComponent.h"
+#include "Texture.h"
 
 namespace af3d
 {
-    class SceneObjectFactory : public Single<SceneObjectFactory>
+    class LightProbeComponent : public std::enable_shared_from_this<LightProbeComponent>,
+        public PhasedComponent
     {
     public:
-        SceneObjectFactory() = default;
-        ~SceneObjectFactory() = default;
+        explicit LightProbeComponent(float resolution);
+        ~LightProbeComponent() = default;
 
-        bool init();
+        static const AClass& staticKlass();
 
-        void shutdown();
+        static AObjectPtr create(const APropertyValueMap& propVals);
 
-        SceneObjectPtr createDummy();
+        AObjectPtr sharedThis() override { return shared_from_this(); }
 
-        SceneObjectPtr createColoredBox(const btVector3& size, const Color& color1, const Color& color2);
+        void preRender(float dt) override;
 
-        SceneObjectPtr createInstance(const std::string& assetPath);
+        void recreate();
 
-        SceneObjectPtr createSensor(bool allowSensor);
+        inline const TexturePtr& irradianceTexture() const { return irradianceTexture_; }
 
-        SceneObjectPtr createTestRef(const SceneObjectPtr& other1, const SceneObjectPtr& other2);
+    private:
+        void onRegister() override;
 
-        SceneObjectPtr createLinkedBoxes(const btVector3& size, const Color& color1, const Color& color2);
+        void onUnregister() override;
 
-        SceneObjectPtr createTestCamera(const Color& clearColor, const Color& ambientColor, float scale);
-
-        SceneObjectPtr createTestCameraDisplay(const SceneObjectPtr& camObj, float scale);
-
-        SceneObjectPtr createLightProbe(float resolution);
+        TexturePtr irradianceTexture_;
     };
 
-    extern SceneObjectFactory sceneObjectFactory;
+    using LightProbeComponentPtr = std::shared_ptr<LightProbeComponent>;
+
+    ACLASS_DECLARE(LightProbeComponent)
 }
 
 #endif

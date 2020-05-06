@@ -39,6 +39,7 @@
 #include "CameraComponent.h"
 #include "CameraUsageComponent.h"
 #include "TVComponent.h"
+#include "LightProbeComponent.h"
 #include "Settings.h"
 #include "Utils.h"
 #include "Logger.h"
@@ -239,6 +240,33 @@ namespace af3d
         return obj;
     }
 
+    SceneObjectPtr SceneObjectFactory::createLightProbe(float resolution)
+    {
+        auto obj = std::make_shared<SceneObject>();
+
+        obj->addComponent(std::make_shared<LightProbeComponent>(resolution));
+
+        if (settings.editor.enabled && !settings.editor.playing) {
+            auto mesh = meshManager.loadMesh("light_probe.fbx")->clone();
+            for (const auto& sm : mesh->subMeshes()) {
+                sm->material()->setBlendingParams(BlendingParams(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+                Color c;
+                if (sm->material()->params().getUniform(UniformName::MainColor, c, true)) {
+                    c.setW(0.5f);
+                    sm->material()->params().setUniform(UniformName::MainColor, c);
+                }
+            }
+
+            auto rc = std::make_shared<RenderMeshComponent>();
+            rc->cameraFilter().layers() = CameraLayer::Main;
+            rc->setMesh(mesh);
+            rc->setScale(btVector3_one * 0.5f);
+            obj->addComponent(rc);
+        }
+
+        return obj;
+    }
+
     SCENEOBJECT_DEFINE_BEGIN(Dummy)
     {
         return sceneObjectFactory.createDummy();
@@ -319,4 +347,12 @@ namespace af3d
     SCENEOBJECT_PARAM(TestCameraDisplay, "camera object", "Camera object", SceneObject, SceneObjectPtr())
     SCENEOBJECT_PARAM(TestCameraDisplay, "scale", "Scale", Float, 1.0f)
     SCENEOBJECT_DEFINE_END(TestCameraDisplay)
+
+    SCENEOBJECT_DEFINE_BEGIN(LightProbe)
+    {
+        return sceneObjectFactory.createLightProbe(params.get("resolution").toFloat());
+    }
+    SCENEOBJECT_DEFINE_PROPS(LightProbe)
+    SCENEOBJECT_PARAM(LightProbe, "resolution", "Resolution", Float, 64.0f)
+    SCENEOBJECT_DEFINE_END(LightProbe)
 }

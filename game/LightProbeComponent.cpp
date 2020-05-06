@@ -23,45 +23,49 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _SCENEOBJECTFACTORY_H_
-#define _SCENEOBJECTFACTORY_H_
-
-#include "af3d/Types.h"
-#include "af3d/Single.h"
+#include "LightProbeComponent.h"
+#include "TextureManager.h"
 #include "SceneObject.h"
+#include "Scene.h"
+#include "Logger.h"
 
 namespace af3d
 {
-    class SceneObjectFactory : public Single<SceneObjectFactory>
+    ACLASS_DEFINE_BEGIN(LightProbeComponent, PhasedComponent)
+    ACLASS_DEFINE_END(LightProbeComponent)
+
+    LightProbeComponent::LightProbeComponent(float resolution)
+    : PhasedComponent(AClass_LightProbeComponent, phasePreRender)
     {
-    public:
-        SceneObjectFactory() = default;
-        ~SceneObjectFactory() = default;
+        irradianceTexture_ = textureManager.createRenderTexture(resolution, resolution);
+    }
 
-        bool init();
+    const AClass& LightProbeComponent::staticKlass()
+    {
+        return AClass_LightProbeComponent;
+    }
 
-        void shutdown();
+    AObjectPtr LightProbeComponent::create(const APropertyValueMap& propVals)
+    {
+        return AObjectPtr();
+    }
 
-        SceneObjectPtr createDummy();
+    void LightProbeComponent::preRender(float dt)
+    {
+    }
 
-        SceneObjectPtr createColoredBox(const btVector3& size, const Color& color1, const Color& color2);
+    void LightProbeComponent::recreate()
+    {
+        LOG4CPLUS_INFO(logger(), "LightProbe(" << parent()->name() << "): recreating...");
+    }
 
-        SceneObjectPtr createInstance(const std::string& assetPath);
+    void LightProbeComponent::onRegister()
+    {
+        scene()->addLightProbe(this);
+    }
 
-        SceneObjectPtr createSensor(bool allowSensor);
-
-        SceneObjectPtr createTestRef(const SceneObjectPtr& other1, const SceneObjectPtr& other2);
-
-        SceneObjectPtr createLinkedBoxes(const btVector3& size, const Color& color1, const Color& color2);
-
-        SceneObjectPtr createTestCamera(const Color& clearColor, const Color& ambientColor, float scale);
-
-        SceneObjectPtr createTestCameraDisplay(const SceneObjectPtr& camObj, float scale);
-
-        SceneObjectPtr createLightProbe(float resolution);
-    };
-
-    extern SceneObjectFactory sceneObjectFactory;
+    void LightProbeComponent::onUnregister()
+    {
+        scene()->removeLightProbe(this);
+    }
 }
-
-#endif

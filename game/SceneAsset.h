@@ -113,6 +113,9 @@ namespace af3d
 
         APropertyValue propertyCameraTransformGet(const std::string&) const { return cameraXf_; }
 
+        APropertyValue propertyUpdateLightProbesGet(const std::string&) const { return false; }
+        void propertyUpdateLightProbesSet(const std::string&, const APropertyValue& value) { }
+
     private:
         SceneObjectPtr root_;
         std::vector<SceneObjectPtr> objects_;
@@ -137,7 +140,8 @@ namespace af3d
         ACLASS_PROPERTY(Class, Script, "script", "Scene script asset path", String, "", General, APropertyEditable) \
         ACLASS_PROPERTY(Class, Root, "root", "Scene root body", SceneObject, SceneObjectPtr(), General, APropertyEditable) \
         ACLASS_PROPERTY(Class, CollisionMatrix, "collision matrix", "Scene collision matrix", CollisionMatrix, CollisionMatrixPtr(), General, APropertyEditable) \
-        ACLASS_PROPERTY_RO(Class, CameraTransform, AProperty_CameraTransform, "Camera transform", Transform, Position, APropertyEditable)
+        ACLASS_PROPERTY_RO(Class, CameraTransform, AProperty_CameraTransform, "Camera transform", Transform, Position, APropertyEditable) \
+        ACLASS_PROPERTY(Class, UpdateLightProbes, "update light probes", "Update light probes", Bool, false, General, APropertyEditable|APropertyTransient)
 }
 
 #endif

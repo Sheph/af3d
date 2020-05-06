@@ -58,6 +58,7 @@ set(SOURCES
     RenderList.cpp
     RenderNode.cpp
     Light.cpp
+    LightProbeComponent.cpp
     DirectionalLight.cpp
     PointLight.cpp
     SpotLight.cpp
