@@ -33,11 +33,11 @@ namespace af3d
     ACLASS_DEFINE_BEGIN(TVComponent, PhasedComponent)
     ACLASS_DEFINE_END(TVComponent)
 
-    TVComponent::TVComponent(const CameraUsageComponentPtr& cameraUsage, const AABB& tvAabb, const CameraPtr& filterCam)
+    TVComponent::TVComponent(const CameraUsageComponentPtr& cameraUsage, const AABB& tvAabb, const RenderFilterComponentPtr& filterRc)
     : PhasedComponent(AClass_TVComponent, phasePreRender),
       cameraUsage_(cameraUsage),
       tvAabb_(tvAabb),
-      filterCam_(filterCam)
+      filterRc_(filterRc)
     {
     }
 
@@ -63,10 +63,9 @@ namespace af3d
 
     void TVComponent::onUnregister()
     {
-        if (showing_) {
+        if (filterRc_->scene()) {
             cameraUsage_->decUseCount();
-            scene()->removeCamera(filterCam_);
-            showing_ = false;
+            filterRc_->removeFromParent();
         }
     }
 
@@ -75,14 +74,12 @@ namespace af3d
         const auto& frustum = scene()->mainCamera()->findComponent<CameraComponent>()->camera()->frustum();
         bool show = frustum.isVisible(tvAabb_.getTransformed(parent()->smoothTransform())) &&
             (parent()->getSmoothForward().dot(parent()->smoothPos() - frustum.transform().getOrigin()) >= 0);
-        if (!showing_ && show) {
+        if (!filterRc_->scene() && show) {
             cameraUsage_->incUseCount();
-            scene()->addCamera(filterCam_);
-            showing_ = true;
-        } else if (showing_ && !show) {
+            parent()->addComponent(filterRc_);
+        } else if (filterRc_->scene() && !show) {
             cameraUsage_->decUseCount();
-            scene()->removeCamera(filterCam_);
-            showing_ = false;
+            filterRc_->removeFromParent();
         }
     }
 }

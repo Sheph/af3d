@@ -27,6 +27,7 @@
 #define _RENDERFILTERCOMPONENT_H_
 
 #include "RenderComponent.h"
+#include "Camera.h"
 
 namespace af3d
 {
@@ -34,7 +35,7 @@ namespace af3d
         public RenderComponent
     {
     public:
-        RenderFilterComponent();
+        explicit RenderFilterComponent(MaterialTypeName filterName);
         ~RenderFilterComponent() = default;
 
         static const AClass& staticKlass();
@@ -50,10 +51,13 @@ namespace af3d
         std::pair<AObjectPtr, float> testRay(const Frustum& frustum, const Ray& ray, void* part) override;
 
         inline const MaterialPtr& material() const { return material_; }
-        inline void setMaterial(const MaterialPtr& value) { material_ = value; }
+
+        inline const CameraPtr& camera() const { return filterCam_; }
 
         inline const Color& color() const { return color_; }
         inline void setColor(const Color& value) { color_ = value; }
+
+        inline int numFramesRendered() const { return numFramesRendered_; }
 
     private:
         void onRegister() override;
@@ -61,7 +65,9 @@ namespace af3d
         void onUnregister() override;
 
         MaterialPtr material_;
+        CameraPtr filterCam_;
         Color color_ = Color_one;
+        int numFramesRendered_ = 0;
     };
 
     using RenderFilterComponentPtr = std::shared_ptr<RenderFilterComponent>;

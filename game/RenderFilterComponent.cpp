@@ -24,16 +24,24 @@
  */
 
 #include "RenderFilterComponent.h"
+#include "MaterialManager.h"
+#include "Scene.h"
 
 namespace af3d
 {
     ACLASS_DEFINE_BEGIN(RenderFilterComponent, RenderComponent)
     ACLASS_DEFINE_END(RenderFilterComponent)
 
-    RenderFilterComponent::RenderFilterComponent()
-    : RenderComponent(AClass_RenderFilterComponent, true)
+    RenderFilterComponent::RenderFilterComponent(MaterialTypeName filterName)
+    : RenderComponent(AClass_RenderFilterComponent, true),
+      material_(materialManager.createMaterial(MaterialTypeFilterVHS)),
+      filterCam_(Camera::createFilterCamera())
     {
+        material_->setDepthTest(false);
+        material_->setDepthWrite(false);
+
         cameraFilter().layers().resetAll();
+        cameraFilter().addCookie(filterCam_);
     }
 
     const AClass& RenderFilterComponent::staticKlass()
@@ -43,9 +51,7 @@ namespace af3d
 
     AObjectPtr RenderFilterComponent::create(const APropertyValueMap& propVals)
     {
-        auto obj = std::make_shared<RenderFilterComponent>();
-        obj->propertiesSet(propVals);
-        return obj;
+        return AObjectPtr();
     }
 
     void RenderFilterComponent::update(float dt)
@@ -73,6 +79,8 @@ namespace af3d
         rop.addVertex(p0, uv0, color());
         rop.addVertex(p2, uv2, color());
         rop.addVertex(p3, uv3, color());
+
+        ++numFramesRendered_;
     }
 
     std::pair<AObjectPtr, float> RenderFilterComponent::testRay(const Frustum& frustum, const Ray& ray, void* part)
@@ -82,9 +90,12 @@ namespace af3d
 
     void RenderFilterComponent::onRegister()
     {
+        scene()->addCamera(filterCam_);
     }
 
     void RenderFilterComponent::onUnregister()
     {
+        scene()->removeCamera(filterCam_);
+        numFramesRendered_ = 0;
     }
 }

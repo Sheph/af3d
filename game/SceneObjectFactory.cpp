@@ -187,7 +187,7 @@ namespace af3d
             c = camObj->findComponent<CameraUsageComponent>();
         }
 
-        CameraPtr filterCam;
+        RenderFilterComponentPtr filterRc;
 
         auto obj = std::make_shared<SceneObject>();
 
@@ -207,26 +207,21 @@ namespace af3d
                 }
             });
 
-            filterCam = Camera::createFilterCamera();
-            filterCam->setOrder(camOrderTestDisplayFilter);
-            filterCam->setRenderTarget(RenderTarget(textureManager.createRenderTexture(TextureType2D,
+            filterRc = std::make_shared<RenderFilterComponent>(MaterialTypeFilterVHS);
+            filterRc->material()->setTimeOffset(getRandom(0.0f, 5.0f));
+            filterRc->material()->setTextureBinding(SamplerName::Main,
+                TextureBinding(c->camera()->renderTarget().texture(),
+                    SamplerParams(GL_NEAREST, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST)));
+            filterRc->material()->setTextureBinding(SamplerName::Noise,
+                TextureBinding(textureManager.loadTexture("noise1.png"),
+                    SamplerParams(GL_LINEAR)));
+            filterRc->camera()->setOrder(camOrderTestDisplayFilter);
+            filterRc->camera()->setRenderTarget(RenderTarget(textureManager.createRenderTexture(TextureType2D,
                 static_cast<float>(settings.viewHeight) / c->camera()->renderTarget().texture()->height(), GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE)));
 
-            auto filterRc = std::make_shared<RenderFilterComponent>();
-            auto filterMat = materialManager.createMaterial(MaterialTypeFilterVHS);
-            filterMat->setDepthTest(false);
-            filterMat->setDepthWrite(false);
-            filterMat->setTimeOffset(getRandom(0.0f, 5.0f));
-            filterMat->setTextureBinding(SamplerName::Main,
-                TextureBinding(c->camera()->renderTarget().texture(), SamplerParams(GL_NEAREST, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST)));
-            filterMat->setTextureBinding(SamplerName::Noise,
-                TextureBinding(textureManager.loadTexture("noise1.png"), SamplerParams(GL_LINEAR)));
-            filterRc->setMaterial(filterMat);
-            filterRc->cameraFilter().addCookie(filterCam);
-            obj->addComponent(filterRc);
-
             mesh->subMeshes()[i]->material()->setTextureBinding(SamplerName::Main,
-                TextureBinding(filterCam->renderTarget().texture(), SamplerParams(GL_LINEAR)));
+                TextureBinding(filterRc->camera()->renderTarget().texture(),
+                    SamplerParams(GL_LINEAR)));
         }
 
         auto rc = std::make_shared<RenderMeshComponent>();
@@ -234,7 +229,7 @@ namespace af3d
         rc->setScale(btVector3_one * scale);
         obj->addComponent(rc);
         if (c) {
-            obj->addComponent(std::make_shared<TVComponent>(c, mesh->aabb().scaledAt0(rc->scale()), filterCam));
+            obj->addComponent(std::make_shared<TVComponent>(c, mesh->aabb().scaledAt0(rc->scale()), filterRc));
         }
 
         return obj;
