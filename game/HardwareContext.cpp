@@ -68,6 +68,7 @@ namespace af3d
             }
             sampler->setParameterInt(GL_TEXTURE_WRAP_S, params.texWrapU, *this);
             sampler->setParameterInt(GL_TEXTURE_WRAP_T, params.texWrapV, *this);
+            sampler->setParameterInt(GL_TEXTURE_WRAP_R, params.texWrapW, *this);
             it = samplers_.emplace(params, sampler).first;
         }
         auto samplerId = it->second->id(*this);
@@ -77,28 +78,31 @@ namespace af3d
         }
     }
 
-    void HardwareContext::setRenderTarget(const HardwareTexturePtr& tex)
+    void HardwareContext::setRenderTarget(const HardwareRenderTarget& target)
     {
         HardwareFramebufferPtr fb;
 
         for (auto it = framebuffers_.begin(); it != framebuffers_.end();) {
-            const auto& res = (*it)->attachment(HardwareFramebuffer::ColorAttachment, *this);
-            if (res == tex) {
-                btAssert(tex);
+            const auto& attachment = (*it)->attachment(HardwareFramebuffer::ColorAttachment, *this);
+            if (attachment.res == target.texture()) {
+                btAssert(target.texture());
                 fb = *it;
+                // Re-attach in case if cube face or level was changed.
+                fb->attachTarget(HardwareFramebuffer::ColorAttachment, target, *this);
                 ++it;
-            } else if (res.use_count() == 1) {
-                LOG4CPLUS_DEBUG(logger(), "hwContext: framebuffer " << res.get() << " is done");
+            } else if (attachment.res.use_count() == 1) {
+                LOG4CPLUS_DEBUG(logger(), "hwContext: framebuffer for " << attachment.res.get() << " is done");
                 framebuffers_.erase(it++);
             } else {
                 ++it;
             }
         }
 
-        if (!fb && tex) {
+        if (!fb && target) {
+            LOG4CPLUS_DEBUG(logger(), "hwContext: new framebuffer for " << target.texture().get());
             fb = hwManager.createFramebuffer();
-            fb->attachTexture(HardwareFramebuffer::ColorAttachment, tex, *this);
-            auto rb = hwManager.createRenderbuffer(tex->width(), tex->height());
+            fb->attachTarget(HardwareFramebuffer::ColorAttachment, target, *this);
+            auto rb = hwManager.createRenderbuffer(target.texture()->width(), target.texture()->height());
             rb->allocate(GL_DEPTH24_STENCIL8, *this);
             fb->attachRenderbuffer(HardwareFramebuffer::DepthAttachment, rb, *this);
             fb->attachRenderbuffer(HardwareFramebuffer::StencilAttachment, rb, *this);

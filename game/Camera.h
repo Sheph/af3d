@@ -26,7 +26,7 @@
 #ifndef _CAMERA_H_
 #define _CAMERA_H_
 
-#include "Texture.h"
+#include "RenderTarget.h"
 #include "CameraLayer.h"
 #include "OGL.h"
 #include "af3d/Frustum.h"
@@ -96,8 +96,8 @@ namespace af3d
         inline const Color& ambientColor() const { return ambientColor_; }
         inline void setAmbientColor(const Color& value) { ambientColor_ = value; }
 
-        inline const TexturePtr& targetTexture() const { return targetTexture_; }
-        inline void setTargetTexture(const TexturePtr& value) { targetTexture_ = value; }
+        inline const RenderTarget& renderTarget() const { return renderTarget_; }
+        inline void setRenderTarget(const RenderTarget& value) { renderTarget_ = value; }
 
     private:
         int order_ = 0;
@@ -108,7 +108,7 @@ namespace af3d
         Color clearColor_ = Color(0.23f, 0.23f, 0.23f, 1.0f);
         Color ambientColor_ = Color(0.2f, 0.2f, 0.2f, 1.0f);
 
-        TexturePtr targetTexture_;
+        RenderTarget renderTarget_;
     };
 
     ACLASS_DECLARE(Camera)

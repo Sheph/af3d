@@ -29,6 +29,7 @@
 #include "HardwareSampler.h"
 #include "HardwareProgram.h"
 #include "HardwareFramebuffer.h"
+#include "HardwareRenderTarget.h"
 #include "assimp/Importer.hpp"
 #include <boost/noncopyable.hpp>
 #include <boost/optional.hpp>
@@ -111,7 +112,7 @@ namespace af3d
 
         void bindSampler(int unit, const SamplerParams& params);
 
-        void setRenderTarget(const HardwareTexturePtr& tex);
+        void setRenderTarget(const HardwareRenderTarget& target);
 
     private:
         struct TextureUnit

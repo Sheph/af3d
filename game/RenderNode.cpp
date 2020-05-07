@@ -29,7 +29,7 @@
 
 namespace af3d
 {
-    RenderNode::RenderNode(const AABB2i& viewport, GLenum clearMask, const Color& clearColor, const HardwareTexturePtr& target)
+    RenderNode::RenderNode(const AABB2i& viewport, GLenum clearMask, const Color& clearColor, const HardwareRenderTarget& target)
     : type_(Type::Root),
       viewport_(viewport),
       clearMask_(clearMask),
@@ -277,7 +277,7 @@ namespace af3d
         //LOG4CPLUS_DEBUG(logger(), "draw(" << numDraws_ << ")");
         ctx.setRenderTarget(target_);
         if (target_) {
-            ogl.Viewport(0, 0, target_->width(), target_->height());
+            ogl.Viewport(0, 0, target_.texture()->width(), target_.texture()->height());
         } else {
             ogl.Viewport(viewport_.lowerBound[0], viewport_.lowerBound[1],
                 viewport_.upperBound[0] - viewport_.lowerBound[0],

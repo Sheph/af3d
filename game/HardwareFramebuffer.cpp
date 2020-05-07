@@ -47,7 +47,7 @@ namespace af3d
     void HardwareFramebuffer::invalidate(HardwareContext& ctx)
     {
         for (size_t i = 0; i < attachments_.size(); ++i) {
-            attachments_[i].reset();
+            attachments_[i] = Attachment();
         }
         id_ = 0;
     }
@@ -57,25 +57,37 @@ namespace af3d
         return id_;
     }
 
-    void HardwareFramebuffer::attachTexture(Attachment attachment, const HardwareTexturePtr& texture, HardwareContext& ctx)
+    void HardwareFramebuffer::attachTarget(AttachmentPoint attachmentPoint, const HardwareRenderTarget& target, HardwareContext& ctx)
     {
+        if (attachments_[attachmentPoint].attached(target)) {
+            return;
+        }
+
         createFramebuffer();
 
-        auto rId = texture->id(ctx);
+        auto rId = target.texture()->id(ctx);
         btAssert(rId != 0);
 
         GLuint curFb = 0;
         ogl.GetIntegerv(GL_FRAMEBUFFER_BINDING, (GLint*)&curFb);
 
         ogl.BindFramebuffer(GL_FRAMEBUFFER, id_);
-        ogl.FramebufferTexture2D(GL_FRAMEBUFFER, glAttachment(attachment), GL_TEXTURE_2D, rId, 0);
-        attachments_[attachment] = texture;
+        GLenum textarget = HardwareTexture::glType(target.texture()->type());
+        if (target.texture()->type() == TextureTypeCubeMap) {
+            textarget = HardwareTexture::glCubeFace(target.cubeFace());
+        }
+        ogl.FramebufferTexture2D(GL_FRAMEBUFFER, glAttachmentPoint(attachmentPoint), textarget, rId, target.level());
+        attachments_[attachmentPoint] = Attachment(target);
 
         ogl.BindFramebuffer(GL_FRAMEBUFFER, curFb);
     }
 
-    void HardwareFramebuffer::attachRenderbuffer(Attachment attachment, const HardwareRenderbufferPtr& rb, HardwareContext& ctx)
+    void HardwareFramebuffer::attachRenderbuffer(AttachmentPoint attachmentPoint, const HardwareRenderbufferPtr& rb, HardwareContext& ctx)
     {
+        if (attachments_[attachmentPoint].attached(rb)) {
+            return;
+        }
+
         createFramebuffer();
 
         auto rId = rb->id(ctx);
@@ -85,8 +97,8 @@ namespace af3d
         ogl.GetIntegerv(GL_FRAMEBUFFER_BINDING, (GLint*)&curFb);
 
         ogl.BindFramebuffer(GL_FRAMEBUFFER, id_);
-        ogl.FramebufferRenderbuffer(GL_FRAMEBUFFER, glAttachment(attachment), GL_RENDERBUFFER, rId);
-        attachments_[attachment] = rb;
+        ogl.FramebufferRenderbuffer(GL_FRAMEBUFFER, glAttachmentPoint(attachmentPoint), GL_RENDERBUFFER, rId);
+        attachments_[attachmentPoint] = Attachment(rb);
 
         ogl.BindFramebuffer(GL_FRAMEBUFFER, curFb);
     }
@@ -106,9 +118,9 @@ namespace af3d
         return status == GL_FRAMEBUFFER_COMPLETE;
     }
 
-    GLenum HardwareFramebuffer::glAttachment(Attachment attachment)
+    GLenum HardwareFramebuffer::glAttachmentPoint(AttachmentPoint attachmentPoint)
     {
-        switch (attachment) {
+        switch (attachmentPoint) {
         case DepthAttachment: return GL_DEPTH_ATTACHMENT;
         case StencilAttachment: return GL_STENCIL_ATTACHMENT;
         default:

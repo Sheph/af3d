@@ -441,7 +441,7 @@ namespace af3d
     RenderNodePtr RenderList::compile() const
     {
         auto rn = std::make_shared<RenderNode>(camera_->viewport(), camera_->clearMask(), camera_->clearColor(),
-            (camera_->targetTexture() ? camera_->targetTexture()->hwTex() : HardwareTexturePtr()));
+            camera_->renderTarget().toHardware());
         RenderNode tmpNode;
         for (const auto& geom : geomList_) {
             auto& params = rn->add(std::move(tmpNode), 0, geom.material,
