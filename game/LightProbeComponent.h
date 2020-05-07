@@ -27,6 +27,7 @@
 #define _LIGHTPROBECOMPONENT_H_
 
 #include "PhasedComponent.h"
+#include "RenderFilterComponent.h"
 #include "Texture.h"
 
 namespace af3d
@@ -55,7 +56,12 @@ namespace af3d
 
         void onUnregister() override;
 
+        void stopIrradianceGen();
+
         TexturePtr irradianceTexture_;
+
+        std::array<CameraPtr, 6> sceneCaptureCameras_;
+        std::array<RenderFilterComponentPtr, 6> irradianceGenFilters_;
     };
 
     using LightProbeComponentPtr = std::shared_ptr<LightProbeComponent>;

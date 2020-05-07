@@ -28,6 +28,7 @@
 
 #include "RenderComponent.h"
 #include "Camera.h"
+#include "Mesh.h"
 
 namespace af3d
 {
@@ -36,6 +37,7 @@ namespace af3d
     {
     public:
         explicit RenderFilterComponent(MaterialTypeName filterName);
+        explicit RenderFilterComponent(const MeshPtr& filterMesh);
         ~RenderFilterComponent() = default;
 
         static const AClass& staticKlass();
@@ -64,6 +66,7 @@ namespace af3d
 
         void onUnregister() override;
 
+        MeshPtr filterMesh_;
         MaterialPtr material_;
         CameraPtr filterCam_;
         Color color_ = Color_one;

@@ -251,7 +251,7 @@ namespace af3d
 
             ogl.GetActiveUniform(id_, i, bufSize, &length, &size, &type, name);
 
-            if (type == GL_SAMPLER_2D) {
+            if ((type == GL_SAMPLER_2D) || (type == GL_SAMPLER_CUBE)) {
                 auto it = staticSamplerMap.find(name);
                 if (it == staticSamplerMap.end()) {
                     LOG4CPLUS_ERROR(logger(), "Bad sampler name: " << name);

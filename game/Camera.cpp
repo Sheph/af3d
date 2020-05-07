@@ -47,17 +47,4 @@ namespace af3d
         obj->propertiesSet(propVals);
         return obj;
     }
-
-    CameraPtr Camera::createFilterCamera()
-    {
-        auto camera = std::make_shared<Camera>();
-        camera->setLayer(CameraLayer::Filter);
-        camera->setProjectionType(ProjectionType::Orthographic);
-        camera->setAspect(1.0f);
-        camera->setNearDist(-1.0f);
-        camera->setFarDist(1.0f);
-        camera->setOrthoHeight(2.0f);
-        camera->setClearMask(0);
-        return camera;
-    }
 }

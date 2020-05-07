@@ -28,6 +28,19 @@
 
 namespace af3d
 {
+    const btMatrix3x3& textureCubeFaceBasis(TextureCubeFace face)
+    {
+        static const std::array<btMatrix3x3, TextureCubeFaceMax + 1> arr = {
+            makeLookBasis(btVector3(1.0f, 0.0f, 0.0f), btVector3(0.0f, -1.0f, 0.0f)),
+            makeLookBasis(btVector3(-1.0f, 0.0f, 0.0f), btVector3(0.0f, -1.0f, 0.0f)),
+            makeLookBasis(btVector3(0.0f, 1.0f, 0.0f), btVector3(0.0f, 0.0f, 1.0f)),
+            makeLookBasis(btVector3(0.0f, -1.0f, 0.0f), btVector3(0.0f, 0.0f, -1.0f)),
+            makeLookBasis(btVector3(0.0f, 0.0f, 1.0f), btVector3(0.0f, -1.0f, 0.0f)),
+            makeLookBasis(btVector3(0.0f, 0.0f, -1.0f), btVector3(0.0f, -1.0f, 0.0f))
+        };
+        return arr[face];
+    }
+
     HardwareTexture::HardwareTexture(HardwareResourceManager* mgr, TextureType type, std::uint32_t width, std::uint32_t height)
     : HardwareResource(mgr),
       type_(type),

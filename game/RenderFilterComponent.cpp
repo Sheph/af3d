@@ -34,11 +34,32 @@ namespace af3d
 
     RenderFilterComponent::RenderFilterComponent(MaterialTypeName filterName)
     : RenderComponent(AClass_RenderFilterComponent, true),
-      material_(materialManager.createMaterial(MaterialTypeFilterVHS)),
-      filterCam_(Camera::createFilterCamera())
+      material_(materialManager.createMaterial(filterName))
     {
+        filterCam_ = std::make_shared<Camera>();
+        filterCam_->setLayer(CameraLayer::Filter);
+        filterCam_->setProjectionType(ProjectionType::Orthographic);
+        filterCam_->setAspect(1.0f);
+        filterCam_->setNearDist(-1.0f);
+        filterCam_->setFarDist(1.0f);
+        filterCam_->setOrthoHeight(2.0f);
+        filterCam_->setClearMask(0);
+
         material_->setDepthTest(false);
         material_->setDepthWrite(false);
+
+        cameraFilter().layers().resetAll();
+        cameraFilter().addCookie(filterCam_);
+    }
+
+    RenderFilterComponent::RenderFilterComponent(const MeshPtr& filterMesh)
+    : RenderComponent(AClass_RenderFilterComponent, true),
+      filterMesh_(filterMesh),
+      material_(filterMesh->subMeshes()[0]->material())
+    {
+        filterCam_ = std::make_shared<Camera>();
+        filterCam_->setLayer(CameraLayer::Filter);
+        filterCam_->setClearMask(0);
 
         cameraFilter().layers().resetAll();
         cameraFilter().addCookie(filterCam_);
@@ -70,15 +91,21 @@ namespace af3d
         static Vector2f uv2{1.0f, 1.0f};
         static Vector2f uv3{0.0f, 1.0f};
 
-        auto rop = rl.addGeometry(material_, GL_TRIANGLES);
+        if (filterMesh_) {
+            for (const auto& subMesh : filterMesh_->subMeshes()) {
+                rl.addGeometry(subMesh->material(), subMesh->vaSlice(), GL_TRIANGLES);
+            }
+        } else {
+            auto rop = rl.addGeometry(material_, GL_TRIANGLES);
 
-        rop.addVertex(p0, uv0, color());
-        rop.addVertex(p1, uv1, color());
-        rop.addVertex(p2, uv2, color());
+            rop.addVertex(p0, uv0, color());
+            rop.addVertex(p1, uv1, color());
+            rop.addVertex(p2, uv2, color());
 
-        rop.addVertex(p0, uv0, color());
-        rop.addVertex(p2, uv2, color());
-        rop.addVertex(p3, uv3, color());
+            rop.addVertex(p0, uv0, color());
+            rop.addVertex(p2, uv2, color());
+            rop.addVertex(p3, uv3, color());
+        }
 
         ++numFramesRendered_;
     }

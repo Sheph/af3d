@@ -24,10 +24,15 @@
  */
 
 #include "LightProbeComponent.h"
+#include "CameraComponent.h"
 #include "TextureManager.h"
+#include "MaterialManager.h"
+#include "MeshManager.h"
 #include "SceneObject.h"
 #include "Scene.h"
 #include "Logger.h"
+#include "Settings.h"
+#include "Const.h"
 
 namespace af3d
 {
@@ -52,11 +57,57 @@ namespace af3d
 
     void LightProbeComponent::preRender(float dt)
     {
+        if (irradianceGenFilters_[0] && (irradianceGenFilters_[0]->numFramesRendered() > 0)) {
+            stopIrradianceGen();
+            LOG4CPLUS_INFO(logger(), "LightProbe(" << parent()->name() << "): done");
+        }
     }
 
     void LightProbeComponent::recreate()
     {
+        btAssert(scene());
+
+        if (irradianceGenFilters_[0]) {
+            LOG4CPLUS_WARN(logger(), "LightProbe(" << parent()->name() << "): recreation still in progress...");
+            return;
+        }
+
         LOG4CPLUS_INFO(logger(), "LightProbe(" << parent()->name() << "): recreating...");
+
+        auto sceneCaptureTexture = textureManager.createRenderTexture(TextureTypeCubeMap, 512, 512, GL_RGB16F, GL_RGB, GL_FLOAT);
+
+        auto mainCamera = scene()->mainCamera()->findComponent<CameraComponent>()->camera();
+
+        auto filterMaterial = materialManager.createMaterial(MaterialTypeFilterIrradianceConv);
+        filterMaterial->setDepthTest(false);
+        filterMaterial->setDepthWrite(false);
+        filterMaterial->setCullFaceMode(0);
+        filterMaterial->setTextureBinding(SamplerName::Main,
+            TextureBinding(sceneCaptureTexture,
+                SamplerParams(GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR)));
+        auto mesh = meshManager.createBoxMesh(btVector3(2.0f, 2.0f, 2.0f), filterMaterial);
+
+        for (size_t i = 0; i < 6; ++i) {
+            auto face = static_cast<TextureCubeFace>(i);
+            auto cam = std::make_shared<Camera>();
+            cam->setOrder(camOrderLightProbe);
+            cam->setFov(btRadians(90.0f));
+            cam->setAspect(1.0f);
+            cam->setClearColor(mainCamera->clearColor());
+            cam->setAmbientColor(mainCamera->ambientColor());
+            cam->setTransform(btTransform(textureCubeFaceBasis(face), parent()->pos()));
+            cam->setRenderTarget(RenderTarget(sceneCaptureTexture, 0, face));
+            scene()->addCamera(cam);
+            sceneCaptureCameras_[i] = cam;
+
+            irradianceGenFilters_[i] = std::make_shared<RenderFilterComponent>(mesh);
+            irradianceGenFilters_[i]->camera()->setOrder(camOrderLightProbe + 1);
+            irradianceGenFilters_[i]->camera()->setFov(btRadians(90.0f));
+            irradianceGenFilters_[i]->camera()->setAspect(1.0f);
+            irradianceGenFilters_[i]->camera()->setTransform(btTransform(textureCubeFaceBasis(face)));
+            irradianceGenFilters_[i]->camera()->setRenderTarget(RenderTarget(irradianceTexture_, 0, face));
+            parent()->addComponent(irradianceGenFilters_[i]);
+        }
     }
 
     void LightProbeComponent::onRegister()
@@ -66,6 +117,21 @@ namespace af3d
 
     void LightProbeComponent::onUnregister()
     {
+        stopIrradianceGen();
         scene()->removeLightProbe(this);
+    }
+
+    void LightProbeComponent::stopIrradianceGen()
+    {
+        if (irradianceGenFilters_[0]) {
+            for (size_t i = 0; i < irradianceGenFilters_.size(); ++i) {
+                irradianceGenFilters_[i]->removeFromParent();
+                irradianceGenFilters_[i].reset();
+            }
+            for (size_t i = 0; i < sceneCaptureCameras_.size(); ++i) {
+                scene()->removeCamera(sceneCaptureCameras_[i]);
+                sceneCaptureCameras_[i].reset();
+            }
+        }
     }
 }

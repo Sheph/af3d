@@ -46,8 +46,9 @@ namespace af3d
         MaterialTypeOutline,   // Selection outline.
         MaterialTypeGrid,
         MaterialTypeFilterVHS,
+        MaterialTypeFilterIrradianceConv,
         MaterialTypeFirst = MaterialTypeBasic,
-        MaterialTypeMax = MaterialTypeFilterVHS
+        MaterialTypeMax = MaterialTypeFilterIrradianceConv
     };
 
     class MaterialType : boost::noncopyable

@@ -36,6 +36,7 @@ namespace af3d
         importer_.SetIOHandler(new AssimpIOSystem());
 
         ogl.PixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        ogl.Enable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
     }
 
     void HardwareContext::setActiveTextureUnit(int unit)

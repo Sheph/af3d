@@ -50,8 +50,6 @@ namespace af3d
 
         AObjectPtr sharedThis() override { return shared_from_this(); }
 
-        static CameraPtr createFilterCamera();
-
         inline int order() const { return order_; }
         inline void setOrder(int value) { order_ = value; }
 

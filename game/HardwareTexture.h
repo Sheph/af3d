@@ -48,6 +48,8 @@ namespace af3d
         TextureCubeFaceMax = TextureCubeZN
     };
 
+    const btMatrix3x3& textureCubeFaceBasis(TextureCubeFace face);
+
     class HardwareTexture : public HardwareResource
     {
     public:
