@@ -67,9 +67,13 @@ namespace af3d
                     mat->setTextureBinding(SamplerName::Main,
                         TextureBinding(textureManager.loadTexture(texPath.C_Str())));
                 }
+
+                bool haveSpecularTex = false;
+
                 if (matData->GetTexture(aiTextureType_SPECULAR, 0, &texPath) == aiReturn_SUCCESS) {
                     mat->setTextureBinding(SamplerName::Specular,
                         TextureBinding(textureManager.loadTexture(texPath.C_Str())));
+                    haveSpecularTex = true;
                 } else if (mat->textureBinding(SamplerName::Main).tex) {
                     mat->setTextureBinding(SamplerName::Specular, mat->textureBinding(SamplerName::Main));
                 }
@@ -79,6 +83,7 @@ namespace af3d
                 }
                 float val;
                 std::uint32_t mx = 1;
+                bool haveShininess = false;
                 if (aiGetMaterialFloatArray(matData, AI_MATKEY_SHININESS, &val, &mx) == aiReturn_SUCCESS) {
                     float val2;
                     mx = 1;
@@ -87,12 +92,20 @@ namespace af3d
                             //LOG4CPLUS_WARN(logger(), "Shininess near 0! Check your model, probably it wasn't saved correctly");
                         } else {
                             mat->params().setUniform(UniformName::Shininess, val * val2);
+                            haveShininess = true;
                             if (aiGetMaterialColor(matData, AI_MATKEY_COLOR_SPECULAR, &color) == aiReturn_SUCCESS) {
                                 mat->params().setUniform(UniformName::SpecularColor, fromAssimp(color));
+                            } else if (haveSpecularTex) {
+                                mat->params().setUniform(UniformName::SpecularColor, Color_one);
                             }
                         }
                     }
                 }
+
+                if (haveSpecularTex && !haveShininess) {
+                    LOG4CPLUS_WARN(logger(), "Have specular texture, but no shininess! Check your model, probably it wasn't saved correctly");
+                }
+
                 int twoSided = 0;
                 mx = 1;
                 if ((aiGetMaterialIntegerArray(matData, AI_MATKEY_TWOSIDED, &twoSided, &mx) == aiReturn_SUCCESS) && twoSided) {
