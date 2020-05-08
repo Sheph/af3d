@@ -122,11 +122,19 @@ namespace af3d
             if (fbId != currentFbId_) {
                 currentFbId_ = fbId;
                 ogl.BindFramebuffer(GL_FRAMEBUFFER, fbId);
+                if (settings.sRGB) {
+                    ogl.Disable(GL_FRAMEBUFFER_SRGB);
+                }
             }
         } else if (currentFbId_ != 0) {
             currentFbId_ = 0;
             ogl.BindFramebuffer(GL_FRAMEBUFFER, defaultFbId_);
+            if (settings.sRGB) {
+                ogl.Enable(GL_FRAMEBUFFER_SRGB);
+            }
             defaultFbId_ = 0;
+        } else if (settings.sRGB) {
+            ogl.Enable(GL_FRAMEBUFFER_SRGB);
         }
     }
 }

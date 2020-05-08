@@ -29,6 +29,7 @@
 #include "ResourceManager.h"
 #include "Texture.h"
 #include "af3d/Single.h"
+#include "json/json-forwards.h"
 #include <unordered_map>
 #include <unordered_set>
 
@@ -65,12 +66,25 @@ namespace af3d
         inline TexturePtr white1x1() const { return white1x1_; }
 
     private:
+        struct TextureInfo
+        {
+            TextureInfo() = default;
+            explicit TextureInfo(bool isSRGB)
+            : isSRGB(isSRGB) {}
+
+            bool isSRGB = false;
+        };
+
         using CachedTextures = std::unordered_map<std::string, TexturePtr>;
         using ImmediateTextures = std::unordered_set<Texture*>;
+        using TextureInfoMap = std::unordered_map<std::string, TextureInfo>;
+
+        void processTexturesJson(const Json::Value& jsonValue);
 
         CachedTextures cachedTextures_;
         ImmediateTextures immediateTextures_;
         TexturePtr white1x1_;
+        TextureInfoMap textureInfoMap_;
     };
 
     extern TextureManager textureManager;

@@ -144,7 +144,7 @@ namespace af3d
         int width, height;
         io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
 
-        fontsTex_->upload(GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE,
+        fontsTex_->upload((settings.sRGB ? GL_SRGB_ALPHA : GL_RGBA), GL_RGBA, GL_UNSIGNED_BYTE,
             std::vector<Byte>(pixels, pixels + (fontsTex_->width() * fontsTex_->height() * 4)), false);
     }
 

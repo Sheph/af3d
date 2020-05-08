@@ -1,0 +1,23 @@
+{
+"textures/bpng.png" : { "srgb" : true },
+"textures/Pot textures_col.png" : { "srgb" : true },
+"bad.png" : { "srgb" : true },
+"Camera_Plastic_baseColor.png" : { "srgb" : true },
+"coctus_2_Base_Color.png" : { "srgb" : true },
+"common1.png" : { "srgb" : true },
+"glass1.png" : { "srgb" : true },
+"mountain_01_diffuse.png" : { "srgb" : true },
+"Muro_body_dm_clean.png" : { "srgb" : true },
+"Muro_body_dm.png" : { "srgb" : true },
+"Muro_head_dm.png" : { "srgb" : true },
+"noise1.png" : { "srgb" : true },
+"Rock_10_Base_Color.png" : { "srgb" : true },
+"Rock_1_Base_Color.png" : { "srgb" : true },
+"Rock_2_Base_Color.png" : { "srgb" : true },
+"Rock_5_Base_Color.png" : { "srgb" : true },
+"Rock_6_Base_Color.png" : { "srgb" : true },
+"Rock_7_Base_Color.png" : { "srgb" : true },
+"Rock_8_Base_Color.png" : { "srgb" : true },
+"Rock_9_Base_Color.png" : { "srgb" : true },
+"rsMaterial3SG_baseColor.png" : { "srgb" : true }
+}
