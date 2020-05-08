@@ -29,7 +29,7 @@
 #include "Camera.h"
 #include "Material.h"
 #include "VertexArraySlice.h"
-#include "VertexArrayWriter.h"
+#include "SceneEnvironment.h"
 #include "RenderNode.h"
 
 namespace af3d
@@ -97,7 +97,7 @@ namespace af3d
     class RenderList : boost::noncopyable
     {
     public:
-        RenderList(const CameraPtr& camera, VertexArrayWriter& defaultVa, float gameTime);
+        RenderList(const CameraPtr& camera, const SceneEnvironmentPtr& env);
         ~RenderList() = default;
 
         inline const CameraPtr& camera() const { return camera_; }
@@ -183,8 +183,7 @@ namespace af3d
         using LightList = std::vector<LightPtr>;
 
         const CameraPtr& camera_;
-        VertexArrayWriter& defaultVa_;
-        float gameTime_;
+        const SceneEnvironmentPtr& env_;
 
         GeometryList geomList_;
         LightList lightList_;

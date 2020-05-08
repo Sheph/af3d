@@ -202,8 +202,6 @@ namespace af3d
         std::unordered_set<CameraPtr> cameras_;
         SceneObjectPtr mainCamera_;
 
-        std::unordered_set<LightProbeComponent*> lightProbes_;
-
         InputMode inputMode_;
         SceneObjectPtr workspaceObj_;
         SceneObjectPtr dummy_;
@@ -229,7 +227,6 @@ namespace af3d
         int checkpoint_;
         float timeScale_;
         float realDt_;
-        float gameTime_ = 0.0f;
     };
 
     ACLASS_DECLARE(Scene)

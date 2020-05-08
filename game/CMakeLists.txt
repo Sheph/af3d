@@ -24,6 +24,7 @@ set(SOURCES
     SceneObject.cpp
     SceneObjectFactory.cpp
     SceneObjectManager.cpp
+    SceneEnvironment.cpp
     Settings.cpp
     Platform.cpp
     PlatformLinux.cpp

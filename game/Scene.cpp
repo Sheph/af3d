@@ -28,6 +28,7 @@
 #include "SceneAsset.h"
 #include "SceneObject.h"
 #include "SceneObjectFactory.h"
+#include "SceneEnvironment.h"
 #include "Logger.h"
 #include "InputManager.h"
 #include "GameShell.h"
@@ -41,14 +42,12 @@
 #include "PhysicsComponent.h"
 #include "RenderComponent.h"
 #include "CollisionComponent.h"
-#include "LightProbeComponent.h"
 #include "FPComponent.h"
 #include "CameraComponent.h"
 #include "UIComponent.h"
 #include "MeshManager.h"
 #include "PointLight.h"
 #include "DirectionalLight.h"
-#include "VertexArrayWriter.h"
 #include "HardwareResourceManager.h"
 #include "Const.h"
 #include "PhysicsDebugDraw.h"
@@ -102,7 +101,8 @@ namespace af3d
     {
     public:
         explicit Impl(Scene* scene)
-        : filterCallback_(scene)
+        : filterCallback_(scene),
+          env_(std::make_shared<SceneEnvironment>())
         {
             int debugMode = 0;
 
@@ -207,7 +207,7 @@ namespace af3d
         JointSet joints_;
         ConstraintJointMap constraintToJoint_;
         PhysicsDebugDraw debugDraw_;
-        VertexArrayWriter defaultVa_;
+        SceneEnvironmentPtr env_;
         std::unique_ptr<PhasedComponentManager> phasedComponentManager_;
         std::unique_ptr<CollisionComponentManager> collisionComponentManager_;
         std::unique_ptr<PhysicsComponentManager> physicsComponentManager_;
@@ -397,7 +397,7 @@ namespace af3d
             dt /= settings.physics.slowmoFactor;
         }
 
-        gameTime_ += dt;
+        impl_->env_->update(dt);
 
         bool forceUpdateRender = false;
 
@@ -470,7 +470,7 @@ namespace af3d
         rnList.reserve(cams.size() + 1);
 
         for (const auto& c : cams) {
-            RenderList rl(c, impl_->defaultVa_, gameTime_);
+            RenderList rl(c, impl_->env_);
 
             impl_->renderComponentManager_->render(rl);
 
@@ -491,9 +491,9 @@ namespace af3d
             rnList.push_back(rl.compile());
         }
 
-        rnList.push_back(impl_->uiComponentManager_->render(impl_->defaultVa_, gameTime_));
+        rnList.push_back(impl_->uiComponentManager_->render(impl_->env_));
 
-        impl_->defaultVa_.upload();
+        impl_->env_->preSwap();
 
         inputManager.update();
 
@@ -708,12 +708,12 @@ namespace af3d
 
     void Scene::addLightProbe(LightProbeComponent* probe)
     {
-        lightProbes_.insert(probe);
+        impl_->env_->addLightProbe(probe);
     }
 
     void Scene::removeLightProbe(LightProbeComponent* probe)
     {
-        lightProbes_.erase(probe);
+        impl_->env_->removeLightProbe(probe);
     }
 
     void Scene::setRespawnPoint(const btTransform& value)
@@ -806,9 +806,7 @@ namespace af3d
             return;
         }
 
-        for (auto probe : lightProbes_) {
-            probe->recreate();
-        }
+        impl_->env_->updateLightProbes();
     }
 
     void Scene::onLeave(SceneObject* obj)

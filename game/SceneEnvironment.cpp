@@ -23,52 +23,45 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _UICOMPONENTMANAGER_H_
-#define _UICOMPONENTMANAGER_H_
-
-#include "ComponentManager.h"
-#include "Camera.h"
-#include "RenderNode.h"
 #include "SceneEnvironment.h"
-#include <set>
+#include "LightProbeComponent.h"
 
 namespace af3d
 {
-    class UIComponent;
-    using UIComponentPtr = std::shared_ptr<UIComponent>;
-
-    class UIComponentComparer : public std::binary_function<UIComponentPtr, UIComponentPtr, bool>
+    SceneEnvironment::~SceneEnvironment()
     {
-    public:
-        bool operator()(const UIComponentPtr& l, const UIComponentPtr& r) const;
-    };
+        btAssert(lightProbes_.empty());
+    }
 
-    class UIComponentManager : public ComponentManager
+    void SceneEnvironment::update(float dt)
     {
-    public:
-        UIComponentManager();
-        ~UIComponentManager();
+        time_ += dt;
+    }
 
-        virtual void cleanup() override;
+    void SceneEnvironment::preSwap()
+    {
+        defaultVa_.upload();
+    }
 
-        virtual void addComponent(const ComponentPtr& component) override;
+    void SceneEnvironment::addLightProbe(LightProbeComponent* probe)
+    {
+        lightProbes_.insert(probe);
+    }
 
-        virtual void removeComponent(const ComponentPtr& component) override;
+    void SceneEnvironment::removeLightProbe(LightProbeComponent* probe)
+    {
+        lightProbes_.erase(probe);
+    }
 
-        virtual void freezeComponent(const ComponentPtr& component) override;
+    void SceneEnvironment::updateLightProbes()
+    {
+        for (auto probe : lightProbes_) {
+            probe->recreate();
+        }
+    }
 
-        virtual void thawComponent(const ComponentPtr& component) override;
-
-        virtual bool update(float dt) override;
-
-        virtual void debugDraw(RenderList& rl) override;
-
-        RenderNodePtr render(const SceneEnvironmentPtr& env);
-
-    private:
-        std::set<UIComponentPtr, UIComponentComparer> components_;
-        CameraPtr uiCamera_;
-    };
+    LightProbeComponent* SceneEnvironment::getLightProbeFor(const btVector3& pos)
+    {
+        return lightProbes_.empty() ? nullptr : *lightProbes_.begin();
+    }
 }
-
-#endif

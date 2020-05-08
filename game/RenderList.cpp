@@ -39,22 +39,22 @@ namespace af3d
       depthValue_(depthValue),
       scissorParams_(scissorParams),
       rl_(rl),
-      startVertices_(rl_.defaultVa_.data().vertices.size())
+      startVertices_(rl_.env_->defaultVa().data().vertices.size())
     {
     }
 
     RenderImm::~RenderImm()
     {
-        VertexArraySlice vaSlice(rl_.defaultVa_.vaNoEbo(),
+        VertexArraySlice vaSlice(rl_.env_->defaultVa().vaNoEbo(),
             startVertices_,
-            rl_.defaultVa_.data().vertices.size() - startVertices_,
+            rl_.env_->defaultVa().data().vertices.size() - startVertices_,
             0);
         rl_.addGeometry(material_, vaSlice, primitiveMode_, depthValue_, scissorParams_);
     }
 
     std::vector<VertexImm>& RenderImm::vertices()
     {
-        return rl_.defaultVa_.data().vertices;
+        return rl_.env_->defaultVa().data().vertices;
     }
 
     void RenderImm::addLine(const btVector3& pos, const btVector3& dir, const btVector3& up, const Color& c, bool withCovers)
@@ -382,10 +382,9 @@ namespace af3d
         }
     }
 
-    RenderList::RenderList(const CameraPtr& camera, VertexArrayWriter& defaultVa, float gameTime)
+    RenderList::RenderList(const CameraPtr& camera, const SceneEnvironmentPtr& env)
     : camera_(camera),
-      defaultVa_(defaultVa),
-      gameTime_(gameTime)
+      env_(env)
     {
     }
 
@@ -413,22 +412,22 @@ namespace af3d
     VertexArraySlice RenderList::createGeometry(const VertexImm* vertices, std::uint32_t numVertices,
         const std::uint16_t* indices, std::uint32_t numIndices)
     {
-        auto startVertices = defaultVa_.data().vertices.size();
+        auto startVertices = env_->defaultVa().data().vertices.size();
 
-        defaultVa_.data().vertices.insert(defaultVa_.data().vertices.end(), vertices, vertices + numVertices);
+        env_->defaultVa().data().vertices.insert(env_->defaultVa().data().vertices.end(), vertices, vertices + numVertices);
         if (indices) {
-            auto startIndices = defaultVa_.data().indices.size();
+            auto startIndices = env_->defaultVa().data().indices.size();
 
-            defaultVa_.data().indices.insert(defaultVa_.data().indices.end(), indices, indices + numIndices);
+            env_->defaultVa().data().indices.insert(env_->defaultVa().data().indices.end(), indices, indices + numIndices);
 
-            return VertexArraySlice(defaultVa_.va(),
+            return VertexArraySlice(env_->defaultVa().va(),
                 startIndices,
-                defaultVa_.data().indices.size() - startIndices,
+                env_->defaultVa().data().indices.size() - startIndices,
                 startVertices);
         } else {
-            return VertexArraySlice(defaultVa_.vaNoEbo(),
+            return VertexArraySlice(env_->defaultVa().vaNoEbo(),
                 startVertices,
-                defaultVa_.data().vertices.size() - startVertices,
+                env_->defaultVa().data().vertices.size() - startVertices,
                 0);
         }
     }
@@ -501,7 +500,7 @@ namespace af3d
             params.setUniform(UniformName::ViewportSize, Vector2f::fromVector2i(camera_->viewport().getSize()));
         }
         if (activeUniforms.count(UniformName::Time) > 0) {
-            params.setUniform(UniformName::Time, gameTime_ + geom.material->timeOffset());
+            params.setUniform(UniformName::Time, env_->time() + geom.material->timeOffset());
         }
     }
 }

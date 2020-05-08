@@ -116,7 +116,7 @@ namespace af3d
         }
     }
 
-    RenderNodePtr UIComponentManager::render(VertexArrayWriter& defaultVa, float gameTime)
+    RenderNodePtr UIComponentManager::render(const SceneEnvironmentPtr& env)
     {
         AABB2i viewport(Vector2i(settings.viewX, settings.viewY),
                 Vector2i(settings.viewX + settings.viewWidth, settings.viewY + settings.viewHeight));
@@ -127,7 +127,7 @@ namespace af3d
         uiCamera_->setTransform(xf);
         uiCamera_->setViewport(viewport);
 
-        RenderList rl(uiCamera_, defaultVa, gameTime);
+        RenderList rl(uiCamera_, env);
 
         for (const auto& c : components_) {
             if (c->visible()) {

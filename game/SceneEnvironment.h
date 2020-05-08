@@ -23,52 +23,44 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _UICOMPONENTMANAGER_H_
-#define _UICOMPONENTMANAGER_H_
+#ifndef _SCENE_ENVIRONMENT_H_
+#define _SCENE_ENVIRONMENT_H_
 
-#include "ComponentManager.h"
-#include "Camera.h"
-#include "RenderNode.h"
-#include "SceneEnvironment.h"
-#include <set>
+#include "VertexArrayWriter.h"
 
 namespace af3d
 {
-    class UIComponent;
-    using UIComponentPtr = std::shared_ptr<UIComponent>;
+    class LightProbeComponent;
 
-    class UIComponentComparer : public std::binary_function<UIComponentPtr, UIComponentPtr, bool>
+    class SceneEnvironment : boost::noncopyable
     {
     public:
-        bool operator()(const UIComponentPtr& l, const UIComponentPtr& r) const;
-    };
+        SceneEnvironment() = default;
+        ~SceneEnvironment();
 
-    class UIComponentManager : public ComponentManager
-    {
-    public:
-        UIComponentManager();
-        ~UIComponentManager();
+        inline float time() const { return time_; }
+        inline const VertexArrayWriter& defaultVa() const { return defaultVa_; }
+        inline VertexArrayWriter& defaultVa() { return defaultVa_; }
 
-        virtual void cleanup() override;
+        void update(float dt);
 
-        virtual void addComponent(const ComponentPtr& component) override;
+        void preSwap();
 
-        virtual void removeComponent(const ComponentPtr& component) override;
+        void addLightProbe(LightProbeComponent* probe);
 
-        virtual void freezeComponent(const ComponentPtr& component) override;
+        void removeLightProbe(LightProbeComponent* probe);
 
-        virtual void thawComponent(const ComponentPtr& component) override;
+        void updateLightProbes();
 
-        virtual bool update(float dt) override;
-
-        virtual void debugDraw(RenderList& rl) override;
-
-        RenderNodePtr render(const SceneEnvironmentPtr& env);
+        LightProbeComponent* getLightProbeFor(const btVector3& pos);
 
     private:
-        std::set<UIComponentPtr, UIComponentComparer> components_;
-        CameraPtr uiCamera_;
+        float time_ = 0.0f;
+        VertexArrayWriter defaultVa_;
+        std::unordered_set<LightProbeComponent*> lightProbes_;
     };
+
+    using SceneEnvironmentPtr = std::shared_ptr<SceneEnvironment>;
 }
 
 #endif
