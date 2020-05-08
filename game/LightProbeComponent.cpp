@@ -33,6 +33,8 @@
 #include "Logger.h"
 #include "Settings.h"
 #include "Const.h"
+#include "af3d/ImageWriter.h"
+#include <fstream>
 
 namespace af3d
 {
@@ -40,9 +42,9 @@ namespace af3d
     ACLASS_DEFINE_END(LightProbeComponent)
 
     LightProbeComponent::LightProbeComponent(float resolution)
-    : PhasedComponent(AClass_LightProbeComponent, phasePreRender)
+    : PhasedComponent(AClass_LightProbeComponent, phasePreRender),
+      resolution_(resolution)
     {
-        irradianceTexture_ = textureManager.createRenderTexture(TextureTypeCubeMap, resolution, resolution, GL_RGB16F, GL_RGB, GL_FLOAT);
     }
 
     const AClass& LightProbeComponent::staticKlass()
@@ -61,6 +63,13 @@ namespace af3d
             auto tex = cube2equirectFilter_->camera()->renderTarget().texture();
             std::vector<Byte> pixels(tex->width() * tex->height() * 3 * sizeof(float));
             tex->download(GL_RGB, GL_FLOAT, pixels);
+
+            std::string fname = platform->assetsPath() + "/lp_" + scene()->assetPath() + "_" + parent()->name() + "_irr.hdr";
+            std::ofstream os(fname,
+                std::ios_base::binary | std::ios_base::out | std::ios_base::trunc);
+            ImageWriter writer(fname, os);
+            writer.writeHDR(tex->width(), tex->height(), 3, pixels);
+
             stopIrradianceGen();
             LOG4CPLUS_INFO(logger(), "LightProbe(" << parent()->name() << "): done");
         }
@@ -87,7 +96,7 @@ namespace af3d
         filterMaterial->setCullFaceMode(0);
         filterMaterial->setTextureBinding(SamplerName::Main,
             TextureBinding(sceneCaptureTexture,
-                SamplerParams(GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR)));
+                SamplerParams(GL_LINEAR, GL_LINEAR)));
         auto mesh = meshManager.createBoxMesh(btVector3(2.0f, 2.0f, 2.0f), filterMaterial);
 
         for (size_t i = 0; i < 6; ++i) {
@@ -112,13 +121,15 @@ namespace af3d
             parent()->addComponent(irradianceGenFilters_[i]);
         }
 
+        auto cubeTex = irradianceTexture_;
+
         cube2equirectFilter_ = std::make_shared<RenderFilterComponent>(MaterialTypeFilterCube2Equirect);
         cube2equirectFilter_->material()->setTextureBinding(SamplerName::Main,
-            TextureBinding(irradianceTexture_,
+            TextureBinding(cubeTex,
                 SamplerParams(GL_LINEAR, GL_LINEAR)));
         cube2equirectFilter_->camera()->setOrder(camOrderLightProbe + 2);
 
-        std::uint32_t equirectW = std::ceil(irradianceTexture_->width() * SIMD_PI);
+        std::uint32_t equirectW = std::ceil(cubeTex->width() * SIMD_PI);
         if ((equirectW % 2) != 0) {
             ++equirectW;
         }
@@ -132,6 +143,10 @@ namespace af3d
     void LightProbeComponent::onRegister()
     {
         scene()->addLightProbe(this);
+        // TODO: Load from HDR.
+        std::vector<Byte> data(resolution_ * resolution_ * 3, 0);
+        irradianceTexture_ = textureManager.createRenderTexture(TextureTypeCubeMap,
+            resolution_, resolution_, GL_RGB16F, GL_RGB, GL_UNSIGNED_BYTE, std::move(data));
     }
 
     void LightProbeComponent::onUnregister()

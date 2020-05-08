@@ -23,52 +23,31 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _LIGHTPROBECOMPONENT_H_
-#define _LIGHTPROBECOMPONENT_H_
+#ifndef _AF3D_IMAGEWRITER_H_
+#define _AF3D_IMAGEWRITER_H_
 
-#include "PhasedComponent.h"
-#include "RenderFilterComponent.h"
-#include "Texture.h"
+#include "af3d/Types.h"
+#include <boost/noncopyable.hpp>
+#include <vector>
+#include <iostream>
+#include <memory>
 
 namespace af3d
 {
-    class LightProbeComponent : public std::enable_shared_from_this<LightProbeComponent>,
-        public PhasedComponent
+    class ImageWriter : boost::noncopyable
     {
     public:
-        explicit LightProbeComponent(float resolution);
-        ~LightProbeComponent() = default;
+        ImageWriter(const std::string& path, std::ostream& os);
+        ~ImageWriter();
 
-        static const AClass& staticKlass();
+        void writeHDR(std::uint32_t width, std::uint32_t height, int numComponents, const std::vector<Byte>& data);
 
-        static AObjectPtr create(const APropertyValueMap& propVals);
-
-        AObjectPtr sharedThis() override { return shared_from_this(); }
-
-        void preRender(float dt) override;
-
-        void recreate();
-
-        inline const TexturePtr& irradianceTexture() const { return irradianceTexture_; }
+        void writePNG(std::uint32_t width, std::uint32_t height, int numComponents, const std::vector<Byte>& data);
 
     private:
-        void onRegister() override;
-
-        void onUnregister() override;
-
-        void stopIrradianceGen();
-
-        std::uint32_t resolution_;
-        TexturePtr irradianceTexture_;
-
-        std::array<CameraPtr, 6> sceneCaptureCameras_;
-        std::array<RenderFilterComponentPtr, 6> irradianceGenFilters_;
-        RenderFilterComponentPtr cube2equirectFilter_;
+        class Impl;
+        std::unique_ptr<Impl> impl_;
     };
-
-    using LightProbeComponentPtr = std::shared_ptr<LightProbeComponent>;
-
-    ACLASS_DECLARE(LightProbeComponent)
 }
 
 #endif

@@ -8,6 +8,7 @@ set(SOURCES
     Frustum.cpp
     Plane.cpp
     ImageReader.cpp
+    ImageWriter.cpp
     BinaryReader.cpp
     FBXParser.cpp
     FBXSceneBuilder.cpp
