@@ -47,8 +47,10 @@ namespace af3d
         MaterialTypeGrid,
         MaterialTypeFilterVHS,
         MaterialTypeFilterIrradianceConv,
+        MaterialTypePBR,
+        MaterialTypePBRNM,
         MaterialTypeFirst = MaterialTypeBasic,
-        MaterialTypeMax = MaterialTypeFilterIrradianceConv
+        MaterialTypeMax = MaterialTypePBRNM
     };
 
     class MaterialType : boost::noncopyable

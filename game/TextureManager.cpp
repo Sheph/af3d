@@ -60,7 +60,7 @@ namespace af3d
 
             void load(Resource& res, HardwareContext& ctx) override
             {
-                LOG4CPLUS_DEBUG(logger(), "textureManager: loading " << path_ << ", SRGB = " << isSRGB_ << "...");
+                LOG4CPLUS_DEBUG(logger(), "textureManager: loading " << path_ << ", comp = " << info_.numComponents << ", SRGB = " << isSRGB_ << "...");
 
                 Texture& texture = static_cast<Texture&>(res);
 

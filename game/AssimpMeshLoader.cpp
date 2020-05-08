@@ -30,6 +30,7 @@
 #include "Mesh.h"
 #include "Logger.h"
 #include "assimp/postprocess.h"
+#include "log4cplus/ndc.h"
 
 namespace af3d
 {
@@ -45,6 +46,8 @@ namespace af3d
             return false;
         }
 
+        log4cplus::NDCContextCreator ndc(path_);
+
         std::vector<MaterialPtr> mats(scene_->mNumMaterials);
 
         for (std::uint32_t i = 0; i < scene_->mNumMaterials; ++i) {
@@ -52,18 +55,46 @@ namespace af3d
             std::string matName = path_ + "/" + matData->GetName().C_Str();
             auto mat = materialManager.getMaterial(matName);
             if (!mat) {
-                aiString texPath;
-                bool haveNormalMap = (matData->GetTexture(aiTextureType_NORMALS, 0, &texPath) == aiReturn_SUCCESS) && scene_->mMeshes[0]->mTangents;
+                LOG4CPLUS_TRACE(logger(), "-- " << matData->GetName().C_Str() << "--");
 
-                mat = materialManager.createMaterial((haveNormalMap ? MaterialTypeBasicNM : MaterialTypeBasic), matName);
+                aiString texPath, texPath2, texPath3;
+                if (matData->GetTexture(aiTextureType_SHININESS, 0, &texPath) != aiReturn_SUCCESS) {
+                    texPath.Clear();
+                }
+                if (matData->Get("$raw.ReflectionFactor|file", aiTextureType_UNKNOWN, 0, texPath2) != aiReturn_SUCCESS) {
+                    texPath2.Clear();
+                }
+
+                bool isPBR = (texPath.length > 0) && (texPath2.length > 0);
+                bool haveNormalMap = (matData->GetTexture(aiTextureType_NORMALS, 0, &texPath3) == aiReturn_SUCCESS) && scene_->mMeshes[0]->mTangents;
+                MaterialTypeName matTypeName;
+                if (isPBR) {
+                    matTypeName = (haveNormalMap ? MaterialTypePBRNM : MaterialTypePBR);
+                } else {
+                    matTypeName = (haveNormalMap ? MaterialTypeBasicNM : MaterialTypeBasic);
+                }
+
+                mat = materialManager.createMaterial(matTypeName, matName);
                 runtime_assert(mat);
 
-                if (haveNormalMap) {
-                    mat->setTextureBinding(SamplerName::Normal,
+                if (isPBR) {
+                    LOG4CPLUS_TRACE(logger(), "RoughnessTex: " << texPath.C_Str());
+                    mat->setTextureBinding(SamplerName::Roughness,
                         TextureBinding(textureManager.loadTexture(texPath.C_Str())));
+
+                    LOG4CPLUS_TRACE(logger(), "MetalnessTex: " << texPath2.C_Str());
+                    mat->setTextureBinding(SamplerName::Metalness,
+                        TextureBinding(textureManager.loadTexture(texPath2.C_Str())));
+                }
+
+                if (haveNormalMap) {
+                    LOG4CPLUS_TRACE(logger(), "NormalTex: " << texPath3.C_Str());
+                    mat->setTextureBinding(SamplerName::Normal,
+                        TextureBinding(textureManager.loadTexture(texPath3.C_Str())));
                 }
 
                 if (matData->GetTexture(aiTextureType_DIFFUSE, 0, &texPath) == aiReturn_SUCCESS) {
+                    LOG4CPLUS_TRACE(logger(), "DiffuseTex: " << texPath.C_Str());
                     mat->setTextureBinding(SamplerName::Main,
                         TextureBinding(textureManager.loadTexture(texPath.C_Str())));
                 }
@@ -71,6 +102,7 @@ namespace af3d
                 bool haveSpecularTex = false;
 
                 if (matData->GetTexture(aiTextureType_SPECULAR, 0, &texPath) == aiReturn_SUCCESS) {
+                    LOG4CPLUS_TRACE(logger(), "SpecularTex: " << texPath.C_Str());
                     mat->setTextureBinding(SamplerName::Specular,
                         TextureBinding(textureManager.loadTexture(texPath.C_Str())));
                     haveSpecularTex = true;
@@ -78,7 +110,9 @@ namespace af3d
                     mat->setTextureBinding(SamplerName::Specular, mat->textureBinding(SamplerName::Main));
                 }
                 aiColor4D color;
-                if (aiGetMaterialColor(matData, AI_MATKEY_COLOR_DIFFUSE, &color) == aiReturn_SUCCESS) {
+                if (!mat->textureBinding(SamplerName::Main).tex &&
+                    (aiGetMaterialColor(matData, AI_MATKEY_COLOR_DIFFUSE, &color) == aiReturn_SUCCESS)) {
+                    LOG4CPLUS_TRACE(logger(), "MainColor: " << fromAssimp(color));
                     mat->params().setUniform(UniformName::MainColor, fromAssimp(color));
                 }
                 float val;
@@ -88,14 +122,15 @@ namespace af3d
                     float val2;
                     mx = 1;
                     if (aiGetMaterialFloatArray(matData, AI_MATKEY_SHININESS_STRENGTH, &val2, &mx) == aiReturn_SUCCESS) {
-                        if (val * val2 <= SIMD_EPSILON) {
-                            //LOG4CPLUS_WARN(logger(), "Shininess near 0! Check your model, probably it wasn't saved correctly");
-                        } else {
+                        if (val * val2 > SIMD_EPSILON) {
+                            LOG4CPLUS_TRACE(logger(), "Shininess: " << val * val2);
                             mat->params().setUniform(UniformName::Shininess, val * val2);
                             haveShininess = true;
-                            if (aiGetMaterialColor(matData, AI_MATKEY_COLOR_SPECULAR, &color) == aiReturn_SUCCESS) {
+                            if (!haveSpecularTex && (aiGetMaterialColor(matData, AI_MATKEY_COLOR_SPECULAR, &color) == aiReturn_SUCCESS)) {
+                                LOG4CPLUS_TRACE(logger(), "SpecularColor: " << fromAssimp(color));
                                 mat->params().setUniform(UniformName::SpecularColor, fromAssimp(color));
                             } else if (haveSpecularTex) {
+                                LOG4CPLUS_TRACE(logger(), "SpecularColor: one");
                                 mat->params().setUniform(UniformName::SpecularColor, Color_one);
                             }
                         }
@@ -109,6 +144,7 @@ namespace af3d
                 int twoSided = 0;
                 mx = 1;
                 if ((aiGetMaterialIntegerArray(matData, AI_MATKEY_TWOSIDED, &twoSided, &mx) == aiReturn_SUCCESS) && twoSided) {
+                    LOG4CPLUS_TRACE(logger(), "CullFaceMode: 0");
                     mat->setCullFaceMode(0);
                 }
             }
@@ -134,7 +170,8 @@ namespace af3d
             vaLayout.addEntry(VertexArrayEntry(VertexAttribName::UV, GL_FLOAT_VEC2, 12, 0));
             vaLayout.addEntry(VertexArrayEntry(VertexAttribName::Normal, GL_FLOAT_VEC3, 20, 0));
 
-            if (mats[meshData->mMaterialIndex]->type()->name() == MaterialTypeBasicNM) {
+            if ((mats[meshData->mMaterialIndex]->type()->name() == MaterialTypeBasicNM) ||
+                (mats[meshData->mMaterialIndex]->type()->name() == MaterialTypePBRNM)) {
                 vaLayout.addEntry(VertexArrayEntry(VertexAttribName::Tangent, GL_FLOAT_VEC3, 32, 0));
                 vaLayout.addEntry(VertexArrayEntry(VertexAttribName::Bitangent, GL_FLOAT_VEC3, 44, 0));
                 vboElSize = 56;
@@ -167,7 +204,8 @@ namespace af3d
             const auto& va = mesh.subMeshes()[i]->vaSlice().va();
             auto vbo = va->vbos()[0];
             auto ebo = va->ebo();
-            bool withTangent = (mesh.subMeshes()[i]->material()->type()->name() == MaterialTypeBasicNM);
+            bool withTangent = (mesh.subMeshes()[i]->material()->type()->name() == MaterialTypeBasicNM) ||
+                (mesh.subMeshes()[i]->material()->type()->name() == MaterialTypePBRNM);
 
             vbo->resize(meshData->mNumVertices, ctx);
             ebo->resize(meshData->mNumFaces * 3, ctx);

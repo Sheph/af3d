@@ -79,7 +79,9 @@ namespace af3d
         Normal,
         Specular,
         Noise,
-        Max = Noise
+        Roughness,
+        Metalness,
+        Max = Metalness
     };
 
     struct VariableTypeInfo

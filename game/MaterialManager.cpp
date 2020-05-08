@@ -47,7 +47,9 @@ namespace af3d
         {"shaders/outline.vert", "shaders/outline.frag", false, nullptr},
         {"shaders/grid.vert", "shaders/grid.frag", false, nullptr},
         {"shaders/filter.vert", "shaders/filter-vhs.frag", false, nullptr},
-        {"shaders/filter-cubemap.vert", "shaders/filter-irradiance-conv.frag", false, nullptr}
+        {"shaders/filter-cubemap.vert", "shaders/filter-irradiance-conv.frag", false, nullptr},
+        {"shaders/basic.vert", "shaders/pbr.frag", true, "#version 330 core\n"},
+        {"shaders/basic.vert", "shaders/pbr.frag", true, "#version 330 core\n#define NM 1\n"}
     };
 
     MaterialManager materialManager;
