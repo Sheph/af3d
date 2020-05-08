@@ -64,7 +64,7 @@ namespace af3d
             std::vector<Byte> pixels(tex->width() * tex->height() * 3 * sizeof(float));
             tex->download(GL_RGB, GL_FLOAT, pixels);
 
-            std::string fname = platform->assetsPath() + "/lp_" + scene()->assetPath() + "_" + parent()->name() + "_irr.hdr";
+            std::string fname = platform->assetsPath() + "/" + getIrradianceTexPath();
             std::ofstream os(fname,
                 std::ios_base::binary | std::ios_base::out | std::ios_base::trunc);
             ImageWriter writer(fname, os);
@@ -169,5 +169,10 @@ namespace af3d
                 sceneCaptureCameras_[i].reset();
             }
         }
+    }
+
+    std::string LightProbeComponent::getIrradianceTexPath()
+    {
+        return "lp_" + scene()->assetPath() + "_" + parent()->name() + "_irr.hdr";
     }
 }

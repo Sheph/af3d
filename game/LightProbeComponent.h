@@ -58,6 +58,8 @@ namespace af3d
 
         void stopIrradianceGen();
 
+        std::string getIrradianceTexPath();
+
         std::uint32_t resolution_;
         TexturePtr irradianceTexture_;
 

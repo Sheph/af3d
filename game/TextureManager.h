@@ -50,7 +50,7 @@ namespace af3d
 
         bool renderReload(HardwareContext& ctx) override;
 
-        TexturePtr loadTexture(const std::string& path);
+        TexturePtr loadTexture(const std::string& path, bool fallback = true);
 
         TexturePtr createTexture(TextureType type, std::uint32_t width, std::uint32_t height,
             const ResourceLoaderPtr& loader = ResourceLoaderPtr());

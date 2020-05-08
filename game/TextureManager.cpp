@@ -60,7 +60,7 @@ namespace af3d
 
             void load(Resource& res, HardwareContext& ctx) override
             {
-                LOG4CPLUS_DEBUG(logger(), "textureManager: loading " << path_ << ", comp = " << info_.numComponents << ", SRGB = " << isSRGB_ << "...");
+                LOG4CPLUS_DEBUG(logger(), "textureManager: loading " << info_.width << "x" << info_.height << " " << path_ << ", comp = " << info_.numComponents << ", SRGB = " << isSRGB_ << "...");
 
                 Texture& texture = static_cast<Texture&>(res);
 
@@ -77,7 +77,7 @@ namespace af3d
                     bool genMipmap;
 
                     if (info_.isHDR) {
-                        if (info_.numComponents == 1) {
+                        if (info_.numComponents == 3) {
                             internalFormat = GL_RGB16F;
                             format = GL_RGB;
                         } else {
@@ -250,7 +250,7 @@ namespace af3d
         return true;
     }
 
-    TexturePtr TextureManager::loadTexture(const std::string& path)
+    TexturePtr TextureManager::loadTexture(const std::string& path, bool fallback)
     {
         auto it = cachedTextures_.find(path);
         if (it != cachedTextures_.end()) {
@@ -270,7 +270,7 @@ namespace af3d
 
         if (!loader->init(width, height)) {
             runtime_assert(path != "bad.png");
-            return loadTexture("bad.png");
+            return fallback ? loadTexture("bad.png") : TexturePtr();
         }
 
         auto tex = std::make_shared<Texture>(this, path,
@@ -298,16 +298,12 @@ namespace af3d
         std::uint32_t width = static_cast<float>(settings.viewWidth) / scale;
         std::uint32_t height = static_cast<float>(settings.viewHeight) / scale;
 
-        auto tex = createTexture(type, width, height);
-        tex->load(std::make_shared<OffscreenTextureGenerator>(scale, internalFormat, format, dataType, std::move(pixels)));
-        return tex;
+        return createTexture(type, width, height, std::make_shared<OffscreenTextureGenerator>(scale, internalFormat, format, dataType, std::move(pixels)));
     }
 
     TexturePtr TextureManager::createRenderTexture(TextureType type, std::uint32_t width, std::uint32_t height, GLint internalFormat, GLenum format, GLenum dataType, std::vector<Byte>&& pixels)
     {
-        auto tex = createTexture(type, width, height);
-        tex->load(std::make_shared<OffscreenTextureGenerator>(0.0f, internalFormat, format, dataType, std::move(pixels)));
-        return tex;
+        return createTexture(type, width, height, std::make_shared<OffscreenTextureGenerator>(0.0f, internalFormat, format, dataType, std::move(pixels)));
     }
 
     void TextureManager::onTextureDestroy(Texture* tex)
