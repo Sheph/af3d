@@ -123,6 +123,14 @@ namespace af3d
         }
     }
 
+    void HardwareTexture::download(GLenum format, GLenum dataType, GLvoid* pixels, HardwareContext& ctx)
+    {
+        createTexture();
+        ctx.bindTexture(type_, id_);
+        btAssert(type_ == TextureType2D);
+        ogl.GetTexImage(GL_TEXTURE_2D, 0, format, dataType, pixels);
+    }
+
     void HardwareTexture::createTexture()
     {
         if (id_ == 0) {

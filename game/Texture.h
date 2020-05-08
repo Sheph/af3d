@@ -58,6 +58,8 @@ namespace af3d
 
         void upload(GLint internalFormat, GLenum format, GLenum type, std::vector<Byte>&& pixels, bool genMipmap);
 
+        void download(GLenum format, GLenum type, std::vector<Byte>& pixels);
+
         // Be sure that you know what you're doing with this!
         inline void setHwTex(const HardwareTexturePtr& value) { hwTex_ = value; }
 

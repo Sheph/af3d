@@ -25,6 +25,7 @@
 
 #include "Texture.h"
 #include "TextureManager.h"
+#include "Renderer.h"
 #include "Logger.h"
 
 namespace af3d
@@ -98,5 +99,13 @@ namespace af3d
     void Texture::upload(GLint internalFormat, GLenum format, GLenum type, std::vector<Byte>&& pixels, bool genMipmap)
     {
         load(std::make_shared<TextureUploader>(internalFormat, format, type, std::move(pixels), genMipmap));
+    }
+
+    void Texture::download(GLenum format, GLenum type, std::vector<Byte>& pixels)
+    {
+        auto tex = hwTex_;
+        renderer.scheduleHwOpSync([tex, format, type, &pixels](HardwareContext& ctx) {
+            tex->download(format, type, &pixels[0], ctx);
+        });
     }
 }

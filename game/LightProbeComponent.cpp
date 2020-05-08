@@ -57,7 +57,10 @@ namespace af3d
 
     void LightProbeComponent::preRender(float dt)
     {
-        if (irradianceGenFilters_[0] && (irradianceGenFilters_[0]->numFramesRendered() > 0)) {
+        if (cube2equirectFilter_ && (cube2equirectFilter_->numFramesRendered() > 0)) {
+            auto tex = cube2equirectFilter_->camera()->renderTarget().texture();
+            std::vector<Byte> pixels(tex->width() * tex->height() * 3 * sizeof(float));
+            tex->download(GL_RGB, GL_FLOAT, pixels);
             stopIrradianceGen();
             LOG4CPLUS_INFO(logger(), "LightProbe(" << parent()->name() << "): done");
         }
@@ -67,7 +70,7 @@ namespace af3d
     {
         btAssert(scene());
 
-        if (irradianceGenFilters_[0]) {
+        if (cube2equirectFilter_) {
             LOG4CPLUS_WARN(logger(), "LightProbe(" << parent()->name() << "): recreation still in progress...");
             return;
         }
@@ -108,6 +111,22 @@ namespace af3d
             irradianceGenFilters_[i]->camera()->setRenderTarget(RenderTarget(irradianceTexture_, 0, face));
             parent()->addComponent(irradianceGenFilters_[i]);
         }
+
+        cube2equirectFilter_ = std::make_shared<RenderFilterComponent>(MaterialTypeFilterCube2Equirect);
+        cube2equirectFilter_->material()->setTextureBinding(SamplerName::Main,
+            TextureBinding(irradianceTexture_,
+                SamplerParams(GL_LINEAR, GL_LINEAR)));
+        cube2equirectFilter_->camera()->setOrder(camOrderLightProbe + 2);
+
+        std::uint32_t equirectW = std::ceil(irradianceTexture_->width() * SIMD_PI);
+        if ((equirectW % 2) != 0) {
+            ++equirectW;
+        }
+        std::uint32_t equirectH = equirectW / 2;
+
+        cube2equirectFilter_->camera()->setRenderTarget(RenderTarget(textureManager.createRenderTexture(TextureType2D,
+            equirectW, equirectH, GL_RGB16F, GL_RGB, GL_FLOAT)));
+        parent()->addComponent(cube2equirectFilter_);
     }
 
     void LightProbeComponent::onRegister()
@@ -123,7 +142,9 @@ namespace af3d
 
     void LightProbeComponent::stopIrradianceGen()
     {
-        if (irradianceGenFilters_[0]) {
+        if (cube2equirectFilter_) {
+            cube2equirectFilter_->removeFromParent();
+            cube2equirectFilter_.reset();
             for (size_t i = 0; i < irradianceGenFilters_.size(); ++i) {
                 irradianceGenFilters_[i]->removeFromParent();
                 irradianceGenFilters_[i].reset();

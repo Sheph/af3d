@@ -62,6 +62,7 @@ namespace af3d
 
         std::array<CameraPtr, 6> sceneCaptureCameras_;
         std::array<RenderFilterComponentPtr, 6> irradianceGenFilters_;
+        RenderFilterComponentPtr cube2equirectFilter_;
     };
 
     using LightProbeComponentPtr = std::shared_ptr<LightProbeComponent>;

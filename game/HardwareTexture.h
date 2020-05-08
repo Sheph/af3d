@@ -74,6 +74,8 @@ namespace af3d
 
         void uploadCubeFace(TextureCubeFace face, GLint internalFormat, GLenum format, GLenum dataType, const GLvoid* pixels, bool genMipmap, HardwareContext& ctx);
 
+        void download(GLenum format, GLenum dataType, GLvoid* pixels, HardwareContext& ctx);
+
     private:
         void createTexture();
 
