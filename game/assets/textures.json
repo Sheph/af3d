@@ -19,5 +19,6 @@
 "Rock_7_Base_Color.png" : { "srgb" : true },
 "Rock_8_Base_Color.png" : { "srgb" : true },
 "Rock_9_Base_Color.png" : { "srgb" : true },
-"rsMaterial3SG_baseColor.png" : { "srgb" : true }
+"rsMaterial3SG_baseColor.png" : { "srgb" : true },
+"Cerberus_A.tga" : { "srgb" : true }
 }
