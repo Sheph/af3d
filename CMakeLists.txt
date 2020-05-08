@@ -150,6 +150,9 @@ if (USE_BT_SSE)
     add_definitions(-DBT_USE_SIMD_VECTOR3)
 endif ()
 
+add_definitions(-DSTBI_NO_STDIO)
+add_definitions(-DSTBI_WRITE_NO_STDIO)
+
 message(STATUS "Platform - " ${CMAKE_SYSTEM_NAME})
 message(STATUS "Install prefix - " ${CMAKE_INSTALL_PREFIX})
 

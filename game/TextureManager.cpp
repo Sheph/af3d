@@ -29,7 +29,7 @@
 #include "Logger.h"
 #include "Settings.h"
 #include "af3d/Assert.h"
-#include "af3d/PNGDecoder.h"
+#include "af3d/ImageReader.h"
 
 namespace af3d
 {
@@ -48,8 +48,8 @@ namespace af3d
                 bool res = initImpl();
 
                 if (res) {
-                    width = decoder_->width();
-                    height = decoder_->height();
+                    width = info_.width;
+                    height = info_.height;
                 }
 
                 return res;
@@ -61,18 +61,49 @@ namespace af3d
 
                 Texture& texture = static_cast<Texture&>(res);
 
-                if (!decoder_) {
+                if (!reader_) {
                     runtime_assert(initImpl());
                 }
 
                 std::vector<Byte> data;
 
-                if (decoder_->decode(data)) {
-                    texture.hwTex()->upload(GL_RGBA, decoder_->hasAlpha() ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE,
-                        reinterpret_cast<const GLvoid*>(&data[0]), true, ctx);
+                if (reader_->read(data)) {
+                    GLint internalFormat;
+                    GLenum format;
+                    GLenum dataType;
+                    bool genMipmap;
+
+                    if (info_.isHDR) {
+                        if (info_.numComponents == 1) {
+                            internalFormat = GL_RGB16F;
+                            format = GL_RGB;
+                        } else {
+                            runtime_assert(false);
+                        }
+                        dataType = GL_FLOAT;
+                        genMipmap = false;
+                    } else {
+                        if (info_.numComponents == 1) {
+                            internalFormat = GL_RED;
+                            format = GL_RED;
+                        } else if (info_.numComponents == 3) {
+                            internalFormat = GL_RGB;
+                            format = GL_RGB;
+                        } else if (info_.numComponents == 4) {
+                            internalFormat = GL_RGBA;
+                            format = GL_RGBA;
+                        } else {
+                            runtime_assert(false);
+                        }
+                        dataType = GL_UNSIGNED_BYTE;
+                        genMipmap = true;
+                    }
+
+                    texture.hwTex()->upload(internalFormat, format, dataType,
+                        reinterpret_cast<const GLvoid*>(&data[0]), genMipmap, ctx);
                 }
 
-                decoder_.reset();
+                reader_.reset();
                 is_.reset();
             }
 
@@ -80,21 +111,22 @@ namespace af3d
             bool initImpl()
             {
                 auto is = std::make_shared<PlatformIFStream>(path_);
-                auto decoder = std::make_shared<PNGDecoder>(path_, *is);
+                auto reader = std::make_shared<ImageReader>(path_, *is);
 
-                if (!decoder->init(false)) {
+                if (!reader->init(info_)) {
                     return false;
                 }
 
                 is_ = is;
-                decoder_ = decoder;
+                reader_ = reader;
 
                 return true;
             }
 
             std::string path_;
             std::shared_ptr<PlatformIFStream> is_;
-            std::shared_ptr<PNGDecoder> decoder_;
+            std::shared_ptr<ImageReader> reader_;
+            ImageReader::Info info_;
         };
 
         class OffscreenTextureGenerator : public ResourceLoader

@@ -9,6 +9,7 @@ set(SOURCES
     Plane.cpp
     PNGDecoder.cpp
     PNGUtils.cpp
+    ImageReader.cpp
     BinaryReader.cpp
     FBXParser.cpp
     FBXSceneBuilder.cpp
@@ -22,4 +23,4 @@ set(SOURCES
 
 add_library(af3dutil STATIC ${SOURCES})
 
-target_link_libraries(af3dutil log4cplus boost png jsoncpp)
+target_link_libraries(af3dutil log4cplus boost png stb jsoncpp)
