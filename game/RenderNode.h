@@ -64,10 +64,11 @@ namespace af3d
         inline const AABB2i& viewport() const { btAssert(type_ == Type::Root); return viewport_; }
 
         // Returns empty material auto params, these should be filled in by the caller.
-        MaterialParams& add(RenderNode&& tmpNode, int pass, const MaterialPtr& material,
+        void add(RenderNode&& tmpNode, int pass, const MaterialPtr& material,
             GLenum depthFunc, float depthValue, const BlendingParams& blendingParams, bool flipCull,
+            std::vector<HardwareTextureBinding>&& textures,
             const VertexArraySlice& vaSlice, GLenum primitiveMode,
-            const ScissorParams& scissorParams);
+            const ScissorParams& scissorParams, MaterialParams&& materialParamsAuto);
 
         bool operator<(const RenderNode& other) const;
 
@@ -86,26 +87,6 @@ namespace af3d
             Textures,
             VertexArray,
             Draw
-        };
-
-        struct HardwareTextureBinding
-        {
-            HardwareTextureBinding() = default;
-            HardwareTextureBinding(const HardwareTexturePtr& tex,
-                const SamplerParams& params)
-            : tex(tex),
-              params(params) {}
-
-            inline bool operator<(const HardwareTextureBinding& other) const
-            {
-                if (tex != other.tex) {
-                    return tex < other.tex;
-                }
-                return params < other.params;
-            }
-
-            HardwareTexturePtr tex;
-            SamplerParams params;
         };
 
         using Children = std::set<RenderNode>;

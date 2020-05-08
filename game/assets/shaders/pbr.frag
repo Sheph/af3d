@@ -4,6 +4,7 @@ uniform sampler2D texNormal;
 #endif
 uniform sampler2D texRoughness;
 uniform sampler2D texMetalness;
+uniform samplerCube texIrradiance;
 
 uniform vec4 mainColor;
 uniform vec3 eyePos;
@@ -87,7 +88,7 @@ void main()
         // ambient
 
         // Sample diffuse irradiance at normal direction.
-        vec3 irradiance = lightColor;
+        vec3 irradiance = texture(texIrradiance, N).rgb;
 
         // Calculate Fresnel term for ambient lighting.
         // Since we use pre-filtered cubemap(s) and irradiance is coming from many directions

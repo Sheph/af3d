@@ -81,7 +81,8 @@ namespace af3d
         Noise,
         Roughness,
         Metalness,
-        Max = Metalness
+        Irradiance,
+        Max = Irradiance
     };
 
     struct VariableTypeInfo

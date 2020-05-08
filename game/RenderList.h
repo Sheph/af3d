@@ -177,7 +177,7 @@ namespace af3d
             bool flipCull = false;
         };
 
-        void setAutoParams(const Geometry& geom, MaterialParams& params) const;
+        void setAutoParams(const Geometry& geom, std::vector<HardwareTextureBinding>& textures, MaterialParams& params) const;
 
         using GeometryList = std::vector<Geometry>;
         using LightList = std::vector<LightPtr>;

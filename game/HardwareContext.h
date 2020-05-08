@@ -98,6 +98,26 @@ namespace af3d
         GLenum texMagFilter = GL_LINEAR;
     };
 
+    struct HardwareTextureBinding
+    {
+        HardwareTextureBinding() = default;
+        HardwareTextureBinding(const HardwareTexturePtr& tex,
+            const SamplerParams& params)
+        : tex(tex),
+          params(params) {}
+
+        inline bool operator<(const HardwareTextureBinding& other) const
+        {
+            if (tex != other.tex) {
+                return tex < other.tex;
+            }
+            return params < other.params;
+        }
+
+        HardwareTexturePtr tex;
+        SamplerParams params;
+    };
+
     class HardwareContext : boost::noncopyable
     {
     public:

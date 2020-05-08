@@ -24,6 +24,7 @@
  */
 
 #include "RenderList.h"
+#include "LightProbeComponent.h"
 #include "Light.h"
 #include "Logger.h"
 
@@ -443,11 +444,9 @@ namespace af3d
             camera_->renderTarget().toHardware());
         RenderNode tmpNode;
         for (const auto& geom : geomList_) {
-            auto& params = rn->add(std::move(tmpNode), 0, geom.material,
-                GL_LEQUAL, geom.depthValue,
-                geom.material->blendingParams(), geom.flipCull,
-                geom.vaSlice, geom.primitiveMode, geom.scissorParams);
-            setAutoParams(geom, params);
+            std::vector<HardwareTextureBinding> textures;
+            MaterialParams params(geom.material->type(), true);
+            setAutoParams(geom, textures, params);
             const auto& activeUniforms = geom.material->type()->prog()->activeUniforms();
             if (activeUniforms.count(UniformName::LightPos) > 0) {
                 params.setUniform(UniformName::LightPos, Vector4f_zero);
@@ -456,6 +455,12 @@ namespace af3d
                 auto ac = camera_->ambientColor();
                 params.setUniform(UniformName::LightColor, Vector3f(ac.x(), ac.y(), ac.z()) * ac.w());
             }
+            rn->add(std::move(tmpNode), 0, geom.material,
+                GL_LEQUAL, geom.depthValue,
+                geom.material->blendingParams(), geom.flipCull,
+                std::move(textures),
+                geom.vaSlice, geom.primitiveMode, geom.scissorParams,
+                std::move(params));
         }
 
         int pass = 1;
@@ -467,22 +472,42 @@ namespace af3d
                 if (!geom.material->type()->usesLight() || !lightAABB.overlaps(geom.aabb)) {
                     continue;
                 }
-                auto& params = rn->add(std::move(tmpNode), pass, geom.material,
-                    GL_EQUAL, geom.depthValue,
-                    lightBp, geom.flipCull, geom.vaSlice, geom.primitiveMode, geom.scissorParams);
-                setAutoParams(geom, params);
+                std::vector<HardwareTextureBinding> textures;
+                MaterialParams params(geom.material->type(), true);
+                setAutoParams(geom, textures, params);
                 light->setupMaterial(camera_->frustum().transform().getOrigin(), params);
+                rn->add(std::move(tmpNode), pass, geom.material,
+                    GL_EQUAL, geom.depthValue,
+                    lightBp, geom.flipCull, std::move(textures),
+                    geom.vaSlice, geom.primitiveMode, geom.scissorParams,
+                    std::move(params));
             }
         }
 
         return rn;
     }
 
-    void RenderList::setAutoParams(const Geometry& geom, MaterialParams& params) const
+    void RenderList::setAutoParams(const Geometry& geom, std::vector<HardwareTextureBinding>& textures, MaterialParams& params) const
     {
         const Matrix4f& viewProjMat = camera_->frustum().viewProjMat();
 
         const auto& activeUniforms = geom.material->type()->prog()->activeUniforms();
+        const auto& samplers = geom.material->type()->prog()->samplers();
+
+        for (int i = 0; i <= static_cast<int>(SamplerName::Max); ++i) {
+            SamplerName sName = static_cast<SamplerName>(i);
+            if (samplers[sName]) {
+                const auto& tb = geom.material->textureBinding(sName);
+                textures.emplace_back(tb.tex ? tb.tex->hwTex() : HardwareTexturePtr(), tb.params);
+                if ((sName == SamplerName::Irradiance) && !textures.back().tex) {
+                    auto probe = env_->getLightProbeFor(btVector3_zero);
+                    if (probe) {
+                        textures.back() = HardwareTextureBinding(probe->irradianceTexture()->hwTex(),
+                            SamplerParams(GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR));
+                    }
+                }
+            }
+        }
 
         if (activeUniforms.count(UniformName::ViewProjMatrix) > 0) {
             params.setUniform(UniformName::ViewProjMatrix, viewProjMat);

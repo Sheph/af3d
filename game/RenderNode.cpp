@@ -39,9 +39,11 @@ namespace af3d
     {
     }
 
-    MaterialParams& RenderNode::add(RenderNode&& tmpNode, int pass, const MaterialPtr& material,
+    void RenderNode::add(RenderNode&& tmpNode, int pass, const MaterialPtr& material,
         GLenum depthFunc, float depthValue, const BlendingParams& blendingParams, bool flipCull,
-        const VertexArraySlice& vaSlice, GLenum primitiveMode, const ScissorParams& scissorParams)
+        std::vector<HardwareTextureBinding>&& textures,
+        const VertexArraySlice& vaSlice, GLenum primitiveMode, const ScissorParams& scissorParams,
+        MaterialParams&& materialParamsAuto)
     {
         btAssert(type_ == Type::Root);
 
@@ -63,17 +65,6 @@ namespace af3d
 
         node = node->insertCullFace(std::move(tmpNode), cullFaceMode);
         node = node->insertMaterialType(std::move(tmpNode), material->type());
-
-        const auto& samplers = material->type()->prog()->samplers();
-        std::vector<HardwareTextureBinding> textures;
-        for (int i = 0; i <= static_cast<int>(SamplerName::Max); ++i) {
-            SamplerName sName = static_cast<SamplerName>(i);
-            if (samplers[sName]) {
-                const auto& tb = material->textureBinding(sName);
-                textures.emplace_back(tb.tex ? tb.tex->hwTex() : HardwareTexturePtr(), tb.params);
-            }
-        }
-
         node = node->insertTextures(std::move(tmpNode), std::move(textures));
         node = node->insertVertexArray(std::move(tmpNode), vaSlice.va());
         node = node->insertDraw(std::move(tmpNode), numDraws_++);
@@ -81,14 +72,12 @@ namespace af3d
         node->va_ = vaSlice.va();
         node->scissorParams_ = scissorParams;
         node->materialParams_ = material->params();
-        node->materialParamsAuto_ = MaterialParams(material->type(), true);
+        node->materialParamsAuto_ = std::move(materialParamsAuto);
         node->drawPrimitiveMode_ = primitiveMode;
         node->drawStart_ = vaSlice.start();
         node->drawCount_ = vaSlice.count();
         node->drawBaseVertex_ = vaSlice.baseVertex();
         node->depthWrite_ = material->depthWrite();
-
-        return node->materialParamsAuto_;
     }
 
     bool RenderNode::operator<(const RenderNode& other) const

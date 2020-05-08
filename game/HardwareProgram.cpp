@@ -84,7 +84,8 @@ namespace af3d
         {"texSpecular", SamplerName::Specular},
         {"texNoise", SamplerName::Noise},
         {"texRoughness", SamplerName::Roughness},
-        {"texMetalness", SamplerName::Metalness}
+        {"texMetalness", SamplerName::Metalness},
+        {"texIrradiance", SamplerName::Irradiance}
     };
 
     GLint VariableInfo::sizeInBytes() const
