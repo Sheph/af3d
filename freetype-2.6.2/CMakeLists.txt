@@ -52,4 +52,4 @@ add_definitions(-DFT2_BUILD_LIBRARY)
 
 add_library(freetype STATIC ${BASE_SRCS})
 
-target_link_libraries(freetype png z)
+target_link_libraries(freetype z)

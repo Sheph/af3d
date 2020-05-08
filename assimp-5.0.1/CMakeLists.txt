@@ -891,3 +891,5 @@ INCLUDE_DIRECTORIES(
 include_directories(.)
 
 ADD_LIBRARY(assimp ${assimp_src})
+
+target_link_libraries(assimp ${ZLIB_LIBRARIES})

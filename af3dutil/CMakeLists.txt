@@ -7,8 +7,6 @@ set(SOURCES
     OAL.cpp
     Frustum.cpp
     Plane.cpp
-    PNGDecoder.cpp
-    PNGUtils.cpp
     ImageReader.cpp
     BinaryReader.cpp
     FBXParser.cpp
@@ -23,4 +21,4 @@ set(SOURCES
 
 add_library(af3dutil STATIC ${SOURCES})
 
-target_link_libraries(af3dutil log4cplus boost png stb jsoncpp)
+target_link_libraries(af3dutil log4cplus boost stb jsoncpp)
