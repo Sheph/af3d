@@ -54,7 +54,7 @@ namespace af3d
         GLuint id = id_;
         if (id != 0) {
             cleanup([id](HardwareContext& ctx) {
-                ogl.DeleteTextures(1, &id);
+                ctx.deleteTexture(id);
             });
         } else {
             cleanup();

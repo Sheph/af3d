@@ -60,12 +60,20 @@ namespace af3d
 
             void load(Resource& res, HardwareContext& ctx) override
             {
-                LOG4CPLUS_DEBUG(logger(), "textureManager: loading " << info_.width << "x" << info_.height << " " << path_ << ", comp = " << info_.numComponents << ", SRGB = " << isSRGB_ << "...");
-
                 Texture& texture = static_cast<Texture&>(res);
 
                 if (!reader_) {
                     runtime_assert(initImpl());
+                }
+
+                if ((info_.width != texture.width()) && (info_.height != texture.height())) {
+                    LOG4CPLUS_DEBUG(logger(), "textureManager: loading (recreate) " << info_.width << "x" << info_.height
+                        << " " << path_ << ", comp = " << info_.numComponents << ", SRGB = " << isSRGB_ << "...");
+                    auto hwTex = hwManager.createTexture(texture.type(), info_.width, info_.height);
+                    texture.setHwTex(hwTex);
+                } else {
+                    LOG4CPLUS_DEBUG(logger(), "textureManager: loading " << info_.width << "x" << info_.height
+                        << " " << path_ << ", comp = " << info_.numComponents << ", SRGB = " << isSRGB_ << "...");
                 }
 
                 std::vector<Byte> data;

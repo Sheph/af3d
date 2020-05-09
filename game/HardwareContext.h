@@ -130,6 +130,8 @@ namespace af3d
 
         void bindTexture(TextureType texType, GLuint texId);
 
+        void deleteTexture(GLuint texId);
+
         void bindSampler(int unit, const SamplerParams& params);
 
         void setRenderTarget(const HardwareRenderTarget& target);
@@ -137,7 +139,7 @@ namespace af3d
     private:
         struct TextureUnit
         {
-            std::array<GLuint, TextureTypeMax + 1> texIds;
+            std::array<GLuint, TextureTypeMax + 1> texIds = {};
             GLuint samplerId = 0;
         };
 

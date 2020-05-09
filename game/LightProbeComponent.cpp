@@ -64,14 +64,24 @@ namespace af3d
             std::vector<Byte> pixels(tex->width() * tex->height() * 3 * sizeof(float));
             tex->download(GL_RGB, GL_FLOAT, pixels);
 
-            std::string fname = platform->assetsPath() + "/" + getIrradianceTexPath();
-            std::ofstream os(fname,
-                std::ios_base::binary | std::ios_base::out | std::ios_base::trunc);
-            ImageWriter writer(fname, os);
-            writer.writeHDR(tex->width(), tex->height(), 3, pixels);
+            {
+                std::string fname = platform->assetsPath() + "/" + getIrradianceTexPath();
+                std::ofstream os(fname,
+                    std::ios_base::binary | std::ios_base::out | std::ios_base::trunc);
+                ImageWriter writer(fname, os);
+                writer.writeHDR(tex->width(), tex->height(), 3, pixels);
+            }
 
             stopIrradianceGen();
+
             LOG4CPLUS_INFO(logger(), "LightProbe(" << parent()->name() << "): done");
+
+            btAssert(!equirect2cube_);
+            auto equirectTex = textureManager.loadTexture(getIrradianceTexPath(), false);
+            equirectTex->invalidate();
+            equirectTex->load();
+            equirect2cube_ = std::make_shared<Equirect2CubeComponent>(equirectTex, irradianceTexture_, camOrderLightProbe);
+            parent()->addComponent(equirect2cube_);
         }
     }
 
@@ -85,6 +95,11 @@ namespace af3d
         }
 
         LOG4CPLUS_INFO(logger(), "LightProbe(" << parent()->name() << "): recreating...");
+
+        if (equirect2cube_) {
+            equirect2cube_->removeFromParent();
+            equirect2cube_.reset();
+        }
 
         auto sceneCaptureTexture = textureManager.createRenderTexture(TextureTypeCubeMap, 512, 512, GL_RGB16F, GL_RGB, GL_FLOAT);
 
@@ -121,15 +136,13 @@ namespace af3d
             parent()->addComponent(irradianceGenFilters_[i]);
         }
 
-        auto cubeTex = irradianceTexture_;
-
         cube2equirectFilter_ = std::make_shared<RenderFilterComponent>(MaterialTypeFilterCube2Equirect);
         cube2equirectFilter_->material()->setTextureBinding(SamplerName::Main,
-            TextureBinding(cubeTex,
+            TextureBinding(irradianceTexture_,
                 SamplerParams(GL_LINEAR, GL_LINEAR)));
         cube2equirectFilter_->camera()->setOrder(camOrderLightProbe + 2);
 
-        std::uint32_t equirectW = std::ceil(cubeTex->width() * SIMD_PI);
+        std::uint32_t equirectW = std::ceil(irradianceTexture_->width() * SIMD_PI);
         if ((equirectW % 2) != 0) {
             ++equirectW;
         }
@@ -143,16 +156,34 @@ namespace af3d
     void LightProbeComponent::onRegister()
     {
         scene()->addLightProbe(this);
-        // TODO: Load from HDR.
-        std::vector<Byte> data(resolution_ * resolution_ * 3, 0);
-        irradianceTexture_ = textureManager.createRenderTexture(TextureTypeCubeMap,
-            resolution_, resolution_, GL_RGB16F, GL_RGB, GL_UNSIGNED_BYTE, std::move(data));
+        auto tex = textureManager.loadTexture(getIrradianceTexPath(), false);
+        if (tex) {
+            irradianceTexture_ = textureManager.createRenderTexture(TextureTypeCubeMap,
+                resolution_, resolution_, GL_RGB16F, GL_RGB, GL_FLOAT);
+            equirect2cube_ = std::make_shared<Equirect2CubeComponent>(tex, irradianceTexture_, camOrderLightProbe);
+            parent()->addComponent(equirect2cube_);
+        } else {
+            // No saved irradiance map, use camera clear color.
+            PackedColor color = toPackedColor(scene()->mainCamera()->findComponent<CameraComponent>()->camera()->clearColor());
+            std::vector<Byte> data(resolution_ * resolution_ * 3);
+            for (size_t i = 0; i < data.size(); i += 3) {
+                data[i + 0] = color.x();
+                data[i + 1] = color.y();
+                data[i + 2] = color.z();
+            }
+            irradianceTexture_ = textureManager.createRenderTexture(TextureTypeCubeMap,
+                resolution_, resolution_, GL_RGB16F, GL_RGB, GL_UNSIGNED_BYTE, std::move(data));
+        }
     }
 
     void LightProbeComponent::onUnregister()
     {
         stopIrradianceGen();
         scene()->removeLightProbe(this);
+        if (equirect2cube_) {
+            equirect2cube_->removeFromParent();
+            equirect2cube_.reset();
+        }
     }
 
     void LightProbeComponent::stopIrradianceGen()
@@ -173,6 +204,6 @@ namespace af3d
 
     std::string LightProbeComponent::getIrradianceTexPath()
     {
-        return "lp_" + scene()->assetPath() + "_" + parent()->name() + "_irr.hdr";
+        return "lp_" + scene()->name() + "_" + parent()->name() + "_irr.hdr";
     }
 }

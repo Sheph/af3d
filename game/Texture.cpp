@@ -108,4 +108,9 @@ namespace af3d
             tex->download(format, type, &pixels[0], ctx);
         });
     }
+
+    void Texture::doInvalidate()
+    {
+        ++generation_;
+    }
 }

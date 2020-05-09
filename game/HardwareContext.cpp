@@ -55,6 +55,18 @@ namespace af3d
         }
     }
 
+    void HardwareContext::deleteTexture(GLuint texId)
+    {
+        for (auto& texUnit : texUnits_) {
+            for (auto& tId : texUnit.texIds) {
+                if (tId == texId) {
+                    tId = 0;
+                }
+            }
+        }
+        ogl.DeleteTextures(1, &texId);
+    }
+
     void HardwareContext::bindSampler(int unit, const SamplerParams& params)
     {
         auto it = samplers_.find(params);

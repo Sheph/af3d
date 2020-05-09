@@ -23,22 +23,21 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _LIGHTPROBECOMPONENT_H_
-#define _LIGHTPROBECOMPONENT_H_
+#ifndef _EQUIRECT2CUBECOMPONENT_H_
+#define _EQUIRECT2CUBECOMPONENT_H_
 
 #include "PhasedComponent.h"
 #include "RenderFilterComponent.h"
-#include "Equirect2CubeComponent.h"
 #include "Texture.h"
 
 namespace af3d
 {
-    class LightProbeComponent : public std::enable_shared_from_this<LightProbeComponent>,
+    class Equirect2CubeComponent : public std::enable_shared_from_this<Equirect2CubeComponent>,
         public PhasedComponent
     {
     public:
-        explicit LightProbeComponent(float resolution);
-        ~LightProbeComponent() = default;
+        Equirect2CubeComponent(const TexturePtr& src, const TexturePtr& target, int camOrder);
+        ~Equirect2CubeComponent() = default;
 
         static const AClass& staticKlass();
 
@@ -48,32 +47,18 @@ namespace af3d
 
         void preRender(float dt) override;
 
-        void recreate();
-
-        inline const TexturePtr& irradianceTexture() const { return irradianceTexture_; }
-
     private:
         void onRegister() override;
 
         void onUnregister() override;
 
-        void stopIrradianceGen();
-
-        std::string getIrradianceTexPath();
-
-        std::uint32_t resolution_;
-        TexturePtr irradianceTexture_;
-
-        std::array<CameraPtr, 6> sceneCaptureCameras_;
-        std::array<RenderFilterComponentPtr, 6> irradianceGenFilters_;
-        RenderFilterComponentPtr cube2equirectFilter_;
-
-        Equirect2CubeComponentPtr equirect2cube_;
+        std::uint32_t targetGeneration_;
+        std::array<RenderFilterComponentPtr, 6> filters_;
     };
 
-    using LightProbeComponentPtr = std::shared_ptr<LightProbeComponent>;
+    using Equirect2CubeComponentPtr = std::shared_ptr<Equirect2CubeComponent>;
 
-    ACLASS_DECLARE(LightProbeComponent)
+    ACLASS_DECLARE(Equirect2CubeComponent)
 }
 
 #endif

@@ -61,11 +61,16 @@ namespace af3d
         void download(GLenum format, GLenum type, std::vector<Byte>& pixels);
 
         // Be sure that you know what you're doing with this!
-        inline void setHwTex(const HardwareTexturePtr& value) { hwTex_ = value; }
+        inline void setHwTex(const HardwareTexturePtr& value) { hwTex_ = value; ++generation_; }
+
+        inline std::uint32_t generation() const { return generation_; }
 
     private:
+        void doInvalidate() override;
+
         TextureManager* mgr_;
         HardwareTexturePtr hwTex_;
+        std::uint32_t generation_ = 0;
     };
 
     using TexturePtr = std::shared_ptr<Texture>;

@@ -133,6 +133,7 @@ set(SOURCES
     JointSlider.cpp
     Joint6DOF.cpp
     TVComponent.cpp
+    Equirect2CubeComponent.cpp
     editor/Action.cpp
     editor/Workspace.cpp
     editor/MainPopup.cpp
