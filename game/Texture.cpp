@@ -109,6 +109,14 @@ namespace af3d
         });
     }
 
+    void Texture::generateMipmap()
+    {
+        auto tex = hwTex_;
+        renderer.scheduleHwOp([tex](HardwareContext& ctx) {
+            tex->generateMipmap(ctx);
+        });
+    }
+
     void Texture::doInvalidate()
     {
         ++generation_;

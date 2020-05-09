@@ -102,7 +102,18 @@ namespace af3d
                 btAssert(target.texture());
                 fb = *it;
                 // Re-attach in case if cube face or level was changed.
+                bool levelChanged = (attachment.level != target.level());
                 fb->attachTarget(HardwareFramebuffer::ColorAttachment, target, *this);
+                if (levelChanged) {
+                    LOG4CPLUS_DEBUG(logger(), "hwContext: new renderbuffer for " << target.texture().get());
+                    auto rb = hwManager.createRenderbuffer(target.width(), target.height());
+                    rb->allocate(GL_DEPTH24_STENCIL8, *this);
+                    fb->attachRenderbuffer(HardwareFramebuffer::DepthAttachment, rb, *this);
+                    fb->attachRenderbuffer(HardwareFramebuffer::StencilAttachment, rb, *this);
+                    if (!fb->checkStatus()) {
+                        LOG4CPLUS_ERROR(logger(), "hwContext: framebuffer not complete, wtf ???");
+                    }
+                }
                 ++it;
             } else if (attachment.res.use_count() == 1) {
                 LOG4CPLUS_DEBUG(logger(), "hwContext: framebuffer for " << attachment.res.get() << " is done");
@@ -116,7 +127,7 @@ namespace af3d
             LOG4CPLUS_DEBUG(logger(), "hwContext: new framebuffer for " << target.texture().get());
             fb = hwManager.createFramebuffer();
             fb->attachTarget(HardwareFramebuffer::ColorAttachment, target, *this);
-            auto rb = hwManager.createRenderbuffer(target.texture()->width(), target.texture()->height());
+            auto rb = hwManager.createRenderbuffer(target.width(), target.height());
             rb->allocate(GL_DEPTH24_STENCIL8, *this);
             fb->attachRenderbuffer(HardwareFramebuffer::DepthAttachment, rb, *this);
             fb->attachRenderbuffer(HardwareFramebuffer::StencilAttachment, rb, *this);

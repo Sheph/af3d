@@ -131,6 +131,13 @@ namespace af3d
         ogl.GetTexImage(GL_TEXTURE_2D, 0, format, dataType, pixels);
     }
 
+    void HardwareTexture::generateMipmap(HardwareContext& ctx)
+    {
+        createTexture();
+        ctx.bindTexture(type_, id_);
+        ogl.GenerateMipmap(glType(type_));
+    }
+
     void HardwareTexture::createTexture()
     {
         if (id_ == 0) {

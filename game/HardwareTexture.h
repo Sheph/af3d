@@ -76,6 +76,8 @@ namespace af3d
 
         void download(GLenum format, GLenum dataType, GLvoid* pixels, HardwareContext& ctx);
 
+        void generateMipmap(HardwareContext& ctx);
+
     private:
         void createTexture();
 

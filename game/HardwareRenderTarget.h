@@ -48,6 +48,9 @@ namespace af3d
         inline GLint level() const { return level_; }
         inline TextureCubeFace cubeFace() const { return cubeFace_; }
 
+        inline std::uint32_t width() const { return texture_ ? (texture_->width() >> level_) : 0; }
+        inline std::uint32_t height() const { return texture_ ? (texture_->height() >> level_) : 0; }
+
         typedef void (*unspecified_bool_type)();
         static void unspecified_bool_true() {}
 
