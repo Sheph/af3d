@@ -505,6 +505,18 @@ namespace af3d
                         textures.back() = HardwareTextureBinding(probe->irradianceTexture()->hwTex(),
                             SamplerParams(GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR));
                     }
+                } else if ((sName == SamplerName::SpecularCM) && !textures.back().tex) {
+                    auto probe = env_->getLightProbeFor(btVector3_zero);
+                    if (probe) {
+                        textures.back() = HardwareTextureBinding(probe->specularTexture()->hwTex(),
+                            SamplerParams(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR));
+                    }
+                } else if ((sName == SamplerName::SpecularLUT) && !textures.back().tex) {
+                    auto probe = env_->getLightProbeFor(btVector3_zero);
+                    if (probe) {
+                        textures.back() = HardwareTextureBinding(probe->specularLUTTexture()->hwTex(),
+                            SamplerParams(GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR));
+                    }
                 }
             }
         }

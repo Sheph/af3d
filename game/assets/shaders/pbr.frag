@@ -5,6 +5,8 @@ uniform sampler2D texNormal;
 uniform sampler2D texRoughness;
 uniform sampler2D texMetalness;
 uniform samplerCube texIrradiance;
+uniform samplerCube texSpecularCM;
+uniform sampler2D texSpecularLUT;
 
 uniform vec4 mainColor;
 uniform vec3 eyePos;
@@ -66,6 +68,7 @@ void main()
 {
     vec3 albedo = texture(texMain, v_texCoord).rgb * mainColor.rgb;
     float metalness = texture(texMetalness, v_texCoord).r;
+    float roughness = texture(texRoughness, v_texCoord).r;
 
     vec3 Lo = normalize(eyePos - v_pos);
 
@@ -102,8 +105,18 @@ void main()
         // Irradiance map contains exitant radiance assuming Lambertian BRDF, no need to scale by 1/PI here either.
         vec3 diffuseIBL = kd * albedo * irradiance;
 
+        // Sample pre-filtered specular reflection environment at correct mipmap level.
+        int specularTextureLevels = 4;
+        vec3 specularIrradiance = textureLod(texSpecularCM, Lr, roughness * specularTextureLevels).rgb;
+
+        // Split-sum approximation factors for Cook-Torrance specular BRDF.
+        vec2 specularBRDF = texture(texSpecularLUT, vec2(cosLo, roughness)).rg;
+
+        // Total specular IBL contribution.
+        vec3 specularIBL = (F0 * specularBRDF.x + specularBRDF.y) * specularIrradiance;
+
         // Total ambient lighting contribution.
-        fragColor = vec4(diffuseIBL, 1.0);
+        fragColor = vec4(diffuseIBL + specularIBL, 1.0);
         return;
     }
 
@@ -129,8 +142,6 @@ void main()
             }
         }
     }
-
-    float roughness = texture(texRoughness, v_texCoord).r;
 
     // Half-vector between Li and Lo.
     vec3 Lh = normalize(Li + Lo);

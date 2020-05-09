@@ -129,10 +129,17 @@ namespace af3d
                 irradianceResolution_, irradianceResolution_, GL_RGB16F, GL_RGB, GL_UNSIGNED_BYTE, false, std::move(data));
         }
 
-        specularTexture_ = textureManager.createRenderTexture(TextureTypeCubeMap,
-            specularResolution_, specularResolution_, GL_RGB16F, GL_RGB, GL_FLOAT, true);
-        specularLUTTexture_ = textureManager.createRenderTexture(TextureType2D,
-            specularLUTSize, specularLUTSize, GL_RG16F, GL_RG, GL_FLOAT);
+        {
+            std::vector<Byte> data(specularResolution_ * specularResolution_ * 3, 0);
+            specularTexture_ = textureManager.createRenderTexture(TextureTypeCubeMap,
+                specularResolution_, specularResolution_, GL_RGB16F, GL_RGB, GL_UNSIGNED_BYTE, true, std::move(data));
+        }
+
+        {
+            std::vector<Byte> data(specularLUTSize * specularLUTSize * 2, 0);
+            specularLUTTexture_ = textureManager.createRenderTexture(TextureType2D,
+                specularLUTSize, specularLUTSize, GL_RG16F, GL_RG, GL_UNSIGNED_BYTE, false, std::move(data));
+        }
     }
 
     void LightProbeComponent::onUnregister()

@@ -73,7 +73,6 @@ namespace af3d
         Max = Roughness
     };
 
-    // Must always be declared in that order inside shader.
     enum class SamplerName
     {
         Main = 0,
@@ -83,7 +82,9 @@ namespace af3d
         Roughness,
         Metalness,
         Irradiance,
-        Max = Irradiance
+        SpecularCM,
+        SpecularLUT,
+        Max = SpecularLUT
     };
 
     struct VariableTypeInfo
