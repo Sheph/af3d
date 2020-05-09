@@ -58,7 +58,8 @@ namespace af3d
 
         SceneObjectPtr createTestCameraDisplay(const SceneObjectPtr& camObj, float scale);
 
-        SceneObjectPtr createLightProbe(float resolution);
+        SceneObjectPtr createLightProbe(std::uint32_t irradianceResolution, std::uint32_t specularResolution,
+            std::uint32_t specularMipLevels);
     };
 
     extern SceneObjectFactory sceneObjectFactory;

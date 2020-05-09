@@ -69,7 +69,8 @@ namespace af3d
         GridStep,
         GridXColor,
         GridYColor,
-        Max = GridYColor
+        Roughness,
+        Max = Roughness
     };
 
     // Must always be declared in that order inside shader.

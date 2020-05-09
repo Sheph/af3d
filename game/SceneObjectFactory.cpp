@@ -235,11 +235,12 @@ namespace af3d
         return obj;
     }
 
-    SceneObjectPtr SceneObjectFactory::createLightProbe(float resolution)
+    SceneObjectPtr SceneObjectFactory::createLightProbe(std::uint32_t irradianceResolution, std::uint32_t specularResolution,
+        std::uint32_t specularMipLevels)
     {
         auto obj = std::make_shared<SceneObject>();
 
-        obj->addComponent(std::make_shared<LightProbeComponent>(resolution));
+        obj->addComponent(std::make_shared<LightProbeComponent>(irradianceResolution, specularResolution, specularMipLevels));
 
         if (settings.editor.enabled && !settings.editor.playing) {
             auto mesh = meshManager.loadMesh("light_probe.fbx")->clone();
@@ -345,9 +346,13 @@ namespace af3d
 
     SCENEOBJECT_DEFINE_BEGIN(LightProbe)
     {
-        return sceneObjectFactory.createLightProbe(params.get("resolution").toFloat());
+        return sceneObjectFactory.createLightProbe(params.get("irradiance res").toInt(),
+            params.get("specular res").toInt(),
+            params.get("specular mip levels").toInt());
     }
     SCENEOBJECT_DEFINE_PROPS(LightProbe)
-    SCENEOBJECT_PARAM(LightProbe, "resolution", "Resolution", Float, 64.0f)
+    SCENEOBJECT_PARAM(LightProbe, "irradiance res", "Irradiance resolution", UInt, 64)
+    SCENEOBJECT_PARAM(LightProbe, "specular res", "Specular resolution", UInt, 128)
+    SCENEOBJECT_PARAM(LightProbe, "specular mip levels", "Specular mip levels", UInt, 5)
     SCENEOBJECT_DEFINE_END(LightProbe)
 }

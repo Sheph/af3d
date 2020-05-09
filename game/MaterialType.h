@@ -51,8 +51,10 @@ namespace af3d
         MaterialTypePBRNM,
         MaterialTypeFilterCube2Equirect,
         MaterialTypeFilterEquirect2Cube,
+        MaterialTypeFilterSpecularCM,
+        MaterialTypeFilterSpecularLUT,
         MaterialTypeFirst = MaterialTypeBasic,
-        MaterialTypeMax = MaterialTypeFilterEquirect2Cube
+        MaterialTypeMax = MaterialTypeFilterSpecularLUT
     };
 
     class MaterialType : boost::noncopyable

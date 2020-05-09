@@ -41,10 +41,14 @@ namespace af3d
     ACLASS_DEFINE_BEGIN(LightProbeComponent, PhasedComponent)
     ACLASS_DEFINE_END(LightProbeComponent)
 
-    LightProbeComponent::LightProbeComponent(float resolution)
+    LightProbeComponent::LightProbeComponent(std::uint32_t irradianceResolution, std::uint32_t specularResolution,
+        std::uint32_t specularMipLevels)
     : PhasedComponent(AClass_LightProbeComponent, phasePreRender),
-      resolution_(resolution)
+      irradianceResolution_(irradianceResolution),
+      specularResolution_(specularResolution),
+      specularMipLevels_(specularMipLevels)
     {
+        runtime_assert(specularMipLevels_ > 0);
     }
 
     const AClass& LightProbeComponent::staticKlass()
@@ -59,8 +63,8 @@ namespace af3d
 
     void LightProbeComponent::preRender(float dt)
     {
-        if (cube2equirectFilter_ && (cube2equirectFilter_->numFramesRendered() > 0)) {
-            auto tex = cube2equirectFilter_->camera()->renderTarget().texture();
+        if (irrCube2equirectFilter_ && (irrCube2equirectFilter_->numFramesRendered() > 0)) {
+            auto tex = irrCube2equirectFilter_->camera()->renderTarget().texture();
             std::vector<Byte> pixels(tex->width() * tex->height() * 3 * sizeof(float));
             tex->download(GL_RGB, GL_FLOAT, pixels);
 
@@ -72,16 +76,20 @@ namespace af3d
                 writer.writeHDR(tex->width(), tex->height(), 3, pixels);
             }
 
+            startSpecularGen();
+
             stopIrradianceGen();
 
-            LOG4CPLUS_INFO(logger(), "LightProbe(" << parent()->name() << "): done");
-
-            btAssert(!equirect2cube_);
+            btAssert(!irrEquirect2cube_);
             auto equirectTex = textureManager.loadTexture(getIrradianceTexPath(), false);
             equirectTex->invalidate();
             equirectTex->load();
-            equirect2cube_ = std::make_shared<Equirect2CubeComponent>(equirectTex, irradianceTexture_, camOrderLightProbe);
-            parent()->addComponent(equirect2cube_);
+            irrEquirect2cube_ = std::make_shared<Equirect2CubeComponent>(equirectTex, irradianceTexture_, camOrderLightProbe);
+            parent()->addComponent(irrEquirect2cube_);
+        } else if (specularLUTGenFilter_ && (specularLUTGenFilter_->numFramesRendered() > 0)) {
+            stopSpecularGen();
+
+            LOG4CPLUS_INFO(logger(), "LightProbe(" << parent()->name() << "): done");
         }
     }
 
@@ -89,19 +97,64 @@ namespace af3d
     {
         btAssert(scene());
 
-        if (cube2equirectFilter_) {
+        if (irrCube2equirectFilter_ || specularLUTGenFilter_) {
             LOG4CPLUS_WARN(logger(), "LightProbe(" << parent()->name() << "): recreation still in progress...");
             return;
         }
 
         LOG4CPLUS_INFO(logger(), "LightProbe(" << parent()->name() << "): recreating...");
 
-        if (equirect2cube_) {
-            equirect2cube_->removeFromParent();
-            equirect2cube_.reset();
+        startIrradianceGen();
+    }
+
+    void LightProbeComponent::onRegister()
+    {
+        scene()->addLightProbe(this);
+        auto tex = textureManager.loadTexture(getIrradianceTexPath(), false);
+        if (tex) {
+            irradianceTexture_ = textureManager.createRenderTexture(TextureTypeCubeMap,
+                irradianceResolution_, irradianceResolution_, GL_RGB16F, GL_RGB, GL_FLOAT);
+            irrEquirect2cube_ = std::make_shared<Equirect2CubeComponent>(tex, irradianceTexture_, camOrderLightProbe);
+            parent()->addComponent(irrEquirect2cube_);
+        } else {
+            // No saved irradiance map, use camera clear color.
+            PackedColor color = toPackedColor(scene()->mainCamera()->findComponent<CameraComponent>()->camera()->clearColor());
+            std::vector<Byte> data(irradianceResolution_ * irradianceResolution_ * 3);
+            for (size_t i = 0; i < data.size(); i += 3) {
+                data[i + 0] = color.x();
+                data[i + 1] = color.y();
+                data[i + 2] = color.z();
+            }
+            irradianceTexture_ = textureManager.createRenderTexture(TextureTypeCubeMap,
+                irradianceResolution_, irradianceResolution_, GL_RGB16F, GL_RGB, GL_UNSIGNED_BYTE, false, std::move(data));
         }
 
-        auto sceneCaptureTexture = textureManager.createRenderTexture(TextureTypeCubeMap, 512, 512, GL_RGB16F, GL_RGB, GL_FLOAT);
+        specularTexture_ = textureManager.createRenderTexture(TextureTypeCubeMap,
+            specularResolution_, specularResolution_, GL_RGB16F, GL_RGB, GL_FLOAT, true);
+        specularLUTTexture_ = textureManager.createRenderTexture(TextureType2D,
+            specularLUTSize, specularLUTSize, GL_RG16F, GL_RG, GL_FLOAT);
+    }
+
+    void LightProbeComponent::onUnregister()
+    {
+        scene()->removeLightProbe(this);
+        stopIrradianceGen();
+        stopSpecularGen();
+        if (irrEquirect2cube_) {
+            irrEquirect2cube_->removeFromParent();
+            irrEquirect2cube_.reset();
+        }
+    }
+
+    void LightProbeComponent::startIrradianceGen()
+    {
+        if (irrEquirect2cube_) {
+            irrEquirect2cube_->removeFromParent();
+            irrEquirect2cube_.reset();
+        }
+
+        auto sceneCaptureTexture = textureManager.createRenderTexture(TextureTypeCubeMap,
+            sceneCaptureSize, sceneCaptureSize, GL_RGB16F, GL_RGB, GL_FLOAT);
 
         auto mainCamera = scene()->mainCamera()->findComponent<CameraComponent>()->camera();
 
@@ -127,20 +180,20 @@ namespace af3d
             scene()->addCamera(cam);
             sceneCaptureCameras_[i] = cam;
 
-            irradianceGenFilters_[i] = std::make_shared<RenderFilterComponent>(mesh);
-            irradianceGenFilters_[i]->camera()->setOrder(camOrderLightProbe + 1);
-            irradianceGenFilters_[i]->camera()->setFov(btRadians(90.0f));
-            irradianceGenFilters_[i]->camera()->setAspect(1.0f);
-            irradianceGenFilters_[i]->camera()->setTransform(btTransform(textureCubeFaceBasis(face)));
-            irradianceGenFilters_[i]->camera()->setRenderTarget(RenderTarget(irradianceTexture_, 0, face));
-            parent()->addComponent(irradianceGenFilters_[i]);
+            irrGenFilters_[i] = std::make_shared<RenderFilterComponent>(mesh);
+            irrGenFilters_[i]->camera()->setOrder(camOrderLightProbe + 1);
+            irrGenFilters_[i]->camera()->setFov(btRadians(90.0f));
+            irrGenFilters_[i]->camera()->setAspect(1.0f);
+            irrGenFilters_[i]->camera()->setTransform(btTransform(textureCubeFaceBasis(face)));
+            irrGenFilters_[i]->camera()->setRenderTarget(RenderTarget(irradianceTexture_, 0, face));
+            parent()->addComponent(irrGenFilters_[i]);
         }
 
-        cube2equirectFilter_ = std::make_shared<RenderFilterComponent>(MaterialTypeFilterCube2Equirect);
-        cube2equirectFilter_->material()->setTextureBinding(SamplerName::Main,
+        irrCube2equirectFilter_ = std::make_shared<RenderFilterComponent>(MaterialTypeFilterCube2Equirect);
+        irrCube2equirectFilter_->material()->setTextureBinding(SamplerName::Main,
             TextureBinding(irradianceTexture_,
                 SamplerParams(GL_LINEAR, GL_LINEAR)));
-        cube2equirectFilter_->camera()->setOrder(camOrderLightProbe + 2);
+        irrCube2equirectFilter_->camera()->setOrder(camOrderLightProbe + 2);
 
         std::uint32_t equirectW = std::ceil(irradianceTexture_->width() * SIMD_PI);
         if ((equirectW % 2) != 0) {
@@ -148,57 +201,75 @@ namespace af3d
         }
         std::uint32_t equirectH = equirectW / 2;
 
-        cube2equirectFilter_->camera()->setRenderTarget(RenderTarget(textureManager.createRenderTexture(TextureType2D,
+        irrCube2equirectFilter_->camera()->setRenderTarget(RenderTarget(textureManager.createRenderTexture(TextureType2D,
             equirectW, equirectH, GL_RGB16F, GL_RGB, GL_FLOAT)));
-        parent()->addComponent(cube2equirectFilter_);
-    }
-
-    void LightProbeComponent::onRegister()
-    {
-        scene()->addLightProbe(this);
-        auto tex = textureManager.loadTexture(getIrradianceTexPath(), false);
-        if (tex) {
-            irradianceTexture_ = textureManager.createRenderTexture(TextureTypeCubeMap,
-                resolution_, resolution_, GL_RGB16F, GL_RGB, GL_FLOAT);
-            equirect2cube_ = std::make_shared<Equirect2CubeComponent>(tex, irradianceTexture_, camOrderLightProbe);
-            parent()->addComponent(equirect2cube_);
-        } else {
-            // No saved irradiance map, use camera clear color.
-            PackedColor color = toPackedColor(scene()->mainCamera()->findComponent<CameraComponent>()->camera()->clearColor());
-            std::vector<Byte> data(resolution_ * resolution_ * 3);
-            for (size_t i = 0; i < data.size(); i += 3) {
-                data[i + 0] = color.x();
-                data[i + 1] = color.y();
-                data[i + 2] = color.z();
-            }
-            irradianceTexture_ = textureManager.createRenderTexture(TextureTypeCubeMap,
-                resolution_, resolution_, GL_RGB16F, GL_RGB, GL_UNSIGNED_BYTE, std::move(data));
-        }
-    }
-
-    void LightProbeComponent::onUnregister()
-    {
-        stopIrradianceGen();
-        scene()->removeLightProbe(this);
-        if (equirect2cube_) {
-            equirect2cube_->removeFromParent();
-            equirect2cube_.reset();
-        }
+        parent()->addComponent(irrCube2equirectFilter_);
     }
 
     void LightProbeComponent::stopIrradianceGen()
     {
-        if (cube2equirectFilter_) {
-            cube2equirectFilter_->removeFromParent();
-            cube2equirectFilter_.reset();
-            for (size_t i = 0; i < irradianceGenFilters_.size(); ++i) {
-                irradianceGenFilters_[i]->removeFromParent();
-                irradianceGenFilters_[i].reset();
+        if (irrCube2equirectFilter_) {
+            irrCube2equirectFilter_->removeFromParent();
+            irrCube2equirectFilter_.reset();
+            for (size_t i = 0; i < irrGenFilters_.size(); ++i) {
+                irrGenFilters_[i]->removeFromParent();
+                irrGenFilters_[i].reset();
             }
             for (size_t i = 0; i < sceneCaptureCameras_.size(); ++i) {
                 scene()->removeCamera(sceneCaptureCameras_[i]);
                 sceneCaptureCameras_[i].reset();
             }
+        }
+    }
+
+    void LightProbeComponent::startSpecularGen()
+    {
+        auto sceneCaptureTexture = sceneCaptureCameras_[0]->renderTarget().texture();
+        sceneCaptureTexture->generateMipmap();
+
+        auto filterMaterial = materialManager.createMaterial(MaterialTypeFilterSpecularCM);
+        filterMaterial->setDepthTest(false);
+        filterMaterial->setDepthWrite(false);
+        filterMaterial->setCullFaceMode(0);
+        filterMaterial->setTextureBinding(SamplerName::Main,
+            TextureBinding(sceneCaptureTexture,
+                SamplerParams(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR)));
+        auto baseMesh = meshManager.createBoxMesh(btVector3(2.0f, 2.0f, 2.0f), filterMaterial);
+
+        for (std::uint32_t mip = 0; mip < specularMipLevels_; ++mip) {
+            float roughness = (float)mip / (float)(specularMipLevels_ - 1);
+
+            auto mesh = baseMesh->clone();
+            mesh->subMeshes()[0]->material()->params().setUniform(UniformName::Roughness, roughness);
+
+            for (size_t i = 0; i < 6; ++i) {
+                auto face = static_cast<TextureCubeFace>(i);
+                auto filter = std::make_shared<RenderFilterComponent>(mesh);
+                filter->camera()->setOrder(camOrderLightProbe);
+                filter->camera()->setFov(btRadians(90.0f));
+                filter->camera()->setAspect(1.0f);
+                filter->camera()->setTransform(btTransform(textureCubeFaceBasis(face)));
+                filter->camera()->setRenderTarget(RenderTarget(specularTexture_, mip, face));
+                parent()->addComponent(filter);
+                specularGenFilters_.push_back(filter);
+            }
+        }
+
+        specularLUTGenFilter_ = std::make_shared<RenderFilterComponent>(MaterialTypeFilterSpecularLUT);
+        specularLUTGenFilter_->camera()->setOrder(camOrderLightProbe);
+        specularLUTGenFilter_->camera()->setRenderTarget(RenderTarget(specularLUTTexture_));
+        parent()->addComponent(specularLUTGenFilter_);
+    }
+
+    void LightProbeComponent::stopSpecularGen()
+    {
+        if (specularLUTGenFilter_) {
+            specularLUTGenFilter_->removeFromParent();
+            specularLUTGenFilter_.reset();
+            for (size_t i = 0; i < specularGenFilters_.size(); ++i) {
+                specularGenFilters_[i]->removeFromParent();
+            }
+            specularGenFilters_.clear();
         }
     }
 

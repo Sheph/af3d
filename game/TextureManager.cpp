@@ -147,11 +147,13 @@ namespace af3d
             OffscreenTextureGenerator(float scale, GLint internalFormat,
                 GLenum format,
                 GLenum dataType,
+                bool genMipmap,
                 std::vector<Byte>&& pixels)
             : scale_(scale),
               internalFormat_(internalFormat),
               format_(format),
               dataType_(dataType),
+              genMipmap_(genMipmap),
               pixels_(std::move(pixels))
             {
             }
@@ -171,10 +173,10 @@ namespace af3d
                     } else {
                         LOG4CPLUS_DEBUG(logger(), "textureManager: offscreen scaled texture " << newWidth << "x" << newHeight << "...");
                     }
-                    texture.hwTex()->upload(internalFormat_, format_, dataType_, (pixels_.empty() ? nullptr : &pixels_[0]), false, ctx);
+                    texture.hwTex()->upload(internalFormat_, format_, dataType_, (pixels_.empty() ? nullptr : &pixels_[0]), genMipmap_, ctx);
                 } else {
                     LOG4CPLUS_DEBUG(logger(), "textureManager: offscreen fixed texture " << texture.width() << "x" << texture.height() << "...");
-                    texture.hwTex()->upload(internalFormat_, format_, dataType_, (pixels_.empty() ? nullptr : &pixels_[0]), false, ctx);
+                    texture.hwTex()->upload(internalFormat_, format_, dataType_, (pixels_.empty() ? nullptr : &pixels_[0]), genMipmap_, ctx);
                 }
             }
 
@@ -183,6 +185,7 @@ namespace af3d
             GLint internalFormat_;
             GLenum format_;
             GLenum dataType_;
+            bool genMipmap_;
             std::vector<Byte> pixels_;
         };
     }
@@ -299,19 +302,23 @@ namespace af3d
         return tex;
     }
 
-    TexturePtr TextureManager::createRenderTexture(TextureType type, float scale, GLint internalFormat, GLenum format, GLenum dataType, std::vector<Byte>&& pixels)
+    TexturePtr TextureManager::createRenderTexture(TextureType type, float scale, GLint internalFormat, GLenum format, GLenum dataType,
+        bool genMipmap, std::vector<Byte>&& pixels)
     {
         btAssert(scale > 0.0f);
 
         std::uint32_t width = static_cast<float>(settings.viewWidth) / scale;
         std::uint32_t height = static_cast<float>(settings.viewHeight) / scale;
 
-        return createTexture(type, width, height, std::make_shared<OffscreenTextureGenerator>(scale, internalFormat, format, dataType, std::move(pixels)));
+        return createTexture(type, width, height,
+            std::make_shared<OffscreenTextureGenerator>(scale, internalFormat, format, dataType, genMipmap, std::move(pixels)));
     }
 
-    TexturePtr TextureManager::createRenderTexture(TextureType type, std::uint32_t width, std::uint32_t height, GLint internalFormat, GLenum format, GLenum dataType, std::vector<Byte>&& pixels)
+    TexturePtr TextureManager::createRenderTexture(TextureType type, std::uint32_t width, std::uint32_t height, GLint internalFormat, GLenum format, GLenum dataType,
+        bool genMipmap, std::vector<Byte>&& pixels)
     {
-        return createTexture(type, width, height, std::make_shared<OffscreenTextureGenerator>(0.0f, internalFormat, format, dataType, std::move(pixels)));
+        return createTexture(type, width, height,
+            std::make_shared<OffscreenTextureGenerator>(0.0f, internalFormat, format, dataType, genMipmap, std::move(pixels)));
     }
 
     void TextureManager::onTextureDestroy(Texture* tex)

@@ -37,7 +37,8 @@ namespace af3d
         public PhasedComponent
     {
     public:
-        explicit LightProbeComponent(float resolution);
+        LightProbeComponent(std::uint32_t irradianceResolution, std::uint32_t specularResolution,
+            std::uint32_t specularMipLevels);
         ~LightProbeComponent() = default;
 
         static const AClass& staticKlass();
@@ -51,24 +52,43 @@ namespace af3d
         void recreate();
 
         inline const TexturePtr& irradianceTexture() const { return irradianceTexture_; }
+        inline const TexturePtr& specularTexture() const { return specularTexture_; }
+        inline const TexturePtr& specularLUTTexture() const { return specularLUTTexture_; }
 
     private:
+        static const std::uint32_t sceneCaptureSize = 512;
+        static const std::uint32_t specularLUTSize = 512;
+
         void onRegister() override;
 
         void onUnregister() override;
 
+        void startIrradianceGen();
+
         void stopIrradianceGen();
+
+        void startSpecularGen();
+
+        void stopSpecularGen();
 
         std::string getIrradianceTexPath();
 
-        std::uint32_t resolution_;
+        std::uint32_t irradianceResolution_;
+        std::uint32_t specularResolution_;
+        std::uint32_t specularMipLevels_;
+
         TexturePtr irradianceTexture_;
+        TexturePtr specularTexture_;
+        TexturePtr specularLUTTexture_;
 
         std::array<CameraPtr, 6> sceneCaptureCameras_;
-        std::array<RenderFilterComponentPtr, 6> irradianceGenFilters_;
-        RenderFilterComponentPtr cube2equirectFilter_;
+        std::array<RenderFilterComponentPtr, 6> irrGenFilters_;
+        RenderFilterComponentPtr irrCube2equirectFilter_;
 
-        Equirect2CubeComponentPtr equirect2cube_;
+        std::vector<RenderFilterComponentPtr> specularGenFilters_;
+        RenderFilterComponentPtr specularLUTGenFilter_;
+
+        Equirect2CubeComponentPtr irrEquirect2cube_;
     };
 
     using LightProbeComponentPtr = std::shared_ptr<LightProbeComponent>;

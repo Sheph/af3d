@@ -56,10 +56,12 @@ namespace af3d
             const ResourceLoaderPtr& loader = ResourceLoaderPtr());
 
         // Render texture that scales with window viewport.
-        TexturePtr createRenderTexture(TextureType type, float scale, GLint internalFormat, GLenum format, GLenum dataType, std::vector<Byte>&& pixels = std::vector<Byte>());
+        TexturePtr createRenderTexture(TextureType type, float scale, GLint internalFormat, GLenum format, GLenum dataType,
+            bool genMipmap = false, std::vector<Byte>&& pixels = std::vector<Byte>());
 
         // Render texture with fixed size.
-        TexturePtr createRenderTexture(TextureType type, std::uint32_t width, std::uint32_t height, GLint internalFormat, GLenum format, GLenum dataType, std::vector<Byte>&& pixels = std::vector<Byte>());
+        TexturePtr createRenderTexture(TextureType type, std::uint32_t width, std::uint32_t height, GLint internalFormat, GLenum format, GLenum dataType,
+            bool genMipmap = false, std::vector<Byte>&& pixels = std::vector<Byte>());
 
         void onTextureDestroy(Texture* tex);
 
