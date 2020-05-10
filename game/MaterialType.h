@@ -53,9 +53,10 @@ namespace af3d
         MaterialTypeFilterEquirect2Cube,
         MaterialTypeFilterSpecularCM,
         MaterialTypeFilterSpecularLUT,
-        MaterialTypeFilterPostProcess,
+        MaterialTypeFilterFXAA,
+        MaterialTypeFilterToneMapping,
         MaterialTypeFirst = MaterialTypeBasic,
-        MaterialTypeMax = MaterialTypeFilterPostProcess
+        MaterialTypeMax = MaterialTypeFilterToneMapping
     };
 
     class MaterialType : boost::noncopyable

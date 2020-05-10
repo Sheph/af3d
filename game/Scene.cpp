@@ -284,13 +284,23 @@ namespace af3d
         mc->setRenderTarget(RenderTarget(screenTex));
         addCamera(mc);
 
-        auto ppFilter = std::make_shared<RenderFilterComponent>(MaterialTypeFilterPostProcess);
+        auto toneMappedTex = textureManager.createRenderTexture(TextureType2D,
+            1.0f, GL_RGB, GL_RGB, GL_UNSIGNED_BYTE);
+
+        auto ppFilter = std::make_shared<RenderFilterComponent>(MaterialTypeFilterToneMapping);
         ppFilter->material()->setTextureBinding(SamplerName::Main,
             TextureBinding(screenTex,
+                SamplerParams(GL_NEAREST, GL_NEAREST)));
+        ppFilter->camera()->setOrder(camOrderPostProcess);
+        ppFilter->camera()->setRenderTarget(RenderTarget(toneMappedTex));
+        dummy_->addComponent(ppFilter);
+
+        ppFilter = std::make_shared<RenderFilterComponent>(MaterialTypeFilterFXAA);
+        ppFilter->material()->setTextureBinding(SamplerName::Main,
+            TextureBinding(toneMappedTex,
                 SamplerParams(GL_LINEAR, GL_LINEAR)));
-        ppCamera_ = ppFilter->camera();
-        ppCamera_->setOrder(camOrderPostProcess);
-        ppCamera_->setViewport(AABB2i(Vector2i(settings.viewX, settings.viewY),
+        ppFilter->camera()->setOrder(camOrderPostProcess + 1);
+        ppFilter->camera()->setViewport(AABB2i(Vector2i(settings.viewX, settings.viewY),
             Vector2i(settings.viewX + settings.viewWidth, settings.viewY + settings.viewHeight)));
         dummy_->addComponent(ppFilter);
 
@@ -298,6 +308,8 @@ namespace af3d
         mainCamera_->addComponent(std::make_shared<CameraComponent>(mc));
         mainCamera_->addComponent(std::make_shared<FPComponent>());
         addObject(mainCamera_);
+
+        ppCamera_ = ppFilter->camera();
 
         imGuiC_ = std::make_shared<ImGuiComponent>(zOrderImGui);
 

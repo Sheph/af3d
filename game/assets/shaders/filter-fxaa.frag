@@ -12,26 +12,6 @@ in vec2 v_rgbM;
 
 out vec4 fragColor;
 
-vec4 toneMap(vec2 texCoord)
-{
-    const float gamma = 2.2;
-    const float exposure = 1.0;
-    const float pureWhite = 1.0;
-
-    vec3 color = texture(texMain, texCoord).rgb * exposure;
-
-    // Reinhard tonemapping operator.
-    // see: "Photographic Tone Reproduction for Digital Images", eq. 4
-    float luminance = dot(color, vec3(0.2126, 0.7152, 0.0722));
-    float mappedLuminance = (luminance * (1.0 + luminance/(pureWhite*pureWhite))) / (1.0 + luminance);
-
-    // Scale color by ratio of average luminances.
-    vec3 mappedColor = (mappedLuminance / luminance) * color;
-
-    // Gamma correction.
-    return vec4(pow(mappedColor, vec3(1.0/gamma)), 1.0);
-}
-
 #define FXAA_REDUCE_MIN (1.0/ 128.0)
 #define FXAA_REDUCE_MUL (1.0 / 8.0)
 #define FXAA_SPAN_MAX 8.0
@@ -42,11 +22,11 @@ vec4 fxaa(vec2 fragCoord, vec2 resolution)
 {
     vec4 color;
     mediump vec2 inverseVP = vec2(1.0 / resolution.x, 1.0 / resolution.y);
-    vec3 rgbNW = toneMap(v_rgbNW).xyz;
-    vec3 rgbNE = toneMap(v_rgbNE).xyz;
-    vec3 rgbSW = toneMap(v_rgbSW).xyz;
-    vec3 rgbSE = toneMap(v_rgbSE).xyz;
-    vec4 texColor = toneMap(v_rgbM);
+    vec3 rgbNW = texture(texMain, v_rgbNW).xyz;
+    vec3 rgbNE = texture(texMain, v_rgbNE).xyz;
+    vec3 rgbSW = texture(texMain, v_rgbSW).xyz;
+    vec3 rgbSE = texture(texMain, v_rgbSE).xyz;
+    vec4 texColor = texture(texMain, v_rgbM);
     vec3 rgbM  = texColor.xyz;
     vec3 luma = vec3(0.299, 0.587, 0.114);
     float lumaNW = dot(rgbNW, luma);
@@ -70,11 +50,11 @@ vec4 fxaa(vec2 fragCoord, vec2 resolution)
         dir * rcpDirMin)) * inverseVP;
 
     vec3 rgbA = 0.5 * (
-        toneMap(fragCoord * inverseVP + dir * (1.0 / 3.0 - 0.5)).xyz +
-        toneMap(fragCoord * inverseVP + dir * (2.0 / 3.0 - 0.5)).xyz);
+        texture(texMain, fragCoord * inverseVP + dir * (1.0 / 3.0 - 0.5)).xyz +
+        texture(texMain, fragCoord * inverseVP + dir * (2.0 / 3.0 - 0.5)).xyz);
     vec3 rgbB = rgbA * 0.5 + 0.25 * (
-        toneMap(fragCoord * inverseVP + dir * -0.5).xyz +
-        toneMap(fragCoord * inverseVP + dir * 0.5).xyz);
+        texture(texMain, fragCoord * inverseVP + dir * -0.5).xyz +
+        texture(texMain, fragCoord * inverseVP + dir * 0.5).xyz);
 
     float lumaB = dot(rgbB, luma);
     if ((lumaB < lumaMin) || (lumaB > lumaMax)) {
