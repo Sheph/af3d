@@ -113,7 +113,7 @@ namespace af3d
                 if (!mat->textureBinding(SamplerName::Main).tex &&
                     (aiGetMaterialColor(matData, AI_MATKEY_COLOR_DIFFUSE, &color) == aiReturn_SUCCESS)) {
                     LOG4CPLUS_TRACE(logger(), "MainColor: " << fromAssimp(color));
-                    mat->params().setUniform(UniformName::MainColor, fromAssimp(color));
+                    mat->params().setUniform(UniformName::MainColor, gammaToLinear(fromAssimp(color)));
                 }
                 float val;
                 std::uint32_t mx = 1;
@@ -128,10 +128,10 @@ namespace af3d
                             haveShininess = true;
                             if (!haveSpecularTex && (aiGetMaterialColor(matData, AI_MATKEY_COLOR_SPECULAR, &color) == aiReturn_SUCCESS)) {
                                 LOG4CPLUS_TRACE(logger(), "SpecularColor: " << fromAssimp(color));
-                                mat->params().setUniform(UniformName::SpecularColor, fromAssimp(color));
+                                mat->params().setUniform(UniformName::SpecularColor, gammaToLinear(fromAssimp(color)));
                             } else if (haveSpecularTex) {
                                 LOG4CPLUS_TRACE(logger(), "SpecularColor: one");
-                                mat->params().setUniform(UniformName::SpecularColor, Color_one);
+                                mat->params().setUniform(UniformName::SpecularColor, gammaToLinear(Color_one));
                             }
                         }
                     }

@@ -42,7 +42,6 @@ namespace af3d
         ogl.PixelStorei(GL_UNPACK_ALIGNMENT, 1);
         ogl.PixelStorei(GL_PACK_ALIGNMENT, 1);
         ogl.Enable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
-        ogl.Enable(GL_MULTISAMPLE);
 
         GLint sampleBuffers = 0;
         GLint samples = 0;
@@ -160,19 +159,11 @@ namespace af3d
             if (fbId != currentFbId_) {
                 currentFbId_ = fbId;
                 ogl.BindFramebuffer(GL_FRAMEBUFFER, fbId);
-                if (settings.sRGB) {
-                    ogl.Disable(GL_FRAMEBUFFER_SRGB);
-                }
             }
         } else if (currentFbId_ != 0) {
             currentFbId_ = 0;
             ogl.BindFramebuffer(GL_FRAMEBUFFER, defaultFbId_);
-            if (settings.sRGB) {
-                ogl.Enable(GL_FRAMEBUFFER_SRGB);
-            }
             defaultFbId_ = 0;
-        } else if (settings.sRGB) {
-            ogl.Enable(GL_FRAMEBUFFER_SRGB);
         }
     }
 }

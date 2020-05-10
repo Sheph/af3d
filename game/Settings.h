@@ -115,7 +115,6 @@ namespace af3d
         bool vsync;
         bool fullscreen;
         bool trilinearFilter;
-        bool sRGB;
         std::uint32_t viewX;
         std::uint32_t viewY;
         std::set<VideoMode> winVideoModes;

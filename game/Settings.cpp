@@ -65,7 +65,6 @@ namespace af3d
         vsync = false;
         fullscreen = false;
         trilinearFilter = false;
-        sRGB = appConfig->getBool(".sRGB");
         viewX = 0;
         viewY = 0;
 

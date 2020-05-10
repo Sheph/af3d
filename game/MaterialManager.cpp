@@ -53,7 +53,8 @@ namespace af3d
         {"shaders/filter.vert", "shaders/filter-cube2equirect.frag", false, nullptr},
         {"shaders/filter-cubemap.vert", "shaders/filter-equirect2cube.frag", false, nullptr},
         {"shaders/filter-cubemap.vert", "shaders/filter-specularcm.frag", false, nullptr},
-        {"shaders/filter.vert", "shaders/filter-specularlut.frag", false, nullptr}
+        {"shaders/filter.vert", "shaders/filter-specularlut.frag", false, nullptr},
+        {"shaders/filter-pp.vert", "shaders/filter-pp.frag", false, nullptr}
     };
 
     MaterialManager materialManager;
@@ -138,8 +139,8 @@ namespace af3d
                 return false;
             }
 
-            mat->setDefaultUniform(UniformName::MainColor, Color_one);
-            mat->setDefaultUniform(UniformName::SpecularColor, Color_zero);
+            mat->setDefaultUniform(UniformName::MainColor, gammaToLinear(Color_one));
+            mat->setDefaultUniform(UniformName::SpecularColor, gammaToLinear(Color_zero));
             mat->setDefaultUniform(UniformName::Shininess, 1.0f);
         }
 
@@ -163,15 +164,15 @@ namespace af3d
             matUnlitVCDefault_ = createMaterial(MaterialTypeUnlitVC);
 
             matOutlineInactive_ = createMaterial(MaterialTypeOutline);
-            matOutlineInactive_->params().setUniform(UniformName::MainColor, settings.editor.outlineColorInactive);
+            matOutlineInactive_->params().setUniform(UniformName::MainColor, gammaToLinear(settings.editor.outlineColorInactive));
             matOutlineInactive_->setCullFaceMode(GL_FRONT);
 
             matOutlineHovered_ = createMaterial(MaterialTypeOutline);
-            matOutlineHovered_->params().setUniform(UniformName::MainColor, settings.editor.outlineColorHovered);
+            matOutlineHovered_->params().setUniform(UniformName::MainColor, gammaToLinear(settings.editor.outlineColorHovered));
             matOutlineHovered_->setCullFaceMode(GL_FRONT);
 
             matOutlineSelected_ = createMaterial(MaterialTypeOutline);
-            matOutlineSelected_->params().setUniform(UniformName::MainColor, settings.editor.outlineColorSelected);
+            matOutlineSelected_->params().setUniform(UniformName::MainColor, gammaToLinear(settings.editor.outlineColorSelected));
             matOutlineSelected_->setCullFaceMode(GL_FRONT);
         }
 

@@ -146,7 +146,8 @@ namespace af3d
     {
         const auto& xf = worldTransform();
         params.setUniform(UniformName::LightPos, Vector4f(xf.getOrigin(), typeId_));
-        params.setUniform(UniformName::LightColor, Vector3f(color_.x(), color_.y(), color_.z()) * color_.w());
+        Color c = gammaToLinear(color_);
+        params.setUniform(UniformName::LightColor, Vector3f(c.x(), c.y(), c.z()) * c.w());
         doSetupMaterial(eyePos, params);
     }
 
@@ -198,7 +199,7 @@ namespace af3d
             markerRc_->mesh()->subMeshes()[i]->material()->setDepthTest(depthTest);
             Color c;
             if (origMarkerMesh_->subMeshes()[i]->material()->params().getUniform(UniformName::MainColor, c, true)) {
-                c *= color_;
+                c *= gammaToLinear(color_);
                 c.setW(alpha);
                 markerRc_->mesh()->subMeshes()[i]->material()->params().setUniform(UniformName::MainColor, c);
             }

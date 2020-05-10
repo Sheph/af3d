@@ -47,4 +47,17 @@ namespace af3d
         obj->propertiesSet(propVals);
         return obj;
     }
+
+    const AABB2i& Camera::viewport() const
+    {
+        if (renderTarget_) {
+            viewport_ = AABB2i(Vector2i_zero, Vector2i(renderTarget_.width(), renderTarget_.height()));
+        }
+        return viewport_;
+    }
+
+    void Camera::setViewport(const AABB2i& value)
+    {
+        viewport_ = value;
+    }
 }

@@ -114,13 +114,13 @@ namespace af3d
     void RenderGridComponent::setXAxisColor(const Color& value)
     {
         xAxisColor_ = value;
-        material_->params().setUniform(UniformName::GridXColor, toVector3(value));
+        material_->params().setUniform(UniformName::GridXColor, toVector3(gammaToLinear(value)));
     }
 
     void RenderGridComponent::setYAxisColor(const Color& value)
     {
         yAxisColor_ = value;
-        material_->params().setUniform(UniformName::GridYColor, toVector3(value));
+        material_->params().setUniform(UniformName::GridYColor, toVector3(gammaToLinear(value)));
     }
 
     void RenderGridComponent::onRegister()

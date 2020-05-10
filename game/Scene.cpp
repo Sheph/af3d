@@ -36,6 +36,7 @@
 #include "PhasedComponentManager.h"
 #include "PhysicsComponentManager.h"
 #include "RenderComponentManager.h"
+#include "RenderFilterComponent.h"
 #include "UIComponentManager.h"
 #include "CollisionComponentManager.h"
 #include "PhasedComponent.h"
@@ -52,6 +53,7 @@
 #include "Const.h"
 #include "PhysicsDebugDraw.h"
 #include "AssetManager.h"
+#include "TextureManager.h"
 #include "editor/Playbar.h"
 #include <Rocket/Core/ElementDocument.h>
 #include <cmath>
@@ -271,19 +273,31 @@ namespace af3d
             }
         }
 
+        dummy_ = std::make_shared<SceneObject>();
+
+        auto screenTex = textureManager.createRenderTexture(TextureType2D,
+            1.0f, GL_RGB16F, GL_RGB, GL_FLOAT);
+
         auto mc = std::make_shared<Camera>();
         mc->setLayer(CameraLayer::Main);
         mc->setAspect(settings.viewAspect);
-        mc->setViewport(AABB2i(Vector2i(settings.viewX, settings.viewY),
-            Vector2i(settings.viewX + settings.viewWidth, settings.viewY + settings.viewHeight)));
+        mc->setRenderTarget(RenderTarget(screenTex));
         addCamera(mc);
+
+        auto ppFilter = std::make_shared<RenderFilterComponent>(MaterialTypeFilterPostProcess);
+        ppFilter->material()->setTextureBinding(SamplerName::Main,
+            TextureBinding(screenTex,
+                SamplerParams(GL_LINEAR, GL_LINEAR)));
+        ppCamera_ = ppFilter->camera();
+        ppCamera_->setOrder(camOrderPostProcess);
+        ppCamera_->setViewport(AABB2i(Vector2i(settings.viewX, settings.viewY),
+            Vector2i(settings.viewX + settings.viewWidth, settings.viewY + settings.viewHeight)));
+        dummy_->addComponent(ppFilter);
 
         mainCamera_ = std::make_shared<SceneObject>();
         mainCamera_->addComponent(std::make_shared<CameraComponent>(mc));
         mainCamera_->addComponent(std::make_shared<FPComponent>());
         addObject(mainCamera_);
-
-        dummy_ = std::make_shared<SceneObject>();
 
         imGuiC_ = std::make_shared<ImGuiComponent>(zOrderImGui);
 
@@ -326,6 +340,7 @@ namespace af3d
 
         cameras_.clear();
         mainCamera_.reset();
+        ppCamera_.reset();
 
         dummy_.reset();
         root_.reset();
@@ -427,7 +442,7 @@ namespace af3d
                 inputProcessed = false;
             }
 
-            cc->camera()->setViewport(AABB2i(Vector2i(settings.viewX, settings.viewY),
+            ppCamera_->setViewport(AABB2i(Vector2i(settings.viewX, settings.viewY),
                 Vector2i(settings.viewX + settings.viewWidth, settings.viewY + settings.viewHeight)));
 
             impl_->phasedComponentManager_->preRender(dt);
@@ -452,7 +467,7 @@ namespace af3d
             */
             impl_->renderComponentManager_->update(dt);
         } else {
-            cc->camera()->setViewport(AABB2i(Vector2i(settings.viewX, settings.viewY),
+            ppCamera_->setViewport(AABB2i(Vector2i(settings.viewX, settings.viewY),
                 Vector2i(settings.viewX + settings.viewWidth, settings.viewY + settings.viewHeight)));
 
             impl_->uiComponentManager_->update(dt);

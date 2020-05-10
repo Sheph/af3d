@@ -39,6 +39,7 @@ namespace af3d
     static const int camOrderTestCamera = -10;
     static const int camOrderTestDisplayFilter = -5;
     static const int camOrderMain = 0;
+    static const int camOrderPostProcess = 1;
 }
 
 #endif

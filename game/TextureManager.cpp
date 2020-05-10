@@ -98,10 +98,10 @@ namespace af3d
                             internalFormat = GL_RED;
                             format = GL_RED;
                         } else if (info_.numComponents == 3) {
-                            internalFormat = (isSRGB_ && settings.sRGB) ? GL_SRGB : GL_RGB;
+                            internalFormat = isSRGB_ ? GL_SRGB : GL_RGB;
                             format = GL_RGB;
                         } else if (info_.numComponents == 4) {
-                            internalFormat = (isSRGB_ && settings.sRGB) ? GL_SRGB_ALPHA : GL_RGBA;
+                            internalFormat = isSRGB_ ? GL_SRGB_ALPHA : GL_RGBA;
                             format = GL_RGBA;
                         } else {
                             runtime_assert(false);
@@ -252,7 +252,7 @@ namespace af3d
             tex->load();
         }
         std::vector<Byte> data{255, 255, 255, 255};
-        white1x1_->upload(GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, std::move(data), false);
+        white1x1_->upload(GL_SRGB_ALPHA, GL_RGBA, GL_UNSIGNED_BYTE, std::move(data), false);
     }
 
     bool TextureManager::renderReload(HardwareContext& ctx)

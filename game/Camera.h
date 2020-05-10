@@ -80,8 +80,8 @@ namespace af3d
         inline bool flipY() const { return frustum_.flipY(); }
         inline void setFlipY(bool value) { frustum_.setFlipY(value); }
 
-        inline const AABB2i& viewport() const { return viewport_; }
-        inline void setViewport(const AABB2i& value) { viewport_ = value; }
+        const AABB2i& viewport() const;
+        void setViewport(const AABB2i& value);
 
         inline const Frustum& frustum() const { return frustum_; }
 
@@ -101,7 +101,7 @@ namespace af3d
         int order_ = 0;
         CameraLayer layer_ = CameraLayer::General;
         Frustum frustum_;
-        AABB2i viewport_ = AABB2i(Vector2i(0, 0), Vector2i(0, 0));
+        mutable AABB2i viewport_ = AABB2i(Vector2i(0, 0), Vector2i(0, 0));
         GLenum clearMask_ = GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT;
         Color clearColor_ = Color(0.23f, 0.23f, 0.23f, 1.0f);
         Color ambientColor_ = Color(0.2f, 0.2f, 0.2f, 1.0f);

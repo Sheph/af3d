@@ -1703,7 +1703,8 @@ bool af3d::PlatformLinux::changeVideoMode(bool fullscreen, int videoMode, int ms
 
     const int* attribs = nullptr;
 
-    if (samples > 0) {
+    // Use own AA.
+    if (false/*samples > 0*/) {
         msaaConfigAttribs[23] = samples;
 
         attribs = msaaConfigAttribs;

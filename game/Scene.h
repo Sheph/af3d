@@ -201,6 +201,7 @@ namespace af3d
 
         std::unordered_set<CameraPtr> cameras_;
         SceneObjectPtr mainCamera_;
+        CameraPtr ppCamera_;
 
         InputMode inputMode_;
         SceneObjectPtr workspaceObj_;

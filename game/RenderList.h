@@ -53,17 +53,17 @@ namespace af3d
 
         inline void addVertex(const btVector3& pos, const Vector2f& uv, const Color& color)
         {
-            vertices().emplace_back(pos, uv, toPackedColor(color));
+            vertices().emplace_back(pos, uv, toPackedColor(gammaToLinear(color)));
         }
 
         inline void addVertex(const Vector3f& pos, const Vector2f& uv, const Color& color)
         {
-            vertices().emplace_back(pos, uv, toPackedColor(color));
+            vertices().emplace_back(pos, uv, toPackedColor(gammaToLinear(color)));
         }
 
         inline void addVertex(const Vector2f& pos, const Vector2f& uv, const Color& color)
         {
-            vertices().emplace_back(pos, uv, toPackedColor(color));
+            vertices().emplace_back(pos, uv, toPackedColor(gammaToLinear(color)));
         }
 
         void addLine(const btVector3& pos, const btVector3& dir, const btVector3& up, const Color& c, bool withCovers = true);

@@ -453,6 +453,7 @@ namespace af3d
             }
             if (activeUniforms.count(UniformName::LightColor) > 0) {
                 auto ac = camera_->ambientColor();
+                ac = gammaToLinear(ac);
                 params.setUniform(UniformName::LightColor, Vector3f(ac.x(), ac.y(), ac.z()) * ac.w());
             }
             rn->add(std::move(tmpNode), 0, geom.material,
