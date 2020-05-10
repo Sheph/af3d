@@ -93,7 +93,7 @@ namespace af3d
                         vDir.setZ(z);
                     }
 
-                    PackedColor c = toPackedColor(colors_[face]);
+                    PackedColor c = toPackedColor(gammaToLinear(colors_[face]));
 
                     for (int i = 0; i < 4; ++i) {
                         int idx = i;

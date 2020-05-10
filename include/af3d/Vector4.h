@@ -442,26 +442,12 @@ namespace af3d
 
     inline float gammaToLinear(float value)
     {
-        if (value <= 0.04045f) {
-            return value / 12.92f;
-        } else if (value < 1.0f) {
-            return btPow((value + 0.055f) / 1.055f, 2.4f);
-        } else {
-            return btPow(value, 2.2f);
-        }
+        return btPow(value, 2.2f);
     }
 
     inline float linearToGamma(float value)
     {
-        if (value <= 0.0f) {
-            return 0.0f;
-        } else if (value <= 0.0031308f) {
-            return 12.92f * value;
-        } else if (value < 1.0f) {
-            return 1.055f * btPow(value, 0.4166667f) - 0.055f;
-        } else {
-            return btPow(value, 0.45454545f);
-        }
+        return btPow(value, 0.45454545f);
     }
 
     inline Color gammaToLinear(const Color& c)
