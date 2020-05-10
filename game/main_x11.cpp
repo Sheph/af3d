@@ -2198,14 +2198,14 @@ int main(int argc, char *argv[])
     loggerConfigurator.configure();
 
     auto logLevel = log4cplus::Logger::getRoot().getLogLevel();
-    if (logLevel <= log4cplus::DEBUG_LOG_LEVEL) {
+    if (logLevel <= log4cplus::TRACE_LOG_LEVEL) {
         Assimp::DefaultLogger::create("", Assimp::Logger::VERBOSE);
     } else {
         Assimp::DefaultLogger::create("", Assimp::Logger::NORMAL);
     }
 
-    Assimp::DefaultLogger::get()->attachStream(new af3d::AssimpLogStream(log4cplus::DEBUG_LOG_LEVEL), Assimp::Logger::Debugging);
-    Assimp::DefaultLogger::get()->attachStream(new af3d::AssimpLogStream(log4cplus::INFO_LOG_LEVEL), Assimp::Logger::Info);
+    Assimp::DefaultLogger::get()->attachStream(new af3d::AssimpLogStream(log4cplus::TRACE_LOG_LEVEL), Assimp::Logger::Debugging);
+    Assimp::DefaultLogger::get()->attachStream(new af3d::AssimpLogStream(log4cplus::TRACE_LOG_LEVEL), Assimp::Logger::Info);
     Assimp::DefaultLogger::get()->attachStream(new af3d::AssimpLogStream(log4cplus::WARN_LOG_LEVEL), Assimp::Logger::Warn);
     Assimp::DefaultLogger::get()->attachStream(new af3d::AssimpLogStream(log4cplus::ERROR_LOG_LEVEL), Assimp::Logger::Err);
 

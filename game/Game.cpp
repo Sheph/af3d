@@ -55,7 +55,7 @@ namespace af3d
 
     bool Game::init(const std::string& startAsset)
     {
-        AClassRegistry::instance().dump();
+        //AClassRegistry::instance().dump();
 
         if (!hwManager.init()) {
             return false;

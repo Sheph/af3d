@@ -346,7 +346,7 @@ namespace af3d
             }
             if (v["srgb"].isBool()) {
                 textureInfoMap_[key.asString()] = TextureInfo(v["srgb"].asBool());
-                LOG4CPLUS_DEBUG(logger(), "texture \"" << key.asString() << "\" sRGB = " << v["srgb"].asBool());
+                LOG4CPLUS_TRACE(logger(), "texture \"" << key.asString() << "\" sRGB = " << v["srgb"].asBool());
             }
         }
     }

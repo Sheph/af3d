@@ -100,20 +100,6 @@ namespace af3d
     bool Renderer::reload(HardwareContext& ctx)
     {
         LOG4CPLUS_DEBUG(logger(), "renderer: reload...");
-
-        LOG4CPLUS_INFO(logger(), "OpenGL vendor: " << ogl.GetString(GL_VENDOR));
-        LOG4CPLUS_INFO(logger(), "OpenGL renderer: " << ogl.GetString(GL_RENDERER));
-        LOG4CPLUS_INFO(logger(), "OpenGL version: " << ogl.GetString(GL_VERSION));
-
-        GLint sampleBuffers = 0;
-        GLint samples = 0;
-
-        ogl.GetIntegerv(GL_SAMPLE_BUFFERS, &sampleBuffers);
-        ogl.GetIntegerv(GL_SAMPLES, &samples);
-
-        LOG4CPLUS_INFO(logger(), "sample_buffers = " << sampleBuffers << ", samples = " << samples);
-        LOG4CPLUS_INFO(logger(), "texture filter: " << (settings.trilinearFilter ? "trilinear" : "bilinear"));
-
         return true;
     }
 

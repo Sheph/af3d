@@ -106,7 +106,7 @@ namespace af3d
                     mat->setTextureBinding(SamplerName::Specular,
                         TextureBinding(textureManager.loadTexture(texPath.C_Str())));
                     haveSpecularTex = true;
-                } else if (mat->textureBinding(SamplerName::Main).tex) {
+                } else if (mat->textureBinding(SamplerName::Main).tex && !isPBR) {
                     mat->setTextureBinding(SamplerName::Specular, mat->textureBinding(SamplerName::Main));
                 }
                 aiColor4D color;
