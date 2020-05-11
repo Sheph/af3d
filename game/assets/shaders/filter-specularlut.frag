@@ -3,7 +3,7 @@
 in vec2 v_texCoord;
 in vec4 v_color;
 
-out vec2 fragColor;
+out vec3 fragColor;
 
 const float PI = 3.14159265359;
 
@@ -112,5 +112,5 @@ vec2 IntegrateBRDF(float NdotV, float roughness)
 void main()
 {
     vec2 integratedBRDF = IntegrateBRDF(v_texCoord.x, v_texCoord.y);
-    fragColor = integratedBRDF;
+    fragColor = vec3(integratedBRDF, 0.0);
 }
