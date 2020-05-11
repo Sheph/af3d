@@ -52,7 +52,8 @@ namespace af3d
 
                 if (res) {
                     width = info_.width;
-                    height = info_.height;
+                    // FIXME: Currently assume that all hdr files are equirect cubemaps...
+                    height = (info_.isHDR && !isSRGB_) ? (info_.width / 2) : info_.height;
                 }
 
                 return res;
@@ -66,10 +67,13 @@ namespace af3d
                     runtime_assert(initImpl());
                 }
 
-                if ((info_.width != texture.width()) && (info_.height != texture.height())) {
+                // FIXME: Currently assume that all hdr files are equirect cubemaps...
+                std::uint32_t newHeight = (info_.isHDR && !isSRGB_) ? (info_.width / 2) : info_.height;
+
+                if ((info_.width != texture.width()) && (newHeight != texture.height())) {
                     LOG4CPLUS_DEBUG(logger(), "textureManager: loading (recreate) " << info_.width << "x" << info_.height
                         << " " << path_ << ", comp = " << info_.numComponents << ", SRGB = " << isSRGB_ << "...");
-                    auto hwTex = hwManager.createTexture(texture.type(), info_.width, info_.height);
+                    auto hwTex = hwManager.createTexture(texture.type(), info_.width, newHeight);
                     texture.setHwTex(hwTex);
                 } else {
                     LOG4CPLUS_DEBUG(logger(), "textureManager: loading " << info_.width << "x" << info_.height
@@ -81,8 +85,6 @@ namespace af3d
                 if (reader_->read(data)) {
                     GLint internalFormat;
                     GLenum format;
-                    GLenum dataType;
-                    bool genMipmap;
 
                     if (info_.isHDR) {
                         if (info_.numComponents == 3) {
@@ -91,8 +93,25 @@ namespace af3d
                         } else {
                             runtime_assert(false);
                         }
-                        dataType = GL_FLOAT;
-                        genMipmap = false;
+
+                        if (newHeight != info_.height) {
+                            texture.hwTex()->upload(internalFormat, format, GL_FLOAT,
+                                nullptr, true, 0, ctx);
+                        }
+
+                        // FIXME: Currently assume that all hdr files are equirect cubemaps...
+                        std::uint32_t numLevels = 0;
+                        size_t sz = 0;
+                        while (true) {
+                            size_t curSz = textureMipSize(info_.width, numLevels) * textureMipSize(newHeight, numLevels) * 3 * sizeof(float);
+                            if (sz + curSz > data.size()) {
+                                break;
+                            }
+                            texture.hwTex()->upload(internalFormat, format, GL_FLOAT,
+                                reinterpret_cast<const GLvoid*>(&data[0] + sz), false, numLevels, ctx);
+                            sz += curSz;
+                            ++numLevels;
+                        }
                     } else {
                         if (info_.numComponents == 1) {
                             internalFormat = GL_RED;
@@ -106,12 +125,9 @@ namespace af3d
                         } else {
                             runtime_assert(false);
                         }
-                        dataType = GL_UNSIGNED_BYTE;
-                        genMipmap = true;
+                        texture.hwTex()->upload(internalFormat, format, GL_UNSIGNED_BYTE,
+                            reinterpret_cast<const GLvoid*>(&data[0]), true, 0, ctx);
                     }
-
-                    texture.hwTex()->upload(internalFormat, format, dataType,
-                        reinterpret_cast<const GLvoid*>(&data[0]), genMipmap, ctx);
                 }
 
                 reader_.reset();
@@ -173,10 +189,10 @@ namespace af3d
                     } else {
                         LOG4CPLUS_DEBUG(logger(), "textureManager: offscreen scaled texture " << newWidth << "x" << newHeight << "...");
                     }
-                    texture.hwTex()->upload(internalFormat_, format_, dataType_, (pixels_.empty() ? nullptr : &pixels_[0]), genMipmap_, ctx);
+                    texture.hwTex()->upload(internalFormat_, format_, dataType_, (pixels_.empty() ? nullptr : &pixels_[0]), genMipmap_, 0, ctx);
                 } else {
                     LOG4CPLUS_DEBUG(logger(), "textureManager: offscreen fixed texture " << texture.width() << "x" << texture.height() << "...");
-                    texture.hwTex()->upload(internalFormat_, format_, dataType_, (pixels_.empty() ? nullptr : &pixels_[0]), genMipmap_, ctx);
+                    texture.hwTex()->upload(internalFormat_, format_, dataType_, (pixels_.empty() ? nullptr : &pixels_[0]), genMipmap_, 0, ctx);
                 }
             }
 

@@ -1,4 +1,5 @@
 {
+"lp_spec_lut.hdr" : { "srgb" : true },
 "textures/bpng.png" : { "srgb" : false },
 "textures/Pot textures_col.png" : { "srgb" : false },
 "bad.png" : { "srgb" : true },

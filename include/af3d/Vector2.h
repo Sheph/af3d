@@ -369,14 +369,18 @@ namespace af3d
 
     using Vector2f = Vector2<float>;
     using Vector2i = Vector2<int>;
+    using Vector2u = Vector2<std::uint32_t>;
 
     static_assert(sizeof(Vector2f) == 8, "Bad Vector2f size");
     static_assert(sizeof(Vector2i) == 8, "Bad Vector2i size");
+    static_assert(sizeof(Vector2u) == 8, "Bad Vector2u size");
 
     extern const Vector2f Vector2f_zero;
     extern const Vector2i Vector2i_zero;
+    extern const Vector2u Vector2u_zero;
     extern const Vector2f Vector2f_one;
     extern const Vector2i Vector2i_one;
+    extern const Vector2u Vector2u_one;
 
     inline bool btIsValid(const Vector2f& v)
     {

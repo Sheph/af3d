@@ -1,6 +1,7 @@
 #version 330 core
 
 uniform sampler2D texMain;
+uniform float mipLevel;
 
 in vec4 v_color;
 in vec3 v_pos;
@@ -19,6 +20,6 @@ vec2 SampleSphericalMap(vec3 v)
 void main()
 {
     vec2 uv = SampleSphericalMap(normalize(v_pos));
-    vec3 color = texture(texMain, uv).rgb;
+    vec3 color = textureLod(texMain, uv, mipLevel).rgb;
     fragColor = vec4(color, 1.0);
 }

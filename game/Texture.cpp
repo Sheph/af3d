@@ -58,7 +58,7 @@ namespace af3d
                 LOG4CPLUS_DEBUG(logger(), "textureManager: loading " << texture.width() << "x" << texture.height() << (genMipmap_ ? " + mipmap..." : "..."));
 
                 texture.hwTex()->upload(internalFormat_, format_, type_,
-                    reinterpret_cast<const GLvoid*>(&pixels_[0]), genMipmap_, ctx);
+                    reinterpret_cast<const GLvoid*>(&pixels_[0]), genMipmap_, 0, ctx);
 
                 pixels_.clear();
             }
@@ -106,6 +106,14 @@ namespace af3d
         auto tex = hwTex_;
         renderer.scheduleHwOpSync([tex, format, type, &pixels](HardwareContext& ctx) {
             tex->download(format, type, &pixels[0], ctx);
+        });
+    }
+
+    void Texture::download(GLenum format, GLenum type, Byte* pixels)
+    {
+        auto tex = hwTex_;
+        renderer.scheduleHwOpSync([tex, format, type, pixels](HardwareContext& ctx) {
+            tex->download(format, type, pixels, ctx);
         });
     }
 

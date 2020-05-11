@@ -70,7 +70,8 @@ namespace af3d
         GridXColor,
         GridYColor,
         Roughness,
-        Max = Roughness
+        MipLevel,
+        Max = MipLevel
     };
 
     enum class SamplerName

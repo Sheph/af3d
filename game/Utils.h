@@ -78,6 +78,20 @@ namespace af3d
     {
         return ImVec2(v.x(), v.y());
     }
+
+    inline Vector2u cubeSize2equirect(std::uint32_t cubeSize)
+    {
+        std::uint32_t equirectW = std::ceil(cubeSize * SIMD_PI);
+        if ((equirectW % 2) != 0) {
+            ++equirectW;
+        }
+        return Vector2u(equirectW, equirectW / 2);
+    }
+
+    inline std::uint32_t textureMipSize(std::uint32_t texSize, std::uint32_t mip)
+    {
+        return texSize >> mip;
+    }
 }
 
 inline ImVec2 operator+(const ImVec2& v1, const ImVec2& v2)

@@ -36,7 +36,7 @@ namespace af3d
         public PhasedComponent
     {
     public:
-        Equirect2CubeComponent(const TexturePtr& src, const TexturePtr& target, int camOrder);
+        Equirect2CubeComponent(const TexturePtr& src, const TexturePtr& target, int camOrder, std::uint32_t numMipLevels = 1);
         ~Equirect2CubeComponent() = default;
 
         static const AClass& staticKlass();
@@ -53,7 +53,7 @@ namespace af3d
         void onUnregister() override;
 
         std::uint32_t targetGeneration_;
-        std::array<RenderFilterComponentPtr, 6> filters_;
+        std::vector<RenderFilterComponentPtr> filters_;
     };
 
     using Equirect2CubeComponentPtr = std::shared_ptr<Equirect2CubeComponent>;

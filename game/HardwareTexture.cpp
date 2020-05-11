@@ -90,34 +90,34 @@ namespace af3d
         return id_;
     }
 
-    void HardwareTexture::upload(GLint internalFormat, GLenum format, GLenum dataType, const GLvoid* pixels, bool genMipmap, HardwareContext& ctx)
+    void HardwareTexture::upload(GLint internalFormat, GLenum format, GLenum dataType, const GLvoid* pixels, bool genMipmap, GLint level, HardwareContext& ctx)
     {
         createTexture();
         ctx.bindTexture(type_, id_);
         if (type_ == TextureType2D) {
-            ogl.TexImage2D(GL_TEXTURE_2D, 0, internalFormat, width_, height_, 0, format, dataType, pixels);
+            ogl.TexImage2D(GL_TEXTURE_2D, level, internalFormat, textureMipSize(width_, level), textureMipSize(height_, level), 0, format, dataType, pixels);
             if (genMipmap) {
                 ogl.GenerateMipmap(GL_TEXTURE_2D);
             }
         } else {
-            uploadCubeFace(TextureCubeXP, internalFormat, format, dataType, pixels, false, ctx);
-            uploadCubeFace(TextureCubeXN, internalFormat, format, dataType, pixels, false, ctx);
-            uploadCubeFace(TextureCubeYP, internalFormat, format, dataType, pixels, false, ctx);
-            uploadCubeFace(TextureCubeYN, internalFormat, format, dataType, pixels, false, ctx);
-            uploadCubeFace(TextureCubeZP, internalFormat, format, dataType, pixels, false, ctx);
-            uploadCubeFace(TextureCubeZN, internalFormat, format, dataType, pixels, false, ctx);
+            uploadCubeFace(TextureCubeXP, internalFormat, format, dataType, pixels, false, level, ctx);
+            uploadCubeFace(TextureCubeXN, internalFormat, format, dataType, pixels, false, level, ctx);
+            uploadCubeFace(TextureCubeYP, internalFormat, format, dataType, pixels, false, level, ctx);
+            uploadCubeFace(TextureCubeYN, internalFormat, format, dataType, pixels, false, level, ctx);
+            uploadCubeFace(TextureCubeZP, internalFormat, format, dataType, pixels, false, level, ctx);
+            uploadCubeFace(TextureCubeZN, internalFormat, format, dataType, pixels, false, level, ctx);
             if (genMipmap) {
                 ogl.GenerateMipmap(GL_TEXTURE_CUBE_MAP);
             }
         }
     }
 
-    void HardwareTexture::uploadCubeFace(TextureCubeFace face, GLint internalFormat, GLenum format, GLenum dataType, const GLvoid* pixels, bool genMipmap, HardwareContext& ctx)
+    void HardwareTexture::uploadCubeFace(TextureCubeFace face, GLint internalFormat, GLenum format, GLenum dataType, const GLvoid* pixels, bool genMipmap, GLint level, HardwareContext& ctx)
     {
         createTexture();
         ctx.bindTexture(type_, id_);
         btAssert(type_ == TextureTypeCubeMap);
-        ogl.TexImage2D(glCubeFace(face), 0, internalFormat, width_, height_, 0, format, dataType, pixels);
+        ogl.TexImage2D(glCubeFace(face), level, internalFormat, textureMipSize(width_, level), textureMipSize(height_, level), 0, format, dataType, pixels);
         if (genMipmap) {
             ogl.GenerateMipmap(GL_TEXTURE_CUBE_MAP);
         }

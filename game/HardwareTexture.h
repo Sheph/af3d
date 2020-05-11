@@ -70,9 +70,9 @@ namespace af3d
 
         GLuint id(HardwareContext& ctx) const override;
 
-        void upload(GLint internalFormat, GLenum format, GLenum dataType, const GLvoid* pixels, bool genMipmap, HardwareContext& ctx);
+        void upload(GLint internalFormat, GLenum format, GLenum dataType, const GLvoid* pixels, bool genMipmap, GLint level, HardwareContext& ctx);
 
-        void uploadCubeFace(TextureCubeFace face, GLint internalFormat, GLenum format, GLenum dataType, const GLvoid* pixels, bool genMipmap, HardwareContext& ctx);
+        void uploadCubeFace(TextureCubeFace face, GLint internalFormat, GLenum format, GLenum dataType, const GLvoid* pixels, bool genMipmap, GLint level, HardwareContext& ctx);
 
         void download(GLenum format, GLenum dataType, GLvoid* pixels, HardwareContext& ctx);
 

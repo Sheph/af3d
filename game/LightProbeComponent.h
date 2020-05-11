@@ -71,7 +71,11 @@ namespace af3d
 
         void stopSpecularGen();
 
-        std::string getIrradianceTexPath();
+        std::string getIrradianceTexName();
+
+        std::string getSpecularTexName();
+
+        std::string getSpecularLUTTexName();
 
         std::uint32_t irradianceResolution_;
         std::uint32_t specularResolution_;
@@ -86,9 +90,11 @@ namespace af3d
         RenderFilterComponentPtr irrCube2equirectFilter_;
 
         std::vector<RenderFilterComponentPtr> specularGenFilters_;
+        std::vector<RenderFilterComponentPtr> specularCube2EquirectFilters_;
         RenderFilterComponentPtr specularLUTGenFilter_;
 
         Equirect2CubeComponentPtr irrEquirect2cube_;
+        Equirect2CubeComponentPtr specularEquirect2cube_;
     };
 
     using LightProbeComponentPtr = std::shared_ptr<LightProbeComponent>;

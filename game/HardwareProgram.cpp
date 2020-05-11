@@ -76,7 +76,8 @@ namespace af3d
         {"gridStep", UniformName::GridStep},
         {"gridXColor", UniformName::GridXColor},
         {"gridYColor", UniformName::GridYColor},
-        {"roughness", UniformName::Roughness}
+        {"roughness", UniformName::Roughness},
+        {"mipLevel", UniformName::MipLevel}
     };
 
     static const std::unordered_map<std::string, SamplerName> staticSamplerMap = {
