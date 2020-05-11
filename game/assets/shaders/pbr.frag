@@ -16,6 +16,7 @@ uniform vec3 lightDir;
 uniform float lightCutoffCos;
 uniform float lightCutoffInnerCos;
 uniform float lightPower;
+uniform int specularCMLevels;
 
 in vec2 v_texCoord;
 in vec3 v_pos;
@@ -106,8 +107,7 @@ void main()
         vec3 diffuseIBL = kd * albedo * irradiance;
 
         // Sample pre-filtered specular reflection environment at correct mipmap level.
-        int specularTextureLevels = 4;
-        vec3 specularIrradiance = textureLod(texSpecularCM, Lr, roughness * specularTextureLevels).rgb;
+        vec3 specularIrradiance = textureLod(texSpecularCM, Lr, roughness * specularCMLevels).rgb;
 
         // Split-sum approximation factors for Cook-Torrance specular BRDF.
         vec2 specularBRDF = texture(texSpecularLUT, vec2(cosLo, roughness)).rg;

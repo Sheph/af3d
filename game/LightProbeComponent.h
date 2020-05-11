@@ -54,6 +54,7 @@ namespace af3d
         inline const TexturePtr& irradianceTexture() const { return irradianceTexture_; }
         inline const TexturePtr& specularTexture() const { return specularTexture_; }
         inline const TexturePtr& specularLUTTexture() const { return specularLUTTexture_; }
+        inline std::uint32_t specularTextureLevels() const { return specularMipLevels_ - 1; }
 
     private:
         static const std::uint32_t sceneCaptureSize = 512;

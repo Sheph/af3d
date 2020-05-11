@@ -114,6 +114,7 @@ namespace af3d
         GLint (GLAPIENTRY* GetUniformLocation)(GLuint program, const GLchar* name);
         void (GLAPIENTRY* VertexAttribPointer)(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid* pointer);
         void (GLAPIENTRY* DrawArrays)(GLenum mode, GLint first, GLsizei count);
+        void (GLAPIENTRY* Uniform1iv)(GLint location, GLsizei count, const GLint* value);
         void (GLAPIENTRY* Uniform1fv)(GLint location, GLsizei count, const GLfloat* value);
         void (GLAPIENTRY* Uniform2fv)(GLint location, GLsizei count, const GLfloat* value);
         void (GLAPIENTRY* Uniform3fv)(GLint location, GLsizei count, const GLfloat* value);

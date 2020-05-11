@@ -29,6 +29,7 @@
 
 namespace af3d
 {
+    static const VariableTypeInfo tiInt(GL_INT, 1, 4);
     static const VariableTypeInfo tiFloat(GL_FLOAT, 1, 4);
     static const VariableTypeInfo tiFloatVec2(GL_FLOAT, 2, 8);
     static const VariableTypeInfo tiFloatVec3(GL_FLOAT, 3, 12);
@@ -67,6 +68,7 @@ namespace af3d
         {"lightPower", UniformName::LightPower},
         {"viewportSize", UniformName::ViewportSize},
         {"time", UniformName::Time},
+        {"specularCMLevels", UniformName::SpecularCMLevels},
         {"mainColor", UniformName::MainColor},
         {"specularColor", UniformName::SpecularColor},
         {"shininess", UniformName::Shininess},
@@ -129,6 +131,7 @@ namespace af3d
     const VariableTypeInfo& HardwareProgram::getTypeInfo(GLenum type)
     {
         switch (type) {
+        case GL_INT: return tiInt;
         case GL_FLOAT: return tiFloat;
         case GL_FLOAT_VEC2: return tiFloatVec2;
         case GL_FLOAT_VEC3: return tiFloatVec3;

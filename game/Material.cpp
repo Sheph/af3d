@@ -189,6 +189,9 @@ namespace af3d
             case GL_FLOAT:
                 ogl.Uniform1fv(jt->second.location, count, (const GLfloat*)&data[kv.second]);
                 break;
+            case GL_INT:
+                ogl.Uniform1iv(jt->second.location, count, (const GLint*)&data[kv.second]);
+                break;
             case GL_FLOAT_VEC2:
                 ogl.Uniform2fv(jt->second.location, count, (const GLfloat*)&data[kv.second]);
                 break;

@@ -540,5 +540,9 @@ namespace af3d
         if (activeUniforms.count(UniformName::Time) > 0) {
             params.setUniform(UniformName::Time, env_->time() + geom.material->timeOffset());
         }
+        if (activeUniforms.count(UniformName::SpecularCMLevels) > 0) {
+            auto probe = env_->getLightProbeFor(btVector3_zero);
+            params.setUniform(UniformName::SpecularCMLevels, static_cast<int>(probe ? probe->specularTextureLevels() : 0));
+        }
     }
 }
