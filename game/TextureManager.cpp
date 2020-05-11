@@ -104,7 +104,7 @@ namespace af3d
                         size_t sz = 0;
                         while (true) {
                             size_t curSz = textureMipSize(info_.width, numLevels) * textureMipSize(newHeight, numLevels) * 3 * sizeof(float);
-                            if (sz + curSz > data.size()) {
+                            if ((sz + curSz > data.size()) || (curSz == 0)) {
                                 break;
                             }
                             texture.hwTex()->upload(internalFormat, format, GL_FLOAT,
