@@ -196,6 +196,11 @@ namespace af3d
 
         void reapJoints();
 
+        TexturePtr postProcessBloom(int order, const TexturePtr& inputTex,
+            float brightnessThreshold, int blurKSize, float blurSigma, float compositeStrength);
+        TexturePtr postProcessToneMapping(int order, const TexturePtr& inputTex);
+        CameraPtr postProcessFXAA(int order, const TexturePtr& inputTex);
+
         class Impl;
         std::unique_ptr<Impl> impl_;
 

@@ -41,6 +41,7 @@ namespace af3d
         ~MaterialParams() = default;
 
         void setUniform(UniformName name, float value);
+        void setUniform(UniformName name, const std::vector<float>& value);
         void setUniform(UniformName name, std::int32_t value);
         void setUniform(UniformName name, std::uint32_t value);
         void setUniform(UniformName name, const Vector2f& value);

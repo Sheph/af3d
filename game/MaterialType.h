@@ -55,8 +55,11 @@ namespace af3d
         MaterialTypeFilterSpecularLUT,
         MaterialTypeFilterFXAA,
         MaterialTypeFilterToneMapping,
+        MaterialTypeFilterGaussianBlur,
+        MaterialTypeFilterBloomPass1,
+        MaterialTypeFilterBloomPass2,
         MaterialTypeFirst = MaterialTypeBasic,
-        MaterialTypeMax = MaterialTypeFilterToneMapping
+        MaterialTypeMax = MaterialTypeFilterBloomPass2
     };
 
     class MaterialType : boost::noncopyable

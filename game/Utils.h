@@ -53,6 +53,8 @@ namespace af3d
         Max = Global
     };
 
+    class MaterialParams;
+
     using AssimpScenePtr = std::unique_ptr<aiScene>;
 
     AssimpScenePtr assimpImport(Assimp::Importer& importer,
@@ -92,6 +94,8 @@ namespace af3d
     {
         return texSize >> mip;
     }
+
+    void setGaussianBlurParams(MaterialParams& params, int ksize, float sigma, bool isHorizontal);
 }
 
 inline ImVec2 operator+(const ImVec2& v1, const ImVec2& v2)

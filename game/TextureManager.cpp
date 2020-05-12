@@ -318,7 +318,7 @@ namespace af3d
         return tex;
     }
 
-    TexturePtr TextureManager::createRenderTexture(TextureType type, float scale, GLint internalFormat, GLenum format, GLenum dataType,
+    TexturePtr TextureManager::createRenderTextureScaled(TextureType type, float scale, GLint internalFormat, GLenum format, GLenum dataType,
         bool genMipmap, std::vector<Byte>&& pixels)
     {
         btAssert(scale > 0.0f);

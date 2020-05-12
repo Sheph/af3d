@@ -79,7 +79,13 @@ namespace af3d
         {"gridXColor", UniformName::GridXColor},
         {"gridYColor", UniformName::GridYColor},
         {"roughness", UniformName::Roughness},
-        {"mipLevel", UniformName::MipLevel}
+        {"mipLevel", UniformName::MipLevel},
+        {"gaussianKernel[0]", UniformName::GaussianKernel},
+        {"gaussianOffset[0]", UniformName::GaussianOffset},
+        {"gaussianMSize", UniformName::GaussianMSize},
+        {"gaussianDir", UniformName::GaussianDir},
+        {"threshold", UniformName::Threshold},
+        {"strength", UniformName::Strength}
     };
 
     static const std::unordered_map<std::string, SamplerName> staticSamplerMap = {

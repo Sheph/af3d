@@ -159,7 +159,7 @@ namespace af3d
         auto cam = std::make_shared<Camera>();
         cam->setOrder(camOrderTestCamera);
         cam->setAspect(settings.viewAspect);
-        cam->setRenderTarget(RenderTarget(textureManager.createRenderTexture(TextureType2D, scale, GL_RGB16F, GL_RGB, GL_FLOAT)));
+        cam->setRenderTarget(RenderTarget(textureManager.createRenderTextureScaled(TextureType2D, scale, GL_RGB16F, GL_RGB, GL_FLOAT)));
         cam->setClearColor(clearColor);
         cam->setAmbientColor(ambientColor);
 
@@ -216,7 +216,7 @@ namespace af3d
                 TextureBinding(textureManager.loadTexture("noise1.png"),
                     SamplerParams(GL_LINEAR)));
             filterRc->camera()->setOrder(camOrderTestDisplayFilter);
-            filterRc->camera()->setRenderTarget(RenderTarget(textureManager.createRenderTexture(TextureType2D,
+            filterRc->camera()->setRenderTarget(RenderTarget(textureManager.createRenderTextureScaled(TextureType2D,
                 static_cast<float>(settings.viewHeight) / c->camera()->renderTarget().texture()->height(), GL_RGB16F, GL_RGB, GL_FLOAT)));
 
             mesh->subMeshes()[i]->material()->setTextureBinding(SamplerName::Main,

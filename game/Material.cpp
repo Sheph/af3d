@@ -45,6 +45,11 @@ namespace af3d
         setUniformImpl(name, reinterpret_cast<const Byte*>(&value), GL_FLOAT, 1, 1);
     }
 
+    void MaterialParams::setUniform(UniformName name, const std::vector<float>& value)
+    {
+        setUniformImpl(name, reinterpret_cast<const Byte*>(&value[0]), GL_FLOAT, 1, value.size());
+    }
+
     void MaterialParams::setUniform(UniformName name, std::int32_t value)
     {
         setUniformImpl(name, reinterpret_cast<const Byte*>(&value), GL_INT, 1, 1);

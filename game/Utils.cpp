@@ -24,6 +24,7 @@
  */
 
 #include "Utils.h"
+#include "Material.h"
 
 namespace af3d
 {
@@ -36,5 +37,50 @@ namespace af3d
             return AssimpScenePtr();
         }
         return AssimpScenePtr(importer.GetOrphanedScene());
+    }
+
+    static void createGaussianKernel(int mSize, float sigma, float kernel[])
+    {
+        int kSize = (mSize - 1) / 2;
+        for (int j = 0; j <= kSize; ++j) {
+            kernel[kSize + j] = kernel[kSize - j] = 0.39894 * std::exp(-0.5 * double(j) * double(j) / (sigma * sigma)) / sigma;
+        }
+    }
+
+    static int createGaussianDirectionalKernel(int mSize, float kernel[], float offset[])
+    {
+        int kSize = (mSize - 1) / 2;
+        int rSize = (kSize / 2) + 1;
+
+        std::vector<float> tmp(rSize);
+
+        tmp[0] = kernel[kSize];
+        offset[0] = 0.0f;
+
+        for (int i = 1; i < rSize; ++i) {
+            int t1 = (i * 2) - 1;
+            int t2 = (i * 2) + 0;
+            tmp[i] = kernel[kSize + t1] + kernel[kSize + t2];
+            offset[i] = (t1 * kernel[kSize + t1] + t2 * kernel[kSize + t2]) / tmp[i];
+        }
+
+        for (int i = 0; i < rSize; ++i) {
+            kernel[i] = tmp[i];
+        }
+
+        return rSize;
+    }
+
+    void setGaussianBlurParams(MaterialParams& params, int ksize, float sigma, bool isHorizontal)
+    {
+        std::vector<float> kernel(ksize), offset(ksize);
+        createGaussianKernel(ksize, sigma, &kernel[0]);
+        int rSize = createGaussianDirectionalKernel(ksize, &kernel[0], &offset[0]);
+        kernel.resize(rSize);
+        offset.resize(rSize);
+        params.setUniform(UniformName::GaussianKernel, kernel);
+        params.setUniform(UniformName::GaussianOffset, offset);
+        params.setUniform(UniformName::GaussianMSize, ksize);
+        params.setUniform(UniformName::GaussianDir, static_cast<int>(isHorizontal));
     }
 }
