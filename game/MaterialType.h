@@ -58,8 +58,9 @@ namespace af3d
         MaterialTypeFilterGaussianBlur,
         MaterialTypeFilterBloomPass1,
         MaterialTypeFilterBloomPass2,
+        MaterialTypeFilterMotionBlur,
         MaterialTypeFirst = MaterialTypeBasic,
-        MaterialTypeMax = MaterialTypeFilterBloomPass2
+        MaterialTypeMax = MaterialTypeFilterMotionBlur
     };
 
     class MaterialType : boost::noncopyable

@@ -531,13 +531,25 @@ namespace af3d
         if (activeUniforms.count(UniformName::ViewProjMatrix) > 0) {
             params.setUniform(UniformName::ViewProjMatrix, viewProjMat);
         }
+
+        bool oldMatSet = false;
+
         if (activeUniforms.count(UniformName::ModelViewProjMatrix) > 0) {
             params.setUniform(UniformName::ModelViewProjMatrix, viewProjMat * geom.modelMat);
+            if (!oldMatSet && activeUniforms.count(UniformName::OldMatrix) > 0) {
+                oldMatSet = true;
+                params.setUniform(UniformName::OldMatrix, camera_->prevViewProjMat() * geom.modelMat);
+            }
         }
         if (activeUniforms.count(UniformName::ModelMatrix) > 0) {
             params.setUniform(UniformName::ModelMatrix, geom.modelMat);
+            if (!oldMatSet && activeUniforms.count(UniformName::OldMatrix) > 0) {
+                oldMatSet = true;
+                params.setUniform(UniformName::OldMatrix, camera_->prevViewProjMat() * geom.modelMat);
+            }
         }
-        if (activeUniforms.count(UniformName::OldMatrix) > 0) {
+        if (!oldMatSet && activeUniforms.count(UniformName::OldMatrix) > 0) {
+            oldMatSet = true;
             params.setUniform(UniformName::OldMatrix, camera_->prevViewProjMat());
         }
         if (activeUniforms.count(UniformName::EyePos) > 0) {
@@ -548,6 +560,12 @@ namespace af3d
         }
         if (activeUniforms.count(UniformName::Time) > 0) {
             params.setUniform(UniformName::Time, env_->time() + geom.material->timeOffset());
+        }
+        if (activeUniforms.count(UniformName::Dt) > 0) {
+            params.setUniform(UniformName::Dt, env_->dt());
+        }
+        if (activeUniforms.count(UniformName::RealDt) > 0) {
+            params.setUniform(UniformName::RealDt, env_->realDt());
         }
         if (activeUniforms.count(UniformName::SpecularCMLevels) > 0) {
             auto probe = env_->getLightProbeFor(btVector3_zero);

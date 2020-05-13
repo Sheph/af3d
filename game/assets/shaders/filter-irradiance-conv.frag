@@ -1,5 +1,3 @@
-#version 330 core
-
 uniform samplerCube texMain;
 
 const float PI = 3.14159265359;

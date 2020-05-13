@@ -38,11 +38,13 @@ namespace af3d
         SceneEnvironment() = default;
         ~SceneEnvironment();
 
+        inline float realDt() const { return realDt_; }
+        inline float dt() const { return dt_; }
         inline float time() const { return time_; }
         inline const VertexArrayWriter& defaultVa() const { return defaultVa_; }
         inline VertexArrayWriter& defaultVa() { return defaultVa_; }
 
-        void update(float dt);
+        void update(float realDt, float dt);
 
         void preSwap();
 
@@ -55,6 +57,8 @@ namespace af3d
         LightProbeComponent* getLightProbeFor(const btVector3& pos);
 
     private:
+        float realDt_ = 0.0f;
+        float dt_ = 0.0f;
         float time_ = 0.0f;
         VertexArrayWriter defaultVa_;
         std::unordered_set<LightProbeComponent*> lightProbes_;

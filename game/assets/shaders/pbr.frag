@@ -26,7 +26,11 @@ in mat3 v_tbn;
 in vec3 v_normal;
 #endif
 
-out vec4 fragColor;
+in vec4 v_prevClipPos;
+in vec4 v_clipPos;
+
+layout (location = 0) out vec4 fragColor;
+layout (location = 1) out vec2 fragVelocity;
 
 const float PI = 3.141592;
 const float Epsilon = 0.00001;
@@ -117,6 +121,7 @@ void main()
 
         // Total ambient lighting contribution.
         fragColor = vec4(diffuseIBL + specularIBL, 1.0);
+        OUT_FRAG_VELOCITY();
         return;
     }
 

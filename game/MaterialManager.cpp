@@ -33,14 +33,20 @@
 
 namespace af3d
 {
+    static const char* glslCommonHeader = "#version 330 core\n" \
+        "#define OUT_FRAG_VELOCITY() \\\n" \
+        "vec2 a = (v_clipPos.xy / v_clipPos.w) * 0.5 + 0.5; \\\n" \
+        "vec2 b = (v_prevClipPos.xy / v_prevClipPos.w) * 0.5 + 0.5; \\\n" \
+        "fragVelocity = a - b\n\n";
+
     static const struct {
         const char* vert;
         const char* frag;
         bool usesLight;
         const char* header;
     } shaders[MaterialTypeMax + 1] = {
-        {"shaders/basic.vert", "shaders/basic.frag", true, "#version 330 core\n"},
-        {"shaders/basic.vert", "shaders/basic.frag", true, "#version 330 core\n#define NM 1\n"},
+        {"shaders/basic.vert", "shaders/basic.frag", true, nullptr},
+        {"shaders/basic.vert", "shaders/basic.frag", true, "#define NM 1\n"},
         {"shaders/unlit.vert", "shaders/unlit.frag", false, nullptr},
         {"shaders/unlit-vc.vert", "shaders/unlit-vc.frag", false, nullptr},
         {"shaders/imm.vert", "shaders/imm.frag", false, nullptr},
@@ -48,8 +54,8 @@ namespace af3d
         {"shaders/grid.vert", "shaders/grid.frag", false, nullptr},
         {"shaders/filter.vert", "shaders/filter-vhs.frag", false, nullptr},
         {"shaders/filter-cubemap.vert", "shaders/filter-irradiance-conv.frag", false, nullptr},
-        {"shaders/basic.vert", "shaders/pbr.frag", true, "#version 330 core\n"},
-        {"shaders/basic.vert", "shaders/pbr.frag", true, "#version 330 core\n#define NM 1\n"},
+        {"shaders/basic.vert", "shaders/pbr.frag", true, nullptr},
+        {"shaders/basic.vert", "shaders/pbr.frag", true, "#define NM 1\n"},
         {"shaders/filter.vert", "shaders/filter-cube2equirect.frag", false, nullptr},
         {"shaders/filter-cubemap.vert", "shaders/filter-equirect2cube.frag", false, nullptr},
         {"shaders/filter-cubemap.vert", "shaders/filter-specularcm.frag", false, nullptr},
@@ -58,7 +64,8 @@ namespace af3d
         {"shaders/filter.vert", "shaders/filter-tone-mapping.frag", false, nullptr},
         {"shaders/filter.vert", "shaders/filter-gaussian-blur.frag", false, nullptr},
         {"shaders/filter.vert", "shaders/filter-bloom-pass1.frag", false, nullptr},
-        {"shaders/filter.vert", "shaders/filter-bloom-pass2.frag", false, nullptr}
+        {"shaders/filter.vert", "shaders/filter-bloom-pass2.frag", false, nullptr},
+        {"shaders/filter.vert", "shaders/filter-motion-blur.frag", false, nullptr}
     };
 
     MaterialManager materialManager;
@@ -138,6 +145,9 @@ namespace af3d
                 vertSource = shaders[mat->name()].header + vertSource;
                 fragSource = shaders[mat->name()].header + fragSource;
             }
+
+            vertSource = glslCommonHeader + vertSource;
+            fragSource = glslCommonHeader + fragSource;
 
             if (!mat->reload(vertSource, fragSource, ctx)) {
                 return false;

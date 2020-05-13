@@ -60,8 +60,10 @@ namespace af3d
         ViewportSize,
         Time,
         SpecularCMLevels,
+        Dt,
+        RealDt,
         FirstAuto = ViewProjMatrix,
-        MaxAuto = SpecularCMLevels,
+        MaxAuto = RealDt,
         MainColor, // Light only!
         SpecularColor, // Light only!
         Shininess, // Light only!

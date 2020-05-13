@@ -1,5 +1,3 @@
-#version 330 core
-
 uniform sampler2D texMain;
 uniform sampler2D texSpecular;
 uniform float mipLevel;

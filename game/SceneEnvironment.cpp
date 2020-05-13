@@ -33,8 +33,10 @@ namespace af3d
         btAssert(lightProbes_.empty());
     }
 
-    void SceneEnvironment::update(float dt)
+    void SceneEnvironment::update(float realDt, float dt)
     {
+        realDt_ = realDt;
+        dt_ = dt;
         time_ += dt;
     }
 

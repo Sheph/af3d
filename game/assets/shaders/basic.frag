@@ -24,13 +24,18 @@ in mat3 v_tbn;
 in vec3 v_normal;
 #endif
 
-out vec4 fragColor;
+in vec4 v_prevClipPos;
+in vec4 v_clipPos;
+
+layout (location = 0) out vec4 fragColor;
+layout (location = 1) out vec2 fragVelocity;
 
 void main()
 {
     if (lightPos.w == 0.0) {
         // ambient
         fragColor = texture(texMain, v_texCoord) * mainColor * vec4(lightColor, 1.0);
+        OUT_FRAG_VELOCITY();
         return;
     }
 

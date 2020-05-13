@@ -234,8 +234,7 @@ namespace af3d
       collisionMatrix_(assetManager.getCollisionMatrix("default.cm")),
       firstUpdate_(true),
       checkpoint_(0),
-      timeScale_(1.0f),
-      realDt_(0.0f)
+      timeScale_(1.0f)
     {
         if (!collisionMatrix_) {
             collisionMatrix_ = std::make_shared<CollisionMatrix>();
@@ -289,8 +288,9 @@ namespace af3d
         mc->setClearColor(AttachmentPoint::Color1, Color_zero);
         addCamera(mc);
 
+        auto tex = postProcessMotionBlur(camOrderPostProcess + 1, screenTex, velocityTex);
         //auto tex = postProcessBloom(camOrderPostProcess, screenTex, 1.0f, 13, 2.0f, 0.5f);
-        auto tex = postProcessToneMapping(camOrderPostProcess + 100, screenTex);
+        tex = postProcessToneMapping(camOrderPostProcess + 100, tex);
         ppCamera_ = postProcessFXAA(camOrderPostProcess + 200, tex);
         ppCamera_->setViewport(AABB2i(Vector2i(settings.viewX, settings.viewY),
             Vector2i(settings.viewX + settings.viewWidth, settings.viewY + settings.viewHeight)));
@@ -403,7 +403,7 @@ namespace af3d
 
     void Scene::update(float dt)
     {
-        realDt_ = dt;
+        float realDt = dt;
 
         if (!paused_) {
             dt *= timeScale_;
@@ -413,7 +413,7 @@ namespace af3d
             dt /= settings.physics.slowmoFactor;
         }
 
-        impl_->env_->update(dt);
+        impl_->env_->update(realDt, dt);
 
         bool forceUpdateRender = false;
 
@@ -611,6 +611,25 @@ namespace af3d
                 removeJoint(j);
             }
         }
+    }
+
+    TexturePtr Scene::postProcessMotionBlur(int order, const TexturePtr& inputTex,
+        const TexturePtr& velocityTex)
+    {
+        auto resTex = textureManager.createRenderTextureScaled(TextureType2D,
+            1.0f, GL_RGB16F, GL_RGB, GL_FLOAT);
+
+        auto ppFilter = std::make_shared<RenderFilterComponent>(MaterialTypeFilterMotionBlur);
+        ppFilter->material()->setTextureBinding(SamplerName::Main,
+            TextureBinding(inputTex,
+                SamplerParams(GL_NEAREST, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST)));
+        ppFilter->material()->setTextureBinding(SamplerName::Noise,
+            TextureBinding(velocityTex,
+                SamplerParams(GL_NEAREST, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST)));
+        ppFilter->camera()->setOrder(order);
+        ppFilter->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(resTex));
+        dummy_->addComponent(ppFilter);
+        return resTex;
     }
 
     TexturePtr Scene::postProcessBloom(int order, const TexturePtr& inputTex,

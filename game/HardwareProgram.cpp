@@ -70,6 +70,8 @@ namespace af3d
         {"viewportSize", UniformName::ViewportSize},
         {"time", UniformName::Time},
         {"specularCMLevels", UniformName::SpecularCMLevels},
+        {"dt", UniformName::Dt},
+        {"realDt", UniformName::RealDt},
         {"mainColor", UniformName::MainColor},
         {"specularColor", UniformName::SpecularColor},
         {"shininess", UniformName::Shininess},

@@ -1,5 +1,3 @@
-#version 330 core
-
 uniform vec3 gridPos;
 uniform vec3 gridRight;
 uniform vec3 gridUp;
@@ -11,7 +9,8 @@ uniform vec3 eyePos;
 in vec3 v_pos;
 in vec4 v_color;
 
-out vec4 fragColor;
+layout (location = 0) out vec4 fragColor;
+layout (location = 1) out vec2 fragVelocity;
 
 void main()
 {
@@ -33,4 +32,5 @@ void main()
     } else {
         fragColor = vec4(1.0, 1.0, 1.0, max(c1, c2) * factor) * v_color;
     }
+    fragVelocity = vec2(0.0);
 }

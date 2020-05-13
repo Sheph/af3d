@@ -1,5 +1,3 @@
-#version 330 core
-
 uniform samplerCube texMain;
 uniform float mipLevel;
 

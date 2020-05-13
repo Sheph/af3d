@@ -143,8 +143,6 @@ namespace af3d
         inline void setTimeScale(float value) { timeScale_ = value; }
         inline float timeScale() const { return timeScale_; }
 
-        inline float realDt() const { return realDt_; }
-
         inline void setRoot(const SceneObjectPtr& value) { root_ = value; }
         inline const SceneObjectPtr& root() const { return root_; }
 
@@ -196,6 +194,8 @@ namespace af3d
 
         void reapJoints();
 
+        TexturePtr postProcessMotionBlur(int order, const TexturePtr& inputTex,
+            const TexturePtr& velocityTex);
         TexturePtr postProcessBloom(int order, const TexturePtr& inputTex,
             float brightnessThreshold, int blurKSize, float blurSigma, float compositeStrength);
         TexturePtr postProcessToneMapping(int order, const TexturePtr& inputTex);
@@ -232,7 +232,6 @@ namespace af3d
         bool firstUpdate_;
         int checkpoint_;
         float timeScale_;
-        float realDt_;
     };
 
     ACLASS_DECLARE(Scene)
