@@ -29,11 +29,11 @@
 
 namespace af3d
 {
-    RenderNode::RenderNode(const AABB2i& viewport, GLenum clearMask, const Color& clearColor, const HardwareMRT& mrt)
+    RenderNode::RenderNode(const AABB2i& viewport, const AttachmentPoints& clearMask, const AttachmentColors& clearColors, const HardwareMRT& mrt)
     : type_(Type::Root),
       viewport_(viewport),
       clearMask_(clearMask),
-      clearColor_(clearColor),
+      clearColors_(clearColors),
       mrt_(mrt),
       numDraws_(0)
     {
@@ -265,14 +265,33 @@ namespace af3d
     void RenderNode::applyRoot(HardwareContext& ctx) const
     {
         //LOG4CPLUS_DEBUG(logger(), "draw(" << numDraws_ << ")");
-        ctx.setMRT(mrt_);
+        bool haveFb = ctx.setMRT(mrt_);
         ogl.Viewport(viewport_.lowerBound[0], viewport_.lowerBound[1],
             viewport_.upperBound[0] - viewport_.lowerBound[0],
             viewport_.upperBound[1] - viewport_.lowerBound[1]);
-        if (clearMask_ != 0) {
-            Color c = gammaToLinear(clearColor_);
-            ogl.ClearColor(c[0], c[1], c[2], c[3]);
-            ogl.Clear(clearMask_);
+        GLbitfield mask = 0;
+        if (clearMask_[AttachmentPoint::Depth]) {
+            mask |= GL_DEPTH_BUFFER_BIT;
+        }
+        if (clearMask_[AttachmentPoint::Stencil]) {
+            mask |= GL_STENCIL_BUFFER_BIT;
+        }
+        if (mask) {
+            ogl.Clear(mask);
+        }
+        for (int i = static_cast<int>(AttachmentPoint::Color0); i <= static_cast<int>(AttachmentPoint::Max); ++i) {
+            AttachmentPoint p = static_cast<AttachmentPoint>(i);
+            if (clearMask_[p]) {
+                if (haveFb) {
+                    GLenum buffer = glAttachmentPoint(p);
+                    ogl.DrawBuffers(1, &buffer);
+                } else {
+                    btAssert(p == AttachmentPoint::Color0);
+                }
+                Color c = gammaToLinear(clearColors_[i]);
+                ogl.ClearColor(c[0], c[1], c[2], c[3]);
+                ogl.Clear(GL_COLOR_BUFFER_BIT);
+            }
         }
     }
 

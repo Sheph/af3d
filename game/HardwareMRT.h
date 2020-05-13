@@ -63,6 +63,8 @@ namespace af3d
 
     using AttachmentPoints = EnumSet<AttachmentPoint>;
 
+    using AttachmentColors = std::array<Color, static_cast<int>(AttachmentPoint::Max) + 1>;
+
     class HardwareMRT
     {
     public:

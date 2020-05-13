@@ -34,6 +34,7 @@ namespace af3d
     Camera::Camera()
     : AObject(AClass_Camera)
     {
+        clearColors_[static_cast<int>(AttachmentPoint::Color0)] = Color(0.23f, 0.23f, 0.23f, 1.0f);
     }
 
     const AClass& Camera::staticKlass()

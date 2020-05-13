@@ -69,7 +69,7 @@ namespace af3d
         // FIXME: Camera::setTransform is a bit hacky here, but we need to set this up
         // so that initial object's onRegister gets correct frustum.
         camera->setTransform(cameraXf_);
-        camera->setClearColor(clearColor_);
+        camera->setClearColor(AttachmentPoint::Color0, clearColor_);
         camera->setAmbientColor(ambientColor_);
         for (const auto& obj : objects_) {
             scene->addObject(obj);

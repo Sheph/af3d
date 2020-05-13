@@ -160,7 +160,7 @@ namespace af3d
         cam->setOrder(camOrderTestCamera);
         cam->setAspect(settings.viewAspect);
         cam->setRenderTarget(AttachmentPoint::Color0, RenderTarget(textureManager.createRenderTextureScaled(TextureType2D, scale, GL_RGB16F, GL_RGB, GL_FLOAT)));
-        cam->setClearColor(clearColor);
+        cam->setClearColor(AttachmentPoint::Color0, clearColor);
         cam->setAmbientColor(ambientColor);
 
         obj->addComponent(std::make_shared<CameraComponent>(cam));

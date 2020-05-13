@@ -441,7 +441,7 @@ namespace af3d
     RenderNodePtr RenderList::compile() const
     {
         auto mrt = camera_->getHardwareMRT();
-        auto rn = std::make_shared<RenderNode>(camera_->viewport(), camera_->clearMask(), camera_->clearColor(), mrt);
+        auto rn = std::make_shared<RenderNode>(camera_->viewport(), camera_->clearMask(), camera_->clearColors(), mrt);
         auto drawBuffers = mrt.getDrawBuffers();
 
         RenderNode tmpNode;

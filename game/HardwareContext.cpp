@@ -105,7 +105,7 @@ namespace af3d
         }
     }
 
-    void HardwareContext::setMRT(const HardwareMRT& mrt)
+    bool HardwareContext::setMRT(const HardwareMRT& mrt)
     {
         GLuint oldFbId = 0;
         ogl.GetIntegerv(GL_FRAMEBUFFER_BINDING, (GLint*)&oldFbId);
@@ -173,5 +173,7 @@ namespace af3d
         } else {
             ogl.BindFramebuffer(GL_FRAMEBUFFER, oldFbId);
         }
+
+        return !sz.isZero();
     }
 }

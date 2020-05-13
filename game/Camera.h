@@ -86,11 +86,12 @@ namespace af3d
 
         inline const Frustum& frustum() const { return frustum_; }
 
-        inline GLenum clearMask() const { return clearMask_; }
-        inline void setClearMask(GLenum value) { clearMask_ = value; }
+        inline const AttachmentPoints& clearMask() const { return clearMask_; }
+        inline void setClearMask(const AttachmentPoints& value) { clearMask_ = value; }
 
-        inline const Color& clearColor() const { return clearColor_; }
-        inline void setClearColor(const Color& value) { clearColor_ = value; }
+        inline const AttachmentColors& clearColors() const { return clearColors_; }
+        inline const Color& clearColor(AttachmentPoint attachmentPoint = AttachmentPoint::Color0) const { return clearColors_[static_cast<int>(attachmentPoint)]; }
+        inline void setClearColor(AttachmentPoint attachmentPoint, const Color& value) { clearColors_[static_cast<int>(attachmentPoint)] = value; }
 
         inline const Color& ambientColor() const { return ambientColor_; }
         inline void setAmbientColor(const Color& value) { ambientColor_ = value; }
@@ -110,8 +111,8 @@ namespace af3d
         CameraLayer layer_ = CameraLayer::General;
         Frustum frustum_;
         mutable AABB2i viewport_ = AABB2i(Vector2i(0, 0), Vector2i(0, 0));
-        GLenum clearMask_ = GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT;
-        Color clearColor_ = Color(0.23f, 0.23f, 0.23f, 1.0f);
+        AttachmentPoints clearMask_ = AttachmentPoints(AttachmentPoint::Color0) | AttachmentPoint::Depth | AttachmentPoint::Stencil;
+        AttachmentColors clearColors_;
         Color ambientColor_ = Color(0.2f, 0.2f, 0.2f, 1.0f);
 
         std::array<RenderTarget, static_cast<int>(AttachmentPoint::Max) + 1> renderTarget_;

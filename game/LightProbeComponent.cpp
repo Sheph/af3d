@@ -240,7 +240,7 @@ namespace af3d
             cam->setOrder(camOrderLightProbe);
             cam->setFov(btRadians(90.0f));
             cam->setAspect(1.0f);
-            cam->setClearColor(mainCamera->clearColor());
+            cam->setClearColor(AttachmentPoint::Color0, mainCamera->clearColor());
             cam->setAmbientColor(mainCamera->ambientColor());
             cam->setTransform(btTransform(textureCubeFaceBasis(face), parent()->pos()));
             cam->setRenderTarget(AttachmentPoint::Color0, RenderTarget(sceneCaptureTexture, 0, face));

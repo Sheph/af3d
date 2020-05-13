@@ -47,7 +47,7 @@ namespace af3d
         uiCamera_->setNearDist(-1.0f);
         uiCamera_->setFarDist(1.0f);
         uiCamera_->setFlipY(true);
-        uiCamera_->setClearMask(0);
+        uiCamera_->setClearMask(AttachmentPoints());
     }
 
     UIComponentManager::~UIComponentManager()

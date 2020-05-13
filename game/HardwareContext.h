@@ -134,7 +134,7 @@ namespace af3d
 
         void bindSampler(int unit, const SamplerParams& params);
 
-        void setMRT(const HardwareMRT& mrt);
+        bool setMRT(const HardwareMRT& mrt);
 
     private:
         struct TextureUnit

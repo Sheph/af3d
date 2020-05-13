@@ -43,7 +43,7 @@ namespace af3d
         filterCam_->setNearDist(-1.0f);
         filterCam_->setFarDist(1.0f);
         filterCam_->setOrthoHeight(2.0f);
-        filterCam_->setClearMask(0);
+        filterCam_->setClearMask(AttachmentPoints());
 
         material_->setDepthTest(false);
         material_->setDepthWrite(false);
@@ -59,7 +59,7 @@ namespace af3d
     {
         filterCam_ = std::make_shared<Camera>();
         filterCam_->setLayer(CameraLayer::Filter);
-        filterCam_->setClearMask(0);
+        filterCam_->setClearMask(AttachmentPoints());
 
         cameraFilter().layers().resetAll();
         cameraFilter().addCookie(filterCam_);

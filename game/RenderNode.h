@@ -57,7 +57,7 @@ namespace af3d
     class RenderNode
     {
     public:
-        RenderNode(const AABB2i& viewport, GLenum clearMask, const Color& clearColor, const HardwareMRT& mrt);
+        RenderNode(const AABB2i& viewport, const AttachmentPoints& clearMask, const AttachmentColors& clearColors, const HardwareMRT& mrt);
         RenderNode() = default;
         ~RenderNode() = default;
 
@@ -127,8 +127,8 @@ namespace af3d
 
         // Type::Root
         AABB2i viewport_;
-        GLenum clearMask_;
-        Color clearColor_;
+        AttachmentPoints clearMask_;
+        AttachmentColors clearColors_;
         HardwareMRT mrt_;
         int numDraws_;
 

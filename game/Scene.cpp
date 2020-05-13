@@ -285,6 +285,8 @@ namespace af3d
         mc->setAspect(settings.viewAspect);
         mc->setRenderTarget(AttachmentPoint::Color0, RenderTarget(screenTex));
         mc->setRenderTarget(AttachmentPoint::Color1, RenderTarget(velocityTex));
+        mc->setClearMask(mc->clearMask() | AttachmentPoint::Color1);
+        mc->setClearColor(AttachmentPoint::Color1, Color_zero);
         addCamera(mc);
 
         //auto tex = postProcessBloom(camOrderPostProcess, screenTex, 1.0f, 13, 2.0f, 0.5f);
@@ -887,7 +889,7 @@ namespace af3d
 
     void Scene::propertyClearColorSet(const std::string&, const APropertyValue& value)
     {
-        mainCamera()->findComponent<CameraComponent>()->camera()->setClearColor(value.toColor());
+        mainCamera()->findComponent<CameraComponent>()->camera()->setClearColor(AttachmentPoint::Color0, value.toColor());
     }
 
     APropertyValue Scene::propertyAmbientColorGet(const std::string&) const
