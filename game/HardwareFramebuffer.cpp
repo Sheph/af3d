@@ -55,7 +55,7 @@ namespace af3d
         return id_;
     }
 
-    void HardwareFramebuffer::attachTarget(AttachmentPoint attachmentPoint, const HardwareRenderTarget& target, HardwareContext& ctx)
+    void HardwareFramebuffer::attach(AttachmentPoint attachmentPoint, const HardwareRenderTarget& target, HardwareContext& ctx)
     {
         if (mrt_.attachment(attachmentPoint) == target) {
             return;
@@ -63,68 +63,38 @@ namespace af3d
 
         createFramebuffer();
 
-        auto rId = target.res()->id(ctx);
-        btAssert(rId != 0);
-
-        GLuint curFb = 0;
-        ogl.GetIntegerv(GL_FRAMEBUFFER_BINDING, (GLint*)&curFb);
-
         ogl.BindFramebuffer(GL_FRAMEBUFFER, id_);
-        GLenum textarget = HardwareTexture::glType(*target.texType());
-        if (*target.texType() == TextureTypeCubeMap) {
-            textarget = HardwareTexture::glCubeFace(target.cubeFace());
+
+        if (!target) {
+            ogl.FramebufferTexture2D(GL_FRAMEBUFFER, glAttachmentPoint(attachmentPoint), GL_TEXTURE_2D, 0, 0);
+        } else if (target.texType()) {
+            auto rId = target.res()->id(ctx);
+            btAssert(rId != 0);
+
+            auto texType = *target.texType();
+            GLenum textarget = HardwareTexture::glType(texType);
+            if (texType == TextureTypeCubeMap) {
+                textarget = HardwareTexture::glCubeFace(target.cubeFace());
+            }
+            ogl.FramebufferTexture2D(GL_FRAMEBUFFER, glAttachmentPoint(attachmentPoint), textarget, rId, target.level());
+        } else {
+            auto rId = target.res()->id(ctx);
+            btAssert(rId != 0);
+
+            ogl.FramebufferRenderbuffer(GL_FRAMEBUFFER, glAttachmentPoint(attachmentPoint), GL_RENDERBUFFER, rId);
         }
-        ogl.FramebufferTexture2D(GL_FRAMEBUFFER, glAttachmentPoint(attachmentPoint), textarget, rId, target.level());
+
         mrt_.attachment(attachmentPoint) = target;
-
-        ogl.BindFramebuffer(GL_FRAMEBUFFER, curFb);
-    }
-
-    void HardwareFramebuffer::attachRenderbuffer(AttachmentPoint attachmentPoint, const HardwareRenderbufferPtr& rb, HardwareContext& ctx)
-    {
-        if (mrt_.attachment(attachmentPoint).res() == rb) {
-            return;
-        }
-
-        createFramebuffer();
-
-        auto rId = rb->id(ctx);
-        btAssert(rId != 0);
-
-        GLuint curFb = 0;
-        ogl.GetIntegerv(GL_FRAMEBUFFER_BINDING, (GLint*)&curFb);
-
-        ogl.BindFramebuffer(GL_FRAMEBUFFER, id_);
-        ogl.FramebufferRenderbuffer(GL_FRAMEBUFFER, glAttachmentPoint(attachmentPoint), GL_RENDERBUFFER, rId);
-        mrt_.attachment(attachmentPoint) = HardwareRenderTarget(rb);
-
-        ogl.BindFramebuffer(GL_FRAMEBUFFER, curFb);
     }
 
     bool HardwareFramebuffer::checkStatus()
     {
         createFramebuffer();
 
-        GLuint curFb = 0;
-        ogl.GetIntegerv(GL_FRAMEBUFFER_BINDING, (GLint*)&curFb);
-
         ogl.BindFramebuffer(GL_FRAMEBUFFER, id_);
         GLenum status = ogl.CheckFramebufferStatus(GL_FRAMEBUFFER);
 
-        ogl.BindFramebuffer(GL_FRAMEBUFFER, curFb);
-
         return status == GL_FRAMEBUFFER_COMPLETE;
-    }
-
-    GLenum HardwareFramebuffer::glAttachmentPoint(AttachmentPoint attachmentPoint)
-    {
-        switch (attachmentPoint) {
-        case AttachmentPoint::Depth: return GL_DEPTH_ATTACHMENT;
-        case AttachmentPoint::Stencil: return GL_STENCIL_ATTACHMENT;
-        default:
-            btAssert(false);
-        case AttachmentPoint::Color0: return GL_COLOR_ATTACHMENT0;
-        }
     }
 
     void HardwareFramebuffer::createFramebuffer()

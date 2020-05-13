@@ -50,8 +50,12 @@ namespace af3d
 
     const AABB2i& Camera::viewport() const
     {
-        if (renderTarget_) {
-            viewport_ = AABB2i(Vector2i_zero, Vector2i(renderTarget_.width(), renderTarget_.height()));
+        if (const auto& ct = renderTarget(AttachmentPoint::Color0)) {
+            viewport_ = AABB2i(Vector2i_zero, Vector2i(ct.width(), ct.height()));
+        } else if (const auto& dt = renderTarget(AttachmentPoint::Depth)) {
+            viewport_ = AABB2i(Vector2i_zero, Vector2i(dt.width(), dt.height()));
+        } else if (const auto& st = renderTarget(AttachmentPoint::Stencil)) {
+            viewport_ = AABB2i(Vector2i_zero, Vector2i(st.width(), st.height()));
         }
         return viewport_;
     }
@@ -64,7 +68,10 @@ namespace af3d
     HardwareMRT Camera::getHardwareMRT() const
     {
         HardwareMRT mrt;
-        mrt.attachment(AttachmentPoint::Color0) = renderTarget_.toHardware();
+        for (int i = 0; i <= static_cast<int>(AttachmentPoint::Max); ++i) {
+            AttachmentPoint p = static_cast<AttachmentPoint>(i);
+            mrt.attachment(p) = renderTarget(p).toHardware();
+        }
         return mrt;
     }
 }

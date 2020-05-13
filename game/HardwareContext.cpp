@@ -107,53 +107,71 @@ namespace af3d
 
     void HardwareContext::setMRT(const HardwareMRT& mrt)
     {
+        GLuint oldFbId = 0;
+        ogl.GetIntegerv(GL_FRAMEBUFFER_BINDING, (GLint*)&oldFbId);
+
+        Vector2u sz = mrt.getSize();
+
         HardwareFramebufferPtr fb;
 
-        for (auto it = framebuffers_.begin(); it != framebuffers_.end();) {
-            const auto& attachment = (*it)->attachment(AttachmentPoint::Color0, *this);
-            if (attachment.res() == mrt.attachment(AttachmentPoint::Color0).res()) {
-                btAssert(mrt.attachment(AttachmentPoint::Color0).res());
-                fb = *it;
-                // Re-attach in case if cube face or level was changed.
-                fb->attachTarget(AttachmentPoint::Color0, mrt.attachment(AttachmentPoint::Color0), *this);
-                ++it;
-            } else if (attachment.res().use_count() == 1) {
-                LOG4CPLUS_DEBUG(logger(), "hwContext: framebuffer for " << attachment.res().get() << " is done");
-                framebuffers_.erase(it++);
-            } else {
-                ++it;
+        auto fbIter = framebuffers_.find(sz);
+        if (fbIter != framebuffers_.end()) {
+            for (int i = static_cast<int>(AttachmentPoint::Color0); i <= static_cast<int>(AttachmentPoint::Max); ++i) {
+                AttachmentPoint p = static_cast<AttachmentPoint>(i);
+                fbIter->second.fb->attach(p, mrt.attachment(p), *this);
             }
+            const auto& dt = mrt.attachment(AttachmentPoint::Depth);
+            const auto& st = mrt.attachment(AttachmentPoint::Stencil);
+            if ((!dt || !st) && !fbIter->second.targetDepthStencil) {
+                auto rb = hwManager.createRenderbuffer(sz.x(), sz.y());
+                rb->allocate(GL_DEPTH24_STENCIL8, *this);
+                fbIter->second.targetDepthStencil = HardwareRenderTarget(rb);
+            }
+            fbIter->second.fb->attach(AttachmentPoint::Depth, (dt ? dt : fbIter->second.targetDepthStencil), *this);
+            fbIter->second.fb->attach(AttachmentPoint::Stencil, (st ? st : fbIter->second.targetDepthStencil), *this);
         }
 
-        if (!fb && mrt.attachment(AttachmentPoint::Color0)) {
-            LOG4CPLUS_DEBUG(logger(), "hwContext: new framebuffer for " << mrt.attachment(AttachmentPoint::Color0).res().get());
-            fb = hwManager.createFramebuffer();
-            fb->attachTarget(AttachmentPoint::Color0, mrt.attachment(AttachmentPoint::Color0), *this);
-            auto rb = hwManager.createRenderbuffer(mrt.attachment(AttachmentPoint::Color0).fullWidth(),
-                mrt.attachment(AttachmentPoint::Color0).fullHeight());
-            rb->allocate(GL_DEPTH24_STENCIL8, *this);
-            fb->attachRenderbuffer(AttachmentPoint::Depth, rb, *this);
-            fb->attachRenderbuffer(AttachmentPoint::Stencil, rb, *this);
-            if (!fb->checkStatus()) {
+        if ((fbIter == framebuffers_.end()) && !sz.isZero()) {
+            LOG4CPLUS_DEBUG(logger(), "hwContext: new framebuffer for " << sz);
+            FramebufferState fbs;
+            fbs.fb = hwManager.createFramebuffer();
+            for (int i = static_cast<int>(AttachmentPoint::Color0); i <= static_cast<int>(AttachmentPoint::Max); ++i) {
+                AttachmentPoint p = static_cast<AttachmentPoint>(i);
+                fbs.fb->attach(p, mrt.attachment(p), *this);
+            }
+            const auto& dt = mrt.attachment(AttachmentPoint::Depth);
+            const auto& st = mrt.attachment(AttachmentPoint::Stencil);
+            if (!dt || !st) {
+                auto rb = hwManager.createRenderbuffer(sz.x(), sz.y());
+                rb->allocate(GL_DEPTH24_STENCIL8, *this);
+                fbs.targetDepthStencil = HardwareRenderTarget(rb);
+            }
+            fbs.fb->attach(AttachmentPoint::Depth, (dt ? dt : fbs.targetDepthStencil), *this);
+            fbs.fb->attach(AttachmentPoint::Stencil, (st ? st : fbs.targetDepthStencil), *this);
+            if (!fbs.fb->checkStatus()) {
                 LOG4CPLUS_ERROR(logger(), "hwContext: framebuffer not complete, wtf ???");
             }
-            framebuffers_.push_back(fb);
+            fbIter = framebuffers_.emplace(sz, fbs).first;
         }
 
-        if (fb) {
+        if (fbIter != framebuffers_.end()) {
             if (currentFbId_ == 0) {
-                ogl.GetIntegerv(GL_FRAMEBUFFER_BINDING, (GLint*)&defaultFbId_);
+                defaultFbId_ = oldFbId;
             }
 
-            GLuint fbId = fb->id(*this);
+            GLuint fbId = fbIter->second.fb->id(*this);
             if (fbId != currentFbId_) {
                 currentFbId_ = fbId;
                 ogl.BindFramebuffer(GL_FRAMEBUFFER, fbId);
+            } else {
+                ogl.BindFramebuffer(GL_FRAMEBUFFER, oldFbId);
             }
         } else if (currentFbId_ != 0) {
             currentFbId_ = 0;
             ogl.BindFramebuffer(GL_FRAMEBUFFER, defaultFbId_);
             defaultFbId_ = 0;
+        } else {
+            ogl.BindFramebuffer(GL_FRAMEBUFFER, oldFbId);
         }
     }
 }

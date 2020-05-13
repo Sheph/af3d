@@ -50,6 +50,7 @@ namespace af3d
         OGL();
         ~OGL();
 
+        void (GLAPIENTRY* DrawBuffers)(GLsizei n, const GLenum* bufs);
         void (GLAPIENTRY* GetTexImage)(GLenum target, GLint level, GLenum format, GLenum type, void* pixels);
         void (GLAPIENTRY* GenRenderbuffers)(GLsizei n, GLuint* renderbuffers);
         void (GLAPIENTRY* DeleteRenderbuffers)(GLsizei n, const GLuint* renderbuffers);

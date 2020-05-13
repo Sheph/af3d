@@ -243,7 +243,7 @@ namespace af3d
             cam->setClearColor(mainCamera->clearColor());
             cam->setAmbientColor(mainCamera->ambientColor());
             cam->setTransform(btTransform(textureCubeFaceBasis(face), parent()->pos()));
-            cam->setRenderTarget(RenderTarget(sceneCaptureTexture, 0, face));
+            cam->setRenderTarget(AttachmentPoint::Color0, RenderTarget(sceneCaptureTexture, 0, face));
             scene()->addCamera(cam);
             sceneCaptureCameras_[i] = cam;
 
@@ -252,7 +252,7 @@ namespace af3d
             irrGenFilters_[i]->camera()->setFov(btRadians(90.0f));
             irrGenFilters_[i]->camera()->setAspect(1.0f);
             irrGenFilters_[i]->camera()->setTransform(btTransform(textureCubeFaceBasis(face)));
-            irrGenFilters_[i]->camera()->setRenderTarget(RenderTarget(irradianceTexture_, 0, face));
+            irrGenFilters_[i]->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(irradianceTexture_, 0, face));
             parent()->addComponent(irrGenFilters_[i]);
         }
 
@@ -263,7 +263,7 @@ namespace af3d
                 SamplerParams(GL_LINEAR, GL_LINEAR)));
         irrCube2equirectFilter_->material()->params().setUniform(UniformName::MipLevel, 0.0f);
         irrCube2equirectFilter_->camera()->setOrder(camOrderLightProbe + 2);
-        irrCube2equirectFilter_->camera()->setRenderTarget(RenderTarget(textureManager.createRenderTexture(TextureType2D,
+        irrCube2equirectFilter_->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(textureManager.createRenderTexture(TextureType2D,
             equirectSz.x(), equirectSz.y(), GL_RGB16F, GL_RGB, GL_FLOAT)));
         parent()->addComponent(irrCube2equirectFilter_);
     }
@@ -313,7 +313,7 @@ namespace af3d
                 filter->camera()->setFov(btRadians(90.0f));
                 filter->camera()->setAspect(1.0f);
                 filter->camera()->setTransform(btTransform(textureCubeFaceBasis(face)));
-                filter->camera()->setRenderTarget(RenderTarget(specularTexture_, mip, face));
+                filter->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(specularTexture_, mip, face));
                 parent()->addComponent(filter);
                 specularGenFilters_.push_back(filter);
             }
@@ -324,7 +324,7 @@ namespace af3d
                     SamplerParams(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR)));
             filter->material()->params().setUniform(UniformName::MipLevel, static_cast<float>(mip));
             filter->camera()->setOrder(camOrderLightProbe + 1);
-            filter->camera()->setRenderTarget(RenderTarget(textureManager.createRenderTexture(TextureType2D,
+            filter->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(textureManager.createRenderTexture(TextureType2D,
                 textureMipSize(equirectSz0.x(), mip), textureMipSize(equirectSz0.y(), mip), GL_RGB16F, GL_RGB, GL_FLOAT)));
             parent()->addComponent(filter);
             specularCube2EquirectFilters_.push_back(filter);
@@ -332,7 +332,7 @@ namespace af3d
 
         specularLUTGenFilter_ = std::make_shared<RenderFilterComponent>(MaterialTypeFilterSpecularLUT);
         specularLUTGenFilter_->camera()->setOrder(camOrderLightProbe);
-        specularLUTGenFilter_->camera()->setRenderTarget(RenderTarget(specularLUTTexture_));
+        specularLUTGenFilter_->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(specularLUTTexture_));
         parent()->addComponent(specularLUTGenFilter_);
     }
 

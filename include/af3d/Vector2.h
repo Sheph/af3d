@@ -29,6 +29,7 @@
 #include "af3d/Types.h"
 #include <type_traits>
 #include <ostream>
+#include <boost/functional/hash.hpp>
 
 namespace af3d
 {
@@ -407,6 +408,14 @@ namespace af3d
         Vector2<T> n = v;
         btZeroNormalize(n);
         return n;
+    }
+
+    inline std::size_t hash_value(const Vector2u& v)
+    {
+        std::size_t seed = 0;
+        boost::hash_combine(seed, v.x());
+        boost::hash_combine(seed, v.y());
+        return seed;
     }
 }
 

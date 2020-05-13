@@ -56,7 +56,7 @@ namespace af3d
                 filter->camera()->setFov(btRadians(90.0f));
                 filter->camera()->setAspect(1.0f);
                 filter->camera()->setTransform(btTransform(textureCubeFaceBasis(face)));
-                filter->camera()->setRenderTarget(RenderTarget(target, mip, face));
+                filter->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(target, mip, face));
                 filters_.push_back(filter);
             }
         }

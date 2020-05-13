@@ -42,15 +42,11 @@ namespace af3d
 
         inline const HardwareRenderTarget& attachment(AttachmentPoint attachmentPoint, HardwareContext& ctx) const { return mrt_.attachment(attachmentPoint); }
 
-        void attachTarget(AttachmentPoint attachmentPoint, const HardwareRenderTarget& target, HardwareContext& ctx);
-
-        void attachRenderbuffer(AttachmentPoint attachmentPoint, const HardwareRenderbufferPtr& rb, HardwareContext& ctx);
+        void attach(AttachmentPoint attachmentPoint, const HardwareRenderTarget& target, HardwareContext& ctx);
 
         bool checkStatus();
 
     private:
-        static GLenum glAttachmentPoint(AttachmentPoint attachmentPoint);
-
         void createFramebuffer();
 
         HardwareMRT mrt_;

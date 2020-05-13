@@ -39,7 +39,7 @@ namespace af3d
     {
     }
 
-    void RenderNode::add(RenderNode&& tmpNode, int pass, const MaterialPtr& material,
+    void RenderNode::add(RenderNode&& tmpNode, int pass, const AttachmentPoints& drawBuffers, const MaterialPtr& material,
         GLenum depthFunc, float depthValue, const BlendingParams& blendingParams, bool flipCull,
         std::vector<HardwareTextureBinding>&& textures,
         const VertexArraySlice& vaSlice, GLenum primitiveMode, const ScissorParams& scissorParams,
@@ -49,7 +49,7 @@ namespace af3d
 
         RenderNode* node = this;
 
-        node = node->insertPass(std::move(tmpNode), pass);
+        node = node->insertPass(std::move(tmpNode), pass, drawBuffers);
         node = node->insertDepthTest(std::move(tmpNode), material->depthTest(), depthFunc);
         node = node->insertDepth(std::move(tmpNode), depthValue);
         node = node->insertBlendingParams(std::move(tmpNode), blendingParams);
@@ -191,10 +191,11 @@ namespace af3d
         return drawIdx_ < other.drawIdx_;
     }
 
-    RenderNode* RenderNode::insertPass(RenderNode&& tmpNode, int pass)
+    RenderNode* RenderNode::insertPass(RenderNode&& tmpNode, int pass, const AttachmentPoints& drawBuffers)
     {
         tmpNode.type_ = Type::Pass;
         tmpNode.pass_ = pass;
+        tmpNode.drawBuffers_ = drawBuffers;
         return insertImpl(std::move(tmpNode));
     }
 
@@ -277,6 +278,19 @@ namespace af3d
 
     void RenderNode::applyPass(HardwareContext& ctx) const
     {
+        if (drawBuffers_.empty()) {
+            return;
+        }
+
+        GLenum buffers[static_cast<int>(AttachmentPoint::Max) - static_cast<int>(AttachmentPoint::Color0) + 1];
+        GLsizei n = 0;
+        for (int i = static_cast<int>(AttachmentPoint::Color0); i <= static_cast<int>(AttachmentPoint::Max); ++i) {
+            AttachmentPoint p = static_cast<AttachmentPoint>(i);
+            if (drawBuffers_[p]) {
+                buffers[n++] = glAttachmentPoint(p);
+            }
+        }
+        ogl.DrawBuffers(n, &buffers[0]);
     }
 
     void RenderNode::applyDepthTest(HardwareContext& ctx) const

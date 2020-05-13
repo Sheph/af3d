@@ -1212,6 +1212,7 @@ static bool OGLPreInit()
         }
     }
 
+    GL_GET_PROC(DrawBuffers, glDrawBuffers);
     GL_GET_PROC(GetTexImage, glGetTexImage);
     GL_GET_PROC(GenRenderbuffers, glGenRenderbuffers);
     GL_GET_PROC(DeleteRenderbuffers, glDeleteRenderbuffers);

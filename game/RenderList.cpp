@@ -440,9 +440,12 @@ namespace af3d
 
     RenderNodePtr RenderList::compile() const
     {
-        auto rn = std::make_shared<RenderNode>(camera_->viewport(), camera_->clearMask(), camera_->clearColor(),
-            camera_->getHardwareMRT());
+        auto mrt = camera_->getHardwareMRT();
+        auto rn = std::make_shared<RenderNode>(camera_->viewport(), camera_->clearMask(), camera_->clearColor(), mrt);
+        auto drawBuffers = mrt.getDrawBuffers();
+
         RenderNode tmpNode;
+
         for (const auto& geom : geomList_) {
             std::vector<HardwareTextureBinding> textures;
             MaterialParams params(geom.material->type(), true);
@@ -456,7 +459,7 @@ namespace af3d
                 ac = gammaToLinear(ac);
                 params.setUniform(UniformName::LightColor, Vector3f(ac.x(), ac.y(), ac.z()) * ac.w());
             }
-            rn->add(std::move(tmpNode), 0, geom.material,
+            rn->add(std::move(tmpNode), 0, drawBuffers, geom.material,
                 GL_LEQUAL, geom.depthValue,
                 geom.material->blendingParams(), geom.flipCull,
                 std::move(textures),
@@ -466,6 +469,9 @@ namespace af3d
 
         int pass = 1;
         BlendingParams lightBp(GL_ONE, GL_ONE, GL_ONE, GL_ONE);
+        for (int i = static_cast<int>(AttachmentPoint::Color1); i <= static_cast<int>(AttachmentPoint::Max); ++i) {
+            drawBuffers.reset(static_cast<AttachmentPoint>(i));
+        }
 
         for (const auto& light : lightList_) {
             auto lightAABB = light->getWorldAABB();
@@ -477,7 +483,7 @@ namespace af3d
                 MaterialParams params(geom.material->type(), true);
                 setAutoParams(geom, textures, params);
                 light->setupMaterial(camera_->frustum().transform().getOrigin(), params);
-                rn->add(std::move(tmpNode), pass, geom.material,
+                rn->add(std::move(tmpNode), pass, drawBuffers, geom.material,
                     GL_EQUAL, geom.depthValue,
                     lightBp, geom.flipCull, std::move(textures),
                     geom.vaSlice, geom.primitiveMode, geom.scissorParams,

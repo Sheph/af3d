@@ -281,7 +281,7 @@ namespace af3d
         auto mc = std::make_shared<Camera>();
         mc->setLayer(CameraLayer::Main);
         mc->setAspect(settings.viewAspect);
-        mc->setRenderTarget(RenderTarget(screenTex));
+        mc->setRenderTarget(AttachmentPoint::Color0, RenderTarget(screenTex));
         addCamera(mc);
 
         //auto tex = postProcessBloom(camOrderPostProcess, screenTex, 1.0f, 13, 2.0f, 0.5f);
@@ -620,7 +620,7 @@ namespace af3d
                 TextureBinding(inputTex,
                     SamplerParams(GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR)));
             ppFilter->camera()->setOrder(order++);
-            ppFilter->camera()->setRenderTarget(RenderTarget(tex1, i));
+            ppFilter->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(tex1, i));
             ppFilter->material()->params().setUniform(UniformName::Threshold, brightnessThreshold);
             dummy_->addComponent(ppFilter);
 
@@ -629,7 +629,7 @@ namespace af3d
                 TextureBinding(tex1,
                     SamplerParams(GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR)));
             ppFilter->camera()->setOrder(order++);
-            ppFilter->camera()->setRenderTarget(RenderTarget(tex2, i));
+            ppFilter->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(tex2, i));
             setGaussianBlurParams(ppFilter->material()->params(), blurKSize, blurSigma, true);
             ppFilter->material()->params().setUniform(UniformName::MipLevel, static_cast<float>(i));
             dummy_->addComponent(ppFilter);
@@ -639,7 +639,7 @@ namespace af3d
                 TextureBinding(tex2,
                     SamplerParams(GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR)));
             ppFilter->camera()->setOrder(order++);
-            ppFilter->camera()->setRenderTarget(RenderTarget(tex1, i));
+            ppFilter->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(tex1, i));
             setGaussianBlurParams(ppFilter->material()->params(), blurKSize, blurSigma, false);
             ppFilter->material()->params().setUniform(UniformName::MipLevel, static_cast<float>(i));
             dummy_->addComponent(ppFilter);
@@ -653,7 +653,7 @@ namespace af3d
             TextureBinding(tex1,
                 SamplerParams(GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR)));
         ppFilter->camera()->setOrder(order++);
-        ppFilter->camera()->setRenderTarget(RenderTarget(outTex));
+        ppFilter->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(outTex));
         ppFilter->material()->params().setUniform(UniformName::Strength, compositeStrength);
         ppFilter->material()->params().setUniform(UniformName::MipLevel, static_cast<float>(numPasses));
         dummy_->addComponent(ppFilter);
@@ -671,7 +671,7 @@ namespace af3d
             TextureBinding(inputTex,
                 SamplerParams(GL_NEAREST, GL_NEAREST)));
         ppFilter->camera()->setOrder(order);
-        ppFilter->camera()->setRenderTarget(RenderTarget(toneMappedTex));
+        ppFilter->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(toneMappedTex));
         dummy_->addComponent(ppFilter);
         return toneMappedTex;
     }

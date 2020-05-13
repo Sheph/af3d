@@ -63,8 +63,7 @@ namespace af3d
 
         inline const AABB2i& viewport() const { btAssert(type_ == Type::Root); return viewport_; }
 
-        // Returns empty material auto params, these should be filled in by the caller.
-        void add(RenderNode&& tmpNode, int pass, const MaterialPtr& material,
+        void add(RenderNode&& tmpNode, int pass, const AttachmentPoints& drawBuffers, const MaterialPtr& material,
             GLenum depthFunc, float depthValue, const BlendingParams& blendingParams, bool flipCull,
             std::vector<HardwareTextureBinding>&& textures,
             const VertexArraySlice& vaSlice, GLenum primitiveMode,
@@ -101,7 +100,7 @@ namespace af3d
         bool compareVertexArray(const RenderNode& other) const;
         bool compareDraw(const RenderNode& other) const;
 
-        RenderNode* insertPass(RenderNode&& tmpNode, int pass);
+        RenderNode* insertPass(RenderNode&& tmpNode, int pass, const AttachmentPoints& drawBuffers);
         RenderNode* insertDepthTest(RenderNode&& tmpNode, bool depthTest, GLenum depthFunc);
         RenderNode* insertDepth(RenderNode&& tmpNode, float depth);
         RenderNode* insertBlendingParams(RenderNode&& tmpNode, const BlendingParams& blendingParams);
@@ -167,6 +166,9 @@ namespace af3d
                 bool depthWrite_;
             };
         };
+
+        // Type::Pass
+        AttachmentPoints drawBuffers_;
 
         // Type::BlendingParams
         BlendingParams blendingParams_;

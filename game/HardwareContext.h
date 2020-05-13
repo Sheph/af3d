@@ -143,12 +143,18 @@ namespace af3d
             GLuint samplerId = 0;
         };
 
+        struct FramebufferState
+        {
+            HardwareFramebufferPtr fb;
+            HardwareRenderTarget targetDepthStencil;
+        };
+
         using SamplerMap = std::map<SamplerParams, HardwareSamplerPtr>;
-        using FramebufferList = std::list<HardwareFramebufferPtr>;
+        using FramebufferMap = BHUnorderedMap<Vector2u, FramebufferState>;
 
         Assimp::Importer importer_;
         SamplerMap samplers_;
-        FramebufferList framebuffers_;
+        FramebufferMap framebuffers_;
         std::array<TextureUnit, static_cast<int>(SamplerName::Max) + 1> texUnits_;
         int activeTexUnit_ = 0;
 

@@ -94,8 +94,8 @@ namespace af3d
         inline const Color& ambientColor() const { return ambientColor_; }
         inline void setAmbientColor(const Color& value) { ambientColor_ = value; }
 
-        inline const RenderTarget& renderTarget() const { return renderTarget_; }
-        inline void setRenderTarget(const RenderTarget& value) { renderTarget_ = value; }
+        inline const RenderTarget& renderTarget(AttachmentPoint attachmentPoint = AttachmentPoint::Color0) const { return renderTarget_[static_cast<int>(attachmentPoint)]; }
+        inline void setRenderTarget(AttachmentPoint attachmentPoint, const RenderTarget& value) { renderTarget_[static_cast<int>(attachmentPoint)] = value; }
 
         HardwareMRT getHardwareMRT() const;
 
@@ -108,7 +108,7 @@ namespace af3d
         Color clearColor_ = Color(0.23f, 0.23f, 0.23f, 1.0f);
         Color ambientColor_ = Color(0.2f, 0.2f, 0.2f, 1.0f);
 
-        RenderTarget renderTarget_;
+        std::array<RenderTarget, static_cast<int>(AttachmentPoint::Max) + 1> renderTarget_;
     };
 
     ACLASS_DECLARE(Camera)
