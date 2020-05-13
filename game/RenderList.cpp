@@ -537,6 +537,9 @@ namespace af3d
         if (activeUniforms.count(UniformName::ModelMatrix) > 0) {
             params.setUniform(UniformName::ModelMatrix, geom.modelMat);
         }
+        if (activeUniforms.count(UniformName::OldMatrix) > 0) {
+            params.setUniform(UniformName::OldMatrix, camera_->prevViewProjMat());
+        }
         if (activeUniforms.count(UniformName::EyePos) > 0) {
             params.setUniform(UniformName::EyePos, camera_->frustum().transform().getOrigin());
         }

@@ -49,6 +49,7 @@ namespace af3d
         ViewProjMatrix = 0,
         ModelViewProjMatrix,
         ModelMatrix,
+        OldMatrix,
         EyePos,
         LightPos, // LightPos = vec4(x,y,z,lightType)
         LightColor, // LightColor = vec3(r,g,b)

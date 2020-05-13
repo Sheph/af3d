@@ -59,6 +59,7 @@ namespace af3d
         {"viewProj", UniformName::ViewProjMatrix},
         {"modelViewProj", UniformName::ModelViewProjMatrix},
         {"model", UniformName::ModelMatrix},
+        {"oldMVP", UniformName::OldMatrix},
         {"eyePos", UniformName::EyePos},
         {"lightPos", UniformName::LightPos},
         {"lightColor", UniformName::LightColor},

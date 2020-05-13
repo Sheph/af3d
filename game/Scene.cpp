@@ -277,11 +277,14 @@ namespace af3d
 
         auto screenTex = textureManager.createRenderTextureScaled(TextureType2D,
             1.0f, GL_RGB16F, GL_RGB, GL_FLOAT);
+        auto velocityTex = textureManager.createRenderTextureScaled(TextureType2D,
+            1.0f, GL_RG16F, GL_RGB, GL_FLOAT);
 
         auto mc = std::make_shared<Camera>();
         mc->setLayer(CameraLayer::Main);
         mc->setAspect(settings.viewAspect);
         mc->setRenderTarget(AttachmentPoint::Color0, RenderTarget(screenTex));
+        mc->setRenderTarget(AttachmentPoint::Color1, RenderTarget(velocityTex));
         addCamera(mc);
 
         //auto tex = postProcessBloom(camOrderPostProcess, screenTex, 1.0f, 13, 2.0f, 0.5f);
@@ -424,6 +427,12 @@ namespace af3d
 
         auto cc = mainCamera()->findComponent<CameraComponent>();
 
+        if (!paused_ || forceUpdateRender) {
+            for (auto& c : cameras_) {
+                c->updatePrevViewProjMat();
+            }
+        }
+
         if (!paused_) {
             impl_->firstPhysicsStep_ = true;
 
@@ -467,7 +476,7 @@ namespace af3d
                 Vector2i(settings.viewX + settings.viewWidth, settings.viewY + settings.viewHeight)));
 
             impl_->uiComponentManager_->update(dt);
-            if (forceUpdateRender || !paused_) {
+            if (forceUpdateRender) {
                 impl_->renderComponentManager_->update(dt);
             }
         }

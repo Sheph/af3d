@@ -31,6 +31,7 @@
 #include "OGL.h"
 #include "af3d/Frustum.h"
 #include "af3d/AABB2.h"
+#include <boost/optional.hpp>
 
 namespace af3d
 {
@@ -99,6 +100,11 @@ namespace af3d
 
         HardwareMRT getHardwareMRT() const;
 
+        // For velocity buffer calculation.
+        inline const Matrix4f& prevViewProjMat() const { return prevViewProjMat_ ? *prevViewProjMat_ : frustum_.viewProjMat(); }
+
+        inline void updatePrevViewProjMat() { prevViewProjMat_ = frustum_.viewProjMat(); }
+
     private:
         int order_ = 0;
         CameraLayer layer_ = CameraLayer::General;
@@ -109,6 +115,8 @@ namespace af3d
         Color ambientColor_ = Color(0.2f, 0.2f, 0.2f, 1.0f);
 
         std::array<RenderTarget, static_cast<int>(AttachmentPoint::Max) + 1> renderTarget_;
+
+        boost::optional<Matrix4f> prevViewProjMat_;
     };
 
     ACLASS_DECLARE(Camera)
