@@ -67,7 +67,7 @@ namespace af3d
 
         inline HardwareRenderTarget toHardware() const
         {
-            return HardwareRenderTarget(texture_ ? texture_->hwTex() : HardwareTexturePtr(), level_, cubeFace_);
+            return texture_ ? HardwareRenderTarget(texture_->hwTex(), level_, cubeFace_) : HardwareRenderTarget();
         }
 
     private:

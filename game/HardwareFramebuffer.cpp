@@ -46,9 +46,7 @@ namespace af3d
 
     void HardwareFramebuffer::invalidate(HardwareContext& ctx)
     {
-        for (size_t i = 0; i < attachments_.size(); ++i) {
-            attachments_[i] = Attachment();
-        }
+        mrt_ = HardwareMRT();
         id_ = 0;
     }
 
@@ -59,32 +57,32 @@ namespace af3d
 
     void HardwareFramebuffer::attachTarget(AttachmentPoint attachmentPoint, const HardwareRenderTarget& target, HardwareContext& ctx)
     {
-        if (attachments_[attachmentPoint].attached(target)) {
+        if (mrt_.attachment(attachmentPoint) == target) {
             return;
         }
 
         createFramebuffer();
 
-        auto rId = target.texture()->id(ctx);
+        auto rId = target.res()->id(ctx);
         btAssert(rId != 0);
 
         GLuint curFb = 0;
         ogl.GetIntegerv(GL_FRAMEBUFFER_BINDING, (GLint*)&curFb);
 
         ogl.BindFramebuffer(GL_FRAMEBUFFER, id_);
-        GLenum textarget = HardwareTexture::glType(target.texture()->type());
-        if (target.texture()->type() == TextureTypeCubeMap) {
+        GLenum textarget = HardwareTexture::glType(*target.texType());
+        if (*target.texType() == TextureTypeCubeMap) {
             textarget = HardwareTexture::glCubeFace(target.cubeFace());
         }
         ogl.FramebufferTexture2D(GL_FRAMEBUFFER, glAttachmentPoint(attachmentPoint), textarget, rId, target.level());
-        attachments_[attachmentPoint] = Attachment(target);
+        mrt_.attachment(attachmentPoint) = target;
 
         ogl.BindFramebuffer(GL_FRAMEBUFFER, curFb);
     }
 
     void HardwareFramebuffer::attachRenderbuffer(AttachmentPoint attachmentPoint, const HardwareRenderbufferPtr& rb, HardwareContext& ctx)
     {
-        if (attachments_[attachmentPoint].attached(rb)) {
+        if (mrt_.attachment(attachmentPoint).res() == rb) {
             return;
         }
 
@@ -98,7 +96,7 @@ namespace af3d
 
         ogl.BindFramebuffer(GL_FRAMEBUFFER, id_);
         ogl.FramebufferRenderbuffer(GL_FRAMEBUFFER, glAttachmentPoint(attachmentPoint), GL_RENDERBUFFER, rId);
-        attachments_[attachmentPoint] = Attachment(rb);
+        mrt_.attachment(attachmentPoint) = HardwareRenderTarget(rb);
 
         ogl.BindFramebuffer(GL_FRAMEBUFFER, curFb);
     }
@@ -121,11 +119,11 @@ namespace af3d
     GLenum HardwareFramebuffer::glAttachmentPoint(AttachmentPoint attachmentPoint)
     {
         switch (attachmentPoint) {
-        case DepthAttachment: return GL_DEPTH_ATTACHMENT;
-        case StencilAttachment: return GL_STENCIL_ATTACHMENT;
+        case AttachmentPoint::Depth: return GL_DEPTH_ATTACHMENT;
+        case AttachmentPoint::Stencil: return GL_STENCIL_ATTACHMENT;
         default:
             btAssert(false);
-        case ColorAttachment: return GL_COLOR_ATTACHMENT0;
+        case AttachmentPoint::Color0: return GL_COLOR_ATTACHMENT0;
         }
     }
 

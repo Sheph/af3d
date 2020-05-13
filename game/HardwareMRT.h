@@ -23,48 +23,41 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Camera.h"
-#include "Settings.h"
+#ifndef _HARDWARE_MRT_H_
+#define _HARDWARE_MRT_H_
+
+#include "HardwareRenderTarget.h"
+#include "af3d/EnumSet.h"
 
 namespace af3d
 {
-    ACLASS_DEFINE_BEGIN(Camera, AObject)
-    ACLASS_DEFINE_END(Camera)
-
-    Camera::Camera()
-    : AObject(AClass_Camera)
+    enum class AttachmentPoint
     {
-    }
+        Depth = 0,
+        Stencil,
+        Color0,
+        Color1,
+        Color2,
+        Color3,
+        Color4,
+        Color5,
+        Max = Color5
+    };
 
-    const AClass& Camera::staticKlass()
-    {
-        return AClass_Camera;
-    }
+    using AttachmentPoints = EnumSet<AttachmentPoint>;
 
-    AObjectPtr Camera::create(const APropertyValueMap& propVals)
+    class HardwareMRT
     {
-        auto obj = std::make_shared<Camera>();
-        obj->propertiesSet(propVals);
-        return obj;
-    }
+    public:
+        HardwareMRT() = default;
+        ~HardwareMRT() = default;
 
-    const AABB2i& Camera::viewport() const
-    {
-        if (renderTarget_) {
-            viewport_ = AABB2i(Vector2i_zero, Vector2i(renderTarget_.width(), renderTarget_.height()));
-        }
-        return viewport_;
-    }
+        inline const HardwareRenderTarget& attachment(AttachmentPoint attachmentPoint) const { return attachments_[static_cast<int>(attachmentPoint)]; }
+        inline HardwareRenderTarget& attachment(AttachmentPoint attachmentPoint) { return attachments_[static_cast<int>(attachmentPoint)]; }
 
-    void Camera::setViewport(const AABB2i& value)
-    {
-        viewport_ = value;
-    }
-
-    HardwareMRT Camera::getHardwareMRT() const
-    {
-        HardwareMRT mrt;
-        mrt.attachment(AttachmentPoint::Color0) = renderTarget_.toHardware();
-        return mrt;
-    }
+    private:
+        std::array<HardwareRenderTarget, static_cast<int>(AttachmentPoint::Max) + 1> attachments_;
+    };
 }
+
+#endif

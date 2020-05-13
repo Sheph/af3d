@@ -26,53 +26,13 @@
 #ifndef _HARDWARE_FRAMEBUFFER_H_
 #define _HARDWARE_FRAMEBUFFER_H_
 
-#include "HardwareRenderTarget.h"
-#include "HardwareRenderbuffer.h"
+#include "HardwareMRT.h"
 
 namespace af3d
 {
     class HardwareFramebuffer : public HardwareResource
     {
     public:
-        enum AttachmentPoint
-        {
-            ColorAttachment = 0,
-            DepthAttachment,
-            StencilAttachment,
-            Max = StencilAttachment
-        };
-
-        struct Attachment
-        {
-            Attachment() = default;
-            explicit Attachment(const HardwareRenderTarget& target)
-            : res(target.texture()),
-              level(target.level()),
-              cubeFace(target.cubeFace())
-            {
-            }
-            explicit Attachment(const HardwareRenderbufferPtr& rb)
-            : res(rb)
-            {
-            }
-
-            inline bool attached(const HardwareRenderTarget& target) const
-            {
-                return (target.texture() == res) &&
-                    (target.level() == level) &&
-                    (target.cubeFace() == cubeFace);
-            }
-
-            inline bool attached(const HardwareRenderbufferPtr& rb) const
-            {
-                return rb == res;
-            }
-
-            HardwareResourcePtr res;
-            GLint level = 0;
-            TextureCubeFace cubeFace = TextureCubeXP;
-        };
-
         explicit HardwareFramebuffer(HardwareResourceManager* mgr);
         ~HardwareFramebuffer();
 
@@ -80,7 +40,7 @@ namespace af3d
 
         GLuint id(HardwareContext& ctx) const override;
 
-        inline const Attachment& attachment(AttachmentPoint attachmentPoint, HardwareContext& ctx) const { return attachments_[attachmentPoint]; }
+        inline const HardwareRenderTarget& attachment(AttachmentPoint attachmentPoint, HardwareContext& ctx) const { return mrt_.attachment(attachmentPoint); }
 
         void attachTarget(AttachmentPoint attachmentPoint, const HardwareRenderTarget& target, HardwareContext& ctx);
 
@@ -93,7 +53,7 @@ namespace af3d
 
         void createFramebuffer();
 
-        std::array<Attachment, Max + 1> attachments_;
+        HardwareMRT mrt_;
         GLuint id_ = 0;
     };
 

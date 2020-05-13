@@ -28,7 +28,7 @@
 
 #include "Material.h"
 #include "VertexArraySlice.h"
-#include "HardwareRenderTarget.h"
+#include "HardwareMRT.h"
 #include "af3d/AABB2.h"
 #include <set>
 
@@ -57,7 +57,7 @@ namespace af3d
     class RenderNode
     {
     public:
-        RenderNode(const AABB2i& viewport, GLenum clearMask, const Color& clearColor, const HardwareRenderTarget& target);
+        RenderNode(const AABB2i& viewport, GLenum clearMask, const Color& clearColor, const HardwareMRT& mrt);
         RenderNode() = default;
         ~RenderNode() = default;
 
@@ -130,7 +130,7 @@ namespace af3d
         AABB2i viewport_;
         GLenum clearMask_;
         Color clearColor_;
-        HardwareRenderTarget target_;
+        HardwareMRT mrt_;
         int numDraws_;
 
         union

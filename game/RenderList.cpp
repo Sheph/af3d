@@ -441,7 +441,7 @@ namespace af3d
     RenderNodePtr RenderList::compile() const
     {
         auto rn = std::make_shared<RenderNode>(camera_->viewport(), camera_->clearMask(), camera_->clearColor(),
-            camera_->renderTarget().toHardware());
+            camera_->getHardwareMRT());
         RenderNode tmpNode;
         for (const auto& geom : geomList_) {
             std::vector<HardwareTextureBinding> textures;

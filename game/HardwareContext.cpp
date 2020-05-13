@@ -105,34 +105,35 @@ namespace af3d
         }
     }
 
-    void HardwareContext::setRenderTarget(const HardwareRenderTarget& target)
+    void HardwareContext::setMRT(const HardwareMRT& mrt)
     {
         HardwareFramebufferPtr fb;
 
         for (auto it = framebuffers_.begin(); it != framebuffers_.end();) {
-            const auto& attachment = (*it)->attachment(HardwareFramebuffer::ColorAttachment, *this);
-            if (attachment.res == target.texture()) {
-                btAssert(target.texture());
+            const auto& attachment = (*it)->attachment(AttachmentPoint::Color0, *this);
+            if (attachment.res() == mrt.attachment(AttachmentPoint::Color0).res()) {
+                btAssert(mrt.attachment(AttachmentPoint::Color0).res());
                 fb = *it;
                 // Re-attach in case if cube face or level was changed.
-                fb->attachTarget(HardwareFramebuffer::ColorAttachment, target, *this);
+                fb->attachTarget(AttachmentPoint::Color0, mrt.attachment(AttachmentPoint::Color0), *this);
                 ++it;
-            } else if (attachment.res.use_count() == 1) {
-                LOG4CPLUS_DEBUG(logger(), "hwContext: framebuffer for " << attachment.res.get() << " is done");
+            } else if (attachment.res().use_count() == 1) {
+                LOG4CPLUS_DEBUG(logger(), "hwContext: framebuffer for " << attachment.res().get() << " is done");
                 framebuffers_.erase(it++);
             } else {
                 ++it;
             }
         }
 
-        if (!fb && target) {
-            LOG4CPLUS_DEBUG(logger(), "hwContext: new framebuffer for " << target.texture().get());
+        if (!fb && mrt.attachment(AttachmentPoint::Color0)) {
+            LOG4CPLUS_DEBUG(logger(), "hwContext: new framebuffer for " << mrt.attachment(AttachmentPoint::Color0).res().get());
             fb = hwManager.createFramebuffer();
-            fb->attachTarget(HardwareFramebuffer::ColorAttachment, target, *this);
-            auto rb = hwManager.createRenderbuffer(target.texture()->width(), target.texture()->height());
+            fb->attachTarget(AttachmentPoint::Color0, mrt.attachment(AttachmentPoint::Color0), *this);
+            auto rb = hwManager.createRenderbuffer(mrt.attachment(AttachmentPoint::Color0).fullWidth(),
+                mrt.attachment(AttachmentPoint::Color0).fullHeight());
             rb->allocate(GL_DEPTH24_STENCIL8, *this);
-            fb->attachRenderbuffer(HardwareFramebuffer::DepthAttachment, rb, *this);
-            fb->attachRenderbuffer(HardwareFramebuffer::StencilAttachment, rb, *this);
+            fb->attachRenderbuffer(AttachmentPoint::Depth, rb, *this);
+            fb->attachRenderbuffer(AttachmentPoint::Stencil, rb, *this);
             if (!fb->checkStatus()) {
                 LOG4CPLUS_ERROR(logger(), "hwContext: framebuffer not complete, wtf ???");
             }

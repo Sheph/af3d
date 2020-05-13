@@ -97,6 +97,8 @@ namespace af3d
         inline const RenderTarget& renderTarget() const { return renderTarget_; }
         inline void setRenderTarget(const RenderTarget& value) { renderTarget_ = value; }
 
+        HardwareMRT getHardwareMRT() const;
+
     private:
         int order_ = 0;
         CameraLayer layer_ = CameraLayer::General;

@@ -27,7 +27,9 @@
 #define _HARDWARE_RENDERTARGET_H_
 
 #include "HardwareTexture.h"
+#include "HardwareRenderbuffer.h"
 #include "Utils.h"
+#include <boost/optional.hpp>
 
 namespace af3d
 {
@@ -38,37 +40,62 @@ namespace af3d
         explicit HardwareRenderTarget(const HardwareTexturePtr& texture,
             GLint level = 0,
             TextureCubeFace cubeFace = TextureCubeXP)
-        : texture_(texture),
+        : texType_(texture->type()),
+          res_(texture),
           level_(level),
-          cubeFace_(cubeFace)
+          cubeFace_(cubeFace),
+          width_(texture->width()),
+          height_(texture->height())
+        {
+        }
+        explicit HardwareRenderTarget(const HardwareRenderbufferPtr& rb)
+        : res_(rb),
+          width_(rb->width()),
+          height_(rb->height())
         {
         }
         ~HardwareRenderTarget() = default;
 
-        inline const HardwareTexturePtr& texture() const { return texture_; }
+        inline const boost::optional<TextureType>& texType() const { return texType_; }
+        inline const HardwareResourcePtr& res() const { return res_; }
         inline GLint level() const { return level_; }
         inline TextureCubeFace cubeFace() const { return cubeFace_; }
 
-        inline std::uint32_t width() const { return texture_ ? textureMipSize(texture_->width(), level_) : 0; }
-        inline std::uint32_t height() const { return texture_ ? textureMipSize(texture_->height(), level_) : 0; }
+        inline std::uint32_t fullWidth() const { return width_; }
+        inline std::uint32_t fullHeight() const { return height_; }
 
         typedef void (*unspecified_bool_type)();
         static void unspecified_bool_true() {}
 
         operator unspecified_bool_type() const
         {
-            return texture_ ? unspecified_bool_true : 0;
+            return res_ ? unspecified_bool_true : 0;
         }
 
         bool operator!() const
         {
-            return !texture_;
+            return !res_;
+        }
+
+        inline bool operator==(const HardwareRenderTarget& other) const
+        {
+            return (res_ == other.res_) &&
+                (level_ == other.level_) &&
+                (cubeFace_ == other.cubeFace_);
+        }
+
+        inline bool operator!=(const HardwareRenderTarget& other) const
+        {
+            return !(*this == other);
         }
 
     private:
-        HardwareTexturePtr texture_;
+        boost::optional<TextureType> texType_;
+        HardwareResourcePtr res_;
         GLint level_ = 0;
         TextureCubeFace cubeFace_ = TextureCubeXP;
+        std::uint32_t width_ = 0;
+        std::uint32_t height_ = 0;
     };
 }
 
