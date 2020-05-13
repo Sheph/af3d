@@ -102,7 +102,8 @@ namespace af3d
 
         inline const CameraPtr& camera() const { return camera_; }
 
-        void addGeometry(const Matrix4f& modelMat, const AABB& aabb, const MaterialPtr& material,
+        void addGeometry(const Matrix4f& modelMat, const Matrix4f& prevModelMat,
+            const AABB& aabb, const MaterialPtr& material,
             const VertexArraySlice& vaSlice, GLenum primitiveMode,
             float depthValue = 0.0f,
             const ScissorParams& scissorParams = ScissorParams());
@@ -144,6 +145,7 @@ namespace af3d
             {
             }
             Geometry(const Matrix4f& modelMat,
+                const Matrix4f& prevModelMat,
                 const AABB& aabb,
                 const MaterialPtr& material,
                 const VertexArraySlice& vaSlice,
@@ -151,6 +153,7 @@ namespace af3d
                 float depthValue,
                 const ScissorParams& scissorParams)
             : modelMat(modelMat),
+              prevModelMat(prevModelMat),
               aabb(aabb),
               material(material),
               vaSlice(vaSlice),
@@ -168,6 +171,7 @@ namespace af3d
             }
 
             Matrix4f modelMat;
+            Matrix4f prevModelMat;
             AABB aabb;
             MaterialPtr material;
             VertexArraySlice vaSlice;

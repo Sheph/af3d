@@ -389,11 +389,12 @@ namespace af3d
     {
     }
 
-    void RenderList::addGeometry(const Matrix4f& modelMat, const AABB& aabb, const MaterialPtr& material,
+    void RenderList::addGeometry(const Matrix4f& modelMat, const Matrix4f& prevModelMat,
+        const AABB& aabb, const MaterialPtr& material,
         const VertexArraySlice& vaSlice, GLenum primitiveMode, float depthValue,
         const ScissorParams& scissorParams)
     {
-        geomList_.emplace_back(modelMat, aabb, material, vaSlice, primitiveMode, depthValue, scissorParams);
+        geomList_.emplace_back(modelMat, prevModelMat, aabb, material, vaSlice, primitiveMode, depthValue, scissorParams);
     }
 
     void RenderList::addGeometry(const MaterialPtr& material,
@@ -538,14 +539,14 @@ namespace af3d
             params.setUniform(UniformName::ModelViewProjMatrix, viewProjMat * geom.modelMat);
             if (!oldMatSet && activeUniforms.count(UniformName::OldMatrix) > 0) {
                 oldMatSet = true;
-                params.setUniform(UniformName::OldMatrix, camera_->prevViewProjMat() * geom.modelMat);
+                params.setUniform(UniformName::OldMatrix, camera_->prevViewProjMat() * geom.prevModelMat);
             }
         }
         if (activeUniforms.count(UniformName::ModelMatrix) > 0) {
             params.setUniform(UniformName::ModelMatrix, geom.modelMat);
             if (!oldMatSet && activeUniforms.count(UniformName::OldMatrix) > 0) {
                 oldMatSet = true;
-                params.setUniform(UniformName::OldMatrix, camera_->prevViewProjMat() * geom.modelMat);
+                params.setUniform(UniformName::OldMatrix, camera_->prevViewProjMat() * geom.prevModelMat);
             }
         }
         if (!oldMatSet && activeUniforms.count(UniformName::OldMatrix) > 0) {

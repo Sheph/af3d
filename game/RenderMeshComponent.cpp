@@ -55,6 +55,10 @@ namespace af3d
 
     void RenderMeshComponent::update(float dt)
     {
+        if (modelMat_) {
+            prevModelMat_ = *modelMat_;
+        }
+
         if ((parent()->smoothTransform() == prevParentXf_) && !dirty_) {
             return;
         }
@@ -73,9 +77,9 @@ namespace af3d
 
     void RenderMeshComponent::render(RenderList& rl, void* const* parts, size_t numParts)
     {
-        auto modelMat = Matrix4f(parent()->smoothTransform() * xf_).scaled(scale_);
+        modelMat_ = Matrix4f(parent()->smoothTransform() * xf_).scaled(scale_);
 
-        render(rl, modelMat, MaterialPtr());
+        render(rl, MaterialPtr());
 
         MaterialPtr om = outlineMaterial_;
 
@@ -96,7 +100,7 @@ namespace af3d
         }
 
         if (om && rl.camera()->layer() == CameraLayer::Main) {
-            render(rl, modelMat, om);
+            render(rl, om);
         }
     }
 
@@ -145,10 +149,11 @@ namespace af3d
         return mesh_->aabb().scaledAt0(scale_).getTransformed(parent()->smoothTransform() * xf_);
     }
 
-    void RenderMeshComponent::render(RenderList& rl, const Matrix4f& modelMat, const MaterialPtr& material)
+    void RenderMeshComponent::render(RenderList& rl, const MaterialPtr& material)
     {
+        auto prevModelMat = (!material && prevModelMat_) ? *prevModelMat_ : *modelMat_;
         for (const auto& subMesh : mesh_->subMeshes()) {
-            rl.addGeometry(modelMat, prevAABB_,
+            rl.addGeometry(*modelMat_, prevModelMat, prevAABB_,
                 (material ? material : subMesh->material()), subMesh->vaSlice(),
                 GL_TRIANGLES);
         }

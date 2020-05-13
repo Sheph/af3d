@@ -11,7 +11,7 @@ out vec4 fragColor;
 void main()
 {
     vec2 texelSize = 1.0 / vec2(textureSize(texMain, 0));
-    vec2 velocity = texture(texNoise, v_texCoord).rg * (realDt * 60.0 * 2);
+    vec2 velocity = texture(texNoise, v_texCoord).rg * (2.0 / (realDt * 60.0));
 
     float speed = length(velocity / texelSize);
     int nSamples = clamp(int(speed), 1, MAX_SAMPLES);

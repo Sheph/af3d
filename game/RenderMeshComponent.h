@@ -88,7 +88,7 @@ namespace af3d
 
         AABB calcAABB() const;
 
-        void render(RenderList& rl, const Matrix4f& modelMat, const MaterialPtr& material);
+        void render(RenderList& rl, const MaterialPtr& material);
 
         MeshPtr mesh_;
         btTransform xf_ = btTransform::getIdentity();
@@ -100,6 +100,9 @@ namespace af3d
         RenderCookie* cookie_ = nullptr;
 
         MaterialPtr outlineMaterial_;
+
+        boost::optional<Matrix4f> prevModelMat_;
+        boost::optional<Matrix4f> modelMat_;
     };
 
     using RenderMeshComponentPtr = std::shared_ptr<RenderMeshComponent>;
