@@ -293,9 +293,10 @@ namespace af3d
         addCamera(mc);
 
         //auto tex = postProcessMotionBlur(camOrderPostProcess + 1, screenTex, velocityTex);
-        //auto tex = postProcessBloom(camOrderPostProcess, screenTex, 1.0f, 13, 2.0f, 0.5f);
-        auto filter = postProcessToneMapping(camOrderPostProcess + 100, TexturePtr());
-        postProcessTAA(camOrderPostProcess, mc, {filter->material()});
+        std::vector<MaterialPtr> mats;
+        auto tex = postProcessBloom(camOrderPostProcess + 1, screenTex, 1.0f, 13, 2.0f, 0.5f, mats);
+        postProcessTAA(camOrderPostProcess, mc, mats);
+        auto filter = postProcessToneMapping(camOrderPostProcess + 100, tex);
         ppCamera_ = filter->camera();
         //ppCamera_ = postProcessFXAA(camOrderPostProcess + 200, tex);
         ppCamera_->setViewport(AABB2i(Vector2i(settings.viewX, settings.viewY),
@@ -646,7 +647,8 @@ namespace af3d
     }
 
     TexturePtr Scene::postProcessBloom(int order, const TexturePtr& inputTex,
-        float brightnessThreshold, int blurKSize, float blurSigma, float compositeStrength)
+        float brightnessThreshold, int blurKSize, float blurSigma, float compositeStrength,
+        std::vector<MaterialPtr>& mats)
     {
         auto tex1 = textureManager.createRenderTextureScaled(TextureType2D,
             2.0f, GL_RGB16F, GL_RGB, GL_FLOAT, true);
@@ -666,6 +668,7 @@ namespace af3d
             ppFilter->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(tex1, i));
             ppFilter->material()->params().setUniform(UniformName::Threshold, brightnessThreshold);
             dummy_->addComponent(ppFilter);
+            mats.push_back(ppFilter->material());
 
             ppFilter = std::make_shared<RenderFilterComponent>(MaterialTypeFilterGaussianBlur);
             ppFilter->material()->setTextureBinding(SamplerName::Main,
@@ -700,6 +703,7 @@ namespace af3d
         ppFilter->material()->params().setUniform(UniformName::Strength, compositeStrength);
         ppFilter->material()->params().setUniform(UniformName::MipLevel, static_cast<float>(numPasses));
         dummy_->addComponent(ppFilter);
+        mats.push_back(ppFilter->material());
 
         return outTex;
     }

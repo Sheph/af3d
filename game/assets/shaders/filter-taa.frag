@@ -11,7 +11,7 @@ in vec2 v_texCoord;
 out vec4 fragColor;
 
 vec2 pixelSize = vec2(0.0);
-float feedback = 0.3;
+float feedback = 0.25;
 //Flag to be set when a fragment is clipped so that we can reduce flickering slightly
 bool clipped = false;
 mat4 inverseViewProjectionCURRENT;

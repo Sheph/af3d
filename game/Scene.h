@@ -198,7 +198,7 @@ namespace af3d
         void postProcessTAA(int order, const CameraPtr& inputCamera,
             const std::vector<MaterialPtr>& destMaterials);
         TexturePtr postProcessBloom(int order, const TexturePtr& inputTex,
-            float brightnessThreshold, int blurKSize, float blurSigma, float compositeStrength);
+            float brightnessThreshold, int blurKSize, float blurSigma, float compositeStrength, std::vector<MaterialPtr>& mats);
         RenderFilterComponentPtr postProcessToneMapping(int order, const TexturePtr& inputTex);
         //CameraPtr postProcessFXAA(int order, const TexturePtr& inputTex);
 
