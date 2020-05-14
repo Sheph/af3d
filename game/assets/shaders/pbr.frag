@@ -65,7 +65,7 @@ float gaSchlickGGX(float cosLi, float cosLo, float roughness)
 // Shlick's approximation of the Fresnel factor.
 vec3 fresnelSchlick(vec3 F0, float cosTheta)
 {
-    return F0 + (vec3(1.0) - F0) * pow(1.0 - cosTheta, 5.0);
+    return F0 + (vec3(1.0) - F0) * pow(max(1.0 - cosTheta, 0.0), 5.0);
 }
 
 void main()
