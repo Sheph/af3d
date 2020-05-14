@@ -278,15 +278,18 @@ namespace af3d
         auto screenTex = textureManager.createRenderTextureScaled(TextureType2D,
             1.0f, GL_RGB16F, GL_RGB, GL_FLOAT);
         auto velocityTex = textureManager.createRenderTextureScaled(TextureType2D,
-            1.0f, GL_RG16F, GL_RGB, GL_FLOAT);
+            1.0f, GL_RG32F, GL_RG, GL_FLOAT);
+        auto depthTex = textureManager.createRenderTextureScaled(TextureType2D,
+            1.0f, GL_DEPTH_COMPONENT32, GL_DEPTH_COMPONENT, GL_FLOAT);
 
         auto mc = std::make_shared<Camera>();
         mc->setLayer(CameraLayer::Main);
         mc->setAspect(settings.viewAspect);
         mc->setRenderTarget(AttachmentPoint::Color0, RenderTarget(screenTex));
         mc->setRenderTarget(AttachmentPoint::Color1, RenderTarget(velocityTex));
+        mc->setRenderTarget(AttachmentPoint::Depth, RenderTarget(depthTex));
         mc->setClearMask(mc->clearMask() | AttachmentPoint::Color1);
-        mc->setClearColor(AttachmentPoint::Color1, Color(0.5f, 0.5f, 0.5f, 1.0f));
+        mc->setClearColor(AttachmentPoint::Color1, Color(0.0f, 0.0f, 0.0f, 0.0f));
         addCamera(mc);
 
         //auto tex = postProcessMotionBlur(camOrderPostProcess + 1, screenTex, velocityTex);

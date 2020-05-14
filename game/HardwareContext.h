@@ -146,7 +146,7 @@ namespace af3d
         struct FramebufferState
         {
             HardwareFramebufferPtr fb;
-            HardwareRenderTarget targetDepthStencil;
+            HardwareRenderTarget targetDepth;
         };
 
         using SamplerMap = std::map<SamplerParams, HardwareSamplerPtr>;

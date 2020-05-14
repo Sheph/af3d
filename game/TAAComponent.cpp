@@ -33,20 +33,25 @@ namespace af3d
     ACLASS_DEFINE_END(TAAComponent)
 
     TAAComponent::TAAComponent(const CameraPtr& srcCamera, const std::vector<MaterialPtr>& destMaterials, int camOrder)
-    : PhasedComponent(AClass_TAAComponent, phasePreRender),
+    : PhasedComponent(AClass_TAAComponent, phasePreRender, 9999),
       srcCamera_(srcCamera),
       destMaterials_(destMaterials),
-      prevTex_(textureManager.createRenderTextureScaled(TextureType2D, 1.0f, GL_RGB16F, GL_RGB, GL_FLOAT)),
       curTex_(srcCamera->renderTarget().texture()),
-      outTex_(textureManager.createRenderTextureScaled(TextureType2D, 1.0f, GL_RGB16F, GL_RGB, GL_FLOAT))
+      outTex_(textureManager.createRenderTextureScaled(TextureType2D, 1.0f, GL_RGBA32F, GL_RGBA, GL_FLOAT))
     {
+        std::vector<Byte> data(srcCamera->renderTarget().texture()->width() * srcCamera->renderTarget().texture()->height() * 4);
+        prevTex_ = textureManager.createRenderTextureScaled(TextureType2D, 1.0f, GL_RGBA32F, GL_RGBA, GL_UNSIGNED_BYTE, false, std::move(data));
+
         taaFilter_ = std::make_shared<RenderFilterComponent>(MaterialTypeFilterTAA);
         taaFilter_->material()->setTextureBinding(SamplerName::Noise,
             TextureBinding(srcCamera->renderTarget(AttachmentPoint::Color1).texture(),
                 SamplerParams(GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR)));
+        taaFilter_->material()->setTextureBinding(SamplerName::Depth,
+            TextureBinding(srcCamera->renderTarget(AttachmentPoint::Depth).texture(),
+                SamplerParams(GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR)));
         taaFilter_->camera()->setOrder(camOrder);
 
-        for (int i = 0; i < 16; ++i) {
+        for (int i = 1; i <= 16; ++i) {
             jitters_.emplace_back((haltonNumber(2, i) - 0.5f) * 2.0f, (haltonNumber(3, i) - 0.5f) * 2.0f);
         }
     }
@@ -65,10 +70,14 @@ namespace af3d
     {
         updateTextureBindings(prevTex_, curTex_, outTex_);
 
-        Vector2f jitter = jitters_[jitterIdx_++] / Vector2f(curTex_->width(), curTex_->height());
+        Vector2f jitter = jitters_[jitterIdx_++] * 0.9f / Vector2f(curTex_->width(), curTex_->height());
         jitterIdx_ = jitterIdx_ % jitters_.size();
 
         srcCamera_->setJitter(jitter);
+
+        taaFilter_->material()->params().setUniform(UniformName::ArgJitter, srcCamera_->jitter() * -0.5f);
+        taaFilter_->material()->params().setUniform(UniformName::ArgPrevViewProjMatrix, srcCamera_->prevViewProjMat());
+        taaFilter_->material()->params().setUniform(UniformName::ArgViewProjMatrix, srcCamera_->frustum().viewProjMat());
 
         std::swap(prevTex_, outTex_);
     }

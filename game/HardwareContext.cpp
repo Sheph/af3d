@@ -121,14 +121,12 @@ namespace af3d
                 fbIter->second.fb->attach(p, mrt.attachment(p), *this);
             }
             const auto& dt = mrt.attachment(AttachmentPoint::Depth);
-            const auto& st = mrt.attachment(AttachmentPoint::Stencil);
-            if ((!dt || !st) && !fbIter->second.targetDepthStencil) {
+            if (!dt  && !fbIter->second.targetDepth) {
                 auto rb = hwManager.createRenderbuffer(sz.x(), sz.y());
-                rb->allocate(GL_DEPTH24_STENCIL8, *this);
-                fbIter->second.targetDepthStencil = HardwareRenderTarget(rb);
+                rb->allocate(GL_DEPTH_COMPONENT24, *this);
+                fbIter->second.targetDepth = HardwareRenderTarget(rb);
             }
-            fbIter->second.fb->attach(AttachmentPoint::Depth, (dt ? dt : fbIter->second.targetDepthStencil), *this);
-            fbIter->second.fb->attach(AttachmentPoint::Stencil, (st ? st : fbIter->second.targetDepthStencil), *this);
+            fbIter->second.fb->attach(AttachmentPoint::Depth, (dt ? dt : fbIter->second.targetDepth), *this);
         }
 
         if ((fbIter == framebuffers_.end()) && !sz.isZero()) {
@@ -140,14 +138,12 @@ namespace af3d
                 fbs.fb->attach(p, mrt.attachment(p), *this);
             }
             const auto& dt = mrt.attachment(AttachmentPoint::Depth);
-            const auto& st = mrt.attachment(AttachmentPoint::Stencil);
-            if (!dt || !st) {
+            if (!dt) {
                 auto rb = hwManager.createRenderbuffer(sz.x(), sz.y());
-                rb->allocate(GL_DEPTH24_STENCIL8, *this);
-                fbs.targetDepthStencil = HardwareRenderTarget(rb);
+                rb->allocate(GL_DEPTH_COMPONENT24, *this);
+                fbs.targetDepth = HardwareRenderTarget(rb);
             }
-            fbs.fb->attach(AttachmentPoint::Depth, (dt ? dt : fbs.targetDepthStencil), *this);
-            fbs.fb->attach(AttachmentPoint::Stencil, (st ? st : fbs.targetDepthStencil), *this);
+            fbs.fb->attach(AttachmentPoint::Depth, (dt ? dt : fbs.targetDepth), *this);
             if (!fbs.fb->checkStatus()) {
                 LOG4CPLUS_ERROR(logger(), "hwContext: framebuffer not complete, wtf ???");
             }

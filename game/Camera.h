@@ -106,21 +106,27 @@ namespace af3d
 
         // For velocity buffer calculation.
         inline const Matrix4f& prevViewProjMat() const { return prevViewProjMat_ ? *prevViewProjMat_ : frustum_.viewProjMat(); }
+        inline const Matrix4f& prevJitteredViewProjMat() const { return prevJitteredViewProjMat_ ? *prevJitteredViewProjMat_ : frustum_.jitteredViewProjMat(); }
 
-        inline void updatePrevViewProjMat() { prevViewProjMat_ = frustum_.viewProjMat(); }
+        inline void updatePrevViewProjMat()
+        {
+            prevViewProjMat_ = frustum_.viewProjMat();
+            prevJitteredViewProjMat_ = frustum_.jitteredViewProjMat();
+        }
 
     private:
         int order_ = 0;
         CameraLayer layer_ = CameraLayer::General;
         Frustum frustum_;
         mutable AABB2i viewport_ = AABB2i(Vector2i(0, 0), Vector2i(0, 0));
-        AttachmentPoints clearMask_ = AttachmentPoints(AttachmentPoint::Color0) | AttachmentPoint::Depth | AttachmentPoint::Stencil;
+        AttachmentPoints clearMask_ = AttachmentPoints(AttachmentPoint::Color0) | AttachmentPoint::Depth;
         AttachmentColors clearColors_;
         Color ambientColor_ = Color(0.2f, 0.2f, 0.2f, 1.0f);
 
         std::array<RenderTarget, static_cast<int>(AttachmentPoint::Max) + 1> renderTarget_;
 
         boost::optional<Matrix4f> prevViewProjMat_;
+        boost::optional<Matrix4f> prevJitteredViewProjMat_;
     };
 
     ACLASS_DECLARE(Camera)

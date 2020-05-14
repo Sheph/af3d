@@ -89,7 +89,10 @@ namespace af3d
         {"gaussianMSize", UniformName::GaussianMSize},
         {"gaussianDir", UniformName::GaussianDir},
         {"threshold", UniformName::Threshold},
-        {"strength", UniformName::Strength}
+        {"strength", UniformName::Strength},
+        {"argJitter", UniformName::ArgJitter},
+        {"argPrevViewProj", UniformName::ArgPrevViewProjMatrix},
+        {"argViewProj", UniformName::ArgViewProjMatrix}
     };
 
     static const std::unordered_map<std::string, SamplerName> staticSamplerMap = {
@@ -102,7 +105,8 @@ namespace af3d
         {"texIrradiance", SamplerName::Irradiance},
         {"texSpecularCM", SamplerName::SpecularCM},
         {"texSpecularLUT", SamplerName::SpecularLUT},
-        {"texPrev", SamplerName::Prev}
+        {"texPrev", SamplerName::Prev},
+        {"texDepth", SamplerName::Depth}
     };
 
     GLint VariableInfo::sizeInBytes() const

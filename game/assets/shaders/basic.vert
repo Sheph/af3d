@@ -20,8 +20,7 @@ out mat3 v_tbn;
 out vec3 v_normal;
 #endif
 
-out vec4 v_prevClipPos;
-out vec4 v_clipPos;
+out vec2 screenSpaceVel;
 
 void main()
 {
@@ -42,8 +41,9 @@ void main()
     v_normal = normalize(normal * mat3(model));
 #endif
 
-    v_prevClipPos = vec4(pos, 1.0) * prevStableMVP;
-    v_clipPos = vec4(pos, 1.0) * curStableMVP;
+    vec4 prevClipPos = vec4(pos, 1.0) * prevStableMVP;
+    vec4 clipPos = vec4(pos, 1.0) * curStableMVP;
+    screenSpaceVel = (prevClipPos - clipPos).xy;
 
     gl_Position = vec4(pos, 1.0) * model * viewProj;
 }

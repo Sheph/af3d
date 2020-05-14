@@ -82,7 +82,10 @@ namespace af3d
         GaussianDir,
         Threshold,
         Strength,
-        Max = Strength
+        ArgJitter,
+        ArgPrevViewProjMatrix,
+        ArgViewProjMatrix,
+        Max = ArgViewProjMatrix
     };
 
     enum class SamplerName
@@ -97,7 +100,8 @@ namespace af3d
         SpecularCM,
         SpecularLUT,
         Prev,
-        Max = Prev
+        Depth,
+        Max = Depth
     };
 
     struct VariableTypeInfo
