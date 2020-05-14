@@ -81,6 +81,9 @@ namespace af3d
         inline bool flipY() const { return frustum_.flipY(); }
         inline void setFlipY(bool value) { frustum_.setFlipY(value); }
 
+        inline const Vector2f& jitter() const { return frustum_.jitter(); }
+        inline void setJitter(const Vector2f& value) { frustum_.setJitter(value); }
+
         const AABB2i& viewport() const;
         void setViewport(const AABB2i& value);
 

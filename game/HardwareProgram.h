@@ -49,7 +49,8 @@ namespace af3d
         ViewProjMatrix = 0,
         ModelViewProjMatrix,
         ModelMatrix,
-        OldMatrix,
+        PrevStableMatrix,
+        CurStableMatrix,
         EyePos,
         LightPos, // LightPos = vec4(x,y,z,lightType)
         LightColor, // LightColor = vec3(r,g,b)
@@ -95,7 +96,8 @@ namespace af3d
         Irradiance,
         SpecularCM,
         SpecularLUT,
-        Max = SpecularLUT
+        Prev,
+        Max = Prev
     };
 
     struct VariableTypeInfo

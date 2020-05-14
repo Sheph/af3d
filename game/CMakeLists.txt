@@ -134,6 +134,7 @@ set(SOURCES
     Joint6DOF.cpp
     TVComponent.cpp
     Equirect2CubeComponent.cpp
+    TAAComponent.cpp
     editor/Action.cpp
     editor/Workspace.cpp
     editor/MainPopup.cpp

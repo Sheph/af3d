@@ -59,7 +59,8 @@ namespace af3d
         {"viewProj", UniformName::ViewProjMatrix},
         {"modelViewProj", UniformName::ModelViewProjMatrix},
         {"model", UniformName::ModelMatrix},
-        {"oldMVP", UniformName::OldMatrix},
+        {"prevStableMVP", UniformName::PrevStableMatrix},
+        {"curStableMVP", UniformName::CurStableMatrix},
         {"eyePos", UniformName::EyePos},
         {"lightPos", UniformName::LightPos},
         {"lightColor", UniformName::LightColor},
@@ -100,7 +101,8 @@ namespace af3d
         {"texMetalness", SamplerName::Metalness},
         {"texIrradiance", SamplerName::Irradiance},
         {"texSpecularCM", SamplerName::SpecularCM},
-        {"texSpecularLUT", SamplerName::SpecularLUT}
+        {"texSpecularLUT", SamplerName::SpecularLUT},
+        {"texPrev", SamplerName::Prev}
     };
 
     GLint VariableInfo::sizeInBytes() const

@@ -83,8 +83,11 @@ namespace af3d
         inline const btTransform& transform() const { return xf_; }
         void setTransform(const btTransform& value);
 
-        const Matrix4f& projMat() const;
+        inline const Vector2f& jitter() const { return jitter_; }
+        void setJitter(const Vector2f& value);
+
         const Matrix4f& viewProjMat() const;
+        const Matrix4f& jitteredViewProjMat() const;
         const Planes& planes() const;
 
         inline const btPlane& plane(Plane p) const { return planes()[static_cast<int>(p)]; }
@@ -110,9 +113,11 @@ namespace af3d
         bool flipY_ = false;
 
         btTransform xf_ = btTransform::getIdentity();
+        Vector2f jitter_ = Vector2f_zero;
 
         mutable Matrix4f cachedProjMat_;
         mutable Matrix4f cachedViewProjMat_;
+        mutable Matrix4f cachedJitteredViewProjMat_;
         mutable Planes cachedPlanes_;
 
         mutable bool recalcProjMat_ = true;

@@ -54,6 +54,7 @@
 #include "PhysicsDebugDraw.h"
 #include "AssetManager.h"
 #include "TextureManager.h"
+#include "TAAComponent.h"
 #include "editor/Playbar.h"
 #include <Rocket/Core/ElementDocument.h>
 #include <cmath>
@@ -285,13 +286,15 @@ namespace af3d
         mc->setRenderTarget(AttachmentPoint::Color0, RenderTarget(screenTex));
         mc->setRenderTarget(AttachmentPoint::Color1, RenderTarget(velocityTex));
         mc->setClearMask(mc->clearMask() | AttachmentPoint::Color1);
-        mc->setClearColor(AttachmentPoint::Color1, Color_zero);
+        mc->setClearColor(AttachmentPoint::Color1, Color(0.5f, 0.5f, 0.5f, 1.0f));
         addCamera(mc);
 
-        auto tex = postProcessMotionBlur(camOrderPostProcess + 1, screenTex, velocityTex);
+        //auto tex = postProcessMotionBlur(camOrderPostProcess + 1, screenTex, velocityTex);
         //auto tex = postProcessBloom(camOrderPostProcess, screenTex, 1.0f, 13, 2.0f, 0.5f);
-        tex = postProcessToneMapping(camOrderPostProcess + 100, tex);
-        ppCamera_ = postProcessFXAA(camOrderPostProcess + 200, tex);
+        auto filter = postProcessToneMapping(camOrderPostProcess + 100, TexturePtr());
+        postProcessTAA(camOrderPostProcess, mc, {filter->material()});
+        ppCamera_ = filter->camera();
+        //ppCamera_ = postProcessFXAA(camOrderPostProcess + 200, tex);
         ppCamera_->setViewport(AABB2i(Vector2i(settings.viewX, settings.viewY),
             Vector2i(settings.viewX + settings.viewWidth, settings.viewY + settings.viewHeight)));
 
@@ -613,7 +616,7 @@ namespace af3d
         }
     }
 
-    TexturePtr Scene::postProcessMotionBlur(int order, const TexturePtr& inputTex,
+/*    TexturePtr Scene::postProcessMotionBlur(int order, const TexturePtr& inputTex,
         const TexturePtr& velocityTex)
     {
         auto resTex = textureManager.createRenderTextureScaled(TextureType2D,
@@ -630,6 +633,13 @@ namespace af3d
         ppFilter->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(resTex));
         dummy_->addComponent(ppFilter);
         return resTex;
+    }*/
+
+    void Scene::postProcessTAA(int order, const CameraPtr& inputCamera,
+        const std::vector<MaterialPtr>& destMaterials)
+    {
+        auto taa = std::make_shared<TAAComponent>(inputCamera, destMaterials, order);
+        dummy_->addComponent(taa);
     }
 
     TexturePtr Scene::postProcessBloom(int order, const TexturePtr& inputTex,
@@ -691,22 +701,22 @@ namespace af3d
         return outTex;
     }
 
-    TexturePtr Scene::postProcessToneMapping(int order, const TexturePtr& inputTex)
+    RenderFilterComponentPtr Scene::postProcessToneMapping(int order, const TexturePtr& inputTex)
     {
-        auto toneMappedTex = textureManager.createRenderTextureScaled(TextureType2D,
-            1.0f, GL_RGB, GL_RGB, GL_UNSIGNED_BYTE);
+        //auto toneMappedTex = textureManager.createRenderTextureScaled(TextureType2D,
+          //  1.0f, GL_RGB, GL_RGB, GL_UNSIGNED_BYTE);
 
         auto ppFilter = std::make_shared<RenderFilterComponent>(MaterialTypeFilterToneMapping);
         ppFilter->material()->setTextureBinding(SamplerName::Main,
             TextureBinding(inputTex,
                 SamplerParams(GL_NEAREST, GL_NEAREST)));
         ppFilter->camera()->setOrder(order);
-        ppFilter->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(toneMappedTex));
+        //ppFilter->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(toneMappedTex));
         dummy_->addComponent(ppFilter);
-        return toneMappedTex;
+        return ppFilter;
     }
 
-    CameraPtr Scene::postProcessFXAA(int order, const TexturePtr& inputTex)
+/*    CameraPtr Scene::postProcessFXAA(int order, const TexturePtr& inputTex)
     {
         auto ppFilter = std::make_shared<RenderFilterComponent>(MaterialTypeFilterFXAA);
         ppFilter->material()->setTextureBinding(SamplerName::Main,
@@ -715,7 +725,7 @@ namespace af3d
         ppFilter->camera()->setOrder(order);
         dummy_->addComponent(ppFilter);
         return ppFilter->camera();
-    }
+    }*/
 
     void Scene::addJoint(const JointPtr& joint)
     {
