@@ -292,13 +292,20 @@ namespace af3d
         mc->setClearColor(AttachmentPoint::Color1, Color(0.0f, 0.0f, 0.0f, 0.0f));
         addCamera(mc);
 
-        //auto tex = postProcessMotionBlur(camOrderPostProcess + 1, screenTex, velocityTex);
-        std::vector<MaterialPtr> mats;
-        auto tex = postProcessBloom(camOrderPostProcess + 1, screenTex, 1.0f, 13, 2.0f, 0.5f, mats);
-        postProcessTAA(camOrderPostProcess, mc, mats);
-        auto filter = postProcessToneMapping(camOrderPostProcess + 100, tex);
-        ppCamera_ = filter->camera();
-        //ppCamera_ = postProcessFXAA(camOrderPostProcess + 200, tex);
+        bool bloom = false;
+
+        if (bloom) {
+            std::vector<MaterialPtr> mats;
+            auto tex = postProcessBloom(camOrderPostProcess + 1, screenTex, 1.0f, 13, 2.0f, 0.5f, mats);
+            postProcessTAA(camOrderPostProcess, mc, mats);
+            auto filter = postProcessToneMapping(camOrderPostProcess + 100, tex);
+            ppCamera_ = filter->camera();
+        } else {
+            auto filter = postProcessToneMapping(camOrderPostProcess + 100, screenTex);
+            postProcessTAA(camOrderPostProcess, mc, {filter->material()});
+            ppCamera_ = filter->camera();
+        }
+
         ppCamera_->setViewport(AABB2i(Vector2i(settings.viewX, settings.viewY),
             Vector2i(settings.viewX + settings.viewWidth, settings.viewY + settings.viewHeight)));
 
