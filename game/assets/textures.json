@@ -24,5 +24,10 @@
 "Rock_8_Base_Color.png" : { "srgb" : true },
 "Rock_9_Base_Color.png" : { "srgb" : true },
 "rsMaterial3SG_baseColor.png" : { "srgb" : true },
-"Cerberus_A.tga" : { "srgb" : true }
+"Cerberus_A.tga" : { "srgb" : true },
+"helmet_albedo.jpg" : { "srgb" : true },
+"helmet_metal.jpg" : { "srgb" : true },
+"helmet_roughness.jpg" : { "srgb" : true },
+"helmet_ao.jpg" : { "srgb" : true },
+"helmet_emissive.jpg" : { "srgb" : true }
 }

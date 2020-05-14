@@ -49,7 +49,8 @@ namespace af3d
         ViewProjMatrix = 0,
         ModelViewProjMatrix,
         ModelMatrix,
-        OldMatrix,
+        PrevStableMatrix,
+        CurStableMatrix,
         EyePos,
         LightPos, // LightPos = vec4(x,y,z,lightType)
         LightColor, // LightColor = vec3(r,g,b)
@@ -67,6 +68,7 @@ namespace af3d
         MainColor, // Light only!
         SpecularColor, // Light only!
         Shininess, // Light only!
+        EmissiveFactor,
         GridPos,
         GridRight,
         GridUp,
@@ -81,7 +83,12 @@ namespace af3d
         GaussianDir,
         Threshold,
         Strength,
-        Max = Strength
+        ArgPrevViewProjMatrix,
+        ArgViewProjMatrix,
+        SampleWeights,
+        LowpassWeights,
+        PlusWeights,
+        Max = PlusWeights
     };
 
     enum class SamplerName
@@ -92,10 +99,14 @@ namespace af3d
         Noise,
         Roughness,
         Metalness,
+        AO,
+        Emissive,
         Irradiance,
         SpecularCM,
         SpecularLUT,
-        Max = SpecularLUT
+        Prev,
+        Depth,
+        Max = Depth
     };
 
     struct VariableTypeInfo

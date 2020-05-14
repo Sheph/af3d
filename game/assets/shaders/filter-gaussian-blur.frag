@@ -26,5 +26,6 @@ void main()
             tmp += gaussianKernel[i] * textureLod(texMain, v_texCoord - vec2(gaussianOffset[i], 0.0) / texSize, mipLevel);
         }
     }
+
     fragColor = tmp;
 }

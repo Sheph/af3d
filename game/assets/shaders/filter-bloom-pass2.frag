@@ -9,10 +9,9 @@ out vec4 fragColor;
 
 void main()
 {
-    vec3 hdrScene = texture(texMain, v_texCoord).rgb;
-    vec3 hdrBloom = vec3(0.0);
+    vec3 c = vec3(0.0);
     for (int i = 0; i < int(mipLevel); ++i) {
-        hdrBloom += textureLod(texSpecular, v_texCoord, float(i)).rgb;
+        c += textureLod(texSpecular, v_texCoord, float(i)).rgb * strength;
     }
-    fragColor = vec4(hdrScene + hdrBloom * strength, 1.0);
+    fragColor = vec4(texture(texMain, v_texCoord).rgb + c, 1.0);
 }

@@ -66,6 +66,7 @@ namespace af3d
         void onTextureDestroy(Texture* tex);
 
         inline TexturePtr white1x1() const { return white1x1_; }
+        inline TexturePtr black1x1() const { return black1x1_; }
 
     private:
         struct TextureInfo
@@ -86,6 +87,7 @@ namespace af3d
         CachedTextures cachedTextures_;
         ImmediateTextures immediateTextures_;
         TexturePtr white1x1_;
+        TexturePtr black1x1_;
         TextureInfoMap textureInfoMap_;
     };
 

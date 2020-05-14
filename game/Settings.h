@@ -36,6 +36,13 @@ namespace af3d
     class Settings : public Single<Settings>
     {
     public:
+        enum class AAMode
+        {
+            None = 0,
+            FXAA = 1,
+            TAA = 2
+        };
+
         struct Physics
         {
             /*
@@ -115,6 +122,8 @@ namespace af3d
         bool vsync;
         bool fullscreen;
         bool trilinearFilter;
+        AAMode aaMode;
+        bool bloom;
         std::uint32_t viewX;
         std::uint32_t viewY;
         std::set<VideoMode> winVideoModes;

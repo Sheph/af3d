@@ -245,6 +245,7 @@ namespace af3d
         }
 
         white1x1_ = createTexture(TextureType2D, 1, 1);
+        black1x1_ = createTexture(TextureType2D, 1, 1);
         return true;
     }
 
@@ -252,6 +253,7 @@ namespace af3d
     {
         LOG4CPLUS_DEBUG(logger(), "textureManager: shutdown...");
         white1x1_.reset();
+        black1x1_.reset();
         runtime_assert(immediateTextures_.empty());
         cachedTextures_.clear();
     }
@@ -267,8 +269,10 @@ namespace af3d
             tex->invalidate();
             tex->load();
         }
-        std::vector<Byte> data{255, 255, 255, 255};
-        white1x1_->upload(GL_SRGB_ALPHA, GL_RGBA, GL_UNSIGNED_BYTE, std::move(data), false);
+        std::vector<Byte> dataWhite{255, 255, 255, 255};
+        white1x1_->upload(GL_SRGB_ALPHA, GL_RGBA, GL_UNSIGNED_BYTE, std::move(dataWhite), false);
+        std::vector<Byte> dataBlack{0, 0, 0, 0};
+        black1x1_->upload(GL_SRGB_ALPHA, GL_RGBA, GL_UNSIGNED_BYTE, std::move(dataBlack), false);
     }
 
     bool TextureManager::renderReload(HardwareContext& ctx)

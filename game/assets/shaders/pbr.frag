@@ -4,6 +4,8 @@ uniform sampler2D texNormal;
 #endif
 uniform sampler2D texRoughness;
 uniform sampler2D texMetalness;
+uniform sampler2D texAO;
+uniform sampler2D texEmissive;
 uniform samplerCube texIrradiance;
 uniform samplerCube texSpecularCM;
 uniform sampler2D texSpecularLUT;
@@ -17,6 +19,7 @@ uniform float lightCutoffCos;
 uniform float lightCutoffInnerCos;
 uniform float lightPower;
 uniform int specularCMLevels;
+uniform float emissiveFactor;
 
 in vec2 v_texCoord;
 in vec3 v_pos;
@@ -46,7 +49,7 @@ float ndfGGX(float cosLh, float roughness)
     float alphaSq = alpha * alpha;
 
     float denom = (cosLh * cosLh) * (alphaSq - 1.0) + 1.0;
-    return alphaSq / (PI * denom * denom);
+    return alphaSq / (PI * denom * denom + Epsilon);
 }
 
 // Single term for separable Schlick-GGX below.
@@ -66,7 +69,7 @@ float gaSchlickGGX(float cosLi, float cosLo, float roughness)
 // Shlick's approximation of the Fresnel factor.
 vec3 fresnelSchlick(vec3 F0, float cosTheta)
 {
-    return F0 + (vec3(1.0) - F0) * pow(1.0 - cosTheta, 5.0);
+    return F0 + (vec3(1.0) - F0) * pow(1.0 - cosTheta + Epsilon, 5.0);
 }
 
 void main()
@@ -95,6 +98,9 @@ void main()
     if (lightPos.w == 0.0) {
         // ambient
 
+        float ao = texture(texAO, v_texCoord).r;
+        vec3 emissive = texture(texEmissive, v_texCoord).rgb * emissiveFactor;
+
         // Sample diffuse irradiance at normal direction.
         vec3 irradiance = texture(texIrradiance, N).rgb;
 
@@ -120,7 +126,7 @@ void main()
         vec3 specularIBL = (F0 * specularBRDF.x + specularBRDF.y) * specularIrradiance;
 
         // Total ambient lighting contribution.
-        fragColor = vec4(diffuseIBL + specularIBL, 1.0);
+        fragColor = vec4((diffuseIBL + specularIBL) * ao + emissive, 1.0);
         OUT_FRAG_VELOCITY();
         return;
     }

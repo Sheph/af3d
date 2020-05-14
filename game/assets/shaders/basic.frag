@@ -71,18 +71,13 @@ void main()
     float diffuseCoeff = max(0.0, dot(normalDirection, lightDirection));
     vec4 diffuseReflection = texture(texMain, v_texCoord) * mainColor * vec4(lightColor, 1.0) * diffuseCoeff;
 
-    vec4 specularReflection;
-    if (diffuseCoeff <= 0.0) { // light source on the wrong side?
-        specularReflection = vec4(0.0); // no specular reflection
-    } else { // light source on the right side
 #ifdef BLINN
-        specularReflection = texture(texSpecular, v_texCoord) * specularColor * vec4(lightColor, 1.0) *
-            pow(max(0.0, dot(normalize(viewDirection + lightDirection), normalDirection)), shininess * 2.0);
+    vec4 specularReflection = texture(texSpecular, v_texCoord) * specularColor * vec4(lightColor, 1.0) *
+        pow(max(0.0, dot(normalize(viewDirection + lightDirection), normalDirection)), shininess * 2.0);
 #else
-        specularReflection = texture(texSpecular, v_texCoord) * specularColor * vec4(lightColor, 1.0) *
-            pow(max(0.0, dot(reflect(-lightDirection, normalDirection), viewDirection)), shininess);
+    vec4 specularReflection = texture(texSpecular, v_texCoord) * specularColor * vec4(lightColor, 1.0) *
+        pow(max(0.0, dot(reflect(-lightDirection, normalDirection), viewDirection)), shininess);
 #endif
-    }
 
     fragColor = attenuation * (diffuseReflection + specularReflection);
 }

@@ -54,6 +54,7 @@
 #include "PhysicsDebugDraw.h"
 #include "AssetManager.h"
 #include "TextureManager.h"
+#include "TAAComponent.h"
 #include "editor/Playbar.h"
 #include <Rocket/Core/ElementDocument.h>
 #include <cmath>
@@ -277,21 +278,47 @@ namespace af3d
         auto screenTex = textureManager.createRenderTextureScaled(TextureType2D,
             1.0f, GL_RGB16F, GL_RGB, GL_FLOAT);
         auto velocityTex = textureManager.createRenderTextureScaled(TextureType2D,
-            1.0f, GL_RG16F, GL_RGB, GL_FLOAT);
+            1.0f, GL_RG16F, GL_RG, GL_FLOAT);
+        auto depthTex = textureManager.createRenderTextureScaled(TextureType2D,
+            1.0f, GL_DEPTH_COMPONENT24, GL_DEPTH_COMPONENT, GL_FLOAT);
 
         auto mc = std::make_shared<Camera>();
         mc->setLayer(CameraLayer::Main);
         mc->setAspect(settings.viewAspect);
         mc->setRenderTarget(AttachmentPoint::Color0, RenderTarget(screenTex));
         mc->setRenderTarget(AttachmentPoint::Color1, RenderTarget(velocityTex));
+        mc->setRenderTarget(AttachmentPoint::Depth, RenderTarget(depthTex));
         mc->setClearMask(mc->clearMask() | AttachmentPoint::Color1);
-        mc->setClearColor(AttachmentPoint::Color1, Color_zero);
+        mc->setClearColor(AttachmentPoint::Color1, linearToGamma(Color(65535.0f, 65535.0f, 65535.0f, 65535.0f)));
         addCamera(mc);
 
-        auto tex = postProcessMotionBlur(camOrderPostProcess + 1, screenTex, velocityTex);
-        //auto tex = postProcessBloom(camOrderPostProcess, screenTex, 1.0f, 13, 2.0f, 0.5f);
-        tex = postProcessToneMapping(camOrderPostProcess + 100, tex);
-        ppCamera_ = postProcessFXAA(camOrderPostProcess + 200, tex);
+        if (settings.bloom) {
+            std::vector<MaterialPtr> mats;
+            auto tex = postProcessBloom(camOrderPostProcess + 1, screenTex, 1.0f, 11, 2.0f, 0.5f, mats);
+            if (settings.aaMode == Settings::AAMode::TAA) {
+                postProcessTAA(camOrderPostProcess, mc, mats);
+            }
+            auto filter = postProcessToneMapping(camOrderPostProcess + 100, tex);
+            if (settings.aaMode == Settings::AAMode::FXAA) {
+                auto toneMappedTex = textureManager.createRenderTextureScaled(TextureType2D,
+                    1.0f, GL_RGB, GL_RGB, GL_UNSIGNED_BYTE);
+                filter->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(toneMappedTex));
+                filter = postProcessFXAA(camOrderPostProcess + 200, filter->camera()->renderTarget().texture());
+            }
+            ppCamera_ = filter->camera();
+        } else {
+            auto filter = postProcessToneMapping(camOrderPostProcess + 100, screenTex);
+            if (settings.aaMode == Settings::AAMode::TAA) {
+                postProcessTAA(camOrderPostProcess, mc, {filter->material()});
+            } else if (settings.aaMode == Settings::AAMode::FXAA) {
+                auto toneMappedTex = textureManager.createRenderTextureScaled(TextureType2D,
+                    1.0f, GL_RGB, GL_RGB, GL_UNSIGNED_BYTE);
+                filter->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(toneMappedTex));
+                filter = postProcessFXAA(camOrderPostProcess + 200, filter->camera()->renderTarget().texture());
+            }
+            ppCamera_ = filter->camera();
+        }
+
         ppCamera_->setViewport(AABB2i(Vector2i(settings.viewX, settings.viewY),
             Vector2i(settings.viewX + settings.viewWidth, settings.viewY + settings.viewHeight)));
 
@@ -613,27 +640,16 @@ namespace af3d
         }
     }
 
-    TexturePtr Scene::postProcessMotionBlur(int order, const TexturePtr& inputTex,
-        const TexturePtr& velocityTex)
+    void Scene::postProcessTAA(int order, const CameraPtr& inputCamera,
+        const std::vector<MaterialPtr>& destMaterials)
     {
-        auto resTex = textureManager.createRenderTextureScaled(TextureType2D,
-            1.0f, GL_RGB16F, GL_RGB, GL_FLOAT);
-
-        auto ppFilter = std::make_shared<RenderFilterComponent>(MaterialTypeFilterMotionBlur);
-        ppFilter->material()->setTextureBinding(SamplerName::Main,
-            TextureBinding(inputTex,
-                SamplerParams(GL_NEAREST, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST)));
-        ppFilter->material()->setTextureBinding(SamplerName::Noise,
-            TextureBinding(velocityTex,
-                SamplerParams(GL_NEAREST, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST)));
-        ppFilter->camera()->setOrder(order);
-        ppFilter->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(resTex));
-        dummy_->addComponent(ppFilter);
-        return resTex;
+        auto taa = std::make_shared<TAAComponent>(inputCamera, destMaterials, order);
+        dummy_->addComponent(taa);
     }
 
     TexturePtr Scene::postProcessBloom(int order, const TexturePtr& inputTex,
-        float brightnessThreshold, int blurKSize, float blurSigma, float compositeStrength)
+        float brightnessThreshold, int blurKSize, float blurSigma, float compositeStrength,
+        std::vector<MaterialPtr>& mats)
     {
         auto tex1 = textureManager.createRenderTextureScaled(TextureType2D,
             2.0f, GL_RGB16F, GL_RGB, GL_FLOAT, true);
@@ -642,25 +658,37 @@ namespace af3d
         auto outTex = textureManager.createRenderTextureScaled(TextureType2D,
             1.0f, GL_RGB16F, GL_RGB, GL_FLOAT);
 
-        const int numPasses = 4;
+        auto ppFilter = std::make_shared<RenderFilterComponent>(MaterialTypeFilterBloomPass1);
+        ppFilter->material()->setTextureBinding(SamplerName::Main,
+            TextureBinding(inputTex,
+                SamplerParams(GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR)));
+        ppFilter->camera()->setOrder(order++);
+        ppFilter->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(outTex));
+        ppFilter->material()->params().setUniform(UniformName::Threshold, brightnessThreshold);
+        dummy_->addComponent(ppFilter);
+        mats.push_back(ppFilter->material());
+
+        const int numPasses = 5;
 
         for (int i = 0; i < numPasses; ++i) {
-            auto ppFilter = std::make_shared<RenderFilterComponent>(MaterialTypeFilterBloomPass1);
+            auto ppFilter = std::make_shared<RenderFilterComponent>(MaterialTypeFilterDownscale);
             ppFilter->material()->setTextureBinding(SamplerName::Main,
-                TextureBinding(inputTex,
-                    SamplerParams(GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR)));
+                TextureBinding(i == 0 ? outTex : tex1,
+                    SamplerParams(i == 0 ? GL_LINEAR : GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR)));
             ppFilter->camera()->setOrder(order++);
             ppFilter->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(tex1, i));
-            ppFilter->material()->params().setUniform(UniformName::Threshold, brightnessThreshold);
+            ppFilter->material()->params().setUniform(UniformName::MipLevel, static_cast<float>(i == 0 ? 0 : i - 1));
             dummy_->addComponent(ppFilter);
+        }
 
-            ppFilter = std::make_shared<RenderFilterComponent>(MaterialTypeFilterGaussianBlur);
+        for (int i = 0; i < numPasses; ++i) {
+            auto ppFilter = std::make_shared<RenderFilterComponent>(MaterialTypeFilterGaussianBlur);
             ppFilter->material()->setTextureBinding(SamplerName::Main,
                 TextureBinding(tex1,
                     SamplerParams(GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR)));
             ppFilter->camera()->setOrder(order++);
             ppFilter->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(tex2, i));
-            setGaussianBlurParams(ppFilter->material()->params(), blurKSize, blurSigma, true);
+            setGaussianBlurParams(ppFilter->material()->params(), blurKSize, blurSigma, false);
             ppFilter->material()->params().setUniform(UniformName::MipLevel, static_cast<float>(i));
             dummy_->addComponent(ppFilter);
 
@@ -670,15 +698,15 @@ namespace af3d
                     SamplerParams(GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR)));
             ppFilter->camera()->setOrder(order++);
             ppFilter->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(tex1, i));
-            setGaussianBlurParams(ppFilter->material()->params(), blurKSize, blurSigma, false);
+            setGaussianBlurParams(ppFilter->material()->params(), blurKSize, blurSigma, true);
             ppFilter->material()->params().setUniform(UniformName::MipLevel, static_cast<float>(i));
             dummy_->addComponent(ppFilter);
         }
 
-        auto ppFilter = std::make_shared<RenderFilterComponent>(MaterialTypeFilterBloomPass2);
+        ppFilter = std::make_shared<RenderFilterComponent>(MaterialTypeFilterBloomPass2);
         ppFilter->material()->setTextureBinding(SamplerName::Main,
             TextureBinding(inputTex,
-                SamplerParams(GL_NEAREST, GL_NEAREST)));
+                SamplerParams(GL_LINEAR, GL_LINEAR)));
         ppFilter->material()->setTextureBinding(SamplerName::Specular,
             TextureBinding(tex1,
                 SamplerParams(GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR)));
@@ -687,26 +715,23 @@ namespace af3d
         ppFilter->material()->params().setUniform(UniformName::Strength, compositeStrength);
         ppFilter->material()->params().setUniform(UniformName::MipLevel, static_cast<float>(numPasses));
         dummy_->addComponent(ppFilter);
+        mats.push_back(ppFilter->material());
 
         return outTex;
     }
 
-    TexturePtr Scene::postProcessToneMapping(int order, const TexturePtr& inputTex)
+    RenderFilterComponentPtr Scene::postProcessToneMapping(int order, const TexturePtr& inputTex)
     {
-        auto toneMappedTex = textureManager.createRenderTextureScaled(TextureType2D,
-            1.0f, GL_RGB, GL_RGB, GL_UNSIGNED_BYTE);
-
         auto ppFilter = std::make_shared<RenderFilterComponent>(MaterialTypeFilterToneMapping);
         ppFilter->material()->setTextureBinding(SamplerName::Main,
             TextureBinding(inputTex,
                 SamplerParams(GL_NEAREST, GL_NEAREST)));
         ppFilter->camera()->setOrder(order);
-        ppFilter->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(toneMappedTex));
         dummy_->addComponent(ppFilter);
-        return toneMappedTex;
+        return ppFilter;
     }
 
-    CameraPtr Scene::postProcessFXAA(int order, const TexturePtr& inputTex)
+    RenderFilterComponentPtr Scene::postProcessFXAA(int order, const TexturePtr& inputTex)
     {
         auto ppFilter = std::make_shared<RenderFilterComponent>(MaterialTypeFilterFXAA);
         ppFilter->material()->setTextureBinding(SamplerName::Main,
@@ -714,7 +739,7 @@ namespace af3d
                 SamplerParams(GL_LINEAR, GL_LINEAR)));
         ppFilter->camera()->setOrder(order);
         dummy_->addComponent(ppFilter);
-        return ppFilter->camera();
+        return ppFilter;
     }
 
     void Scene::addJoint(const JointPtr& joint)

@@ -35,9 +35,10 @@ namespace af3d
 {
     static const char* glslCommonHeader = "#version 330 core\n" \
         "#define OUT_FRAG_VELOCITY() \\\n" \
-        "vec2 a = (v_clipPos.xy / v_clipPos.w) * 0.5 + 0.5; \\\n" \
-        "vec2 b = (v_prevClipPos.xy / v_prevClipPos.w) * 0.5 + 0.5; \\\n" \
-        "fragVelocity = a - b\n\n";
+        "vec2 a = (v_clipPos.xy / v_clipPos.w); \\\n" \
+        "vec2 b = (v_prevClipPos.xy / v_prevClipPos.w); \\\n" \
+        "fragVelocity = (a - b)\n" \
+        "#line 1\n";
 
     static const struct {
         const char* vert;
@@ -65,7 +66,8 @@ namespace af3d
         {"shaders/filter.vert", "shaders/filter-gaussian-blur.frag", false, nullptr},
         {"shaders/filter.vert", "shaders/filter-bloom-pass1.frag", false, nullptr},
         {"shaders/filter.vert", "shaders/filter-bloom-pass2.frag", false, nullptr},
-        {"shaders/filter.vert", "shaders/filter-motion-blur.frag", false, nullptr}
+        {"shaders/filter.vert", "shaders/filter-taa.frag", false, nullptr},
+        {"shaders/filter.vert", "shaders/filter-downscale.frag", false, nullptr}
     };
 
     MaterialManager materialManager;
@@ -156,6 +158,7 @@ namespace af3d
             mat->setDefaultUniform(UniformName::MainColor, gammaToLinear(Color_one));
             mat->setDefaultUniform(UniformName::SpecularColor, gammaToLinear(Color_zero));
             mat->setDefaultUniform(UniformName::Shininess, 1.0f);
+            mat->setDefaultUniform(UniformName::EmissiveFactor, 1.0f);
         }
 
         if (!matUnlitVCDefault_) {

@@ -59,7 +59,8 @@ namespace af3d
         {"viewProj", UniformName::ViewProjMatrix},
         {"modelViewProj", UniformName::ModelViewProjMatrix},
         {"model", UniformName::ModelMatrix},
-        {"oldMVP", UniformName::OldMatrix},
+        {"prevStableMVP", UniformName::PrevStableMatrix},
+        {"curStableMVP", UniformName::CurStableMatrix},
         {"eyePos", UniformName::EyePos},
         {"lightPos", UniformName::LightPos},
         {"lightColor", UniformName::LightColor},
@@ -75,6 +76,7 @@ namespace af3d
         {"mainColor", UniformName::MainColor},
         {"specularColor", UniformName::SpecularColor},
         {"shininess", UniformName::Shininess},
+        {"emissiveFactor", UniformName::EmissiveFactor},
         {"gridPos", UniformName::GridPos},
         {"gridRight", UniformName::GridRight},
         {"gridUp", UniformName::GridUp},
@@ -88,7 +90,12 @@ namespace af3d
         {"gaussianMSize", UniformName::GaussianMSize},
         {"gaussianDir", UniformName::GaussianDir},
         {"threshold", UniformName::Threshold},
-        {"strength", UniformName::Strength}
+        {"strength", UniformName::Strength},
+        {"argPrevViewProj", UniformName::ArgPrevViewProjMatrix},
+        {"argViewProj", UniformName::ArgViewProjMatrix},
+        {"sampleWeights[0]", UniformName::SampleWeights},
+        {"lowpassWeights[0]", UniformName::LowpassWeights},
+        {"plusWeights[0]", UniformName::PlusWeights}
     };
 
     static const std::unordered_map<std::string, SamplerName> staticSamplerMap = {
@@ -98,9 +105,13 @@ namespace af3d
         {"texNoise", SamplerName::Noise},
         {"texRoughness", SamplerName::Roughness},
         {"texMetalness", SamplerName::Metalness},
+        {"texAO", SamplerName::AO},
+        {"texEmissive", SamplerName::Emissive},
         {"texIrradiance", SamplerName::Irradiance},
         {"texSpecularCM", SamplerName::SpecularCM},
-        {"texSpecularLUT", SamplerName::SpecularLUT}
+        {"texSpecularLUT", SamplerName::SpecularLUT},
+        {"texPrev", SamplerName::Prev},
+        {"texDepth", SamplerName::Depth}
     };
 
     GLint VariableInfo::sizeInBytes() const

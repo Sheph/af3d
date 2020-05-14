@@ -497,7 +497,8 @@ namespace af3d
 
     void RenderList::setAutoParams(const Geometry& geom, std::vector<HardwareTextureBinding>& textures, MaterialParams& params) const
     {
-        const Matrix4f& viewProjMat = camera_->frustum().viewProjMat();
+        const Matrix4f& viewProjMat = camera_->frustum().jitteredViewProjMat();
+        const Matrix4f& stableViewProjMat = camera_->frustum().viewProjMat();
 
         const auto& activeUniforms = geom.material->type()->prog()->activeUniforms();
         const auto& samplers = geom.material->type()->prog()->samplers();
@@ -533,25 +534,38 @@ namespace af3d
             params.setUniform(UniformName::ViewProjMatrix, viewProjMat);
         }
 
-        bool oldMatSet = false;
+        bool prevStableMatSet = false;
+        bool curStableMatSet = false;
 
         if (activeUniforms.count(UniformName::ModelViewProjMatrix) > 0) {
             params.setUniform(UniformName::ModelViewProjMatrix, viewProjMat * geom.modelMat);
-            if (!oldMatSet && activeUniforms.count(UniformName::OldMatrix) > 0) {
-                oldMatSet = true;
-                params.setUniform(UniformName::OldMatrix, camera_->prevViewProjMat() * geom.prevModelMat);
+            if (!prevStableMatSet && activeUniforms.count(UniformName::PrevStableMatrix) > 0) {
+                prevStableMatSet = true;
+                params.setUniform(UniformName::PrevStableMatrix, camera_->prevViewProjMat() * geom.prevModelMat);
+            }
+            if (!curStableMatSet && activeUniforms.count(UniformName::CurStableMatrix) > 0) {
+                curStableMatSet = true;
+                params.setUniform(UniformName::CurStableMatrix, stableViewProjMat * geom.modelMat);
             }
         }
         if (activeUniforms.count(UniformName::ModelMatrix) > 0) {
             params.setUniform(UniformName::ModelMatrix, geom.modelMat);
-            if (!oldMatSet && activeUniforms.count(UniformName::OldMatrix) > 0) {
-                oldMatSet = true;
-                params.setUniform(UniformName::OldMatrix, camera_->prevViewProjMat() * geom.prevModelMat);
+            if (!prevStableMatSet && activeUniforms.count(UniformName::PrevStableMatrix) > 0) {
+                prevStableMatSet = true;
+                params.setUniform(UniformName::PrevStableMatrix, camera_->prevViewProjMat() * geom.prevModelMat);
+            }
+            if (!curStableMatSet && activeUniforms.count(UniformName::CurStableMatrix) > 0) {
+                curStableMatSet = true;
+                params.setUniform(UniformName::CurStableMatrix, stableViewProjMat * geom.modelMat);
             }
         }
-        if (!oldMatSet && activeUniforms.count(UniformName::OldMatrix) > 0) {
-            oldMatSet = true;
-            params.setUniform(UniformName::OldMatrix, camera_->prevViewProjMat());
+        if (!prevStableMatSet && activeUniforms.count(UniformName::PrevStableMatrix) > 0) {
+            prevStableMatSet = true;
+            params.setUniform(UniformName::PrevStableMatrix, camera_->prevViewProjMat());
+        }
+        if (!curStableMatSet && activeUniforms.count(UniformName::CurStableMatrix) > 0) {
+            curStableMatSet = true;
+            params.setUniform(UniformName::CurStableMatrix, stableViewProjMat);
         }
         if (activeUniforms.count(UniformName::EyePos) > 0) {
             params.setUniform(UniformName::EyePos, camera_->frustum().transform().getOrigin());

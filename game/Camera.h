@@ -81,6 +81,9 @@ namespace af3d
         inline bool flipY() const { return frustum_.flipY(); }
         inline void setFlipY(bool value) { frustum_.setFlipY(value); }
 
+        inline const Vector2f& jitter() const { return frustum_.jitter(); }
+        inline void setJitter(const Vector2f& value) { frustum_.setJitter(value); }
+
         const AABB2i& viewport() const;
         void setViewport(const AABB2i& value);
 
@@ -104,14 +107,17 @@ namespace af3d
         // For velocity buffer calculation.
         inline const Matrix4f& prevViewProjMat() const { return prevViewProjMat_ ? *prevViewProjMat_ : frustum_.viewProjMat(); }
 
-        inline void updatePrevViewProjMat() { prevViewProjMat_ = frustum_.viewProjMat(); }
+        inline void updatePrevViewProjMat()
+        {
+            prevViewProjMat_ = frustum_.viewProjMat();
+        }
 
     private:
         int order_ = 0;
         CameraLayer layer_ = CameraLayer::General;
         Frustum frustum_;
         mutable AABB2i viewport_ = AABB2i(Vector2i(0, 0), Vector2i(0, 0));
-        AttachmentPoints clearMask_ = AttachmentPoints(AttachmentPoint::Color0) | AttachmentPoint::Depth | AttachmentPoint::Stencil;
+        AttachmentPoints clearMask_ = AttachmentPoints(AttachmentPoint::Color0) | AttachmentPoint::Depth;
         AttachmentColors clearColors_;
         Color ambientColor_ = Color(0.2f, 0.2f, 0.2f, 1.0f);
 
