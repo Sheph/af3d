@@ -178,7 +178,8 @@ namespace af3d
             }
 
             auto vbo = hwManager.createVertexBuffer(HardwareBuffer::Usage::StaticDraw, vboElSize);
-            auto ebo = hwManager.createIndexBuffer(HardwareBuffer::Usage::StaticDraw, HardwareIndexBuffer::UInt16);
+            auto ebo = hwManager.createIndexBuffer(HardwareBuffer::Usage::StaticDraw,
+                (meshData->mNumVertices > std::numeric_limits<std::uint16_t>::max()) ? HardwareIndexBuffer::UInt32 : HardwareIndexBuffer::UInt16);
 
             auto va = std::make_shared<VertexArray>(hwManager.createVertexArray(), vaLayout, VBOList{vbo}, ebo);
 
@@ -211,10 +212,7 @@ namespace af3d
             ebo->resize(meshData->mNumFaces * 3, ctx);
 
             float *verts, *vertsStart;
-            std::uint16_t *indices, *indicesStart;
-
             verts = vertsStart = (float*)vbo->lock(HardwareBuffer::WriteOnly, ctx);
-            indices = indicesStart = (std::uint16_t*)ebo->lock(HardwareBuffer::WriteOnly, ctx);
 
             btAssert(meshData->mTextureCoords[0]);
 
@@ -251,22 +249,44 @@ namespace af3d
                 }
             }
 
-            for (std::uint32_t j = 0; j < meshData->mNumFaces; ++j) {
-                auto face = meshData->mFaces[j];
-                btAssert(face.mNumIndices == 3);
-                btAssert(face.mIndices[0] <= std::numeric_limits<std::uint16_t>::max());
-                btAssert(face.mIndices[1] <= std::numeric_limits<std::uint16_t>::max());
-                btAssert(face.mIndices[2] <= std::numeric_limits<std::uint16_t>::max());
-                *indices = face.mIndices[0];
-                ++indices;
-                *indices = face.mIndices[1];
-                ++indices;
-                *indices = face.mIndices[2];
-                ++indices;
+            if (ebo->dataType() == HardwareIndexBuffer::UInt16) {
+                std::uint16_t *indices, *indicesStart;
+                indices = indicesStart = (std::uint16_t*)ebo->lock(HardwareBuffer::WriteOnly, ctx);
+
+                for (std::uint32_t j = 0; j < meshData->mNumFaces; ++j) {
+                    auto face = meshData->mFaces[j];
+                    btAssert(face.mNumIndices == 3);
+                    btAssert(face.mIndices[0] <= std::numeric_limits<std::uint16_t>::max());
+                    btAssert(face.mIndices[1] <= std::numeric_limits<std::uint16_t>::max());
+                    btAssert(face.mIndices[2] <= std::numeric_limits<std::uint16_t>::max());
+                    *indices = face.mIndices[0];
+                    ++indices;
+                    *indices = face.mIndices[1];
+                    ++indices;
+                    *indices = face.mIndices[2];
+                    ++indices;
+                }
+
+                btAssert((indices - indicesStart) == ebo->count(ctx));
+            } else {
+                std::uint32_t *indices, *indicesStart;
+                indices = indicesStart = (std::uint32_t*)ebo->lock(HardwareBuffer::WriteOnly, ctx);
+
+                for (std::uint32_t j = 0; j < meshData->mNumFaces; ++j) {
+                    auto face = meshData->mFaces[j];
+                    btAssert(face.mNumIndices == 3);
+                    *indices = face.mIndices[0];
+                    ++indices;
+                    *indices = face.mIndices[1];
+                    ++indices;
+                    *indices = face.mIndices[2];
+                    ++indices;
+                }
+
+                btAssert((indices - indicesStart) == ebo->count(ctx));
             }
 
             btAssert((verts - vertsStart) * 4 == vbo->sizeInBytes(ctx));
-            btAssert((indices - indicesStart) == ebo->count(ctx));
 
             ebo->unlock(ctx);
             vbo->unlock(ctx);
