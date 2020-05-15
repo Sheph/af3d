@@ -102,6 +102,7 @@ namespace af3d
         {"texNoise", SamplerName::Noise},
         {"texRoughness", SamplerName::Roughness},
         {"texMetalness", SamplerName::Metalness},
+        {"texAO", SamplerName::AO},
         {"texIrradiance", SamplerName::Irradiance},
         {"texSpecularCM", SamplerName::SpecularCM},
         {"texSpecularLUT", SamplerName::SpecularLUT},

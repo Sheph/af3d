@@ -85,6 +85,12 @@ namespace af3d
                     LOG4CPLUS_TRACE(logger(), "MetalnessTex: " << texPath2.C_Str());
                     mat->setTextureBinding(SamplerName::Metalness,
                         TextureBinding(textureManager.loadTexture(texPath2.C_Str())));
+
+                    if (matData->Get("$raw.TransparencyFactor|file", aiTextureType_UNKNOWN, 0, texPath) == aiReturn_SUCCESS) {
+                        LOG4CPLUS_TRACE(logger(), "AOTex: " << texPath.C_Str());
+                        mat->setTextureBinding(SamplerName::AO,
+                            TextureBinding(textureManager.loadTexture(texPath.C_Str())));
+                    }
                 }
 
                 if (haveNormalMap) {

@@ -96,6 +96,7 @@ namespace af3d
         Noise,
         Roughness,
         Metalness,
+        AO,
         Irradiance,
         SpecularCM,
         SpecularLUT,
