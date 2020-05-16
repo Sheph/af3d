@@ -29,6 +29,9 @@ in vec3 v_normal;
 
 in vec2 screenSpaceVel;
 
+in vec4 v_prevClipPos;
+in vec4 v_clipPos;
+
 layout (location = 0) out vec4 fragColor;
 layout (location = 1) out vec2 fragVelocity;
 
@@ -123,7 +126,8 @@ void main()
 
         // Total ambient lighting contribution.
         fragColor = vec4(diffuseIBL + specularIBL, 1.0) * ao;
-        fragVelocity = screenSpaceVel;
+        //fragVelocity = screenSpaceVel;
+        OUT_FRAG_VELOCITY();
         return;
     }
 

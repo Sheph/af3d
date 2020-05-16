@@ -203,6 +203,12 @@ vec2 frontMostNeigbourCoord(vec2 _coord)
   }
 }
 
+float Luma4(vec3 Color)
+{
+    Color = clamp(Color, 0.0, 1.0);
+    return (Color.g * 2.0) + (Color.r + Color.b);
+}
+
 void main()
 {
   pixelSize = 1.0 / vec2(textureSize(texMain, 0));
@@ -246,5 +252,25 @@ void main()
   //Lerp based on recent clipping events
   vec3 colourHISTORYCLIPPEDBLEND = mix(colourHISTORY.rgb, colourHISTORYCLIPPED, clamp(clipBlendFactor, 0.f, 1.f));
   //Now we have our two colour values, lerp between them based on the feedback factor.
-  fragColor.rgb = mix(colourHISTORYCLIPPEDBLEND, colourCURRENT.rgb, feedback);
+
+
+  vec2 velA = vel / pixelSize;
+  float HistoryBlurAmp = 2.0;
+  float HistoryBlur = clamp(abs(velA.x) * HistoryBlurAmp + abs(velA.y) * HistoryBlurAmp, 0.0, 1.0);
+
+  vec3 colourMIN = mix(minSample3x3(uvCURRENT), minSampleDirectNeighbours(uvCURRENT), 0.5f);
+  vec3 colourMAX = mix(maxSample3x3(uvCURRENT), maxSampleDirectNeighbours(uvCURRENT), 0.5f);
+
+  float LumaMin = Luma4(colourMIN.rgb);
+  float LumaMax = Luma4(colourMAX.rgb);
+  float LumaHistory = Luma4(colourHISTORYCLIPPEDBLEND.rgb);
+  float LumaContrast = LumaMax - LumaMin;
+
+  float DistToClamp = min(abs(LumaMin-LumaHistory), abs(LumaMax-LumaHistory));
+  float HistoryAmount = (1.0/8.0) + HistoryBlur * (1.0/8.0);
+  float HistoryFactor = DistToClamp * HistoryAmount * (1.0 + HistoryBlur * HistoryAmount * 8.0);
+  float f = clamp(HistoryFactor / (DistToClamp + LumaMax - LumaMin), 0.0, 1.0);
+  f = -min(-f, 0.0);
+
+  fragColor.rgb = mix(colourHISTORYCLIPPEDBLEND, colourCURRENT.rgb, f);
 }

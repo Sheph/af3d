@@ -200,7 +200,7 @@ namespace af3d
         TexturePtr postProcessBloom(int order, const TexturePtr& inputTex,
             float brightnessThreshold, int blurKSize, float blurSigma, float compositeStrength, std::vector<MaterialPtr>& mats);
         RenderFilterComponentPtr postProcessToneMapping(int order, const TexturePtr& inputTex);
-        //CameraPtr postProcessFXAA(int order, const TexturePtr& inputTex);
+        RenderFilterComponentPtr postProcessFXAA(int order, const TexturePtr& inputTex);
 
         class Impl;
         std::unique_ptr<Impl> impl_;

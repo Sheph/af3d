@@ -22,6 +22,9 @@ out vec3 v_normal;
 
 out vec2 screenSpaceVel;
 
+out vec4 v_prevClipPos;
+out vec4 v_clipPos;
+
 void main()
 {
     v_texCoord = texCoord;

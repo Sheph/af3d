@@ -66,7 +66,8 @@ namespace af3d
         {"shaders/filter.vert", "shaders/filter-bloom-pass1.frag", false, nullptr},
         {"shaders/filter.vert", "shaders/filter-bloom-pass2.frag", false, nullptr},
         {"shaders/filter.vert", "shaders/filter-motion-blur.frag", false, nullptr},
-        {"shaders/filter.vert", "shaders/filter-taa.frag", false, nullptr}
+        {"shaders/filter.vert", "shaders/filter-taa.frag", false, nullptr},
+        {"shaders/filter.vert", "shaders/filter-copy.frag", false, nullptr}
     };
 
     MaterialManager materialManager;
