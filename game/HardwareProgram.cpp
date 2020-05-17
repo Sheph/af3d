@@ -92,7 +92,12 @@ namespace af3d
         {"strength", UniformName::Strength},
         {"argJitter", UniformName::ArgJitter},
         {"argPrevViewProj", UniformName::ArgPrevViewProjMatrix},
-        {"argViewProj", UniformName::ArgViewProjMatrix}
+        {"argViewProj", UniformName::ArgViewProjMatrix},
+        {"SampleWeights[0]", UniformName::SampleWeights},
+        {"LowpassWeights[0]", UniformName::LowpassWeights},
+        {"PlusWeights[0]", UniformName::PlusWeights},
+        {"RandomOffset", UniformName::RandomOffset},
+        {"VelocityScaling", UniformName::VelocityScaling}
     };
 
     static const std::unordered_map<std::string, SamplerName> staticSamplerMap = {

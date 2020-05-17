@@ -292,7 +292,7 @@ namespace af3d
         mc->setClearColor(AttachmentPoint::Color1, Color(0.0f, 0.0f, 0.0f, 0.0f));
         addCamera(mc);
 
-        bool bloom = true;
+        bool bloom = false;
         bool useTAA = true;
 
         if (bloom) {

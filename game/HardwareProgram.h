@@ -85,7 +85,12 @@ namespace af3d
         ArgJitter,
         ArgPrevViewProjMatrix,
         ArgViewProjMatrix,
-        Max = ArgViewProjMatrix
+        SampleWeights,
+        LowpassWeights,
+        PlusWeights,
+        RandomOffset,
+        VelocityScaling,
+        Max = VelocityScaling
     };
 
     enum class SamplerName

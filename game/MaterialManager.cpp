@@ -37,7 +37,8 @@ namespace af3d
         "#define OUT_FRAG_VELOCITY() \\\n" \
         "vec2 a = (v_clipPos.xy); \\\n" \
         "vec2 b = (v_prevClipPos.xy); \\\n" \
-        "fragVelocity = b - a\n\n";
+        "fragVelocity = b - a\n" \
+        "#line 1\n";
 
     static const struct {
         const char* vert;
