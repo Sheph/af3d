@@ -46,6 +46,7 @@ endif ()
 option(USE_LUAJIT "Use LuaJIT" FALSE)
 option(USE_LUAJIT_VALGRIND "Enable LuaJIT+valgrind" FALSE)
 option(USE_BT_SSE "Use Bullet SSE" TRUE)
+option(FORCE_OPTIMIZE "Force compiler optimizations" FALSE)
 
 # END USER SETTINGS
 
@@ -161,6 +162,10 @@ if (NOT WIN32)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden")
     set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-undefined -Wl,--exclude-libs,ALL")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--no-undefined -Wl,--exclude-libs,ALL")
+    if (FORCE_OPTIMIZE AND (BUILD_TYPE_LOWER STREQUAL "debug"))
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3")
+    endif ()
 endif ()
 
 add_subdirectory(zlib-1.2.8)
