@@ -292,12 +292,12 @@ namespace af3d
         mc->setClearColor(AttachmentPoint::Color1, Color(0.0f, 0.0f, 0.0f, 0.0f));
         addCamera(mc);
 
-        bool bloom = false;
+        bool bloom = true;
         bool useTAA = true;
 
         if (bloom) {
             std::vector<MaterialPtr> mats;
-            auto tex = postProcessBloom(camOrderPostProcess + 1, screenTex, 1.0f, 17, 2.0f, 0.5f, mats);
+            auto tex = postProcessBloom(camOrderPostProcess + 1, screenTex, 1.0f, 13, 2.0f, 0.5f, mats);
             if (useTAA) {
                 postProcessTAA(camOrderPostProcess, mc, mats);
             }

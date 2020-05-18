@@ -57,15 +57,19 @@ namespace af3d
         tmp[0] = kernel[kSize];
         offset[0] = 0.0f;
 
+        float total = tmp[0];
+
         for (int i = 1; i < rSize; ++i) {
             int t1 = (i * 2) - 1;
             int t2 = (i * 2) + 0;
             tmp[i] = kernel[kSize + t1] + kernel[kSize + t2];
             offset[i] = (t1 * kernel[kSize + t1] + t2 * kernel[kSize + t2]) / tmp[i];
+            total += tmp[i];
         }
 
+
         for (int i = 0; i < rSize; ++i) {
-            kernel[i] = tmp[i];
+            kernel[i] = tmp[i] / total;
         }
 
         return rSize;
