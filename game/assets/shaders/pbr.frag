@@ -5,6 +5,7 @@ uniform sampler2D texNormal;
 uniform sampler2D texRoughness;
 uniform sampler2D texMetalness;
 uniform sampler2D texAO;
+uniform sampler2D texEmissive;
 uniform samplerCube texIrradiance;
 uniform samplerCube texSpecularCM;
 uniform sampler2D texSpecularLUT;
@@ -18,6 +19,7 @@ uniform float lightCutoffCos;
 uniform float lightCutoffInnerCos;
 uniform float lightPower;
 uniform int specularCMLevels;
+uniform float emissiveFactor;
 
 in vec2 v_texCoord;
 in vec3 v_pos;
@@ -99,6 +101,7 @@ void main()
         // ambient
 
         float ao = texture(texAO, v_texCoord).r;
+        vec3 emissive = texture(texEmissive, v_texCoord).rgb * emissiveFactor;
 
         // Sample diffuse irradiance at normal direction.
         vec3 irradiance = texture(texIrradiance, N).rgb;
@@ -125,8 +128,7 @@ void main()
         vec3 specularIBL = (F0 * specularBRDF.x + specularBRDF.y) * specularIrradiance;
 
         // Total ambient lighting contribution.
-        fragColor = vec4(diffuseIBL + specularIBL, 1.0) * ao;
-        //fragVelocity = screenSpaceVel;
+        fragColor = vec4((diffuseIBL + specularIBL) * ao + emissive, 1.0);
         OUT_FRAG_VELOCITY();
         return;
     }

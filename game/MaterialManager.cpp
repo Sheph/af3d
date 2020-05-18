@@ -159,6 +159,7 @@ namespace af3d
             mat->setDefaultUniform(UniformName::MainColor, gammaToLinear(Color_one));
             mat->setDefaultUniform(UniformName::SpecularColor, gammaToLinear(Color_zero));
             mat->setDefaultUniform(UniformName::Shininess, 1.0f);
+            mat->setDefaultUniform(UniformName::EmissiveFactor, 1.0f);
         }
 
         if (!matUnlitVCDefault_) {

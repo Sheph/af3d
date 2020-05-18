@@ -68,6 +68,7 @@ namespace af3d
         MainColor, // Light only!
         SpecularColor, // Light only!
         Shininess, // Light only!
+        EmissiveFactor,
         GridPos,
         GridRight,
         GridUp,
@@ -102,6 +103,7 @@ namespace af3d
         Roughness,
         Metalness,
         AO,
+        Emissive,
         Irradiance,
         SpecularCM,
         SpecularLUT,

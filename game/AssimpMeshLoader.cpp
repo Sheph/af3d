@@ -86,10 +86,25 @@ namespace af3d
                     mat->setTextureBinding(SamplerName::Metalness,
                         TextureBinding(textureManager.loadTexture(texPath2.C_Str())));
 
-                    if (matData->Get("$raw.TransparencyFactor|file", aiTextureType_UNKNOWN, 0, texPath) == aiReturn_SUCCESS) {
+                    if (matData->GetTexture(aiTextureType_SPECULAR, 0, &texPath) == aiReturn_SUCCESS) {
                         LOG4CPLUS_TRACE(logger(), "AOTex: " << texPath.C_Str());
                         mat->setTextureBinding(SamplerName::AO,
                             TextureBinding(textureManager.loadTexture(texPath.C_Str())));
+                    }
+
+                    if (matData->GetTexture(aiTextureType_EMISSIVE, 0, &texPath) == aiReturn_SUCCESS) {
+                        LOG4CPLUS_TRACE(logger(), "EmissiveTex: " << texPath.C_Str());
+                        mat->setTextureBinding(SamplerName::Emissive,
+                            TextureBinding(textureManager.loadTexture(texPath.C_Str())));
+                        float val;
+                        std::uint32_t mx = 1;
+                        if (aiGetMaterialFloatArray(matData, "$raw.EmissionFactor", 0, 0, &val, &mx) == aiReturn_SUCCESS) {
+                            LOG4CPLUS_TRACE(logger(), "EmissiveFactor: " << val);
+                            mat->params().setUniform(UniformName::EmissiveFactor, val);
+                        }
+                    } else {
+                        mat->setTextureBinding(SamplerName::Emissive,
+                            TextureBinding(textureManager.black1x1(), SamplerParams(GL_NEAREST, GL_NEAREST)));
                     }
                 }
 
@@ -107,13 +122,15 @@ namespace af3d
 
                 bool haveSpecularTex = false;
 
-                if (matData->GetTexture(aiTextureType_SPECULAR, 0, &texPath) == aiReturn_SUCCESS) {
-                    LOG4CPLUS_TRACE(logger(), "SpecularTex: " << texPath.C_Str());
-                    mat->setTextureBinding(SamplerName::Specular,
-                        TextureBinding(textureManager.loadTexture(texPath.C_Str())));
-                    haveSpecularTex = true;
-                } else if (mat->textureBinding(SamplerName::Main).tex && !isPBR) {
-                    mat->setTextureBinding(SamplerName::Specular, mat->textureBinding(SamplerName::Main));
+                if (!isPBR) {
+                    if (matData->GetTexture(aiTextureType_SPECULAR, 0, &texPath) == aiReturn_SUCCESS) {
+                        LOG4CPLUS_TRACE(logger(), "SpecularTex: " << texPath.C_Str());
+                        mat->setTextureBinding(SamplerName::Specular,
+                            TextureBinding(textureManager.loadTexture(texPath.C_Str())));
+                        haveSpecularTex = true;
+                    } else if (mat->textureBinding(SamplerName::Main).tex) {
+                        mat->setTextureBinding(SamplerName::Specular, mat->textureBinding(SamplerName::Main));
+                    }
                 }
                 aiColor4D color;
                 if (!mat->textureBinding(SamplerName::Main).tex &&
