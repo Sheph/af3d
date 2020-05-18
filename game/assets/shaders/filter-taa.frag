@@ -414,7 +414,7 @@ void main()
             DepthOffset.x = DepthOffsetXx;
         }
         float DepthsXYZW = max(DepthsXY, DepthsZW);
-        if(DepthsXYZW > PosN.z)
+        if(DepthsXYZW > (1.0 - PosN.z))
         {
             // This is offset for reading from velocity texture.
             // This supports half or fractional resolution velocity textures.
