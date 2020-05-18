@@ -669,41 +669,40 @@ namespace af3d
         std::vector<MaterialPtr>& mats)
     {
         auto tex1 = textureManager.createRenderTextureScaled(TextureType2D,
-            1.0f, GL_RGB16F, GL_RGB, GL_FLOAT, true);
+            2.0f, GL_RGB16F, GL_RGB, GL_FLOAT, true);
         auto tex2 = textureManager.createRenderTextureScaled(TextureType2D,
-            1.0f, GL_RGB16F, GL_RGB, GL_FLOAT, true);
-        auto tex3 = textureManager.createRenderTextureScaled(TextureType2D,
-            1.0f, GL_RGB16F, GL_RGB, GL_FLOAT, true);
+            2.0f, GL_RGB16F, GL_RGB, GL_FLOAT, true);
         auto outTex = textureManager.createRenderTextureScaled(TextureType2D,
             1.0f, GL_RGB16F, GL_RGB, GL_FLOAT);
 
-        /*auto ppFilter = std::make_shared<RenderFilterComponent>(MaterialTypeFilterBloomPass1);
+        auto ppFilter = std::make_shared<RenderFilterComponent>(MaterialTypeFilterBloomPass1);
         ppFilter->material()->setTextureBinding(SamplerName::Main,
             TextureBinding(inputTex,
                 SamplerParams(GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR)));
         ppFilter->camera()->setOrder(order++);
-        ppFilter->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(innTex));
+        ppFilter->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(outTex));
         ppFilter->material()->params().setUniform(UniformName::Threshold, brightnessThreshold);
         dummy_->addComponent(ppFilter);
-        mats.push_back(ppFilter->material());*/
+        mats.push_back(ppFilter->material());
 
         const int numPasses = 5;
 
-        for (int i = numPasses - 1; i >= 0; --i) {
-            auto ppFilter = std::make_shared<RenderFilterComponent>(MaterialTypeFilterBloomPass1);
+        for (int i = 0; i < numPasses; ++i) {
+            auto ppFilter = std::make_shared<RenderFilterComponent>(MaterialTypeFilterCopy);
             ppFilter->material()->setTextureBinding(SamplerName::Main,
-                TextureBinding(inputTex,
-                    SamplerParams(GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR)));
+                TextureBinding(i == 0 ? outTex : tex1,
+                    SamplerParams(i == 0 ? GL_LINEAR : GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR)));
             ppFilter->camera()->setOrder(order++);
             ppFilter->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(tex1, i));
-            ppFilter->material()->params().setUniform(UniformName::Threshold, brightnessThreshold);
+            ppFilter->material()->params().setUniform(UniformName::MipLevel, static_cast<float>(i == 0 ? 0 : i - 1));
             dummy_->addComponent(ppFilter);
-            mats.push_back(ppFilter->material());
+        }
 
-            ppFilter = std::make_shared<RenderFilterComponent>(MaterialTypeFilterGaussianBlur);
+        for (int i = numPasses - 1; i >= 0; --i) {
+            auto ppFilter = std::make_shared<RenderFilterComponent>(MaterialTypeFilterGaussianBlur);
             ppFilter->material()->setTextureBinding(SamplerName::Main,
                 TextureBinding(tex1,
-                    SamplerParams(GL_LINEAR_MIPMAP_NEAREST, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR)));
+                    SamplerParams(GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR)));
             ppFilter->camera()->setOrder(order++);
             ppFilter->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(tex2, i));
             setGaussianBlurParams(ppFilter->material()->params(), blurKSize, blurSigma, false);
@@ -713,7 +712,7 @@ namespace af3d
             ppFilter = std::make_shared<RenderFilterComponent>(MaterialTypeFilterGaussianBlur);
             ppFilter->material()->setTextureBinding(SamplerName::Main,
                 TextureBinding(tex2,
-                    SamplerParams(GL_LINEAR_MIPMAP_NEAREST, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR)));
+                    SamplerParams(GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR)));
             ppFilter->camera()->setOrder(order++);
             ppFilter->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(tex1, i));
             setGaussianBlurParams(ppFilter->material()->params(), blurKSize, blurSigma, true);
@@ -728,24 +727,15 @@ namespace af3d
                 TextureBinding(tex2,
                     SamplerParams(GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR)));
             ppFilter->camera()->setOrder(order++);
-            ppFilter->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(tex3, i));
-            ppFilter->material()->params().setUniform(UniformName::MipLevel, static_cast<float>(i));
-            dummy_->addComponent(ppFilter);
-
-            ppFilter = std::make_shared<RenderFilterComponent>(MaterialTypeFilterCopy);
-            ppFilter->material()->setTextureBinding(SamplerName::Main,
-                TextureBinding(tex3,
-                    SamplerParams(GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR)));
-            ppFilter->camera()->setOrder(order++);
             ppFilter->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(tex2, i));
             ppFilter->material()->params().setUniform(UniformName::MipLevel, static_cast<float>(i));
             dummy_->addComponent(ppFilter);
         }
 
-        auto ppFilter = std::make_shared<RenderFilterComponent>(MaterialTypeFilterBloomPass2);
+        ppFilter = std::make_shared<RenderFilterComponent>(MaterialTypeFilterBloomPass2);
         ppFilter->material()->setTextureBinding(SamplerName::Main,
             TextureBinding(inputTex,
-                SamplerParams(GL_NEAREST, GL_NEAREST)));
+                SamplerParams(GL_LINEAR, GL_LINEAR)));
         ppFilter->material()->setTextureBinding(SamplerName::Specular,
             TextureBinding(tex2,
                 SamplerParams(GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR)));

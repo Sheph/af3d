@@ -10,8 +10,9 @@ out vec4 fragColor;
 
 void main()
 {
-    //float weights[5] = { 0.08, 0.25, 0.75, 1.5, 2.5 };
-    float weights[5] = { 0.8, 0.8, 0.8, 0.8, 0.8 };
+    //float weights[5] = { 0.5, 0.25, 0.75, 1.5, 2.5 };
+    //float weights[5] = { 0.8, 0.8, 0.8, 0.8, 0.8 };
+    float weights[5] = { 0.5, 0.5, 0.5, 0.5, 0.5 };
     float tot = 0.0;
     for (int i = 1; i < 5; ++i) {
         tot += weights[i];
@@ -27,5 +28,6 @@ void main()
     } else {
         vec3 hdrScene = texture(texMain, v_texCoord).rgb;
         fragColor = vec4(hdrScene + textureLod(texSpecular, v_texCoord, 0.0).rgb * weights[0], 1.0);
+        //fragColor = vec4(textureLod(texSpecular, v_texCoord, 0.0).rgb * weights[0], 1.0);
     }
 }

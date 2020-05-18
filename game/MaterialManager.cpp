@@ -63,7 +63,7 @@ namespace af3d
         {"shaders/filter.vert", "shaders/filter-specularlut.frag", false, nullptr},
         {"shaders/filter-fxaa.vert", "shaders/filter-fxaa.frag", false, nullptr},
         {"shaders/filter.vert", "shaders/filter-tone-mapping.frag", false, nullptr},
-        {"shaders/filter.vert", "shaders/filter-gaussian-blur.frag", false, nullptr},
+        {"shaders/filter-gaussian-blur.vert", "shaders/filter-gaussian-blur.frag", false, nullptr},
         {"shaders/filter.vert", "shaders/filter-bloom-pass1.frag", false, nullptr},
         {"shaders/filter.vert", "shaders/filter-bloom-pass2.frag", false, nullptr},
         {"shaders/filter.vert", "shaders/filter-motion-blur.frag", false, nullptr},
