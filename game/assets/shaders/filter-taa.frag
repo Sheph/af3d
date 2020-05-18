@@ -234,8 +234,8 @@ void Bicubic2DCatmullRom( in vec2 UV, in vec2 Size, out vec2 Sample[3], out vec2
 #define AA_FILTERED 1
 #define AA_BORDER 1
 #define AA_ALPHA 0
-//#define AA_CROSS 2
-#define AA_CROSS 0
+#define AA_CROSS 2
+//#define AA_CROSS 0
 #define AA_GREEN_AS_LUMA 1
 #define AA_AABB 1
 #define AA_LOWPASS 0
@@ -368,10 +368,6 @@ void main()
     float InExposureScale = 1.0;
 
     vec2 UV = v_texCoord;
-    vec4 WSP = vec4(UV * 2.f - 1.f, texture(texDepth, UV).r * 2.0 - 1.0, 1.f) * inverse(argViewProj);
-    WSP /= WSP.w;
-    vec4 CVVPosHISTORY = WSP * argPrevViewProj;
-    vec2 UVHISTORY = 0.5 * (CVVPosHISTORY.xy / CVVPosHISTORY.w) + 0.5;
 
     vec4 ViewportSize = vec4(viewportSize.x, viewportSize.y, 1.0 / viewportSize.x, 1.0 / viewportSize.y);
     vec4 ScreenPosToPixel = vec4(viewportSize.x * 0.5, viewportSize.y * 0.5, viewportSize.x * 0.5 - 0.5, viewportSize.y * 0.5 - 0.5);
@@ -392,15 +388,15 @@ void main()
         // For motion vector, use camera/dynamic motion from min depth pixel in pattern around pixel.
         // This enables better quality outline on foreground against different motion background.
         // Larger 2 pixel distance "x" works best (because AA dilates surface).
-        float4 Depths;
-        Depths.x = SceneDepthTexture.SampleLevel(SceneDepthTextureSampler, UV, 0, int2(-AA_CROSS, -AA_CROSS)).r;
-        Depths.y = SceneDepthTexture.SampleLevel(SceneDepthTextureSampler, UV, 0, int2( AA_CROSS, -AA_CROSS)).r;
-        Depths.z = SceneDepthTexture.SampleLevel(SceneDepthTextureSampler, UV, 0, int2(-AA_CROSS,  AA_CROSS)).r;
-        Depths.w = SceneDepthTexture.SampleLevel(SceneDepthTextureSampler, UV, 0, int2( AA_CROSS,  AA_CROSS)).r;
+        vec4 Depths;
+        Depths.x = 1.0 - textureLodOffset(texDepth, UV, 0, ivec2(-AA_CROSS, -AA_CROSS)).r;
+        Depths.y = 1.0 - textureLodOffset(texDepth, UV, 0, ivec2( AA_CROSS, -AA_CROSS)).r;
+        Depths.z = 1.0 - textureLodOffset(texDepth, UV, 0, ivec2(-AA_CROSS,  AA_CROSS)).r;
+        Depths.w = 1.0 - textureLodOffset(texDepth, UV, 0, ivec2( AA_CROSS,  AA_CROSS)).r;
 
-        float2 DepthOffset = float2(AA_CROSS, AA_CROSS);
+        vec2 DepthOffset = vec2(AA_CROSS, AA_CROSS);
         float DepthOffsetXx = float(AA_CROSS);
-#if HAS_INVERTED_Z_BUFFER
+
         // Nearest depth is the largest depth (depth surface 0=far, 1=near).
         if(Depths.x > Depths.y)
         {
@@ -426,15 +422,19 @@ void main()
             VelocityOffset = DepthOffset * PostprocessInput0Size.zw;
             // This is [0 to 1] flipped in Y.
             //PosN.xy = ScreenPos + DepthOffset * ViewportSize.zw * 2.0;
-            PosN.z = DepthsXYZW;
+            PosN.z = 1.0 - DepthsXYZW;
         }
-#else
-#error Fix me!
-#endif // HAS_INVERTED_Z_BUFFER
     #endif  // AA_CROSS
+
+    vec2 AN = (PosN.xy * ScreenPosToPixel.xy + ScreenPosToPixel.zw + 0.5) * PostprocessInput0Size.zw;
+    vec4 WSP = vec4(AN * 2.f - 1.f, PosN.z * 2.0 - 1.0, 1.f) * inverse(argViewProj);
+    WSP /= WSP.w;
+    vec4 CVVPosHISTORY = WSP * argPrevViewProj;
+    vec2 UVHISTORY = 0.5 * (CVVPosHISTORY.xy / CVVPosHISTORY.w) + 0.5;
 
     vec2 PrevScreen = ( UVHISTORY * PostprocessInput0Size.xy - 0.5 - ScreenPosToPixel.zw ) / ScreenPosToPixel.xy;
     vec2 BackN = PosN.xy - PrevScreen;
+    //vec2 BackN = (UV - UVHISTORY) * 2.0;
 
     vec2 BackTemp = BackN * ViewportSize.xy;
     #if AA_DYNAMIC
@@ -448,7 +448,7 @@ void main()
         bool DynamicN = VelocityN.x > 0.0;
         if(DynamicN)
         {
-            BackN = VelocityN;
+            BackN = -(VelocityN - 10.0);
         }
         BackTemp = BackN * ViewportSize.xy;
     #endif
@@ -653,17 +653,17 @@ void main()
         vec2 Sample[3];
         Bicubic2DCatmullRom( BackN.xy, PostprocessInput1Size.xy, Sample, Weight );
 
-        OutColor  = texture( texPrev, vec2( Sample[0].x, Sample[0].y ), 0 ) * Weight[0].x * Weight[0].y;
-        OutColor += texture( texPrev, vec2( Sample[1].x, Sample[0].y ), 0 ) * Weight[1].x * Weight[0].y;
-        OutColor += texture( texPrev, vec2( Sample[2].x, Sample[0].y ), 0 ) * Weight[2].x * Weight[0].y;
+        OutColor  = texture( texPrev, vec2( Sample[0].x, Sample[0].y ) ) * Weight[0].x * Weight[0].y;
+        OutColor += texture( texPrev, vec2( Sample[1].x, Sample[0].y ) ) * Weight[1].x * Weight[0].y;
+        OutColor += texture( texPrev, vec2( Sample[2].x, Sample[0].y ) ) * Weight[2].x * Weight[0].y;
 
-        OutColor += texture( texPrev, vec2( Sample[0].x, Sample[1].y ), 0 ) * Weight[0].x * Weight[1].y;
-        OutColor += texture( texPrev, vec2( Sample[1].x, Sample[1].y ), 0 ) * Weight[1].x * Weight[1].y;
-        OutColor += texture( texPrev, vec2( Sample[2].x, Sample[1].y ), 0 ) * Weight[2].x * Weight[1].y;
+        OutColor += texture( texPrev, vec2( Sample[0].x, Sample[1].y ) ) * Weight[0].x * Weight[1].y;
+        OutColor += texture( texPrev, vec2( Sample[1].x, Sample[1].y ) ) * Weight[1].x * Weight[1].y;
+        OutColor += texture( texPrev, vec2( Sample[2].x, Sample[1].y ) ) * Weight[2].x * Weight[1].y;
 
-        OutColor += texture( texPrev, vec2( Sample[0].x, Sample[2].y ), 0 ) * Weight[0].x * Weight[2].y;
-        OutColor += texture( texPrev, vec2( Sample[1].x, Sample[2].y ), 0 ) * Weight[1].x * Weight[2].y;
-        OutColor += texture( texPrev, vec2( Sample[2].x, Sample[2].y ), 0 ) * Weight[2].x * Weight[2].y;
+        OutColor += texture( texPrev, vec2( Sample[0].x, Sample[2].y ) ) * Weight[0].x * Weight[2].y;
+        OutColor += texture( texPrev, vec2( Sample[1].x, Sample[2].y ) ) * Weight[1].x * Weight[2].y;
+        OutColor += texture( texPrev, vec2( Sample[2].x, Sample[2].y ) ) * Weight[2].x * Weight[2].y;
     #else
         OutColor = PostprocessInput1.SampleLevel(PostprocessInput1Sampler, BackN.xy, 0);
     #endif

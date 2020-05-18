@@ -44,9 +44,9 @@ void main()
     v_normal = normalize(normal * mat3(model));
 #endif
 
-    vec4 prevClipPos = vec4(pos, 1.0) * prevStableMVP;
-    vec4 clipPos = vec4(pos, 1.0) * curStableMVP;
-    screenSpaceVel = (prevClipPos - clipPos).xy;
+    v_prevClipPos = vec4(pos, 1.0) * prevStableMVP;
+    v_clipPos = vec4(pos, 1.0) * curStableMVP;
+    screenSpaceVel = (v_prevClipPos - v_clipPos).xy;
 
     gl_Position = vec4(pos, 1.0) * model * viewProj;
 }

@@ -35,9 +35,9 @@ namespace af3d
 {
     static const char* glslCommonHeader = "#version 330 core\n" \
         "#define OUT_FRAG_VELOCITY() \\\n" \
-        "vec2 a = (v_clipPos.xy); \\\n" \
-        "vec2 b = (v_prevClipPos.xy); \\\n" \
-        "fragVelocity = b - a\n" \
+        "vec2 a = (v_clipPos.xy / v_clipPos.w); \\\n" \
+        "vec2 b = (v_prevClipPos.xy / v_prevClipPos.w); \\\n" \
+        "fragVelocity = (b - a) + 10.0\n" \
         "#line 1\n";
 
     static const struct {
