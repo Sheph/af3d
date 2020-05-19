@@ -79,6 +79,18 @@ namespace af3d
             winVideoModes.insert(VideoMode(tmp.x(), tmp.y()));
         }
 
+        subKeys.clear();
+
+        subKeys.push_back("none");
+        subKeys.push_back("fxaa");
+        subKeys.push_back("taa");
+
+        aaMode = static_cast<AAMode>(appConfig->getStringIndex(".aaMode", subKeys));
+        bloom = appConfig->getBool(".bloom");
+
+        LOG4CPLUS_INFO(logger(), "AA mode : " << subKeys[static_cast<int>(aaMode)]);
+        LOG4CPLUS_INFO(logger(), "Bloom : " << bloom);
+
         /*
          * physics.
          */
