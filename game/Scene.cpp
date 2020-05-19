@@ -292,7 +292,7 @@ namespace af3d
         mc->setClearColor(AttachmentPoint::Color1, linearToGamma(Color(65535.0f, 65535.0f, 65535.0f, 65535.0f)));
         addCamera(mc);
 
-        bool bloom = false;
+        bool bloom = true;
         bool useTAA = true;
         bool useFXAA = false;
 
@@ -646,25 +646,6 @@ namespace af3d
         }
     }
 
-/*    TexturePtr Scene::postProcessMotionBlur(int order, const TexturePtr& inputTex,
-        const TexturePtr& velocityTex)
-    {
-        auto resTex = textureManager.createRenderTextureScaled(TextureType2D,
-            1.0f, GL_RGB16F, GL_RGB, GL_FLOAT);
-
-        auto ppFilter = std::make_shared<RenderFilterComponent>(MaterialTypeFilterMotionBlur);
-        ppFilter->material()->setTextureBinding(SamplerName::Main,
-            TextureBinding(inputTex,
-                SamplerParams(GL_NEAREST, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST)));
-        ppFilter->material()->setTextureBinding(SamplerName::Noise,
-            TextureBinding(velocityTex,
-                SamplerParams(GL_NEAREST, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST)));
-        ppFilter->camera()->setOrder(order);
-        ppFilter->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(resTex));
-        dummy_->addComponent(ppFilter);
-        return resTex;
-    }*/
-
     void Scene::postProcessTAA(int order, const CameraPtr& inputCamera,
         const std::vector<MaterialPtr>& destMaterials)
     {
@@ -696,7 +677,7 @@ namespace af3d
         const int numPasses = 5;
 
         for (int i = 0; i < numPasses; ++i) {
-            auto ppFilter = std::make_shared<RenderFilterComponent>(MaterialTypeFilterCopy);
+            auto ppFilter = std::make_shared<RenderFilterComponent>(MaterialTypeFilterDownscale);
             ppFilter->material()->setTextureBinding(SamplerName::Main,
                 TextureBinding(i == 0 ? outTex : tex1,
                     SamplerParams(i == 0 ? GL_LINEAR : GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR)));
@@ -706,7 +687,7 @@ namespace af3d
             dummy_->addComponent(ppFilter);
         }
 
-        for (int i = numPasses - 1; i >= 0; --i) {
+        for (int i = 0; i < numPasses; ++i) {
             auto ppFilter = std::make_shared<RenderFilterComponent>(MaterialTypeFilterGaussianBlur);
             ppFilter->material()->setTextureBinding(SamplerName::Main,
                 TextureBinding(tex1,
@@ -726,18 +707,6 @@ namespace af3d
             setGaussianBlurParams(ppFilter->material()->params(), blurKSize, blurSigma, true);
             ppFilter->material()->params().setUniform(UniformName::MipLevel, static_cast<float>(i));
             dummy_->addComponent(ppFilter);
-
-            ppFilter = std::make_shared<RenderFilterComponent>(MaterialTypeFilterBloomPass2);
-            ppFilter->material()->setTextureBinding(SamplerName::Main,
-                TextureBinding(tex1,
-                    SamplerParams(GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR)));
-            ppFilter->material()->setTextureBinding(SamplerName::Specular,
-                TextureBinding(tex2,
-                    SamplerParams(GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR)));
-            ppFilter->camera()->setOrder(order++);
-            ppFilter->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(tex2, i));
-            ppFilter->material()->params().setUniform(UniformName::MipLevel, static_cast<float>(i));
-            dummy_->addComponent(ppFilter);
         }
 
         ppFilter = std::make_shared<RenderFilterComponent>(MaterialTypeFilterBloomPass2);
@@ -745,12 +714,12 @@ namespace af3d
             TextureBinding(inputTex,
                 SamplerParams(GL_LINEAR, GL_LINEAR)));
         ppFilter->material()->setTextureBinding(SamplerName::Specular,
-            TextureBinding(tex2,
+            TextureBinding(tex1,
                 SamplerParams(GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR)));
         ppFilter->camera()->setOrder(order++);
         ppFilter->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(outTex));
-        //ppFilter->material()->params().setUniform(UniformName::Strength, compositeStrength);
-        ppFilter->material()->params().setUniform(UniformName::MipLevel, static_cast<float>(-1.0f));
+        ppFilter->material()->params().setUniform(UniformName::Strength, compositeStrength);
+        ppFilter->material()->params().setUniform(UniformName::MipLevel, static_cast<float>(numPasses));
         dummy_->addComponent(ppFilter);
         mats.push_back(ppFilter->material());
 
