@@ -445,10 +445,10 @@ void main()
             VelocityN = texture(texNoise, UV).xy;
         #endif
         VelocityN *= VelocityScaling;
-        bool DynamicN = VelocityN.x > 0.0;
+        bool DynamicN = VelocityN.x < 65534.0;
         if(DynamicN)
         {
-            BackN = -(VelocityN - 10.0);
+            BackN = VelocityN;
         }
         BackTemp = BackN * ViewportSize.xy;
     #endif

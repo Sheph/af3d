@@ -29,8 +29,6 @@ in mat3 v_tbn;
 in vec3 v_normal;
 #endif
 
-in vec2 screenSpaceVel;
-
 in vec4 v_prevClipPos;
 in vec4 v_clipPos;
 

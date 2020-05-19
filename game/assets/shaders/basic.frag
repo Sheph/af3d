@@ -24,8 +24,6 @@ in mat3 v_tbn;
 in vec3 v_normal;
 #endif
 
-in vec2 screenSpaceVel;
-
 in vec4 v_prevClipPos;
 in vec4 v_clipPos;
 
@@ -37,7 +35,6 @@ void main()
     if (lightPos.w == 0.0) {
         // ambient
         fragColor = texture(texMain, v_texCoord) * mainColor * vec4(lightColor, 1.0);
-        //fragVelocity = screenSpaceVel;
         OUT_FRAG_VELOCITY();
         return;
     }
