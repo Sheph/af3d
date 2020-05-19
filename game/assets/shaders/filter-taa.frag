@@ -1,3 +1,5 @@
+// Temporal AA implementation from UE4. Thanks epic games ;)
+
 #ifndef ENABLE_TEMPORAL_AA
 #define ENABLE_TEMPORAL_AA  1
 #endif
@@ -230,6 +232,8 @@ void Bicubic2DCatmullRom( in vec2 UV, in vec2 Size, out vec2 Sample[3], out vec2
     Sample[2] *= InvSize;
 }
 
+
+// Default UE4 TAA settings.
 #define AA_FILTERED 1
 #define AA_BORDER 1
 #define AA_ALPHA 0
@@ -387,6 +391,7 @@ void main()
         // This enables better quality outline on foreground against different motion background.
         // Larger 2 pixel distance "x" works best (because AA dilates surface).
         vec4 Depths;
+        // (1.0 - x) - because UE4 uses inverted depth buffer, we still use normal depth buffer.
         Depths.x = 1.0 - textureLodOffset(texDepth, UV, 0, ivec2(-AA_CROSS, -AA_CROSS)).r;
         Depths.y = 1.0 - textureLodOffset(texDepth, UV, 0, ivec2( AA_CROSS, -AA_CROSS)).r;
         Depths.z = 1.0 - textureLodOffset(texDepth, UV, 0, ivec2(-AA_CROSS,  AA_CROSS)).r;
@@ -429,10 +434,8 @@ void main()
     WSP /= WSP.w;
     vec4 CVVPosHISTORY = WSP * argPrevViewProj;
     vec2 UVHISTORY = 0.5 * (CVVPosHISTORY.xy / CVVPosHISTORY.w) + 0.5;
-
     vec2 PrevScreen = ( UVHISTORY * PostprocessInput0Size.xy - 0.5 - ScreenPosToPixel.zw ) / ScreenPosToPixel.xy;
     vec2 BackN = PosN.xy - PrevScreen;
-    //vec2 BackN = (UV - UVHISTORY) * 2.0;
 
     vec2 BackTemp = BackN * ViewportSize.xy;
     #if AA_DYNAMIC

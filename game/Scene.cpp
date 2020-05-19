@@ -294,6 +294,7 @@ namespace af3d
 
         bool bloom = false;
         bool useTAA = true;
+        bool useFXAA = false;
 
         if (bloom) {
             std::vector<MaterialPtr> mats;
@@ -303,7 +304,7 @@ namespace af3d
             }
             auto filter = postProcessToneMapping(camOrderPostProcess + 100, tex);
 
-            if (!useTAA) {
+            if (!useTAA && useFXAA) {
                 auto toneMappedTex = textureManager.createRenderTextureScaled(TextureType2D,
                     1.0f, GL_RGB, GL_RGB, GL_UNSIGNED_BYTE);
                 filter->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(toneMappedTex));
@@ -313,7 +314,14 @@ namespace af3d
             ppCamera_ = filter->camera();
         } else {
             auto filter = postProcessToneMapping(camOrderPostProcess + 100, screenTex);
-            postProcessTAA(camOrderPostProcess, mc, {filter->material()});
+            if (useTAA) {
+                postProcessTAA(camOrderPostProcess, mc, {filter->material()});
+            } else if (useFXAA) {
+                auto toneMappedTex = textureManager.createRenderTextureScaled(TextureType2D,
+                    1.0f, GL_RGB, GL_RGB, GL_UNSIGNED_BYTE);
+                filter->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(toneMappedTex));
+                filter = postProcessFXAA(camOrderPostProcess + 200, filter->camera()->renderTarget().texture());
+            }
             ppCamera_ = filter->camera();
         }
 
