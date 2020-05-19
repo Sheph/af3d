@@ -40,49 +40,49 @@ namespace af3d
     {
     }
 
-    void MaterialParams::setUniform(UniformName name, float value)
+    void MaterialParams::setUniform(UniformName name, float value, bool quiet)
     {
-        setUniformImpl(name, reinterpret_cast<const Byte*>(&value), GL_FLOAT, 1, 1);
+        setUniformImpl(name, reinterpret_cast<const Byte*>(&value), GL_FLOAT, 1, 1, quiet);
     }
 
-    void MaterialParams::setUniform(UniformName name, const std::vector<float>& value)
+    void MaterialParams::setUniform(UniformName name, const std::vector<float>& value, bool quiet)
     {
-        setUniformImpl(name, reinterpret_cast<const Byte*>(&value[0]), GL_FLOAT, 1, value.size());
+        setUniformImpl(name, reinterpret_cast<const Byte*>(&value[0]), GL_FLOAT, 1, value.size(), quiet);
     }
 
-    void MaterialParams::setUniform(UniformName name, std::int32_t value)
+    void MaterialParams::setUniform(UniformName name, std::int32_t value, bool quiet)
     {
-        setUniformImpl(name, reinterpret_cast<const Byte*>(&value), GL_INT, 1, 1);
+        setUniformImpl(name, reinterpret_cast<const Byte*>(&value), GL_INT, 1, 1, quiet);
     }
 
-    void MaterialParams::setUniform(UniformName name, std::uint32_t value)
+    void MaterialParams::setUniform(UniformName name, std::uint32_t value, bool quiet)
     {
-        setUniformImpl(name, reinterpret_cast<const Byte*>(&value), GL_UNSIGNED_INT, 1, 1);
+        setUniformImpl(name, reinterpret_cast<const Byte*>(&value), GL_UNSIGNED_INT, 1, 1, quiet);
     }
 
-    void MaterialParams::setUniform(UniformName name, const Vector2f& value)
+    void MaterialParams::setUniform(UniformName name, const Vector2f& value, bool quiet)
     {
-        setUniformImpl(name, reinterpret_cast<const Byte*>(value.v), GL_FLOAT, 2, 1);
+        setUniformImpl(name, reinterpret_cast<const Byte*>(value.v), GL_FLOAT, 2, 1, quiet);
     }
 
-    void MaterialParams::setUniform(UniformName name, const Vector3f& value)
+    void MaterialParams::setUniform(UniformName name, const Vector3f& value, bool quiet)
     {
-        setUniformImpl(name, reinterpret_cast<const Byte*>(value.v), GL_FLOAT, 3, 1);
+        setUniformImpl(name, reinterpret_cast<const Byte*>(value.v), GL_FLOAT, 3, 1, quiet);
     }
 
-    void MaterialParams::setUniform(UniformName name, const btVector3& value)
+    void MaterialParams::setUniform(UniformName name, const btVector3& value, bool quiet)
     {
-        setUniform(name, toVector3f(value));
+        setUniform(name, toVector3f(value), quiet);
     }
 
-    void MaterialParams::setUniform(UniformName name, const Vector4f& value)
+    void MaterialParams::setUniform(UniformName name, const Vector4f& value, bool quiet)
     {
-        setUniformImpl(name, reinterpret_cast<const Byte*>(value.v), GL_FLOAT, 4, 1);
+        setUniformImpl(name, reinterpret_cast<const Byte*>(value.v), GL_FLOAT, 4, 1, quiet);
     }
 
-    void MaterialParams::setUniform(UniformName name, const Matrix4f& value)
+    void MaterialParams::setUniform(UniformName name, const Matrix4f& value, bool quiet)
     {
-        setUniformImpl(name, reinterpret_cast<const Byte*>(value.v), GL_FLOAT, 16, 1);
+        setUniformImpl(name, reinterpret_cast<const Byte*>(value.v), GL_FLOAT, 16, 1, quiet);
     }
 
     bool MaterialParams::getUniform(UniformName name, float& value, bool withDefault) const

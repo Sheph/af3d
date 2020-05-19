@@ -203,14 +203,11 @@ namespace af3d
         cachedViewProjMat_ = cachedProjMat_ * xfInv;
         auto t1 = cachedProjMat_[0][2];
         auto t2 = cachedProjMat_[1][2];
-        //cachedProjMat_[0][2] += jitter_.x();
-        //cachedProjMat_[1][2] += jitter_.y();
-
-        Matrix4f jm(btVector3(jitter_.x(), jitter_.y(), 0.0f), btQuaternion::getIdentity());
-
-        cachedJitteredViewProjMat_ = jm * cachedProjMat_ * xfInv;
-        //cachedProjMat_[0][2] = t1;
-        //cachedProjMat_[1][2] = t2;
+        cachedProjMat_[0][2] += jitter_.x();
+        cachedProjMat_[1][2] += jitter_.y();
+        cachedJitteredViewProjMat_ = cachedProjMat_ * xfInv;
+        cachedProjMat_[0][2] = t1;
+        cachedProjMat_[1][2] = t2;
     }
 
     bool Frustum::isVisible(const AABB& aabb) const

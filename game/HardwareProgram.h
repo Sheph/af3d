@@ -83,15 +83,12 @@ namespace af3d
         GaussianDir,
         Threshold,
         Strength,
-        ArgJitter,
         ArgPrevViewProjMatrix,
         ArgViewProjMatrix,
         SampleWeights,
         LowpassWeights,
         PlusWeights,
-        RandomOffset,
-        VelocityScaling,
-        Max = VelocityScaling
+        Max = PlusWeights
     };
 
     enum class SamplerName

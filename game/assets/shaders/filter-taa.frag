@@ -14,10 +14,9 @@ in vec2 v_texCoord;
 
 out vec4 OutColor;
 
-uniform float SampleWeights[9];
-uniform float LowpassWeights[9];
-uniform float PlusWeights[5];
-uniform float VelocityScaling;
+uniform float sampleWeights[9];
+uniform float lowpassWeights[9];
+uniform float plusWeights[5];
 
 vec3 RGBToYCoCg( vec3 RGB )
 {
@@ -235,7 +234,6 @@ void Bicubic2DCatmullRom( in vec2 UV, in vec2 Size, out vec2 Sample[3], out vec2
 #define AA_BORDER 1
 #define AA_ALPHA 0
 #define AA_CROSS 2
-//#define AA_CROSS 0
 #define AA_GREEN_AS_LUMA 1
 #define AA_AABB 1
 #define AA_LOWPASS 0
@@ -444,7 +442,6 @@ void main()
         #else
             VelocityN = texture(texNoise, UV).xy;
         #endif
-        VelocityN *= VelocityScaling;
         bool DynamicN = VelocityN.x < 65534.0;
         if(DynamicN)
         {
@@ -501,11 +498,11 @@ void main()
         #endif
         #if AA_FILTERED
             vec4 Filtered =
-                Neighbor1 * PlusWeights[0] +
-                Neighbor3 * PlusWeights[1] +
-                Neighbor4 * PlusWeights[2] +
-                Neighbor5 * PlusWeights[3] +
-                Neighbor7 * PlusWeights[4];
+                Neighbor1 * plusWeights[0] +
+                Neighbor3 * plusWeights[1] +
+                Neighbor4 * plusWeights[2] +
+                Neighbor5 * plusWeights[3] +
+                Neighbor7 * plusWeights[4];
             #if AA_BORDER
                 // Use unfiltered for 1 pixel border.
                 vec2 TestPos = abs(ScreenPos);
@@ -852,12 +849,5 @@ void main()
     #if AA_DEBUG
         OutColor.g = abs(DebugDiffPrior - DebugDiffCurrent);
         OutColor.r = OutColor.a;
-    #endif
-
-    #if 0
-        // Test velocity scaling
-        OutColor.r *= VelocityScaling.x*.5+.5;
-        OutColor.g *= (1 - VelocityScaling.x)*.5+.5;
-        OutColor.b *= .5;
     #endif
 }

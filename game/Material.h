@@ -40,15 +40,15 @@ namespace af3d
         MaterialParams(const MaterialTypePtr& materialType, bool isAuto);
         ~MaterialParams() = default;
 
-        void setUniform(UniformName name, float value);
-        void setUniform(UniformName name, const std::vector<float>& value);
-        void setUniform(UniformName name, std::int32_t value);
-        void setUniform(UniformName name, std::uint32_t value);
-        void setUniform(UniformName name, const Vector2f& value);
-        void setUniform(UniformName name, const Vector3f& value);
-        void setUniform(UniformName name, const btVector3& value);
-        void setUniform(UniformName name, const Vector4f& value);
-        void setUniform(UniformName name, const Matrix4f& value);
+        void setUniform(UniformName name, float value, bool quiet = false);
+        void setUniform(UniformName name, const std::vector<float>& value, bool quiet = false);
+        void setUniform(UniformName name, std::int32_t value, bool quiet = false);
+        void setUniform(UniformName name, std::uint32_t value, bool quiet = false);
+        void setUniform(UniformName name, const Vector2f& value, bool quiet = false);
+        void setUniform(UniformName name, const Vector3f& value, bool quiet = false);
+        void setUniform(UniformName name, const btVector3& value, bool quiet = false);
+        void setUniform(UniformName name, const Vector4f& value, bool quiet = false);
+        void setUniform(UniformName name, const Matrix4f& value, bool quiet = false);
 
         bool getUniform(UniformName name, float& value, bool withDefault = false) const;
         bool getUniform(UniformName name, std::int32_t& value, bool withDefault = false) const;

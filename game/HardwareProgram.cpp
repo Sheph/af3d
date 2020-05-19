@@ -91,14 +91,11 @@ namespace af3d
         {"gaussianDir", UniformName::GaussianDir},
         {"threshold", UniformName::Threshold},
         {"strength", UniformName::Strength},
-        {"argJitter", UniformName::ArgJitter},
         {"argPrevViewProj", UniformName::ArgPrevViewProjMatrix},
         {"argViewProj", UniformName::ArgViewProjMatrix},
-        {"SampleWeights[0]", UniformName::SampleWeights},
-        {"LowpassWeights[0]", UniformName::LowpassWeights},
-        {"PlusWeights[0]", UniformName::PlusWeights},
-        {"RandomOffset", UniformName::RandomOffset},
-        {"VelocityScaling", UniformName::VelocityScaling}
+        {"sampleWeights[0]", UniformName::SampleWeights},
+        {"lowpassWeights[0]", UniformName::LowpassWeights},
+        {"plusWeights[0]", UniformName::PlusWeights}
     };
 
     static const std::unordered_map<std::string, SamplerName> staticSamplerMap = {

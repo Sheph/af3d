@@ -106,12 +106,10 @@ namespace af3d
 
         // For velocity buffer calculation.
         inline const Matrix4f& prevViewProjMat() const { return prevViewProjMat_ ? *prevViewProjMat_ : frustum_.viewProjMat(); }
-        inline const Matrix4f& prevJitteredViewProjMat() const { return prevJitteredViewProjMat_ ? *prevJitteredViewProjMat_ : frustum_.jitteredViewProjMat(); }
 
         inline void updatePrevViewProjMat()
         {
             prevViewProjMat_ = frustum_.viewProjMat();
-            prevJitteredViewProjMat_ = frustum_.jitteredViewProjMat();
         }
 
     private:
@@ -126,7 +124,6 @@ namespace af3d
         std::array<RenderTarget, static_cast<int>(AttachmentPoint::Max) + 1> renderTarget_;
 
         boost::optional<Matrix4f> prevViewProjMat_;
-        boost::optional<Matrix4f> prevJitteredViewProjMat_;
     };
 
     ACLASS_DECLARE(Camera)

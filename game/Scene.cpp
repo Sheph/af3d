@@ -278,9 +278,9 @@ namespace af3d
         auto screenTex = textureManager.createRenderTextureScaled(TextureType2D,
             1.0f, GL_RGB16F, GL_RGB, GL_FLOAT);
         auto velocityTex = textureManager.createRenderTextureScaled(TextureType2D,
-            1.0f, GL_RG32F, GL_RG, GL_FLOAT);
+            1.0f, GL_RG16F, GL_RG, GL_FLOAT);
         auto depthTex = textureManager.createRenderTextureScaled(TextureType2D,
-            1.0f, GL_DEPTH_COMPONENT32, GL_DEPTH_COMPONENT, GL_FLOAT);
+            1.0f, GL_DEPTH_COMPONENT24, GL_DEPTH_COMPONENT, GL_FLOAT);
 
         auto mc = std::make_shared<Camera>();
         mc->setLayer(CameraLayer::Main);
@@ -292,7 +292,7 @@ namespace af3d
         mc->setClearColor(AttachmentPoint::Color1, linearToGamma(Color(65535.0f, 65535.0f, 65535.0f, 65535.0f)));
         addCamera(mc);
 
-        bool bloom = true;
+        bool bloom = false;
         bool useTAA = true;
 
         if (bloom) {
@@ -751,15 +751,11 @@ namespace af3d
 
     RenderFilterComponentPtr Scene::postProcessToneMapping(int order, const TexturePtr& inputTex)
     {
-        //auto toneMappedTex = textureManager.createRenderTextureScaled(TextureType2D,
-          //  1.0f, GL_RGB, GL_RGB, GL_UNSIGNED_BYTE);
-
         auto ppFilter = std::make_shared<RenderFilterComponent>(MaterialTypeFilterToneMapping);
         ppFilter->material()->setTextureBinding(SamplerName::Main,
             TextureBinding(inputTex,
                 SamplerParams(GL_NEAREST, GL_NEAREST)));
         ppFilter->camera()->setOrder(order);
-        //ppFilter->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(toneMappedTex));
         dummy_->addComponent(ppFilter);
         return ppFilter;
     }

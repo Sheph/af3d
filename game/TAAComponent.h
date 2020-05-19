@@ -50,23 +50,26 @@ namespace af3d
     private:
         static float haltonNumber(int base, int index);
 
+        static float catmullRom(float x);
+
         void onRegister() override;
 
         void onUnregister() override;
 
-        void updateTextureBindings(const TexturePtr& prevTex,
-            const TexturePtr& curTex, const TexturePtr& outTex);
+        void updateTextureBindings(const TexturePtr& prevTex, const TexturePtr& outTex);
 
         CameraPtr srcCamera_;
         std::vector<MaterialPtr> destMaterials_;
         RenderFilterComponentPtr taaFilter_;
 
         TexturePtr prevTex_;
-        TexturePtr curTex_;
         TexturePtr outTex_;
 
         std::vector<Vector2f> jitters_;
         size_t jitterIdx_ = 0;
+        std::vector<float> sampleWeights_;
+        std::vector<float> lowpassWeights_;
+        std::vector<float> plusWeights_;
     };
 
     using TAAComponentPtr = std::shared_ptr<TAAComponent>;
