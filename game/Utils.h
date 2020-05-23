@@ -90,6 +90,11 @@ namespace af3d
         return Vector2u(equirectW, equirectW / 2);
     }
 
+    inline std::uint32_t equirectSize2cube(std::uint32_t equirectWidth)
+    {
+        return equirectWidth / SIMD_PI;
+    }
+
     inline std::uint32_t textureMipSize(std::uint32_t texSize, std::uint32_t mip)
     {
         return texSize >> mip;

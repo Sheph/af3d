@@ -60,6 +60,8 @@ namespace af3d
 
         SceneObjectPtr createLightProbe(std::uint32_t irradianceResolution, std::uint32_t specularResolution,
             std::uint32_t specularMipLevels);
+
+        SceneObjectPtr createSkyBox(const std::string& texturePath);
     };
 
     extern SceneObjectFactory sceneObjectFactory;

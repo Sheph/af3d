@@ -94,6 +94,7 @@ set(SOURCES
     RenderCollisionShapeComponent.cpp
     RenderJointComponent.cpp
     RenderFilterComponent.cpp
+    RenderSkyBoxComponent.cpp
     AJsonReader.cpp
     AJsonWriter.cpp
     SceneAsset.cpp

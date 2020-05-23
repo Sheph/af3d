@@ -60,8 +60,9 @@ namespace af3d
         MaterialTypeFilterBloomPass2,
         MaterialTypeFilterTAA,
         MaterialTypeFilterDownscale,
+        MaterialTypeSkyBox,
         MaterialTypeFirst = MaterialTypeBasic,
-        MaterialTypeMax = MaterialTypeFilterDownscale
+        MaterialTypeMax = MaterialTypeSkyBox
     };
 
     class MaterialType : boost::noncopyable

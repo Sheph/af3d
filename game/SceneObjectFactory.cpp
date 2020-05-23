@@ -31,6 +31,7 @@
 #include "RenderMeshComponent.h"
 #include "RenderQuadComponent.h"
 #include "RenderFilterComponent.h"
+#include "RenderSkyBoxComponent.h"
 #include "PhysicsBodyComponent.h"
 #include "CollisionSensorComponent.h"
 #include "CollisionShapeBox.h"
@@ -263,6 +264,16 @@ namespace af3d
         return obj;
     }
 
+    SceneObjectPtr SceneObjectFactory::createSkyBox(const std::string& texturePath)
+    {
+        auto obj = std::make_shared<SceneObject>();
+
+        obj->addComponent(std::make_shared<RenderSkyBoxComponent>(
+            textureManager.loadTexture(texturePath)));
+
+        return obj;
+    }
+
     SCENEOBJECT_DEFINE_BEGIN(Dummy)
     {
         return sceneObjectFactory.createDummy();
@@ -355,4 +366,13 @@ namespace af3d
     SCENEOBJECT_PARAM(LightProbe, "specular res", "Specular resolution", UInt, 128)
     SCENEOBJECT_PARAM(LightProbe, "specular mip levels", "Specular mip levels", UInt, 5)
     SCENEOBJECT_DEFINE_END(LightProbe)
+
+    SCENEOBJECT_DEFINE_BEGIN(SkyBox)
+    {
+        return sceneObjectFactory.createSkyBox(
+            params.get("texture").toString());
+    }
+    SCENEOBJECT_DEFINE_PROPS_NO_RESTRICT(SkyBox)
+    SCENEOBJECT_PARAM(SkyBox, "texture", "Texture path", String, "empty.hdr")
+    SCENEOBJECT_DEFINE_END(SkyBox)
 }

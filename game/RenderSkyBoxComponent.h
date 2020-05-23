@@ -23,24 +23,48 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _CONST_H_
-#define _CONST_H_
+#ifndef _RENDERSKYBOXCOMPONENT_H_
+#define _RENDERSKYBOXCOMPONENT_H_
 
-#include "af3d/Types.h"
+#include "RenderComponent.h"
+#include "Equirect2CubeComponent.h"
 
 namespace af3d
 {
-    static const int zOrderMenu = 2;
-    static const int zOrderEditor = 100;
-    static const int zOrderEditorWorkspace = 101;
-    static const int zOrderImGui = 9999;
+    class RenderSkyBoxComponent : public std::enable_shared_from_this<RenderSkyBoxComponent>,
+        public RenderComponent
+    {
+    public:
+        explicit RenderSkyBoxComponent(const TexturePtr& texture);
+        ~RenderSkyBoxComponent() = default;
 
-    static const int camOrderSkyBox = -200;
-    static const int camOrderLightProbe = -100;
-    static const int camOrderTestCamera = -10;
-    static const int camOrderTestDisplayFilter = -5;
-    static const int camOrderMain = 0;
-    static const int camOrderPostProcess = 1;
+        static const AClass& staticKlass();
+
+        static AObjectPtr create(const APropertyValueMap& propVals);
+
+        AObjectPtr sharedThis() override { return shared_from_this(); }
+
+        void update(float dt) override;
+
+        void render(RenderList& rl, void* const* parts, size_t numParts) override;
+
+        std::pair<AObjectPtr, float> testRay(const Frustum& frustum, const Ray& ray, void* part) override;
+
+    private:
+        void onRegister() override;
+
+        void onUnregister() override;
+
+        Equirect2CubeComponentPtr equirect2cube_;
+        MeshPtr mesh_;
+
+        boost::optional<Matrix4f> prevModelMat_;
+        boost::optional<Matrix4f> modelMat_;
+    };
+
+    using RenderSkyBoxComponentPtr = std::shared_ptr<RenderSkyBoxComponent>;
+
+    ACLASS_DECLARE(RenderSkyBoxComponent)
 }
 
 #endif
