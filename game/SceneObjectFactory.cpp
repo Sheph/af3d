@@ -362,6 +362,7 @@ namespace af3d
             params.get("specular mip levels").toInt());
     }
     SCENEOBJECT_DEFINE_PROPS(LightProbe)
+    SCENEOBJECT_PARAM(LightProbe, AProperty_Name, "Object name", String, "")
     SCENEOBJECT_PARAM(LightProbe, "irradiance res", "Irradiance resolution", UInt, 64)
     SCENEOBJECT_PARAM(LightProbe, "specular res", "Specular resolution", UInt, 128)
     SCENEOBJECT_PARAM(LightProbe, "specular mip levels", "Specular mip levels", UInt, 5)
