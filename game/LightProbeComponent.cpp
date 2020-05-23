@@ -42,8 +42,9 @@ namespace af3d
     ACLASS_DEFINE_END(LightProbeComponent)
 
     LightProbeComponent::LightProbeComponent(std::uint32_t irradianceResolution, std::uint32_t specularResolution,
-        std::uint32_t specularMipLevels)
+        std::uint32_t specularMipLevels, bool isGlobal)
     : PhasedComponent(AClass_LightProbeComponent, phasePreRender),
+      isGlobal_(isGlobal),
       irradianceResolution_(irradianceResolution),
       specularResolution_(specularResolution),
       specularMipLevels_(specularMipLevels)
@@ -354,12 +355,12 @@ namespace af3d
 
     std::string LightProbeComponent::getIrradianceTexName()
     {
-        return "lp_" + scene()->name() + "_" + parent()->name() + "_irr.hdr";
+        return "lp_" + scene()->name() + "_" + (isGlobal_ ? "global" : parent()->name()) + "_irr.hdr";
     }
 
     std::string LightProbeComponent::getSpecularTexName()
     {
-        return "lp_" + scene()->name() + "_" + parent()->name() + "_spec.hdr";
+        return "lp_" + scene()->name() + "_" + (isGlobal_ ? "global" : parent()->name()) + "_spec.hdr";
     }
 
     std::string LightProbeComponent::getSpecularLUTTexName()

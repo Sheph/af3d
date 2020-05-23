@@ -43,6 +43,7 @@ namespace af3d
         inline float time() const { return time_; }
         inline const VertexArrayWriter& defaultVa() const { return defaultVa_; }
         inline VertexArrayWriter& defaultVa() { return defaultVa_; }
+        inline LightProbeComponent* globalLightProbe() { return globalProbe_; }
 
         void update(float realDt, float dt);
 
@@ -62,6 +63,7 @@ namespace af3d
         float time_ = 0.0f;
         VertexArrayWriter defaultVa_;
         std::unordered_set<LightProbeComponent*> lightProbes_;
+        LightProbeComponent* globalProbe_ = nullptr;
     };
 
     using SceneEnvironmentPtr = std::shared_ptr<SceneEnvironment>;

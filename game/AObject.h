@@ -62,7 +62,7 @@ namespace af3d
         void setCookie(ACookie value);
 
         inline const std::string& name() const { return name_; }
-        inline void setName(const std::string& value) { name_ = value; }
+        virtual void setName(const std::string& value) { name_ = value; }
 
         inline std::uint32_t aflags() const { return aflags_; }
         inline void aflagsSet(std::uint32_t value) { aflags_ |= value; }

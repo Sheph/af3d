@@ -31,6 +31,7 @@ namespace af3d
     SceneEnvironment::~SceneEnvironment()
     {
         btAssert(lightProbes_.empty());
+        btAssert(globalProbe_ == nullptr);
     }
 
     void SceneEnvironment::update(float realDt, float dt)
@@ -47,16 +48,27 @@ namespace af3d
 
     void SceneEnvironment::addLightProbe(LightProbeComponent* probe)
     {
-        lightProbes_.insert(probe);
+        if (probe->isGlobal()) {
+            globalProbe_ = probe;
+        } else {
+            lightProbes_.insert(probe);
+        }
     }
 
     void SceneEnvironment::removeLightProbe(LightProbeComponent* probe)
     {
-        lightProbes_.erase(probe);
+        if (probe == globalProbe_) {
+            globalProbe_ = nullptr;
+        } else {
+            lightProbes_.erase(probe);
+        }
     }
 
     void SceneEnvironment::updateLightProbes()
     {
+        if (globalProbe_) {
+            globalProbe_->recreate();
+        }
         for (auto probe : lightProbes_) {
             probe->recreate();
         }
@@ -64,6 +76,6 @@ namespace af3d
 
     LightProbeComponent* SceneEnvironment::getLightProbeFor(const btVector3& pos)
     {
-        return lightProbes_.empty() ? nullptr : *lightProbes_.begin();
+        return lightProbes_.empty() ? globalProbe_ : *lightProbes_.begin();
     }
 }

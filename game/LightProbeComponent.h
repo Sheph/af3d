@@ -38,7 +38,7 @@ namespace af3d
     {
     public:
         LightProbeComponent(std::uint32_t irradianceResolution, std::uint32_t specularResolution,
-            std::uint32_t specularMipLevels);
+            std::uint32_t specularMipLevels, bool isGlobal = false);
         ~LightProbeComponent() = default;
 
         static const AClass& staticKlass();
@@ -51,10 +51,16 @@ namespace af3d
 
         void recreate();
 
+        inline std::uint32_t irradianceResolution() const { return irradianceResolution_; }
+        inline std::uint32_t specularResolution() const { return specularResolution_; }
+        inline std::uint32_t specularMipLevels() const { return specularMipLevels_; }
+
         inline const TexturePtr& irradianceTexture() const { return irradianceTexture_; }
         inline const TexturePtr& specularTexture() const { return specularTexture_; }
         inline const TexturePtr& specularLUTTexture() const { return specularLUTTexture_; }
         inline std::uint32_t specularTextureLevels() const { return specularMipLevels_ - 1; }
+
+        inline bool isGlobal() const { return isGlobal_; }
 
     private:
         static const std::uint32_t sceneCaptureSize = 512;
@@ -77,6 +83,8 @@ namespace af3d
         std::string getSpecularTexName();
 
         std::string getSpecularLUTTexName();
+
+        bool isGlobal_ = false;
 
         std::uint32_t irradianceResolution_;
         std::uint32_t specularResolution_;
