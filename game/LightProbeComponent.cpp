@@ -239,6 +239,7 @@ namespace af3d
             auto face = static_cast<TextureCubeFace>(i);
             auto cam = std::make_shared<Camera>();
             cam->setOrder(camOrderLightProbe);
+            cam->setLayer(isGlobal_ ? CameraLayer::SkyBox : CameraLayer::LightProbe);
             cam->setFov(btRadians(90.0f));
             cam->setAspect(1.0f);
             cam->setClearColor(AttachmentPoint::Color0, mainCamera->clearColor());

@@ -56,6 +56,8 @@ namespace af3d
         inline const CameraFilter& cameraFilter() const { return camFilter_; }
         inline CameraFilter& cameraFilter() { return camFilter_; }
 
+        virtual const CameraFilter& getCameraFilterWithFixup() const;
+
         virtual void update(float dt) = 0;
 
         virtual void render(RenderList& rl, void* const* parts, size_t numParts) = 0;
@@ -64,6 +66,9 @@ namespace af3d
 
         APropertyValue propertyVisibleGet(const std::string&) const { return visible(); }
         void propertyVisibleSet(const std::string&, const APropertyValue& value) { setVisible(value.toBool()); }
+
+    protected:
+        mutable CameraFilter tmpCamFilter_;
 
     private:
         bool renderAlways_;

@@ -35,7 +35,9 @@ namespace af3d
         General = 0,
         Main,
         Filter,
-        Max = Filter
+        LightProbe,
+        SkyBox,
+        Max = SkyBox
     };
 
     using CameraLayers = EnumSet<CameraLayer>;

@@ -207,7 +207,7 @@ namespace af3d
         if (rl.camera()->layer() == CameraLayer::Filter) {
             for (const auto& kv : cullResults_) {
                 if (kv.first->visible() &&
-                    kv.first->cameraFilter().visibleTo(rl.camera())) {
+                    kv.first->getCameraFilterWithFixup().visibleTo(rl.camera())) {
                     kv.first->render(rl, &kv.second[0], kv.second.size());
                 }
             }
@@ -218,7 +218,7 @@ namespace af3d
 
             for (const auto& kv : cr) {
                 if (kv.first->visible() &&
-                    kv.first->cameraFilter().visibleTo(rl.camera())) {
+                    kv.first->getCameraFilterWithFixup().visibleTo(rl.camera())) {
                     kv.first->render(rl, &kv.second[0], kv.second.size());
                 }
             }

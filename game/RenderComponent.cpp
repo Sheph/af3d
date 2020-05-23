@@ -24,6 +24,7 @@
  */
 
 #include "RenderComponent.h"
+#include "SceneObject.h"
 
 namespace af3d
 {
@@ -37,10 +38,23 @@ namespace af3d
     {
         camFilter_.layers().set(CameraLayer::General);
         camFilter_.layers().set(CameraLayer::Main);
+        camFilter_.layers().set(CameraLayer::LightProbe);
     }
 
     const AClass& RenderComponent::staticKlass()
     {
         return AClass_RenderComponent;
+    }
+
+    const CameraFilter& RenderComponent::getCameraFilterWithFixup() const
+    {
+        if (cameraFilter().layers()[CameraLayer::LightProbe] && parent() && (parent()->bodyType() != BodyType::Static)) {
+            // Non-static objects should never go into light probes.
+            tmpCamFilter_ = cameraFilter();
+            tmpCamFilter_.layers().reset(CameraLayer::LightProbe);
+            return tmpCamFilter_;
+        } else {
+            return cameraFilter();
+        }
     }
 }

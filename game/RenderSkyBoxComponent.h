@@ -50,6 +50,9 @@ namespace af3d
 
         std::pair<AObjectPtr, float> testRay(const Frustum& frustum, const Ray& ray, void* part) override;
 
+        // Sky box should always go into light probes.
+        const CameraFilter& getCameraFilterWithFixup() const override { return cameraFilter(); }
+
     private:
         void onRegister() override;
 

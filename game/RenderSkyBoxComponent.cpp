@@ -38,6 +38,8 @@ namespace af3d
     RenderSkyBoxComponent::RenderSkyBoxComponent(const TexturePtr& texture)
     : RenderComponent(AClass_RenderSkyBoxComponent, true)
     {
+        cameraFilter().layers().set(CameraLayer::SkyBox);
+
         std::uint32_t cubeSize = 2048;
         auto cubeTexture = textureManager.createRenderTexture(TextureTypeCubeMap,
             cubeSize, cubeSize, GL_RGB16F, GL_RGB, GL_FLOAT);

@@ -44,7 +44,7 @@ namespace af3d
 
         inline void addCookie(const CameraPtr& camera) { cookies_.insert(camera->cookie()); }
 
-        inline bool visibleTo(const CameraPtr& camera)
+        inline bool visibleTo(const CameraPtr& camera) const
         {
             return layers_[camera->layer()] || (cookies_.count(camera->cookie()) > 0);
         }
