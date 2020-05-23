@@ -38,7 +38,7 @@ namespace af3d
     RenderSkyBoxComponent::RenderSkyBoxComponent(const TexturePtr& texture)
     : RenderComponent(AClass_RenderSkyBoxComponent, true)
     {
-        auto cubeSize = equirectSize2cube(texture->width());
+        std::uint32_t cubeSize = 2048;
         auto cubeTexture = textureManager.createRenderTexture(TextureTypeCubeMap,
             cubeSize, cubeSize, GL_RGB16F, GL_RGB, GL_FLOAT);
         equirect2cube_ = std::make_shared<Equirect2CubeComponent>(texture, cubeTexture, camOrderSkyBox);
