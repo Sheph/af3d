@@ -22,4 +22,4 @@ set(SOURCES
 
 add_library(af3dutil STATIC ${SOURCES})
 
-target_link_libraries(af3dutil log4cplus boost stb jsoncpp)
+target_link_libraries(af3dutil log4cplus boost stb ddsktx jsoncpp)
