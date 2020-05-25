@@ -83,10 +83,18 @@ namespace af3d
         void (GLAPIENTRY* BindTexture)(GLenum target, GLuint texture);
         void (GLAPIENTRY* ActiveTexture)(GLenum texture);
         void (GLAPIENTRY* TexImage2D)(GLenum target, GLint level,
-                                      GLint internalFormat,
-                                      GLsizei width, GLsizei height,
-                                      GLint border, GLenum format, GLenum type,
-                                      const GLvoid* pixels);
+            GLint internalFormat,
+            GLsizei width, GLsizei height,
+            GLint border, GLenum format, GLenum type,
+            const GLvoid* pixels);
+        void (GLAPIENTRY* CompressedTexImage2D)(GLenum target,
+            GLint level,
+            GLenum internalformat,
+            GLsizei width,
+            GLsizei height,
+            GLint border,
+            GLsizei imageSize,
+            const void * data);
         void (GLAPIENTRY* TexParameteri)(GLenum target, GLenum pname, GLint param);
         void (GLAPIENTRY* ClearColor)(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
         void (GLAPIENTRY* Clear)(GLbitfield mask);
@@ -142,6 +150,7 @@ namespace af3d
         void (GLAPIENTRY* StencilFunc)(GLenum func, GLint ref, GLuint mask);
         void (GLAPIENTRY* StencilOp)(GLenum fail, GLenum zfail, GLenum zpass);
         const GLubyte* (GLAPIENTRY* GetString)(GLenum name);
+        const GLubyte* (GLAPIENTRY* GetStringi)(GLenum name, GLuint index);
         void (GLAPIENTRY* Scissor)(GLint x, GLint y, GLsizei width, GLsizei height);
     };
 

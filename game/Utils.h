@@ -95,11 +95,6 @@ namespace af3d
         return equirectWidth / SIMD_PI;
     }
 
-    inline std::uint32_t textureMipSize(std::uint32_t texSize, std::uint32_t mip)
-    {
-        return texSize >> mip;
-    }
-
     void setGaussianBlurParams(MaterialParams& params, int ksize, float sigma, bool isHorizontal);
 }
 

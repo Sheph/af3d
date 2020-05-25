@@ -127,6 +127,11 @@ namespace af3d
         return n;
     }
 
+    inline std::uint32_t textureMipSize(std::uint32_t texSize, std::uint32_t mip)
+    {
+        return texSize >> mip;
+    }
+
     btTransform toTransform(const btVector3& v);
 
     btMatrix3x3 makeLookBasis(const btVector3& dir, const btVector3& up);

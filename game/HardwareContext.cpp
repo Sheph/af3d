@@ -33,6 +33,26 @@ namespace af3d
 {
     HardwareContext::HardwareContext()
     {
+        GLint numExtensions = 0;
+        ogl.GetIntegerv(GL_NUM_EXTENSIONS, &numExtensions);
+        bool texCompressionS3TCfound = false;
+        bool texSRGBfound = false;
+        for (int i = 0; i < numExtensions; ++i) {
+            const char* str = (const char*)ogl.GetStringi(GL_EXTENSIONS, i);
+            if (str && (std::strstr(str, "GL_EXT_texture_compression_s3tc") == str)) {
+                texCompressionS3TCfound = true;
+            } else if (str && (std::strstr(str, "GL_EXT_texture_sRGB") == str)) {
+                texSRGBfound = true;
+            }
+        }
+
+        if (!texCompressionS3TCfound) {
+            LOG4CPLUS_WARN(logger(), "GL_EXT_texture_compression_s3tc is not supported");
+        }
+        if (!texSRGBfound) {
+            LOG4CPLUS_WARN(logger(), "GL_EXT_texture_sRGB is not supported");
+        }
+
         LOG4CPLUS_INFO(logger(), "OpenGL vendor: " << ogl.GetString(GL_VENDOR));
         LOG4CPLUS_INFO(logger(), "OpenGL renderer: " << ogl.GetString(GL_RENDERER));
         LOG4CPLUS_INFO(logger(), "OpenGL version: " << ogl.GetString(GL_VERSION));

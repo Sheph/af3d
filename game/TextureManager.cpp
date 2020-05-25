@@ -53,7 +53,7 @@ namespace af3d
                 if (res) {
                     width = info_.width;
                     // FIXME: Currently assume that all hdr files are equirect cubemaps...
-                    height = (info_.isHDR && !isSRGB_) ? (info_.width / 2) : info_.height;
+                    height = (((info_.flags & ImageReader::FlagHDR) != 0) && ((info_.flags & ImageReader::FlagSRGB) == 0)) ? (info_.width / 2) : info_.height;
                 }
 
                 return res;
@@ -68,70 +68,110 @@ namespace af3d
                 }
 
                 // FIXME: Currently assume that all hdr files are equirect cubemaps...
-                std::uint32_t newHeight = (info_.isHDR && !isSRGB_) ? (info_.width / 2) : info_.height;
+                std::uint32_t newHeight = (((info_.flags & ImageReader::FlagHDR) != 0) && ((info_.flags & ImageReader::FlagSRGB) == 0)) ? (info_.width / 2) : info_.height;
 
                 if ((info_.width != texture.width()) && (newHeight != texture.height())) {
                     LOG4CPLUS_DEBUG(logger(), "textureManager: loading (recreate) " << info_.width << "x" << info_.height
-                        << " " << path_ << ", comp = " << info_.numComponents << ", SRGB = " << isSRGB_ << "...");
+                        << " " << path_ << ", format = " << ImageReader::glFormatStr(info_.format) << ", SRGB = " << ((info_.flags & ImageReader::FlagSRGB) != 0) << "...");
                     auto hwTex = hwManager.createTexture(texture.type(), info_.width, newHeight);
                     texture.setHwTex(hwTex);
                 } else {
                     LOG4CPLUS_DEBUG(logger(), "textureManager: loading " << info_.width << "x" << info_.height
-                        << " " << path_ << ", comp = " << info_.numComponents << ", SRGB = " << isSRGB_ << "...");
+                        << " " << path_ << ", format = " << ImageReader::glFormatStr(info_.format) << ", SRGB = " << ((info_.flags & ImageReader::FlagSRGB) != 0) << "...");
                 }
 
                 std::vector<Byte> data;
+                GLint internalFormat = 0;
 
-                if (reader_->read(data)) {
-                    GLint internalFormat;
-                    GLenum format;
+                if ((info_.flags & ImageReader::FlagHDR) != 0) {
+                    if (info_.format == GL_RGB) {
+                        internalFormat = GL_RGB16F;
+                    } else {
+                        runtime_assert(false);
+                    }
 
-                    if (info_.isHDR) {
-                        if (info_.numComponents == 3) {
-                            internalFormat = GL_RGB16F;
-                            format = GL_RGB;
-                        } else {
-                            runtime_assert(false);
+                    runtime_assert(info_.numMipLevels == 1);
+
+                    if (!reader_->read(0, data)) {
+                        reader_.reset();
+                        is_.reset();
+                        return;
+                    }
+
+                    if (newHeight != info_.height) {
+                        texture.hwTex()->upload(internalFormat, info_.format, GL_FLOAT,
+                            nullptr, true, 0, ctx);
+                    }
+
+                    // FIXME: Currently assume that all hdr files are equirect cubemaps...
+                    std::uint32_t numLevels = 0;
+                    size_t sz = 0;
+                    while (true) {
+                        size_t curSz = textureMipSize(info_.width, numLevels) * textureMipSize(newHeight, numLevels) * 3 * sizeof(float);
+                        if ((sz + curSz > data.size()) || (curSz == 0)) {
+                            break;
                         }
+                        texture.hwTex()->upload(internalFormat, info_.format, GL_FLOAT,
+                            reinterpret_cast<const GLvoid*>(&data[0] + sz), false, numLevels, ctx);
+                        sz += curSz;
+                        ++numLevels;
+                    }
+                } else {
+                    bool compressed = false;
+                    if (info_.format == GL_RED) {
+                        internalFormat = GL_RED;
+                    } else if (info_.format == GL_RGB) {
+                        internalFormat = ((info_.flags & ImageReader::FlagSRGB) != 0) ? GL_SRGB : GL_RGB;
+                    } else if (info_.format == GL_RGBA) {
+                        internalFormat = ((info_.flags & ImageReader::FlagSRGB) != 0) ? GL_SRGB_ALPHA : GL_RGBA;
+                    } else if (info_.format == GL_COMPRESSED_RGB_S3TC_DXT1_EXT) {
+                        internalFormat = ((info_.flags & ImageReader::FlagSRGB) != 0) ? GL_COMPRESSED_SRGB_S3TC_DXT1_EXT : info_.format;
+                        compressed = true;
+                    } else if (info_.format == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT) {
+                        internalFormat = ((info_.flags & ImageReader::FlagSRGB) != 0) ? GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT : info_.format;
+                        compressed = true;
+                    } else if (info_.format == GL_COMPRESSED_RGBA_S3TC_DXT5_EXT) {
+                        internalFormat = ((info_.flags & ImageReader::FlagSRGB) != 0) ? GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT : info_.format;
+                        compressed = true;
+                    } else if (info_.format == GL_COMPRESSED_RG_RGTC2) {
+                        btAssert((info_.flags & ImageReader::FlagSRGB) == 0);
+                        internalFormat = info_.format;
+                        compressed = true;
+                    } else {
+                        runtime_assert(false);
+                    }
 
-                        if (newHeight != info_.height) {
-                            texture.hwTex()->upload(internalFormat, format, GL_FLOAT,
-                                nullptr, true, 0, ctx);
-                        }
-
-                        // FIXME: Currently assume that all hdr files are equirect cubemaps...
-                        std::uint32_t numLevels = 0;
-                        size_t sz = 0;
-                        while (true) {
-                            size_t curSz = textureMipSize(info_.width, numLevels) * textureMipSize(newHeight, numLevels) * 3 * sizeof(float);
-                            if ((sz + curSz > data.size()) || (curSz == 0)) {
-                                break;
+                    if (info_.numMipLevels > 1) {
+                        for (std::uint32_t mip = 0; mip < info_.numMipLevels; ++mip) {
+                            if (!reader_->read(mip, data)) {
+                                reader_.reset();
+                                is_.reset();
+                                return;
                             }
-                            texture.hwTex()->upload(internalFormat, format, GL_FLOAT,
-                                reinterpret_cast<const GLvoid*>(&data[0] + sz), false, numLevels, ctx);
-                            sz += curSz;
-                            ++numLevels;
+                            if (compressed) {
+                                texture.hwTex()->uploadCompressed(internalFormat,
+                                    reinterpret_cast<const GLvoid*>(&data[0]), data.size(), false, mip, ctx);
+                            } else {
+                                texture.hwTex()->upload(internalFormat, info_.format, GL_UNSIGNED_BYTE,
+                                    reinterpret_cast<const GLvoid*>(&data[0]), false, mip, ctx);
+                            }
                         }
                     } else {
-                        if (info_.numComponents == 1) {
-                            internalFormat = GL_RED;
-                            format = GL_RED;
-                        } else if (info_.numComponents == 3) {
-                            internalFormat = isSRGB_ ? GL_SRGB : GL_RGB;
-                            format = GL_RGB;
-                        } else if (info_.numComponents == 4) {
-                            internalFormat = isSRGB_ ? GL_SRGB_ALPHA : GL_RGBA;
-                            format = GL_RGBA;
-                        } else {
-                            runtime_assert(false);
+                        if (!reader_->read(0, data)) {
+                            reader_.reset();
+                            is_.reset();
+                            return;
                         }
-                        texture.hwTex()->upload(internalFormat, format, GL_UNSIGNED_BYTE,
-                            reinterpret_cast<const GLvoid*>(&data[0]), true, 0, ctx);
+
+                        if (compressed) {
+                            texture.hwTex()->uploadCompressed(internalFormat,
+                                reinterpret_cast<const GLvoid*>(&data[0]), data.size(), true, 0, ctx);
+                        } else {
+                            texture.hwTex()->upload(internalFormat, info_.format, GL_UNSIGNED_BYTE,
+                                reinterpret_cast<const GLvoid*>(&data[0]), true, 0, ctx);
+                        }
                     }
                 }
-
-                reader_.reset();
-                is_.reset();
             }
 
         private:
@@ -142,6 +182,10 @@ namespace af3d
 
                 if (!reader->init(info_)) {
                     return false;
+                }
+
+                if (isSRGB_) {
+                    info_.flags |= ImageReader::FlagSRGB;
                 }
 
                 is_ = is;

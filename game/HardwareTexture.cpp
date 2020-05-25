@@ -123,6 +123,17 @@ namespace af3d
         }
     }
 
+    void HardwareTexture::uploadCompressed(GLint internalFormat, const GLvoid* data, GLsizei dataSize, bool genMipmap, GLint level, HardwareContext& ctx)
+    {
+        createTexture();
+        ctx.bindTexture(type_, id_);
+        btAssert(type_ == TextureType2D);
+        ogl.CompressedTexImage2D(GL_TEXTURE_2D, level, internalFormat, textureMipSize(width_, level), textureMipSize(height_, level), 0, dataSize, data);
+        if (genMipmap) {
+            ogl.GenerateMipmap(GL_TEXTURE_2D);
+        }
+    }
+
     void HardwareTexture::download(GLenum format, GLenum dataType, GLvoid* pixels, HardwareContext& ctx)
     {
         createTexture();

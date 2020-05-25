@@ -31,26 +31,49 @@
 #include <vector>
 #include <iostream>
 #include <memory>
+#if defined(ANDROID) || defined(__ANDROID__)
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
+#else
+#ifdef _WIN32
+#include <windows.h>
+#endif
+#include <GL/gl.h>
+#include <GL/glext.h>
+#endif
+
+#ifndef GLAPIENTRY
+#define GLAPIENTRY GL_APIENTRY
+#endif
 
 namespace af3d
 {
     class ImageReader : boost::noncopyable
     {
     public:
+        enum Flag
+        {
+            FlagHDR = (1 << 0),
+            FlagSRGB = (1 << 1)
+        };
+
         struct Info
         {
-            bool isHDR = false;
+            std::uint32_t flags = 0;
             std::uint32_t width = 0;
             std::uint32_t height = 0;
-            int numComponents = 0;
+            std::uint32_t numMipLevels = 1;
+            GLenum format = 0;
         };
 
         ImageReader(const std::string& path, std::istream& is);
         ~ImageReader();
 
+        static const char* glFormatStr(GLenum format);
+
         bool init(Info& info);
 
-        bool read(std::vector<Byte>& data);
+        bool read(std::uint32_t mip, std::vector<Byte>& data);
 
     private:
         class Impl;
