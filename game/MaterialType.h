@@ -38,29 +38,29 @@ namespace af3d
 {
     enum MaterialTypeName
     {
-        MaterialTypeBasic = 0, // Basic lit shader.
-        MaterialTypeBasicNM,   // Basic lit shader /w normal map.
-        MaterialTypeUnlit,     // Unlit shader.
-        MaterialTypeUnlitVC,   // Unlit shader with per-vertex color.
-        MaterialTypeImm,       // Immediate draw shader. pos(3d), color(4d) and one texture(2d)
-        MaterialTypeOutline,   // Selection outline.
-        MaterialTypeGrid,
-        MaterialTypeFilterVHS,
-        MaterialTypeFilterIrradianceConv,
-        MaterialTypePBR,
-        MaterialTypePBRNM,
-        MaterialTypeFilterCube2Equirect,
-        MaterialTypeFilterEquirect2Cube,
-        MaterialTypeFilterSpecularCM,
-        MaterialTypeFilterSpecularLUT,
-        MaterialTypeFilterFXAA,
-        MaterialTypeFilterToneMapping,
-        MaterialTypeFilterGaussianBlur,
-        MaterialTypeFilterBloomPass1,
-        MaterialTypeFilterBloomPass2,
-        MaterialTypeFilterTAA,
-        MaterialTypeFilterDownscale,
-        MaterialTypeSkyBox,
+        MaterialTypeBasic = 0,   // Basic lit shader.
+        MaterialTypeBasicNM = 1, // Basic lit shader /w normal map.
+        MaterialTypeUnlit = 2,   // Unlit shader.
+        MaterialTypeUnlitVC = 3, // Unlit shader with per-vertex color.
+        MaterialTypeImm = 4,     // Immediate draw shader. pos(3d), color(4d) and one texture(2d)
+        MaterialTypeOutline = 5, // Selection outline.
+        MaterialTypeGrid = 6,
+        MaterialTypeFilterVHS = 7,
+        MaterialTypeFilterIrradianceConv = 8,
+        MaterialTypePBR = 9,
+        MaterialTypePBRNM = 10,
+        MaterialTypeFilterCube2Equirect = 11,
+        MaterialTypeFilterEquirect2Cube = 12,
+        MaterialTypeFilterSpecularCM = 13,
+        MaterialTypeFilterSpecularLUT = 14,
+        MaterialTypeFilterFXAA = 15,
+        MaterialTypeFilterToneMapping = 16,
+        MaterialTypeFilterGaussianBlur = 17,
+        MaterialTypeFilterBloomPass1 = 18,
+        MaterialTypeFilterBloomPass2 = 19,
+        MaterialTypeFilterTAA = 20,
+        MaterialTypeFilterDownscale = 21,
+        MaterialTypeSkyBox = 22,
         MaterialTypeFirst = MaterialTypeBasic,
         MaterialTypeMax = MaterialTypeSkyBox
     };

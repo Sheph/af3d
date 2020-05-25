@@ -214,8 +214,6 @@ namespace af3d
             ddsktx_sub_data subData;
             ddsktx_get_sub(&impl_->ddsktxFile_->info, &subData, &impl_->ddsktxFile_->data[0], impl_->ddsktxFile_->data.size(), 0, 0, mip);
 
-            //btAssert(subData.row_pitch_bytes == ((int)textureMipSize(impl_->ddsktxFile_->info.width, mip) * impl_->ddsktxFile_->info.bpp / 8));
-
             data.resize(subData.size_bytes);
             std::memcpy(&data[0], subData.buff, data.size());
 

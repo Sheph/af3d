@@ -172,6 +172,9 @@ namespace af3d
                         }
                     }
                 }
+
+                reader_.reset();
+                is_.reset();
             }
 
         private:
