@@ -174,6 +174,51 @@ namespace af3d
             mats[i] = mat;
         }
 
+        std::uint32_t numVertices[2] = {0, 0};
+
+        for (std::uint32_t i = 0; i < scene_->mNumMeshes; ++i) {
+            auto meshData = scene_->mMeshes[i];
+
+            if ((mats[meshData->mMaterialIndex]->type()->name() == MaterialTypeBasicNM) ||
+                (mats[meshData->mMaterialIndex]->type()->name() == MaterialTypePBRNM)) {
+                numVertices[0] += meshData->mNumVertices;
+            } else {
+                numVertices[1] += meshData->mNumVertices;
+            }
+        }
+
+        VertexArrayPtr va[2];
+
+        VertexArrayLayout vaLayout;
+        GLsizeiptr vboElSize = 32;
+
+        vaLayout.addEntry(VertexArrayEntry(VertexAttribName::Pos, GL_FLOAT_VEC3, 0, 0));
+        vaLayout.addEntry(VertexArrayEntry(VertexAttribName::UV, GL_FLOAT_VEC2, 12, 0));
+        vaLayout.addEntry(VertexArrayEntry(VertexAttribName::Normal, GL_FLOAT_VEC3, 20, 0));
+
+        if (numVertices[1] > 0) {
+            auto vbo = hwManager.createVertexBuffer(HardwareBuffer::Usage::StaticDraw, vboElSize);
+            auto ebo = hwManager.createIndexBuffer(HardwareBuffer::Usage::StaticDraw,
+                (numVertices[1] > std::numeric_limits<std::uint16_t>::max()) ? HardwareIndexBuffer::UInt32 : HardwareIndexBuffer::UInt16);
+            va[1] = std::make_shared<VertexArray>(hwManager.createVertexArray(), vaLayout, VBOList{vbo}, ebo);
+        }
+
+        if (numVertices[0] > 0) {
+            vaLayout.addEntry(VertexArrayEntry(VertexAttribName::Tangent, GL_FLOAT_VEC3, 32, 0));
+            vaLayout.addEntry(VertexArrayEntry(VertexAttribName::Bitangent, GL_FLOAT_VEC3, 44, 0));
+            vboElSize = 56;
+
+            auto vbo = hwManager.createVertexBuffer(HardwareBuffer::Usage::StaticDraw, vboElSize);
+            auto ebo = hwManager.createIndexBuffer(HardwareBuffer::Usage::StaticDraw,
+                (numVertices[0] > std::numeric_limits<std::uint16_t>::max()) ? HardwareIndexBuffer::UInt32 : HardwareIndexBuffer::UInt16);
+            va[0] = std::make_shared<VertexArray>(hwManager.createVertexArray(), vaLayout, VBOList{vbo}, ebo);
+        }
+
+        numVertices[0] = 0;
+        numVertices[1] = 0;
+
+        std::uint32_t numIndices[2] = {0, 0};
+
         for (std::uint32_t i = 0; i < scene_->mNumMeshes; ++i) {
             auto meshData = scene_->mMeshes[i];
 
@@ -186,27 +231,20 @@ namespace af3d
                 aabb.combine(fromAssimp(meshData->mVertices[j]));
             }
 
-            VertexArrayLayout vaLayout;
-            GLsizeiptr vboElSize = 32;
-
-            vaLayout.addEntry(VertexArrayEntry(VertexAttribName::Pos, GL_FLOAT_VEC3, 0, 0));
-            vaLayout.addEntry(VertexArrayEntry(VertexAttribName::UV, GL_FLOAT_VEC2, 12, 0));
-            vaLayout.addEntry(VertexArrayEntry(VertexAttribName::Normal, GL_FLOAT_VEC3, 20, 0));
+            SubMeshPtr subMesh;
 
             if ((mats[meshData->mMaterialIndex]->type()->name() == MaterialTypeBasicNM) ||
                 (mats[meshData->mMaterialIndex]->type()->name() == MaterialTypePBRNM)) {
-                vaLayout.addEntry(VertexArrayEntry(VertexAttribName::Tangent, GL_FLOAT_VEC3, 32, 0));
-                vaLayout.addEntry(VertexArrayEntry(VertexAttribName::Bitangent, GL_FLOAT_VEC3, 44, 0));
-                vboElSize = 56;
+                subMesh = std::make_shared<SubMesh>(mats[meshData->mMaterialIndex],
+                    VertexArraySlice(va[0], numIndices[0], meshData->mNumFaces * 3, numVertices[0]));
+                numVertices[0] += meshData->mNumVertices;
+                numIndices[0] += meshData->mNumFaces * 3;
+            } else {
+                subMesh = std::make_shared<SubMesh>(mats[meshData->mMaterialIndex],
+                    VertexArraySlice(va[1], numIndices[1], meshData->mNumFaces * 3, numVertices[1]));
+                numVertices[1] += meshData->mNumVertices;
+                numIndices[1] += meshData->mNumFaces * 3;
             }
-
-            auto vbo = hwManager.createVertexBuffer(HardwareBuffer::Usage::StaticDraw, vboElSize);
-            auto ebo = hwManager.createIndexBuffer(HardwareBuffer::Usage::StaticDraw,
-                (meshData->mNumVertices > std::numeric_limits<std::uint16_t>::max()) ? HardwareIndexBuffer::UInt32 : HardwareIndexBuffer::UInt16);
-
-            auto va = std::make_shared<VertexArray>(hwManager.createVertexArray(), vaLayout, VBOList{vbo}, ebo);
-
-            auto subMesh = std::make_shared<SubMesh>(mats[meshData->mMaterialIndex], VertexArraySlice(va));
 
             subMeshes.push_back(subMesh);
         }
@@ -223,19 +261,46 @@ namespace af3d
             runtime_assert(scene_);
         }
 
+        VertexArrayPtr va[2];
+        std::uint32_t numVertices[2] = {0, 0};
+        std::uint32_t numIndices[2] = {0, 0};
+
         for (std::uint32_t i = 0; i < scene_->mNumMeshes; ++i) {
             auto meshData = scene_->mMeshes[i];
-            const auto& va = mesh.subMeshes()[i]->vaSlice().va();
-            auto vbo = va->vbos()[0];
-            auto ebo = va->ebo();
+            if ((mesh.subMeshes()[i]->material()->type()->name() == MaterialTypeBasicNM) ||
+                (mesh.subMeshes()[i]->material()->type()->name() == MaterialTypePBRNM)) {
+                numVertices[0] += meshData->mNumVertices;
+                numIndices[0] += meshData->mNumFaces * 3;
+                va[0] = mesh.subMeshes()[i]->vaSlice().va();
+            } else {
+                numVertices[1] += meshData->mNumVertices;
+                numIndices[1] += meshData->mNumFaces * 3;
+                va[1] = mesh.subMeshes()[i]->vaSlice().va();
+            }
+        }
+
+        float *allVerts[2], *vertsStart[2];
+        GLvoid *allIndices[2], *indicesStart[2];
+
+        for (int i = 0; i < 2; ++i) {
+            if (va[i]) {
+                auto vbo = va[i]->vbos()[0];
+                auto ebo = va[i]->ebo();
+
+                vbo->resize(numVertices[i], ctx);
+                ebo->resize(numIndices[i], ctx);
+
+                allVerts[i] = vertsStart[i] = (float*)vbo->lock(HardwareBuffer::WriteOnly, ctx);
+                allIndices[i] = indicesStart[i] = ebo->lock(HardwareBuffer::WriteOnly, ctx);
+            }
+        }
+
+        for (std::uint32_t i = 0; i < scene_->mNumMeshes; ++i) {
+            auto meshData = scene_->mMeshes[i];
             bool withTangent = (mesh.subMeshes()[i]->material()->type()->name() == MaterialTypeBasicNM) ||
                 (mesh.subMeshes()[i]->material()->type()->name() == MaterialTypePBRNM);
 
-            vbo->resize(meshData->mNumVertices, ctx);
-            ebo->resize(meshData->mNumFaces * 3, ctx);
-
-            float *verts, *vertsStart;
-            verts = vertsStart = (float*)vbo->lock(HardwareBuffer::WriteOnly, ctx);
+            float*& verts = allVerts[withTangent ? 0 : 1];
 
             btAssert(meshData->mTextureCoords[0]);
 
@@ -272,9 +337,10 @@ namespace af3d
                 }
             }
 
-            if (ebo->dataType() == HardwareIndexBuffer::UInt16) {
-                std::uint16_t *indices, *indicesStart;
-                indices = indicesStart = (std::uint16_t*)ebo->lock(HardwareBuffer::WriteOnly, ctx);
+            auto cva = mesh.subMeshes()[i]->vaSlice().va();
+
+            if (cva->ebo()->dataType() == HardwareIndexBuffer::UInt16) {
+                std::uint16_t*& indices = (std::uint16_t*&)allIndices[withTangent ? 0 : 1];
 
                 for (std::uint32_t j = 0; j < meshData->mNumFaces; ++j) {
                     auto face = meshData->mFaces[j];
@@ -289,11 +355,8 @@ namespace af3d
                     *indices = face.mIndices[2];
                     ++indices;
                 }
-
-                btAssert((indices - indicesStart) == ebo->count(ctx));
             } else {
-                std::uint32_t *indices, *indicesStart;
-                indices = indicesStart = (std::uint32_t*)ebo->lock(HardwareBuffer::WriteOnly, ctx);
+                std::uint32_t*& indices = (std::uint32_t*&)allIndices[withTangent ? 0 : 1];
 
                 for (std::uint32_t j = 0; j < meshData->mNumFaces; ++j) {
                     auto face = meshData->mFaces[j];
@@ -305,14 +368,20 @@ namespace af3d
                     *indices = face.mIndices[2];
                     ++indices;
                 }
-
-                btAssert((indices - indicesStart) == ebo->count(ctx));
             }
+        }
 
-            btAssert((verts - vertsStart) * 4 == vbo->sizeInBytes(ctx));
+        for (int i = 0; i < 2; ++i) {
+            if (va[i]) {
+                auto vbo = va[i]->vbos()[0];
+                auto ebo = va[i]->ebo();
 
-            ebo->unlock(ctx);
-            vbo->unlock(ctx);
+                btAssert(((char*)allIndices[i] - (char*)indicesStart[i]) == ebo->sizeInBytes(ctx));
+                btAssert((allVerts[i] - vertsStart[i]) * 4 == vbo->sizeInBytes(ctx));
+
+                ebo->unlock(ctx);
+                vbo->unlock(ctx);
+            }
         }
 
         scene_.reset();

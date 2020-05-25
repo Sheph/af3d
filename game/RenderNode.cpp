@@ -389,7 +389,6 @@ namespace af3d
             ogl.DepthMask(GL_FALSE);
         }
 
-        // TODO: Handle other draw modes.
         materialParamsAuto_.apply(ctx);
         materialParams_.apply(ctx);
         if (drawCount_ == 0) {
@@ -397,6 +396,8 @@ namespace af3d
                 ogl.DrawElements(drawPrimitiveMode_, va_->ebo()->count(ctx),
                     va_->ebo()->glDataType(),
                     (const void*)(va_->ebo()->elementSize() * drawStart_));
+            } else {
+                // FIXME: Empty draw, optimize this out!
             }
         } else {
             if (va_->ebo()) {
