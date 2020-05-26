@@ -84,7 +84,7 @@ void main()
     vec3 albedo = texture(texMain, v_texCoord).rgb * mainColor.rgb;
 #ifdef FAST
     vec3 fast = texture(texSpecular, v_texCoord).rgb;
-    float ao = fast.r;
+    float ao = 1.0;
     float roughness = fast.g;
     float metalness = fast.b;
 #else

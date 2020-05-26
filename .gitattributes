@@ -149,3 +149,4 @@ game/assets/Textures/M_BottomTrim_Inst_Black_0_Specular.dds filter=lfs diff=lfs 
 game/assets/Textures/M_FloorTiles1_Inst_Blue_0_BaseColor.dds filter=lfs diff=lfs merge=lfs -text
 game/assets/Textures/M_Soul_Rocks2_Inst_1_Specular.dds filter=lfs diff=lfs merge=lfs -text
 game/assets/SunTemple.fbx filter=lfs diff=lfs merge=lfs -text
+game/assets/SkyTemple_Skybox.hdr filter=lfs diff=lfs merge=lfs -text
