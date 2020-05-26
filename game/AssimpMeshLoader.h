@@ -49,6 +49,8 @@ namespace af3d
 
         MaterialPtr createMaterialPBR(const std::string& matName, aiMaterial* matData);
 
+        MaterialPtr createMaterialFastPBR(const std::string& matName, aiMaterial* matData);
+
         std::string path_;
         AssimpScenePtr scene_;
     };

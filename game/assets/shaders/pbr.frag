@@ -2,9 +2,13 @@ uniform sampler2D texMain;
 #ifdef NM
 uniform sampler2D texNormal;
 #endif
+#ifdef FAST
+uniform sampler2D texSpecular;
+#else
 uniform sampler2D texRoughness;
 uniform sampler2D texMetalness;
 uniform sampler2D texAO;
+#endif
 uniform sampler2D texEmissive;
 uniform samplerCube texIrradiance;
 uniform samplerCube texSpecularCM;
@@ -20,6 +24,9 @@ uniform float lightCutoffInnerCos;
 uniform float lightPower;
 uniform int specularCMLevels;
 uniform float emissiveFactor;
+#ifdef NM
+uniform int normalFormat;
+#endif
 
 in vec2 v_texCoord;
 in vec3 v_pos;
@@ -75,13 +82,24 @@ vec3 fresnelSchlick(vec3 F0, float cosTheta)
 void main()
 {
     vec3 albedo = texture(texMain, v_texCoord).rgb * mainColor.rgb;
+#ifdef FAST
+    vec3 fast = texture(texSpecular, v_texCoord).rgb;
+    float ao = fast.r;
+    float roughness = fast.g;
+    float metalness = fast.b;
+#else
     float metalness = texture(texMetalness, v_texCoord).r;
     float roughness = texture(texRoughness, v_texCoord).r;
+#endif
 
     vec3 Lo = normalize(eyePos - v_pos);
 
 #ifdef NM
-    vec3 N = normalize(v_tbn * normalize(2.0 * texture(texNormal, v_texCoord).rgb - 1.0));
+    vec3 tN = texture(texNormal, v_texCoord).rgb;
+    if (normalFormat == 1) {
+        tN.b = sqrt(1 - clamp(tN.r * tN.r + tN.g * tN.g, 0.0, 1.0));
+    }
+    vec3 N = normalize(v_tbn * normalize(2.0 * tN - 1.0));
 #else
     vec3 N = normalize(v_normal);
 #endif
@@ -98,7 +116,9 @@ void main()
     if (lightPos.w == 0.0) {
         // ambient
 
+#ifndef FAST
         float ao = texture(texAO, v_texCoord).r;
+#endif
         vec3 emissive = texture(texEmissive, v_texCoord).rgb * emissiveFactor;
 
         // Sample diffuse irradiance at normal direction.

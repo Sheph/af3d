@@ -53,7 +53,9 @@ namespace af3d
             "FilterBloomPass2",
             "FilterTAA",
             "FilterDownscale",
-            "SkyBox"
+            "SkyBox",
+            "FastPBR",
+            "FastPBRNM"
         }
     };
 
@@ -64,6 +66,8 @@ namespace af3d
             return MaterialTypeBasicNM;
         case MaterialTypePBR:
             return MaterialTypePBRNM;
+        case MaterialTypeFastPBR:
+            return MaterialTypeFastPBRNM;
         default:
             return matTypeName;
         }
@@ -74,6 +78,7 @@ namespace af3d
         switch (matTypeName) {
         case MaterialTypeBasicNM:
         case MaterialTypePBRNM:
+        case MaterialTypeFastPBRNM:
             return true;
         default:
             return false;

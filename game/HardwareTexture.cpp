@@ -41,11 +41,13 @@ namespace af3d
         return arr[face];
     }
 
-    HardwareTexture::HardwareTexture(HardwareResourceManager* mgr, TextureType type, std::uint32_t width, std::uint32_t height)
+    HardwareTexture::HardwareTexture(HardwareResourceManager* mgr, TextureType type, std::uint32_t width, std::uint32_t height,
+        TextureFormat format)
     : HardwareResource(mgr),
       type_(type),
       width_(width),
-      height_(height)
+      height_(height),
+      format_(format)
     {
     }
 

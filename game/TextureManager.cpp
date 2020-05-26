@@ -45,7 +45,7 @@ namespace af3d
             {
             }
 
-            bool init(std::uint32_t& width, std::uint32_t& height)
+            bool init(std::uint32_t& width, std::uint32_t& height, GLenum& format)
             {
                 bool res = initImpl();
 
@@ -53,6 +53,7 @@ namespace af3d
                     width = info_.width;
                     // FIXME: Currently assume that all hdr files are equirect cubemaps...
                     height = (((info_.flags & ImageReader::FlagHDR) != 0) && ((info_.flags & ImageReader::FlagSRGB) == 0)) ? (info_.width / 2) : info_.height;
+                    format = info_.format;
                 }
 
                 return res;
@@ -315,14 +316,16 @@ namespace af3d
 
         std::uint32_t width;
         std::uint32_t height;
+        GLenum format;
 
-        if (!loader->init(width, height)) {
+        if (!loader->init(width, height, format)) {
             runtime_assert(path != "bad.png");
             return fallback ? loadTexture("bad.png") : TexturePtr();
         }
 
         auto tex = std::make_shared<Texture>(this, path,
-            hwManager.createTexture(TextureType2D, width, height), loader);
+            hwManager.createTexture(TextureType2D, width, height,
+                ((format == GL_COMPRESSED_RG_RGTC2) ? TextureFormatRG : TextureFormatAny)), loader);
         tex->load();
         cachedTextures_.emplace(path, tex);
 

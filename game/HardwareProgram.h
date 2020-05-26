@@ -88,7 +88,8 @@ namespace af3d
         SampleWeights,
         LowpassWeights,
         PlusWeights,
-        Max = PlusWeights
+        NormalFormat,
+        Max = NormalFormat
     };
 
     enum class SamplerName

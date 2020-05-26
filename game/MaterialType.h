@@ -62,8 +62,10 @@ namespace af3d
         MaterialTypeFilterTAA = 20,
         MaterialTypeFilterDownscale = 21,
         MaterialTypeSkyBox = 22,
+        MaterialTypeFastPBR = 23,
+        MaterialTypeFastPBRNM = 24,
         MaterialTypeFirst = MaterialTypeBasic,
-        MaterialTypeMax = MaterialTypeSkyBox
+        MaterialTypeMax = MaterialTypeFastPBRNM
     };
 
     MaterialTypeName materialTypeWithNM(MaterialTypeName matTypeName);

@@ -95,7 +95,8 @@ namespace af3d
         {"argViewProj", UniformName::ArgViewProjMatrix},
         {"sampleWeights[0]", UniformName::SampleWeights},
         {"lowpassWeights[0]", UniformName::LowpassWeights},
-        {"plusWeights[0]", UniformName::PlusWeights}
+        {"plusWeights[0]", UniformName::PlusWeights},
+        {"normalFormat", UniformName::NormalFormat}
     };
 
     static const std::unordered_map<std::string, SamplerName> staticSamplerMap = {

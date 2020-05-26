@@ -64,6 +64,8 @@ namespace af3d
                     mat = createMaterialBasic(matName, matData);
                 } else if (baseMatTypeName == MaterialTypePBR) {
                     mat = createMaterialPBR(matName, matData);
+                } else if (baseMatTypeName == MaterialTypeFastPBR) {
+                    mat = createMaterialFastPBR(matName, matData);
                 } else {
                     LOG4CPLUS_WARN(logger(), "Bad material = " << baseMatTypeName << ", defaulting to \"Basic\"");
                     mat = createMaterialBasic(matName, matData);
@@ -389,8 +391,9 @@ namespace af3d
 
         if (haveNormalMap) {
             LOG4CPLUS_TRACE(logger(), "NormalTex: " << texPath.C_Str());
-            mat->setTextureBinding(SamplerName::Normal,
-                TextureBinding(textureManager.loadTexture(texPath.C_Str())));
+            auto tex = textureManager.loadTexture(texPath.C_Str());
+            mat->setTextureBinding(SamplerName::Normal, TextureBinding(tex));
+            mat->params().setUniform(UniformName::NormalFormat, (tex->format() == TextureFormatRG ? 1 : 0));
         }
 
         if (matData->GetTexture(aiTextureType_DIFFUSE, 0, &texPath) == aiReturn_SUCCESS) {
@@ -421,6 +424,61 @@ namespace af3d
         if (matData->GetTexture(aiTextureType_SPECULAR, 0, &texPath) == aiReturn_SUCCESS) {
             LOG4CPLUS_TRACE(logger(), "AOTex: " << texPath.C_Str());
             mat->setTextureBinding(SamplerName::AO,
+                TextureBinding(textureManager.loadTexture(texPath.C_Str())));
+        }
+
+        if (matData->GetTexture(aiTextureType_EMISSIVE, 0, &texPath) == aiReturn_SUCCESS) {
+            LOG4CPLUS_TRACE(logger(), "EmissiveTex: " << texPath.C_Str());
+            mat->setTextureBinding(SamplerName::Emissive,
+                TextureBinding(textureManager.loadTexture(texPath.C_Str())));
+            float val;
+            std::uint32_t mx = 1;
+            if (aiGetMaterialFloatArray(matData, "$raw.EmissionFactor", 0, 0, &val, &mx) == aiReturn_SUCCESS) {
+                LOG4CPLUS_TRACE(logger(), "EmissiveFactor: " << val);
+                mat->params().setUniform(UniformName::EmissiveFactor, val);
+            }
+        } else {
+            mat->setTextureBinding(SamplerName::Emissive,
+                TextureBinding(textureManager.black1x1(), SamplerParams(GL_NEAREST, GL_NEAREST)));
+        }
+
+        return mat;
+    }
+
+    MaterialPtr AssimpMeshLoader::createMaterialFastPBR(const std::string& matName, aiMaterial* matData)
+    {
+        aiString texPath;
+
+        bool haveNormalMap = (matData->GetTexture(aiTextureType_NORMALS, 0, &texPath) == aiReturn_SUCCESS) &&
+            scene_->mMeshes[0]->mTangents;
+        MaterialTypeName matTypeName = (haveNormalMap ? MaterialTypeFastPBRNM : MaterialTypeFastPBR);
+
+        auto mat = materialManager.createMaterial(matTypeName, matName);
+        runtime_assert(mat);
+
+        if (haveNormalMap) {
+            LOG4CPLUS_TRACE(logger(), "NormalTex: " << texPath.C_Str());
+            auto tex = textureManager.loadTexture(texPath.C_Str());
+            mat->setTextureBinding(SamplerName::Normal, TextureBinding(tex));
+            mat->params().setUniform(UniformName::NormalFormat, (tex->format() == TextureFormatRG ? 1 : 0));
+        }
+
+        if (matData->GetTexture(aiTextureType_DIFFUSE, 0, &texPath) == aiReturn_SUCCESS) {
+            LOG4CPLUS_TRACE(logger(), "DiffuseTex: " << texPath.C_Str());
+            mat->setTextureBinding(SamplerName::Main,
+                TextureBinding(textureManager.loadTexture(texPath.C_Str())));
+        }
+
+        aiColor4D color;
+        if (!mat->textureBinding(SamplerName::Main).tex &&
+            (aiGetMaterialColor(matData, AI_MATKEY_COLOR_DIFFUSE, &color) == aiReturn_SUCCESS)) {
+            LOG4CPLUS_TRACE(logger(), "MainColor: " << fromAssimp(color));
+            mat->params().setUniform(UniformName::MainColor, gammaToLinear(fromAssimp(color)));
+        }
+
+        if (matData->GetTexture(aiTextureType_SPECULAR, 0, &texPath) == aiReturn_SUCCESS) {
+            LOG4CPLUS_TRACE(logger(), "OccRoughMetTex: " << texPath.C_Str());
+            mat->setTextureBinding(SamplerName::Specular,
                 TextureBinding(textureManager.loadTexture(texPath.C_Str())));
         }
 

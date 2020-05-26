@@ -56,6 +56,8 @@ namespace af3d
 
         inline std::uint32_t height() const { return hwTex_->height(); }
 
+        inline TextureFormat format() const { return hwTex_->format(); }
+
         void upload(GLint internalFormat, GLenum format, GLenum type, std::vector<Byte>&& pixels, bool genMipmap);
 
         void download(GLenum format, GLenum type, std::vector<Byte>& pixels);
