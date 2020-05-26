@@ -29,6 +29,57 @@
 
 namespace af3d
 {
+    const APropertyTypeEnumImpl<MaterialTypeName, MaterialTypeMax + 1> APropertyType_MaterialTypeName{"MaterialTypeName",
+        {
+            "Basic",
+            "BasicNM",
+            "Unlit",
+            "UnlitVC",
+            "Imm",
+            "Outline",
+            "Grid",
+            "FilterVHS",
+            "FilterIrradianceConv",
+            "PBR",
+            "PBRNM",
+            "FilterCube2Equirect",
+            "FilterEquirect2Cube",
+            "FilterSpecularCM",
+            "FilterSpecularLUT",
+            "FilterFXAA",
+            "FilterToneMapping",
+            "FilterGaussianBlur",
+            "FilterBloomPass1",
+            "FilterBloomPass2",
+            "FilterTAA",
+            "FilterDownscale",
+            "SkyBox"
+        }
+    };
+
+    MaterialTypeName materialTypeWithNM(MaterialTypeName matTypeName)
+    {
+        switch (matTypeName) {
+        case MaterialTypeBasic:
+            return MaterialTypeBasicNM;
+        case MaterialTypePBR:
+            return MaterialTypePBRNM;
+        default:
+            return matTypeName;
+        }
+    }
+
+    bool materialTypeHasNM(MaterialTypeName matTypeName)
+    {
+        switch (matTypeName) {
+        case MaterialTypeBasicNM:
+        case MaterialTypePBRNM:
+            return true;
+        default:
+            return false;
+        }
+    }
+
     MaterialType::MaterialType(MaterialTypeName name, const HardwareProgramPtr& prog, bool usesLight)
     : name_(name),
       prog_(prog),

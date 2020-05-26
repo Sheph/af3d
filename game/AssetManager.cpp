@@ -50,6 +50,34 @@ namespace af3d
             }
             LOG4CPLUS_TRACE(logger(), "texture \"" << name << "\" sRGB = " << data.tex->isSRGB());
         });
+        processAssetsJson("assets-models.json", [this](const std::string& name, AssetData& data, const Json::Value& v) {
+            data.model = std::make_shared<AssetModel>();
+            data.model->setName(name);
+
+            std::string matType;
+            if (v["material"].isString()) {
+                matType = v["material"].asString();
+            }
+            if (!matType.empty()) {
+                bool found = false;
+                const auto& names = APropertyType_MaterialTypeName.enumerators();
+                for (size_t i = 0; i < names.size(); ++i) {
+                    if (matType == names[i]) {
+                        data.model->setMaterialTypeName(static_cast<MaterialTypeName>(i));
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    LOG4CPLUS_WARN(logger(), "model \"" << name << "\" bad material = " << matType);
+                }
+            }
+            if (v["flipUV"].isBool()) {
+                data.model->setFlipUV(v["flipUV"].asBool());
+            }
+            LOG4CPLUS_TRACE(logger(), "model \"" << name << "\" materialType = "
+                << data.model->materialTypeName() << ", flipUV = " << data.model->flipUV());
+        });
         return true;
     }
 

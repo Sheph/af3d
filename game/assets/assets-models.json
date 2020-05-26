@@ -1,0 +1,5 @@
+{
+"Cerberus.fbx" : { "material" : "PBR" },
+"helmet.fbx" : { "material" : "PBR" },
+"SunTemple.fbx" : { "material" : "PBR", "flipUV" : true }
+}

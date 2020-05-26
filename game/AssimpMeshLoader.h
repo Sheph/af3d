@@ -45,6 +45,10 @@ namespace af3d
     private:
         AssimpScenePtr loadScene(Assimp::Importer& importer);
 
+        MaterialPtr createMaterialBasic(const std::string& matName, aiMaterial* matData);
+
+        MaterialPtr createMaterialPBR(const std::string& matName, aiMaterial* matData);
+
         std::string path_;
         AssimpScenePtr scene_;
     };

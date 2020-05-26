@@ -26,6 +26,7 @@
 #ifndef _MATERIAL_TYPE_H_
 #define _MATERIAL_TYPE_H_
 
+#include "APropertyType.h"
 #include "HardwareProgram.h"
 #include "af3d/EnumSet.h"
 #include "af3d/Utils.h"
@@ -65,6 +66,12 @@ namespace af3d
         MaterialTypeMax = MaterialTypeSkyBox
     };
 
+    MaterialTypeName materialTypeWithNM(MaterialTypeName matTypeName);
+
+    bool materialTypeHasNM(MaterialTypeName matTypeName);
+
+    extern const APropertyTypeEnumImpl<MaterialTypeName, MaterialTypeMax + 1> APropertyType_MaterialTypeName;
+
     class MaterialType : boost::noncopyable
     {
     public:
@@ -81,6 +88,8 @@ namespace af3d
         ~MaterialType() = default;
 
         inline MaterialTypeName name() const { return name_; }
+
+        inline bool hasNM() const { return materialTypeHasNM(name()); }
 
         inline const HardwareProgramPtr& prog() const { return prog_; }
 
