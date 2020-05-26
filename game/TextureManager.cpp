@@ -25,13 +25,12 @@
 
 #include "TextureManager.h"
 #include "HardwareResourceManager.h"
+#include "AssetManager.h"
 #include "Platform.h"
 #include "Logger.h"
 #include "Settings.h"
 #include "af3d/Assert.h"
 #include "af3d/ImageReader.h"
-#include "json/json.h"
-#include "log4cplus/ndc.h"
 
 namespace af3d
 {
@@ -267,30 +266,6 @@ namespace af3d
     bool TextureManager::init()
     {
         LOG4CPLUS_DEBUG(logger(), "textureManager: init...");
-
-        {
-            PlatformIFStream is("textures.json");
-
-            log4cplus::NDCContextCreator ndc("textures.json");
-
-            if (is) {
-                std::string jsonStr;
-                if (readStream(is, jsonStr)) {
-                    Json::Value jsonValue;
-                    Json::Reader reader;
-                    if (reader.parse(jsonStr, jsonValue)) {
-                        processTexturesJson(jsonValue);
-                    } else {
-                        LOG4CPLUS_ERROR(logger(), "Failed to parse JSON: " << reader.getFormattedErrorMessages());
-                    }
-                } else {
-                    LOG4CPLUS_ERROR(logger(), "Error reading file");
-                }
-            } else {
-                LOG4CPLUS_ERROR(logger(), "Cannot open file");
-            }
-        }
-
         white1x1_ = createTexture(TextureType2D, 1, 1);
         black1x1_ = createTexture(TextureType2D, 1, 1);
         return true;
@@ -335,13 +310,8 @@ namespace af3d
             return it->second;
         }
 
-        auto jt = textureInfoMap_.find(path);
-        bool isSRGB = false;
-        if (jt != textureInfoMap_.end()) {
-            isSRGB = jt->second.isSRGB;
-        }
-
-        auto loader = std::make_shared<TextureGenerator>(path, isSRGB);
+        auto loader = std::make_shared<TextureGenerator>(path,
+            assetManager.getAssetTexture(path)->isSRGB());
 
         std::uint32_t width;
         std::uint32_t height;
@@ -391,30 +361,5 @@ namespace af3d
     void TextureManager::onTextureDestroy(Texture* tex)
     {
         immediateTextures_.erase(tex);
-    }
-
-    void TextureManager::processTexturesJson(const Json::Value& jsonValue)
-    {
-        if (!jsonValue.isObject()) {
-            LOG4CPLUS_ERROR(logger(), "Not a json object");
-            return;
-        }
-
-        for (auto it = jsonValue.begin(); it != jsonValue.end(); ++it) {
-            const Json::Value& key = it.key();
-            if (!key.isString()) {
-                LOG4CPLUS_WARN(logger(), "texture name \"" << key << "\" is not a string");
-                continue;
-            }
-            const Json::Value& v = *it;
-            if (!v.isObject()) {
-                LOG4CPLUS_WARN(logger(), "texture \"" << key.asString() << "\" value is not an object");
-                continue;
-            }
-            if (v["srgb"].isBool()) {
-                textureInfoMap_[key.asString()] = TextureInfo(v["srgb"].asBool());
-                LOG4CPLUS_TRACE(logger(), "texture \"" << key.asString() << "\" sRGB = " << v["srgb"].asBool());
-            }
-        }
     }
 }

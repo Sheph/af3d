@@ -26,6 +26,8 @@
 #ifndef _ASSETMANAGER_H_
 #define _ASSETMANAGER_H_
 
+#include "AssetTexture.h"
+#include "AssetModel.h"
 #include "Drawable.h"
 #include "SceneAsset.h"
 #include "CollisionMatrix.h"
@@ -45,6 +47,10 @@ namespace af3d
 
         void shutdown();
 
+        const AssetTexturePtr& getAssetTexture(const std::string& name);
+
+        const AssetModelPtr& getAssetModel(const std::string& name);
+
         Image getImage(const std::string& name);
 
         DrawablePtr getDrawable(const std::string& name);
@@ -58,10 +64,21 @@ namespace af3d
         void saveCollisionMatrix(const CollisionMatrixPtr& cm);
 
     private:
+        struct AssetData
+        {
+            AssetTexturePtr tex;
+            AssetModelPtr model;
+        };
+
+        using AssetMap = std::unordered_map<std::string, AssetData>;
         using TPSMap = std::unordered_map<std::string, TPSPtr>;
         using SceneAssetMap = std::unordered_map<std::string, Json::Value>;
         using CollisionMatrixMap = std::unordered_map<std::string, CollisionMatrixPtr>;
+        using AssetsJsonFn = std::function<void(const std::string&, AssetData&, const Json::Value&)>;
 
+        void processAssetsJson(const std::string& path, const AssetsJsonFn& fn);
+
+        AssetMap assetMap_;
         TPSMap tpsMap_;
         SceneAssetMap sceneAssetMap_;
         CollisionMatrixMap collisionMatrixMap_;

@@ -42,15 +42,44 @@ namespace af3d
     bool AssetManager::init()
     {
         LOG4CPLUS_DEBUG(logger(), "assetManager: init...");
+        processAssetsJson("assets-textures.json", [this](const std::string& name, AssetData& data, const Json::Value& v) {
+            data.tex = std::make_shared<AssetTexture>();
+            data.tex->setName(name);
+            if (v["srgb"].isBool()) {
+                data.tex->setSRGB(v["srgb"].asBool());
+            }
+            LOG4CPLUS_TRACE(logger(), "texture \"" << name << "\" sRGB = " << data.tex->isSRGB());
+        });
         return true;
     }
 
     void AssetManager::shutdown()
     {
         LOG4CPLUS_DEBUG(logger(), "assetManager: shutdown...");
+        assetMap_.clear();
         tpsMap_.clear();
         sceneAssetMap_.clear();
         collisionMatrixMap_.clear();
+    }
+
+    const AssetTexturePtr& AssetManager::getAssetTexture(const std::string& name)
+    {
+        AssetData& data = assetMap_[name];
+        if (!data.tex) {
+            data.tex = std::make_shared<AssetTexture>();
+            data.tex->setName(name);
+        }
+        return data.tex;
+    }
+
+    const AssetModelPtr& AssetManager::getAssetModel(const std::string& name)
+    {
+        AssetData& data = assetMap_[name];
+        if (!data.model) {
+            data.model = std::make_shared<AssetModel>();
+            data.model->setName(name);
+        }
+        return data.model;
     }
 
     Image AssetManager::getImage(const std::string& name)
@@ -204,5 +233,49 @@ namespace af3d
         std::ofstream os(platform->assetsPath() + "/" + cm->name(),
             std::ios_base::binary | std::ios_base::out | std::ios_base::trunc);
         os << Json::FastWriter().write(cm->toJsonValue());
+    }
+
+    void AssetManager::processAssetsJson(const std::string& path, const AssetsJsonFn& fn)
+    {
+        PlatformIFStream is(path);
+
+        log4cplus::NDCContextCreator ndc(path);
+
+        if (!is) {
+            LOG4CPLUS_ERROR(logger(), "Cannot open file");
+            return;
+        }
+
+        std::string jsonStr;
+        if (!readStream(is, jsonStr)) {
+            LOG4CPLUS_ERROR(logger(), "Error reading file");
+            return;
+        }
+
+        Json::Value jsonValue;
+        Json::Reader reader;
+        if (!reader.parse(jsonStr, jsonValue)) {
+            LOG4CPLUS_ERROR(logger(), "Failed to parse JSON: " << reader.getFormattedErrorMessages());
+            return;
+        }
+
+        if (!jsonValue.isObject()) {
+            LOG4CPLUS_ERROR(logger(), "Not a json object");
+            return;
+        }
+
+        for (auto it = jsonValue.begin(); it != jsonValue.end(); ++it) {
+            const Json::Value& key = it.key();
+            if (!key.isString()) {
+                LOG4CPLUS_WARN(logger(), "\"" << key << "\" is not a string");
+                continue;
+            }
+            const Json::Value& v = *it;
+            if (!v.isObject()) {
+                LOG4CPLUS_WARN(logger(), "\"" << key.asString() << "\" value is not an object");
+                continue;
+            }
+            fn(key.asString(), assetMap_[key.asString()], v);
+        }
     }
 }

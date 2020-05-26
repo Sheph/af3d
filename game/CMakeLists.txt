@@ -86,6 +86,9 @@ set(SOURCES
     AClassRegistry.cpp
     Image.cpp
     AssetManager.cpp
+    Asset.cpp
+    AssetTexture.cpp
+    AssetModel.cpp
     RenderQuadComponent.cpp
     RenderGizmoAxesComponent.cpp
     RenderGizmoRotateComponent.cpp

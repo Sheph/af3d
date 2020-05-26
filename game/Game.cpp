@@ -65,6 +65,12 @@ namespace af3d
             return false;
         }
 
+        // TODO: Well, technically AssetManager should be initialized later,
+        // but we need to load asset configs, so do this here.
+        if (!assetManager.init()) {
+            return false;
+        }
+
         if (!textureManager.init()) {
             return false;
         }
@@ -152,10 +158,6 @@ namespace af3d
 
         if (userConfig) {
             setupAudio(*userConfig);
-        }
-
-        if (!assetManager.init()) {
-            return false;
         }
 
         if (!sceneObjectFactory.init()) {
