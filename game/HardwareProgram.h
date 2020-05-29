@@ -63,8 +63,11 @@ namespace af3d
         SpecularCMLevels,
         Dt,
         RealDt,
+        LightProbeInvMatrix,
+        LightProbePos,
+        LightProbeType,
         FirstAuto = ViewProjMatrix,
-        MaxAuto = RealDt,
+        MaxAuto = LightProbeType,
         MainColor, // Light only!
         SpecularColor, // Light only!
         Shininess, // Light only!

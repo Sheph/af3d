@@ -33,6 +33,7 @@
 #include "Logger.h"
 #include "Settings.h"
 #include "Const.h"
+#include "PhysicsDebugDraw.h"
 #include "af3d/ImageWriter.h"
 #include <fstream>
 
@@ -42,9 +43,9 @@ namespace af3d
     ACLASS_DEFINE_END(LightProbeComponent)
 
     LightProbeComponent::LightProbeComponent(std::uint32_t irradianceResolution, std::uint32_t specularResolution,
-        std::uint32_t specularMipLevels, bool isGlobal)
+        std::uint32_t specularMipLevels, const boost::optional<AABB>& bounds)
     : PhasedComponent(AClass_LightProbeComponent, phasePreRender),
-      isGlobal_(isGlobal),
+      bounds_(bounds),
       irradianceResolution_(irradianceResolution),
       specularResolution_(specularResolution),
       specularMipLevels_(specularMipLevels)
@@ -193,6 +194,31 @@ namespace af3d
 
         specularLUTTexture_ = textureManager.loadTexture(getSpecularLUTTexName(), false);
         runtime_assert(specularLUTTexture_);
+
+        if (!isGlobal() && settings.editor.enabled && !settings.editor.playing) {
+            // Editor stuff.
+            auto mesh = meshManager.loadMesh("light_probe.fbx")->clone();
+            for (const auto& sm : mesh->subMeshes()) {
+                sm->material()->setBlendingParams(BlendingParams(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+                Color c;
+                if (sm->material()->params().getUniform(UniformName::MainColor, c, true)) {
+                    c.setW(0.5f);
+                    sm->material()->params().setUniform(UniformName::MainColor, c);
+                }
+            }
+
+            markerRc_ = std::make_shared<RenderMeshComponent>();
+            markerRc_->cameraFilter().layers() = CameraLayer::Main;
+            markerRc_->setMesh(mesh);
+            markerRc_->setScale(btVector3_one * 0.5f);
+            parent()->addComponent(markerRc_);
+
+            boundsRc_ = std::make_shared<RenderProxyComponent>(
+                std::bind(&LightProbeComponent::renderBounds, this, std::placeholders::_1));
+            boundsRc_->cameraFilter().layers() = CameraLayer::Main;
+            boundsRc_->setLocalAABB(*bounds_);
+            parent()->addComponent(boundsRc_);
+        }
     }
 
     void LightProbeComponent::onUnregister()
@@ -207,6 +233,14 @@ namespace af3d
         if (specularEquirect2cube_) {
             specularEquirect2cube_->removeFromParent();
             specularEquirect2cube_.reset();
+        }
+        if (markerRc_) {
+            markerRc_->removeFromParent();
+            markerRc_.reset();
+        }
+        if (boundsRc_) {
+            boundsRc_->removeFromParent();
+            boundsRc_.reset();
         }
     }
 
@@ -239,7 +273,7 @@ namespace af3d
             auto face = static_cast<TextureCubeFace>(i);
             auto cam = std::make_shared<Camera>();
             cam->setOrder(camOrderLightProbe);
-            cam->setLayer(isGlobal_ ? CameraLayer::SkyBox : CameraLayer::LightProbe);
+            cam->setLayer(isGlobal() ? CameraLayer::SkyBox : CameraLayer::LightProbe);
             cam->setFov(btRadians(90.0f));
             cam->setAspect(1.0f);
             cam->setClearColor(AttachmentPoint::Color0, mainCamera->clearColor());
@@ -356,16 +390,38 @@ namespace af3d
 
     std::string LightProbeComponent::getIrradianceTexName()
     {
-        return "lp_" + scene()->name() + "_" + (isGlobal_ ? "global" : parent()->name()) + "_irr.hdr";
+        return "lp_" + scene()->name() + "_" + (isGlobal() ? "global" : parent()->name()) + "_irr.hdr";
     }
 
     std::string LightProbeComponent::getSpecularTexName()
     {
-        return "lp_" + scene()->name() + "_" + (isGlobal_ ? "global" : parent()->name()) + "_spec.hdr";
+        return "lp_" + scene()->name() + "_" + (isGlobal() ? "global" : parent()->name()) + "_spec.hdr";
     }
 
     std::string LightProbeComponent::getSpecularLUTTexName()
     {
         return "lp_spec_lut.hdr";
+    }
+
+    void LightProbeComponent::renderBounds(RenderList& rl)
+    {
+        auto w = scene()->workspace();
+        if (!w->emObject()->active()) {
+            return;
+        }
+
+        PhysicsDebugDraw dd;
+        dd.setRenderList(&rl);
+        if (w->emObject()->isSelected(parent()->sharedThis())) {
+            dd.setAlpha(0.8f);
+            dd.drawBox(bounds_->lowerBound, bounds_->upperBound,
+                parent()->smoothTransform(), btVector3(1.0f, 1.0f, 1.0f));
+            dd.flushLines(false);
+        } else {
+            dd.setAlpha(0.1f);
+            dd.drawBox(bounds_->lowerBound, bounds_->upperBound,
+                parent()->smoothTransform(), btVector3(1.0f, 1.0f, 1.0f));
+            dd.flushLines(true);
+        }
     }
 }

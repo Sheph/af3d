@@ -61,6 +61,8 @@ namespace af3d
 
         void flushLines() override;
 
+        void flushLines(bool depthTest);
+
         void drawMesh(btCollisionShape* shape, const btTransform& worldTransform, const btVector3& color);
 
         inline void setRenderList(RenderList* value) { rl_ = value; }

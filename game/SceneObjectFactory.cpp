@@ -237,29 +237,12 @@ namespace af3d
     }
 
     SceneObjectPtr SceneObjectFactory::createLightProbe(std::uint32_t irradianceResolution, std::uint32_t specularResolution,
-        std::uint32_t specularMipLevels)
+        std::uint32_t specularMipLevels, const AABB& bounds)
     {
         auto obj = std::make_shared<SceneObject>();
 
-        obj->addComponent(std::make_shared<LightProbeComponent>(irradianceResolution, specularResolution, specularMipLevels));
-
-        if (settings.editor.enabled && !settings.editor.playing) {
-            auto mesh = meshManager.loadMesh("light_probe.fbx")->clone();
-            for (const auto& sm : mesh->subMeshes()) {
-                sm->material()->setBlendingParams(BlendingParams(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-                Color c;
-                if (sm->material()->params().getUniform(UniformName::MainColor, c, true)) {
-                    c.setW(0.5f);
-                    sm->material()->params().setUniform(UniformName::MainColor, c);
-                }
-            }
-
-            auto rc = std::make_shared<RenderMeshComponent>();
-            rc->cameraFilter().layers() = CameraLayer::Main;
-            rc->setMesh(mesh);
-            rc->setScale(btVector3_one * 0.5f);
-            obj->addComponent(rc);
-        }
+        obj->addComponent(std::make_shared<LightProbeComponent>(irradianceResolution, specularResolution, specularMipLevels,
+            bounds));
 
         return obj;
     }
@@ -359,13 +342,16 @@ namespace af3d
     {
         return sceneObjectFactory.createLightProbe(params.get("irradiance res").toInt(),
             params.get("specular res").toInt(),
-            params.get("specular mip levels").toInt());
+            params.get("specular mip levels").toInt(),
+            AABB(params.get("lower bound").toVec3(), params.get("upper bound").toVec3()));
     }
     SCENEOBJECT_DEFINE_PROPS(LightProbe)
     SCENEOBJECT_PARAM(LightProbe, AProperty_Name, "Object name", String, "")
     SCENEOBJECT_PARAM(LightProbe, "irradiance res", "Irradiance resolution", UInt, 64)
     SCENEOBJECT_PARAM(LightProbe, "specular res", "Specular resolution", UInt, 128)
     SCENEOBJECT_PARAM(LightProbe, "specular mip levels", "Specular mip levels", UInt, 5)
+    SCENEOBJECT_PARAM(LightProbe, "lower bound", "Lower bound", Vec3f, btVector3(-0.5f, -0.5f, -0.5f))
+    SCENEOBJECT_PARAM(LightProbe, "upper bound", "Upper bound", Vec3f, btVector3(0.5f, 0.5f, 0.5f))
     SCENEOBJECT_DEFINE_END(LightProbe)
 
     SCENEOBJECT_DEFINE_BEGIN(SkyBox)

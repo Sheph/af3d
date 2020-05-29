@@ -98,6 +98,7 @@ set(SOURCES
     RenderJointComponent.cpp
     RenderFilterComponent.cpp
     RenderSkyBoxComponent.cpp
+    RenderProxyComponent.cpp
     AJsonReader.cpp
     AJsonWriter.cpp
     SceneAsset.cpp

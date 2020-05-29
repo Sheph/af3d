@@ -80,6 +80,11 @@ namespace af3d
         setUniformImpl(name, reinterpret_cast<const Byte*>(value.v), GL_FLOAT, 4, 1, quiet);
     }
 
+    void MaterialParams::setUniform(UniformName name, const Matrix3f& value, bool quiet)
+    {
+        setUniformImpl(name, reinterpret_cast<const Byte*>(value.v), GL_FLOAT, 9, 1, quiet);
+    }
+
     void MaterialParams::setUniform(UniformName name, const Matrix4f& value, bool quiet)
     {
         setUniformImpl(name, reinterpret_cast<const Byte*>(value.v), GL_FLOAT, 16, 1, quiet);
@@ -205,6 +210,9 @@ namespace af3d
                 break;
             case GL_FLOAT_VEC4:
                 ogl.Uniform4fv(jt->second.location, count, (const GLfloat*)&data[kv.second]);
+                break;
+            case GL_FLOAT_MAT3:
+                ogl.UniformMatrix3fv(jt->second.location, count, GL_FALSE, (const GLfloat*)&data[kv.second]);
                 break;
             case GL_FLOAT_MAT4:
                 ogl.UniformMatrix4fv(jt->second.location, count, GL_FALSE, (const GLfloat*)&data[kv.second]);

@@ -1282,6 +1282,7 @@ static bool OGLPreInit()
     GL_GET_PROC(Disable, glDisable);
     GL_GET_PROC(BlendFunc, glBlendFunc);
     GL_GET_PROC(BlendFuncSeparate, glBlendFuncSeparate);
+    GL_GET_PROC(UniformMatrix3fv, glUniformMatrix3fv);
     GL_GET_PROC(UniformMatrix4fv, glUniformMatrix4fv);
     GL_GET_PROC(Uniform1i, glUniform1i);
     GL_GET_PROC(Uniform2i, glUniform2i);

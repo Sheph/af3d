@@ -35,6 +35,7 @@ namespace af3d
     static const VariableTypeInfo tiFloatVec3(GL_FLOAT, 3, 12);
     static const VariableTypeInfo tiFloatVec4(GL_FLOAT, 4, 16);
     static const VariableTypeInfo tiUnsignedInt8Vec4(GL_UNSIGNED_BYTE, 4, 4);
+    static const VariableTypeInfo tiFloatMat3(GL_FLOAT, 9, 4 * 9);
     static const VariableTypeInfo tiFloatMat4(GL_FLOAT, 16, 4 * 16);
 
     static const std::unordered_map<std::string, VertexAttribName> staticVertexAttribMap = {
@@ -73,6 +74,9 @@ namespace af3d
         {"specularCMLevels", UniformName::SpecularCMLevels},
         {"dt", UniformName::Dt},
         {"realDt", UniformName::RealDt},
+        {"lightProbeInvModel", UniformName::LightProbeInvMatrix},
+        {"lightProbePos", UniformName::LightProbePos},
+        {"lightProbeType", UniformName::LightProbeType},
         {"mainColor", UniformName::MainColor},
         {"specularColor", UniformName::SpecularColor},
         {"shininess", UniformName::Shininess},
@@ -158,6 +162,7 @@ namespace af3d
         case GL_FLOAT_VEC3: return tiFloatVec3;
         case GL_FLOAT_VEC4: return tiFloatVec4;
         case GL_UNSIGNED_INT8_VEC4_NV: return tiUnsignedInt8Vec4;
+        case GL_FLOAT_MAT3: return tiFloatMat3;
         case GL_FLOAT_MAT4: return tiFloatMat4;
         default:
             runtime_assert(false);

@@ -23,49 +23,55 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _SCENEOBJECTFACTORY_H_
-#define _SCENEOBJECTFACTORY_H_
+#ifndef _RENDERPROXYCOMPONENT_H_
+#define _RENDERPROXYCOMPONENT_H_
 
-#include "af3d/Types.h"
-#include "af3d/Single.h"
-#include "af3d/AABB.h"
-#include "SceneObject.h"
+#include "RenderComponent.h"
 
 namespace af3d
 {
-    class SceneObjectFactory : public Single<SceneObjectFactory>
+    class RenderProxyComponent : public std::enable_shared_from_this<RenderProxyComponent>,
+        public RenderComponent
     {
     public:
-        SceneObjectFactory() = default;
-        ~SceneObjectFactory() = default;
+        using RenderCb = std::function<void (RenderList&)>;
 
-        bool init();
+        explicit RenderProxyComponent(const RenderCb& cb);
+        ~RenderProxyComponent() = default;
 
-        void shutdown();
+        static const AClass& staticKlass();
 
-        SceneObjectPtr createDummy();
+        static AObjectPtr create(const APropertyValueMap& propVals);
 
-        SceneObjectPtr createColoredBox(const btVector3& size, const Color& color1, const Color& color2);
+        AObjectPtr sharedThis() override { return shared_from_this(); }
 
-        SceneObjectPtr createInstance(const std::string& assetPath);
+        void update(float dt) override;
 
-        SceneObjectPtr createSensor(bool allowSensor);
+        void render(RenderList& rl, void* const* parts, size_t numParts) override;
 
-        SceneObjectPtr createTestRef(const SceneObjectPtr& other1, const SceneObjectPtr& other2);
+        std::pair<AObjectPtr, float> testRay(const Frustum& frustum, const Ray& ray, void* part) override;
 
-        SceneObjectPtr createLinkedBoxes(const btVector3& size, const Color& color1, const Color& color2);
+        inline const AABB& localAABB() const { return localAABB_; }
+        inline void setLocalAABB(const AABB& value) { localAABB_ = value; dirty_ = true; }
 
-        SceneObjectPtr createTestCamera(const Color& clearColor, const Color& ambientColor, float scale);
+    private:
+        void onRegister() override;
 
-        SceneObjectPtr createTestCameraDisplay(const SceneObjectPtr& camObj, float scale);
+        void onUnregister() override;
 
-        SceneObjectPtr createLightProbe(std::uint32_t irradianceResolution, std::uint32_t specularResolution,
-            std::uint32_t specularMipLevels, const AABB& bounds);
+        RenderCb cb_;
 
-        SceneObjectPtr createSkyBox(const std::string& texturePath);
+        bool dirty_ = false;
+        AABB localAABB_ = AABB_empty;
+
+        btTransform prevParentXf_ = btTransform::getIdentity();
+        AABB prevAABB_;
+        RenderCookie* cookie_ = nullptr;
     };
 
-    extern SceneObjectFactory sceneObjectFactory;
+    using RenderProxyComponentPtr = std::shared_ptr<RenderProxyComponent>;
+
+    ACLASS_DECLARE(RenderProxyComponent)
 }
 
 #endif

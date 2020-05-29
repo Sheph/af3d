@@ -117,9 +117,14 @@ namespace af3d
 
     void PhysicsDebugDraw::flushLines()
     {
+        flushLines(false);
+    }
+
+    void PhysicsDebugDraw::flushLines(bool depthTest)
+    {
         btAssert(rl_);
 
-        auto rop = rl_->addGeometry(materialManager.matImmDefault(false, false), GL_LINES);
+        auto rop = rl_->addGeometry(materialManager.matImmDefault(depthTest, false), GL_LINES);
 
         for (const auto& line : lines_) {
             rop.addVertex(line.from, Vector2f_zero, line.color);

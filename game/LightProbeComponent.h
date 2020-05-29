@@ -28,8 +28,11 @@
 
 #include "PhasedComponent.h"
 #include "RenderFilterComponent.h"
+#include "RenderMeshComponent.h"
+#include "RenderProxyComponent.h"
 #include "Equirect2CubeComponent.h"
 #include "Texture.h"
+#include <boost/optional.hpp>
 
 namespace af3d
 {
@@ -38,7 +41,7 @@ namespace af3d
     {
     public:
         LightProbeComponent(std::uint32_t irradianceResolution, std::uint32_t specularResolution,
-            std::uint32_t specularMipLevels, bool isGlobal = false);
+            std::uint32_t specularMipLevels, const boost::optional<AABB>& bounds = boost::optional<AABB>());
         ~LightProbeComponent() = default;
 
         static const AClass& staticKlass();
@@ -60,7 +63,9 @@ namespace af3d
         inline const TexturePtr& specularLUTTexture() const { return specularLUTTexture_; }
         inline std::uint32_t specularTextureLevels() const { return specularMipLevels_ - 1; }
 
-        inline bool isGlobal() const { return isGlobal_; }
+        inline bool isGlobal() const { return !bounds_; }
+
+        inline const AABB& bounds() const { return bounds_ ? *bounds_ : AABB_empty; }
 
     private:
         static const std::uint32_t sceneCaptureSize = 512;
@@ -84,7 +89,9 @@ namespace af3d
 
         std::string getSpecularLUTTexName();
 
-        bool isGlobal_ = false;
+        void renderBounds(RenderList& rl);
+
+        boost::optional<AABB> bounds_;
 
         std::uint32_t irradianceResolution_;
         std::uint32_t specularResolution_;
@@ -104,6 +111,9 @@ namespace af3d
 
         Equirect2CubeComponentPtr irrEquirect2cube_;
         Equirect2CubeComponentPtr specularEquirect2cube_;
+
+        RenderMeshComponentPtr markerRc_;
+        RenderProxyComponentPtr boundsRc_;
     };
 
     using LightProbeComponentPtr = std::shared_ptr<LightProbeComponent>;

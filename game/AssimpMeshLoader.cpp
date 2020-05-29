@@ -465,8 +465,11 @@ namespace af3d
 
         if (matData->GetTexture(aiTextureType_DIFFUSE, 0, &texPath) == aiReturn_SUCCESS) {
             LOG4CPLUS_TRACE(logger(), "DiffuseTex: " << texPath.C_Str());
-            mat->setTextureBinding(SamplerName::Main,
-                TextureBinding(textureManager.loadTexture(texPath.C_Str())));
+            auto tex = textureManager.loadTexture(texPath.C_Str());
+            if (tex->format() == TextureFormatRGBA) {
+                mat->setBlendingParams(BlendingParams(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+            }
+            mat->setTextureBinding(SamplerName::Main, TextureBinding(tex));
         }
 
         aiColor4D color;

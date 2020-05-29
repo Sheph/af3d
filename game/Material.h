@@ -30,6 +30,7 @@
 #include "MaterialType.h"
 #include "Texture.h"
 #include "af3d/Utils.h"
+#include "af3d/Matrix3.h"
 
 namespace af3d
 {
@@ -48,6 +49,7 @@ namespace af3d
         void setUniform(UniformName name, const Vector3f& value, bool quiet = false);
         void setUniform(UniformName name, const btVector3& value, bool quiet = false);
         void setUniform(UniformName name, const Vector4f& value, bool quiet = false);
+        void setUniform(UniformName name, const Matrix3f& value, bool quiet = false);
         void setUniform(UniformName name, const Matrix4f& value, bool quiet = false);
 
         bool getUniform(UniformName name, float& value, bool withDefault = false) const;

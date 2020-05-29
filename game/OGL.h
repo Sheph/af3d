@@ -132,6 +132,7 @@ namespace af3d
         void (GLAPIENTRY* Disable)(GLenum cap);
         void (GLAPIENTRY* BlendFunc)(GLenum sfactor, GLenum dfactor);
         void (GLAPIENTRY* BlendFuncSeparate)(GLenum sfactor, GLenum dfactor, GLenum srcAlpha, GLenum dstAlpha);
+        void (GLAPIENTRY* UniformMatrix3fv)(GLint location, GLsizei count, GLboolean transpose, const GLfloat* value);
         void (GLAPIENTRY* UniformMatrix4fv)(GLint location, GLsizei count, GLboolean transpose, const GLfloat* value);
         void (GLAPIENTRY* Uniform1i)(GLint location, GLint v0);
         void (GLAPIENTRY* Uniform2i)(GLint location, GLint v0, GLint v1);

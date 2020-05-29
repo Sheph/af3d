@@ -27,6 +27,9 @@ uniform float emissiveFactor;
 #ifdef NM
 uniform int normalFormat;
 #endif
+uniform mat4 lightProbeInvModel;
+uniform vec3 lightProbePos;
+uniform int lightProbeType;
 
 in vec2 v_texCoord;
 in vec3 v_pos;
@@ -79,9 +82,31 @@ vec3 fresnelSchlick(vec3 F0, float cosTheta)
     return F0 + (vec3(1.0) - F0) * pow(1.0 - cosTheta + Epsilon, 5.0);
 }
 
+// See: https://seblagarde.wordpress.com/2012/09/29/image-based-lighting-approaches-and-parallax-corrected-cubemap/
+vec3 reflDirectionFixup(vec3 ReflDirectionWS, vec3 DirectionWS, vec3 PositionWS)
+{
+    // Intersection with OBB convertto unit box space
+    // Transform in local unit parallax cube space (scaled and rotated)
+    vec3 RayLS = ReflDirectionWS * mat3(lightProbeInvModel);
+    vec3 PositionLS = (vec4(PositionWS, 1.0) * lightProbeInvModel).xyz;
+
+    vec3 Unitary = vec3(1.0, 1.0, 1.0);
+    vec3 FirstPlaneIntersect = (Unitary - PositionLS) / RayLS;
+    vec3 SecondPlaneIntersect = (-Unitary - PositionLS) / RayLS;
+    vec3 FurthestPlane = max(FirstPlaneIntersect, SecondPlaneIntersect);
+    float Distance = min(FurthestPlane.x, min(FurthestPlane.y, FurthestPlane.z));
+
+    // Use Distance in WS directly to recover intersection
+    vec3 IntersectPositionWS = PositionWS + ReflDirectionWS * Distance;
+    ReflDirectionWS = IntersectPositionWS - lightProbePos;
+
+    return ReflDirectionWS;
+}
+
 void main()
 {
-    vec3 albedo = texture(texMain, v_texCoord).rgb * mainColor.rgb;
+    vec4 albedoFull = texture(texMain, v_texCoord) * mainColor;
+    vec3 albedo = albedoFull.rgb;
 #ifdef FAST
     vec3 fast = texture(texSpecular, v_texCoord).rgb;
     float ao = 1.0;
@@ -107,9 +132,6 @@ void main()
     // Angle between surface normal and outgoing light direction.
     float cosLo = max(0.0, dot(N, Lo));
 
-    // Specular reflection vector.
-    vec3 Lr = 2.0 * cosLo * N - Lo;
-
     // Fresnel reflectance at normal incidence (for metals use albedo color).
     vec3 F0 = mix(Fdielectric, albedo, metalness);
 
@@ -120,6 +142,13 @@ void main()
         float ao = texture(texAO, v_texCoord).r;
 #endif
         vec3 emissive = texture(texEmissive, v_texCoord).rgb * emissiveFactor;
+
+        // Specular reflection vector.
+        vec3 Lr = 2.0 * cosLo * N - Lo;
+
+        if (lightProbeType == 1) {
+            Lr = reflDirectionFixup(normalize(Lr), -Lo, eyePos);
+        }
 
         // Sample diffuse irradiance at normal direction.
         vec3 irradiance = texture(texIrradiance, N).rgb;
@@ -146,7 +175,7 @@ void main()
         vec3 specularIBL = (F0 * specularBRDF.x + specularBRDF.y) * specularIrradiance;
 
         // Total ambient lighting contribution.
-        fragColor = vec4((diffuseIBL + specularIBL) * ao + emissive, 1.0);
+        fragColor = vec4((diffuseIBL + specularIBL) * ao + emissive, albedoFull.a);
         OUT_FRAG_VELOCITY();
         return;
     }
@@ -202,5 +231,5 @@ void main()
     vec3 specularBRDF = (F * D * G) / max(Epsilon, 4.0 * cosLi * cosLo);
 
     // Total contribution for this light.
-    fragColor = vec4((diffuseBRDF + specularBRDF) * lightColor * cosLi * attenuation, 1.0);
+    fragColor = vec4((diffuseBRDF + specularBRDF) * lightColor * cosLi * attenuation, albedoFull.a);
 }

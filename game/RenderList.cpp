@@ -586,5 +586,25 @@ namespace af3d
             auto probe = env_->getLightProbeFor(btVector3_zero);
             params.setUniform(UniformName::SpecularCMLevels, static_cast<int>(probe ? probe->specularTextureLevels() : 0));
         }
+        if (activeUniforms.count(UniformName::LightProbeInvMatrix) > 0) {
+            auto probe = env_->getLightProbeFor(btVector3_zero);
+            if (probe) {
+                const auto& bounds = probe->bounds();
+                auto mat = Matrix4f(probe->parent()->transform() * toTransform(bounds.getCenter())).scaled(bounds.getExtents());
+                params.setUniform(UniformName::LightProbeInvMatrix, mat.inverse());
+            }
+        }
+        if (activeUniforms.count(UniformName::LightProbePos) > 0) {
+            auto probe = env_->getLightProbeFor(btVector3_zero);
+            if (probe) {
+                params.setUniform(UniformName::LightProbePos, probe->parent()->pos());
+            }
+        }
+        if (activeUniforms.count(UniformName::LightProbeType) > 0) {
+            auto probe = env_->getLightProbeFor(btVector3_zero);
+            if (probe) {
+                params.setUniform(UniformName::LightProbeType, probe->isGlobal() ? 0 : 1);
+            }
+        }
     }
 }

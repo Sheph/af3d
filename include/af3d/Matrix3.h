@@ -58,6 +58,34 @@ namespace af3d
             row[2] = v2;
         }
 
+        explicit Matrix3(const btQuaternion& q)
+        {
+            setRotation(q);
+        }
+
+        explicit Matrix3(const btMatrix3x3& basis)
+        {
+            setBasis(basis);
+        }
+
+        void setRotation(const btQuaternion& q)
+        {
+            setBasis(btMatrix3x3(q));
+        }
+
+        void setBasis(const btMatrix3x3& basis)
+        {
+            v[0] = basis[0].x();
+            v[1] = basis[0].y();
+            v[2] = basis[0].z();
+            v[3] = basis[1].x();
+            v[4] = basis[1].y();
+            v[5] = basis[1].z();
+            v[6] = basis[2].x();
+            v[7] = basis[2].y();
+            v[8] = basis[2].z();
+        }
+
         Vector3<T> getColumn(int i) const
         {
             return Vector3<T>(m[0][i], m[1][i], m[2][i]);
@@ -108,6 +136,11 @@ namespace af3d
                     T(0), T(1), T(0),
                     T(0), T(0), T(1));
             return identityMatrix;
+        }
+
+        Matrix3<T> scaled(const btVector3& s) const
+        {
+            return scaled(Vector3<T>(s.x(), s.y(), s.z()));
         }
 
         Matrix3<T> scaled(const Vector3<T>& s) const

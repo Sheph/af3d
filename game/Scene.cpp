@@ -890,7 +890,7 @@ namespace af3d
             oldProbe->removeFromParent();
         }
         dummy_->addComponent(
-            std::make_shared<LightProbeComponent>(irradianceRes, specularRes, specularMipLevels, true));
+            std::make_shared<LightProbeComponent>(irradianceRes, specularRes, specularMipLevels));
     }
 
     void Scene::setRespawnPoint(const btTransform& value)

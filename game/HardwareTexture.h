@@ -52,7 +52,8 @@ namespace af3d
     {
         TextureFormatAny = 0,
         TextureFormatRG = 1,
-        TextureFormatMax = TextureFormatRG
+        TextureFormatRGBA = 2,
+        TextureFormatMax = TextureFormatRGBA
     };
 
     const btMatrix3x3& textureCubeFaceBasis(TextureCubeFace face);

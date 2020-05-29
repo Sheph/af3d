@@ -323,9 +323,22 @@ namespace af3d
             return fallback ? loadTexture("bad.png") : TexturePtr();
         }
 
+        TextureFormat texFormat = TextureFormatAny;
+        switch (format) {
+        case GL_RGBA:
+        case GL_COMPRESSED_RGBA_S3TC_DXT1_EXT:
+        case GL_COMPRESSED_RGBA_S3TC_DXT5_EXT:
+            texFormat = TextureFormatRGBA;
+            break;
+        case GL_COMPRESSED_RG_RGTC2:
+            texFormat = TextureFormatRG;
+            break;
+        default:
+            break;
+        }
+
         auto tex = std::make_shared<Texture>(this, path,
-            hwManager.createTexture(TextureType2D, width, height,
-                ((format == GL_COMPRESSED_RG_RGTC2) ? TextureFormatRG : TextureFormatAny)), loader);
+            hwManager.createTexture(TextureType2D, width, height, texFormat), loader);
         tex->load();
         cachedTextures_.emplace(path, tex);
 
