@@ -18,13 +18,13 @@ void main()
     uv[2] = v_texCoord + offset * vec2(-1,  1);
     uv[3] = v_texCoord + offset * vec2( 1,  1);
 
-    vec4 sample[4];
+    vec4 s[4];
 
     for (int i = 0; i < 4; ++i) {
-        sample[i] = textureLod(texMain, uv[i], mipLevel);
+        s[i] = textureLod(texMain, uv[i], mipLevel);
     }
 
-    fragColor = (sample[0] + sample[1] + sample[2] + sample[3]) * 0.25;
+    fragColor = (s[0] + s[1] + s[2] + s[3]) * 0.25;
 
     // fixed rarely occuring yellow color tint of the whole viewport (certain view port size, need to investigate more)
     fragColor.rgb = max(vec3(0,0,0), fragColor.rgb);

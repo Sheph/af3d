@@ -33,7 +33,7 @@
 
 namespace af3d
 {
-    static const char* glslCommonHeader = "#version 330 core\n" \
+    static const char* glslCommonHeader = "#version 430 core\n" \
         "#define OUT_FRAG_VELOCITY() \\\n" \
         "vec2 a = (v_clipPos.xy / v_clipPos.w); \\\n" \
         "vec2 b = (v_prevClipPos.xy / v_prevClipPos.w); \\\n" \
