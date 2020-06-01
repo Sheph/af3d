@@ -23,32 +23,42 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _HARDWARE_VERTEX_BUFFER_H_
-#define _HARDWARE_VERTEX_BUFFER_H_
-
-#include "HardwareBuffer.h"
+#include "HardwareDataBuffer.h"
 
 namespace af3d
 {
-    class HardwareVertexBuffer : public HardwareBuffer
+    HardwareDataBuffer::HardwareDataBuffer(HardwareResourceManager* mgr, Usage usage, GLsizeiptr elementSize)
+    : HardwareBuffer(mgr, usage, elementSize)
     {
-    public:
-        HardwareVertexBuffer(HardwareResourceManager* mgr, Usage usage, GLsizeiptr elementSize);
-        ~HardwareVertexBuffer() = default;
+    }
 
-    private:
-        void doResize(HardwareContext& ctx) override;
+    void HardwareDataBuffer::doResize(HardwareContext& ctx)
+    {
+        ogl.BindBuffer(GL_ARRAY_BUFFER, id(ctx));
+        ogl.BufferData(GL_ARRAY_BUFFER, sizeInBytes(ctx), nullptr, glUsage());
+    }
 
-        void doReload(GLsizeiptr cnt, const GLvoid* data, HardwareContext& ctx) override;
+    void HardwareDataBuffer::doReload(GLsizeiptr cnt, const GLvoid* data, HardwareContext& ctx)
+    {
+        ogl.BindBuffer(GL_ARRAY_BUFFER, id(ctx));
+        ogl.BufferData(GL_ARRAY_BUFFER, sizeInBytes(ctx), data, glUsage());
+    }
 
-        void doUpload(GLintptr offset, GLsizeiptr cnt, const GLvoid* data, HardwareContext& ctx) override;
+    void HardwareDataBuffer::doUpload(GLintptr offset, GLsizeiptr cnt, const GLvoid* data, HardwareContext& ctx)
+    {
+        ogl.BindBuffer(GL_ARRAY_BUFFER, id(ctx));
+        ogl.BufferSubData(GL_ARRAY_BUFFER, offset * elementSize(), cnt * elementSize(), data);
+    }
 
-        GLvoid* doLock(GLintptr offset, GLsizeiptr cnt, Access access, HardwareContext& ctx) override;
+    GLvoid* HardwareDataBuffer::doLock(GLintptr offset, GLsizeiptr cnt, Access access, HardwareContext& ctx)
+    {
+        ogl.BindBuffer(GL_ARRAY_BUFFER, id(ctx));
+        return ogl.MapBufferRange(GL_ARRAY_BUFFER, offset * elementSize(), cnt * elementSize(), glAccess(access));
+    }
 
-        void doUnlock(HardwareContext& ctx) override;
-    };
-
-    using HardwareVertexBufferPtr = std::shared_ptr<HardwareVertexBuffer>;
+    void HardwareDataBuffer::doUnlock(HardwareContext& ctx)
+    {
+        ogl.BindBuffer(GL_ARRAY_BUFFER, id(ctx));
+        ogl.UnmapBuffer(GL_ARRAY_BUFFER);
+    }
 }
-
-#endif

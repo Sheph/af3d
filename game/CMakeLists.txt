@@ -33,7 +33,7 @@ set(SOURCES
     HardwareContext.cpp
     HardwareResource.cpp
     HardwareBuffer.cpp
-    HardwareVertexBuffer.cpp
+    HardwareDataBuffer.cpp
     HardwareIndexBuffer.cpp
     HardwareProgram.cpp
     HardwareResourceManager.cpp

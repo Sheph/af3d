@@ -499,6 +499,7 @@ namespace af3d
     {
         const Matrix4f& viewProjMat = camera_->frustum().jitteredViewProjMat();
         const Matrix4f& stableViewProjMat = camera_->frustum().viewProjMat();
+        const Matrix4f& stableProjMat = camera_->frustum().projMat();
 
         const auto& activeUniforms = geom.material->type()->prog()->activeUniforms();
         const auto& samplers = geom.material->type()->prog()->samplers();
@@ -532,6 +533,10 @@ namespace af3d
 
         if (activeUniforms.count(UniformName::ViewProjMatrix) > 0) {
             params.setUniform(UniformName::ViewProjMatrix, viewProjMat);
+        }
+
+        if (activeUniforms.count(UniformName::StableProjMatrix) > 0) {
+            params.setUniform(UniformName::StableProjMatrix, stableProjMat);
         }
 
         bool prevStableMatSet = false;

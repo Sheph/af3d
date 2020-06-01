@@ -29,7 +29,7 @@ namespace af3d
 {
     VertexArray::VertexArray(const HardwareVertexArrayPtr& vao,
         const VertexArrayLayout& layout,
-        const std::vector<HardwareVertexBufferPtr>& vbos,
+        const VBOList& vbos,
         const HardwareIndexBufferPtr& ebo)
     : vao_(vao),
       layout_(layout),

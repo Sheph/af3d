@@ -54,6 +54,8 @@ namespace af3d
         GLsizei height;
     };
 
+    using StorageBufferBinding = std::pair<StorageBufferName, HardwareDataBufferPtr>;
+
     class RenderNode
     {
     public:
@@ -178,6 +180,9 @@ namespace af3d
 
         // Type::Textures
         std::vector<HardwareTextureBinding> textures_;
+
+        // Type::VertexArray
+        std::vector<StorageBufferBinding> storageBuffers_;
 
         // Type::VertexArray and Type::Draw
         VertexArrayPtr va_;

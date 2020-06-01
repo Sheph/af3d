@@ -36,7 +36,8 @@ namespace af3d
         enum class Type
         {
             Vertex = 0,
-            Fragment
+            Fragment,
+            Compute
         };
 
         HardwareShader(HardwareResourceManager* mgr, Type type);

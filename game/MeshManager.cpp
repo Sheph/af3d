@@ -169,7 +169,7 @@ namespace af3d
         vaLayout.addEntry(VertexArrayEntry(VertexAttribName::UV, GL_FLOAT_VEC2, 12, 0));
         vaLayout.addEntry(VertexArrayEntry(VertexAttribName::Color, GL_UNSIGNED_INT8_VEC4_NV, 20, 0, true));
 
-        auto vbo = hwManager.createVertexBuffer(HardwareBuffer::Usage::StaticDraw, 24);
+        auto vbo = hwManager.createDataBuffer(HardwareBuffer::Usage::StaticDraw, 24);
         auto ebo = hwManager.createIndexBuffer(HardwareBuffer::Usage::StaticDraw, HardwareIndexBuffer::UInt16);
 
         auto va = std::make_shared<VertexArray>(hwManager.createVertexArray(), vaLayout, VBOList{vbo}, ebo);
@@ -188,7 +188,7 @@ namespace af3d
         vaLayout.addEntry(VertexArrayEntry(VertexAttribName::UV, GL_FLOAT_VEC2, 12, 0));
         vaLayout.addEntry(VertexArrayEntry(VertexAttribName::Normal, GL_FLOAT_VEC3, 20, 0));
 
-        auto vbo = hwManager.createVertexBuffer(HardwareBuffer::Usage::StaticDraw, 32);
+        auto vbo = hwManager.createDataBuffer(HardwareBuffer::Usage::StaticDraw, 32);
         auto ebo = hwManager.createIndexBuffer(HardwareBuffer::Usage::StaticDraw, HardwareIndexBuffer::UInt16);
 
         auto va = std::make_shared<VertexArray>(hwManager.createVertexArray(), vaLayout, VBOList{vbo}, ebo);

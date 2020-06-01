@@ -97,13 +97,13 @@ namespace af3d
             slices[meshData->mMaterialIndex] = 0;
         }
 
-        HardwareVertexBufferPtr vbo[2];
+        HardwareDataBufferPtr vbo[2];
 
         if (numVertices[0] > 0) {
-            vbo[0] = hwManager.createVertexBuffer(HardwareBuffer::Usage::StaticDraw, 56);
+            vbo[0] = hwManager.createDataBuffer(HardwareBuffer::Usage::StaticDraw, 56);
         }
         if (numVertices[1] > 0) {
-            vbo[1] = hwManager.createVertexBuffer(HardwareBuffer::Usage::StaticDraw, 32);
+            vbo[1] = hwManager.createDataBuffer(HardwareBuffer::Usage::StaticDraw, 32);
         }
 
         for (std::uint32_t i = 0; i < scene_->mNumMeshes; ++i) {
@@ -168,7 +168,7 @@ namespace af3d
         }
         btAssert(i == mesh.subMeshes().size());
 
-        HardwareVertexBufferPtr vbo[2];
+        HardwareDataBufferPtr vbo[2];
         std::uint32_t numVertices[2] = {0, 0};
 
         for (std::uint32_t i = 0; i < scene_->mNumMeshes; ++i) {

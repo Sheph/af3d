@@ -96,8 +96,14 @@ namespace af3d
     {
         if (jitter_ != value) {
             jitter_ = value;
-            projUpdated();
+            recalcViewProjMat_ = true;
         }
+    }
+
+    const Matrix4f& Frustum::projMat() const
+    {
+        updateViewProjMat();
+        return cachedProjMat_;
     }
 
     const Matrix4f& Frustum::viewProjMat() const

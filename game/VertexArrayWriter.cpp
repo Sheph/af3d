@@ -38,7 +38,7 @@ namespace af3d
         vaLayout.addEntry(VertexArrayEntry(VertexAttribName::UV, GL_FLOAT_VEC2, 12, 0));
         vaLayout.addEntry(VertexArrayEntry(VertexAttribName::Color, GL_UNSIGNED_INT8_VEC4_NV, 20, 0, true));
 
-        auto vbo = hwManager.createVertexBuffer(HardwareBuffer::Usage::StreamDraw, sizeof(VertexImm));
+        auto vbo = hwManager.createDataBuffer(HardwareBuffer::Usage::StreamDraw, sizeof(VertexImm));
         auto ebo = hwManager.createIndexBuffer(HardwareBuffer::Usage::StreamDraw, HardwareIndexBuffer::UInt16);
         VBOList vbos{vbo};
 

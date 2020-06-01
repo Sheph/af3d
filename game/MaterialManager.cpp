@@ -43,34 +43,36 @@ namespace af3d
     static const struct {
         const char* vert;
         const char* frag;
+        const char* compute;
         bool usesLight;
         const char* header;
     } shaders[MaterialTypeMax + 1] = {
-        {"shaders/basic.vert", "shaders/basic.frag", true, nullptr},
-        {"shaders/basic.vert", "shaders/basic.frag", true, "#define NM 1\n"},
-        {"shaders/unlit.vert", "shaders/unlit.frag", false, nullptr},
-        {"shaders/unlit-vc.vert", "shaders/unlit-vc.frag", false, nullptr},
-        {"shaders/imm.vert", "shaders/imm.frag", false, nullptr},
-        {"shaders/outline.vert", "shaders/outline.frag", false, nullptr},
-        {"shaders/grid.vert", "shaders/grid.frag", false, nullptr},
-        {"shaders/filter.vert", "shaders/filter-vhs.frag", false, nullptr},
-        {"shaders/filter-cubemap.vert", "shaders/filter-irradiance-conv.frag", false, nullptr},
-        {"shaders/basic.vert", "shaders/pbr.frag", true, nullptr},
-        {"shaders/basic.vert", "shaders/pbr.frag", true, "#define NM 1\n"},
-        {"shaders/filter.vert", "shaders/filter-cube2equirect.frag", false, nullptr},
-        {"shaders/filter-cubemap.vert", "shaders/filter-equirect2cube.frag", false, nullptr},
-        {"shaders/filter-cubemap.vert", "shaders/filter-specularcm.frag", false, nullptr},
-        {"shaders/filter.vert", "shaders/filter-specularlut.frag", false, nullptr},
-        {"shaders/filter-fxaa.vert", "shaders/filter-fxaa.frag", false, nullptr},
-        {"shaders/filter.vert", "shaders/filter-tone-mapping.frag", false, nullptr},
-        {"shaders/filter.vert", "shaders/filter-gaussian-blur.frag", false, nullptr},
-        {"shaders/filter.vert", "shaders/filter-bloom-pass1.frag", false, nullptr},
-        {"shaders/filter.vert", "shaders/filter-bloom-pass2.frag", false, nullptr},
-        {"shaders/filter.vert", "shaders/filter-taa.frag", false, nullptr},
-        {"shaders/filter.vert", "shaders/filter-downscale.frag", false, nullptr},
-        {"shaders/skybox.vert", "shaders/skybox.frag", false, nullptr},
-        {"shaders/basic.vert", "shaders/pbr.frag", true, "#define FAST 1\n"},
-        {"shaders/basic.vert", "shaders/pbr.frag", true, "#define FAST 1\n#define NM 1\n"}
+        {"shaders/basic.vert", "shaders/basic.frag", nullptr, true, nullptr},
+        {"shaders/basic.vert", "shaders/basic.frag", nullptr, true, "#define NM 1\n"},
+        {"shaders/unlit.vert", "shaders/unlit.frag", nullptr, false, nullptr},
+        {"shaders/unlit-vc.vert", "shaders/unlit-vc.frag", nullptr, false, nullptr},
+        {"shaders/imm.vert", "shaders/imm.frag", nullptr, false, nullptr},
+        {"shaders/outline.vert", "shaders/outline.frag", nullptr, false, nullptr},
+        {"shaders/grid.vert", "shaders/grid.frag", nullptr, false, nullptr},
+        {"shaders/filter.vert", "shaders/filter-vhs.frag", nullptr, false, nullptr},
+        {"shaders/filter-cubemap.vert", "shaders/filter-irradiance-conv.frag", nullptr, false, nullptr},
+        {"shaders/basic.vert", "shaders/pbr.frag", nullptr, true, nullptr},
+        {"shaders/basic.vert", "shaders/pbr.frag", nullptr, true, "#define NM 1\n"},
+        {"shaders/filter.vert", "shaders/filter-cube2equirect.frag", nullptr, false, nullptr},
+        {"shaders/filter-cubemap.vert", "shaders/filter-equirect2cube.frag", nullptr, false, nullptr},
+        {"shaders/filter-cubemap.vert", "shaders/filter-specularcm.frag", nullptr, false, nullptr},
+        {"shaders/filter.vert", "shaders/filter-specularlut.frag", nullptr, false, nullptr},
+        {"shaders/filter-fxaa.vert", "shaders/filter-fxaa.frag", nullptr, false, nullptr},
+        {"shaders/filter.vert", "shaders/filter-tone-mapping.frag", nullptr, false, nullptr},
+        {"shaders/filter.vert", "shaders/filter-gaussian-blur.frag", nullptr, false, nullptr},
+        {"shaders/filter.vert", "shaders/filter-bloom-pass1.frag", nullptr, false, nullptr},
+        {"shaders/filter.vert", "shaders/filter-bloom-pass2.frag", nullptr, false, nullptr},
+        {"shaders/filter.vert", "shaders/filter-taa.frag", nullptr, false, nullptr},
+        {"shaders/filter.vert", "shaders/filter-downscale.frag", nullptr, false, nullptr},
+        {"shaders/skybox.vert", "shaders/skybox.frag", nullptr, false, nullptr},
+        {"shaders/basic.vert", "shaders/pbr.frag", nullptr, true, "#define FAST 1\n"},
+        {"shaders/basic.vert", "shaders/pbr.frag", nullptr, true, "#define FAST 1\n#define NM 1\n"},
+        {nullptr, nullptr, "shaders/cluster-build.comp", false, nullptr}
     };
 
     MaterialManager materialManager;
@@ -89,7 +91,8 @@ namespace af3d
         LOG4CPLUS_DEBUG(logger(), "materialManager: init...");
         for (int i = MaterialTypeFirst; i <= MaterialTypeMax; ++i) {
             MaterialTypeName name = static_cast<MaterialTypeName>(i);
-            materialTypes_[name] = std::make_shared<MaterialType>(name, hwManager.createProgram(), shaders[name].usesLight);
+            materialTypes_[name] = std::make_shared<MaterialType>(name, hwManager.createProgram(),
+                shaders[name].usesLight, (shaders[name].compute != nullptr));
         }
 
         return true;
@@ -124,37 +127,81 @@ namespace af3d
         LOG4CPLUS_DEBUG(logger(), "materialManager: render reload...");
 
         for (const auto& mat : materialTypes_) {
-            LOG4CPLUS_DEBUG(logger(), "materialManager: loading " << shaders[mat->name()].vert << "...");
+            std::vector<HardwareShaderPtr> hwShaders;
 
-            PlatformIFStream isVert(shaders[mat->name()].vert);
+            if (shaders[mat->name()].compute) {
+                LOG4CPLUS_DEBUG(logger(), "materialManager: loading " << shaders[mat->name()].compute << "...");
 
-            std::string vertSource;
+                PlatformIFStream isCompute(shaders[mat->name()].compute);
 
-            if (!readStream(isVert, vertSource)) {
-                LOG4CPLUS_ERROR(logger(), "Unable to read \"" << shaders[mat->name()].vert << "\"");
-                return false;
+                std::string computeSource;
+
+                if (!readStream(isCompute, computeSource)) {
+                    LOG4CPLUS_ERROR(logger(), "Unable to read \"" << shaders[mat->name()].compute << "\"");
+                    return false;
+                }
+
+                if (shaders[mat->name()].header) {
+                    computeSource = shaders[mat->name()].header + computeSource;
+                }
+
+                computeSource = glslCommonHeader + computeSource;
+
+                auto computeShader = hwManager.createShader(HardwareShader::Type::Compute);
+
+                if (!computeShader->compile(computeSource, ctx)) {
+                    return false;
+                }
+
+                hwShaders.push_back(computeShader);
+            } else {
+                LOG4CPLUS_DEBUG(logger(), "materialManager: loading " << shaders[mat->name()].vert << "...");
+
+                PlatformIFStream isVert(shaders[mat->name()].vert);
+
+                std::string vertSource;
+
+                if (!readStream(isVert, vertSource)) {
+                    LOG4CPLUS_ERROR(logger(), "Unable to read \"" << shaders[mat->name()].vert << "\"");
+                    return false;
+                }
+
+                LOG4CPLUS_DEBUG(logger(), "materialManager: loading " << shaders[mat->name()].frag << "...");
+
+                PlatformIFStream isFrag(shaders[mat->name()].frag);
+
+                std::string fragSource;
+
+                if (!readStream(isFrag, fragSource)) {
+                    LOG4CPLUS_ERROR(logger(), "Unable to read \"" << shaders[mat->name()].frag << "\"");
+                    return false;
+                }
+
+                if (shaders[mat->name()].header) {
+                    vertSource = shaders[mat->name()].header + vertSource;
+                    fragSource = shaders[mat->name()].header + fragSource;
+                }
+
+                vertSource = glslCommonHeader + vertSource;
+                fragSource = glslCommonHeader + fragSource;
+
+                auto vertexShader = hwManager.createShader(HardwareShader::Type::Vertex);
+
+                if (!vertexShader->compile(vertSource, ctx)) {
+                    return false;
+                }
+
+                auto fragmentShader = hwManager.createShader(HardwareShader::Type::Fragment);
+
+                if (!fragmentShader->compile(fragSource, ctx)) {
+                    return false;
+                }
+
+                hwShaders.push_back(vertexShader);
+                hwShaders.push_back(fragmentShader);
             }
 
-            LOG4CPLUS_DEBUG(logger(), "materialManager: loading " << shaders[mat->name()].frag << "...");
-
-            PlatformIFStream isFrag(shaders[mat->name()].frag);
-
-            std::string fragSource;
-
-            if (!readStream(isFrag, fragSource)) {
-                LOG4CPLUS_ERROR(logger(), "Unable to read \"" << shaders[mat->name()].frag << "\"");
-                return false;
-            }
-
-            if (shaders[mat->name()].header) {
-                vertSource = shaders[mat->name()].header + vertSource;
-                fragSource = shaders[mat->name()].header + fragSource;
-            }
-
-            vertSource = glslCommonHeader + vertSource;
-            fragSource = glslCommonHeader + fragSource;
-
-            if (!mat->reload(vertSource, fragSource, ctx)) {
+            if (!mat->reload(hwShaders, ctx)) {
                 return false;
             }
 

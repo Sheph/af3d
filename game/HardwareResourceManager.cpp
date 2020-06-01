@@ -90,9 +90,9 @@ namespace af3d
         return res;
     }
 
-    HardwareVertexBufferPtr HardwareResourceManager::createVertexBuffer(HardwareBuffer::Usage usage, GLsizeiptr elementSize)
+    HardwareDataBufferPtr HardwareResourceManager::createDataBuffer(HardwareBuffer::Usage usage, GLsizeiptr elementSize)
     {
-        auto res = std::make_shared<HardwareVertexBuffer>(this, usage, elementSize);
+        auto res = std::make_shared<HardwareDataBuffer>(this, usage, elementSize);
         onResourceCreate(res);
         return res;
     }

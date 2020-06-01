@@ -51,6 +51,7 @@ namespace af3d
         ModelMatrix,
         PrevStableMatrix,
         CurStableMatrix,
+        StableProjMatrix,
         EyePos,
         LightPos, // LightPos = vec4(x,y,z,lightType)
         LightColor, // LightColor = vec3(r,g,b)
@@ -113,6 +114,15 @@ namespace af3d
         Max = Depth
     };
 
+    enum class StorageBufferName
+    {
+        ClusterTiles = 0,
+        ClusterTileData,
+        ClusterLightIndices,
+        Lights,
+        Max = Lights
+    };
+
     struct VariableTypeInfo
     {
         VariableTypeInfo() = default;
@@ -148,9 +158,9 @@ namespace af3d
     class HardwareProgram : public HardwareResource
     {
     public:
-        using ActiveAttribs = EnumUnorderedMap<VertexAttribName, VariableInfo>;
         using ActiveUniforms = EnumUnorderedMap<UniformName, VariableInfo>;
         using Samplers = EnumSet<SamplerName>;
+        using StorageBuffers = EnumSet<StorageBufferName>;
 
         explicit HardwareProgram(HardwareResourceManager* mgr);
         ~HardwareProgram();
@@ -161,6 +171,8 @@ namespace af3d
 
         static const VariableTypeInfo& getTypeInfo(GLenum type);
 
+        static GLuint getStorageBufferIndex(StorageBufferName name);
+
         void invalidate(HardwareContext& ctx) override;
 
         GLuint id(HardwareContext& ctx) const override;
@@ -169,20 +181,18 @@ namespace af3d
 
         bool link(HardwareContext& ctx);
 
-        inline const ActiveAttribs& activeAttribs() const { return activeAttribs_; }
         inline const ActiveUniforms& activeUniforms() const { return activeUniforms_; }
         inline const Samplers& samplers() const { return samplers_; }
+        inline const StorageBuffers& storageBuffers() const { return storageBuffers_; }
 
     private:
-        bool fillAttribs(HardwareContext& ctx);
-
         bool fillUniforms(HardwareContext& ctx);
 
         std::vector<std::pair<GLuint, HardwareShaderPtr>> shaders_;
         GLuint id_ = 0;
-        ActiveAttribs activeAttribs_;
         ActiveUniforms activeUniforms_;
         Samplers samplers_;
+        StorageBuffers storageBuffers_;
     };
 
     using HardwareProgramPtr = std::shared_ptr<HardwareProgram>;

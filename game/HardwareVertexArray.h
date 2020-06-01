@@ -27,12 +27,12 @@
 #define _HARDWARE_VERTEX_ARRAY_H_
 
 #include "VertexArrayLayout.h"
-#include "HardwareVertexBuffer.h"
+#include "HardwareDataBuffer.h"
 #include "HardwareIndexBuffer.h"
 
 namespace af3d
 {
-    using VBOList = std::vector<HardwareVertexBufferPtr>;
+    using VBOList = std::vector<HardwareDataBufferPtr>;
 
     class HardwareVertexArray : public HardwareResource
     {

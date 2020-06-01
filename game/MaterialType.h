@@ -64,8 +64,10 @@ namespace af3d
         MaterialTypeSkyBox = 22,
         MaterialTypeFastPBR = 23,
         MaterialTypeFastPBRNM = 24,
+        MaterialTypeClusterBuild = 25,
+        //MaterialTypeClusterCull = 26,
         MaterialTypeFirst = MaterialTypeBasic,
-        MaterialTypeMax = MaterialTypeFastPBRNM
+        MaterialTypeMax = MaterialTypeClusterBuild
     };
 
     MaterialTypeName materialTypeWithNM(MaterialTypeName matTypeName);
@@ -86,7 +88,7 @@ namespace af3d
             EnumUnorderedMap<UniformName, GLsizei> defaultUniforms;
         };
 
-        MaterialType(MaterialTypeName name, const HardwareProgramPtr& prog, bool usesLight);
+        MaterialType(MaterialTypeName name, const HardwareProgramPtr& prog, bool usesLight, bool isCompute);
         ~MaterialType() = default;
 
         inline MaterialTypeName name() const { return name_; }
@@ -97,9 +99,11 @@ namespace af3d
 
         inline bool usesLight() const { return usesLight_; }
 
+        inline bool isCompute() const { return isCompute_; }
+
         const ParamListInfo& paramListInfo(bool isAuto) const { return isAuto ? autoParamListInfo_ : paramListInfo_; }
 
-        bool reload(const std::string& vertSource, const std::string& fragSource, HardwareContext& ctx);
+        bool reload(const std::vector<HardwareShaderPtr>& shaders, HardwareContext& ctx);
 
         void setDefaultUniform(UniformName name, float value);
         void setDefaultUniform(UniformName name, std::int32_t value);
@@ -129,6 +133,7 @@ namespace af3d
         MaterialTypeName name_;
         HardwareProgramPtr prog_;
         bool usesLight_;
+        bool isCompute_;
         ParamListInfo autoParamListInfo_;
         ParamListInfo paramListInfo_;
     };

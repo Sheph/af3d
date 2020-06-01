@@ -56,12 +56,27 @@ namespace af3d
         5
     };
 
+    static const std::unordered_map<std::string, StorageBufferName> staticStorageBufferMap = {
+        {"clusterTilesSSBO", StorageBufferName::ClusterTiles},
+        {"clusterTileDataSSBO", StorageBufferName::ClusterTileData},
+        {"clusterLightIndicesSSBO", StorageBufferName::ClusterLightIndices},
+        {"lightsSSBO", StorageBufferName::Lights}
+    };
+
+    static const GLuint staticStorageBufferIndices[static_cast<int>(StorageBufferName::Max) + 1] = {
+        1,
+        2,
+        3,
+        4
+    };
+
     static const std::unordered_map<std::string, UniformName> staticUniformMap = {
         {"viewProj", UniformName::ViewProjMatrix},
         {"modelViewProj", UniformName::ModelViewProjMatrix},
         {"model", UniformName::ModelMatrix},
         {"prevStableMVP", UniformName::PrevStableMatrix},
         {"curStableMVP", UniformName::CurStableMatrix},
+        {"stableProj", UniformName::StableProjMatrix},
         {"eyePos", UniformName::EyePos},
         {"lightPos", UniformName::LightPos},
         {"lightColor", UniformName::LightColor},
@@ -170,11 +185,15 @@ namespace af3d
         }
     }
 
+    GLuint HardwareProgram::getStorageBufferIndex(StorageBufferName name)
+    {
+        return staticStorageBufferIndices[static_cast<int>(name)];
+    }
+
     void HardwareProgram::invalidate(HardwareContext& ctx)
     {
         shaders_.clear();
         id_ = 0;
-        activeAttribs_.clear();
         activeUniforms_.clear();
         samplers_.resetAll();
     }
@@ -221,50 +240,8 @@ namespace af3d
             return false;
         }
 
-        if (!fillAttribs(ctx)) {
-            return false;
-        }
-
         if (!fillUniforms(ctx)) {
             return false;
-        }
-
-        return true;
-    }
-
-    bool HardwareProgram::fillAttribs(HardwareContext& ctx)
-    {
-        GLint cnt = 0;
-        ogl.GetProgramiv(id_, GL_ACTIVE_ATTRIBUTES, &cnt);
-
-        for (GLuint i = 0; i < static_cast<GLuint>(cnt); ++i) {
-            GLint size = 0;
-            GLenum type = 0;
-
-            const GLsizei bufSize = 64;
-            GLchar name[bufSize];
-            GLsizei length = 0;
-
-            ogl.GetActiveAttrib(id_, i, bufSize, &length, &size, &type, name);
-
-            auto it = staticVertexAttribMap.find(name);
-            if (it == staticVertexAttribMap.end()) {
-                LOG4CPLUS_ERROR(logger(), "Bad vertex attribute name: " << name);
-                return false;
-            }
-
-            if (size != 1) {
-                LOG4CPLUS_ERROR(logger(), "Vertex attribute with size > 1: " << name);
-                return false;
-            }
-
-            GLint location = ogl.GetAttribLocation(id_, name);
-            if (location != getVertexAttribLocation(it->second)) {
-                LOG4CPLUS_ERROR(logger(), "Bad vertex attribute location (" << location << ") for: " << name);
-                return false;
-            }
-
-            activeAttribs_[it->second] = VariableInfo(type, size, location);
         }
 
         return true;

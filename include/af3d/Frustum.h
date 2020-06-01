@@ -86,6 +86,7 @@ namespace af3d
         inline const Vector2f& jitter() const { return jitter_; }
         void setJitter(const Vector2f& value);
 
+        const Matrix4f& projMat() const;
         const Matrix4f& viewProjMat() const;
         const Matrix4f& jitteredViewProjMat() const;
         const Planes& planes() const;

@@ -55,7 +55,7 @@ namespace af3d
 
         HardwareTexturePtr createTexture(TextureType type, std::uint32_t width, std::uint32_t height,
             TextureFormat format = TextureFormatAny);
-        HardwareVertexBufferPtr createVertexBuffer(HardwareBuffer::Usage usage, GLsizeiptr elementSize);
+        HardwareDataBufferPtr createDataBuffer(HardwareBuffer::Usage usage, GLsizeiptr elementSize);
         HardwareIndexBufferPtr createIndexBuffer(HardwareBuffer::Usage usage, HardwareIndexBuffer::DataType dataType);
         HardwareVertexArrayPtr createVertexArray();
         HardwareShaderPtr createShader(HardwareShader::Type type);

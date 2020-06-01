@@ -51,6 +51,8 @@ namespace af3d
         switch (type) {
         case Type::Fragment:
             return GL_FRAGMENT_SHADER;
+        case Type::Compute:
+            return GL_COMPUTE_SHADER;
         default:
             btAssert(false);
         case Type::Vertex:

@@ -55,7 +55,8 @@ namespace af3d
             "FilterDownscale",
             "SkyBox",
             "FastPBR",
-            "FastPBRNM"
+            "FastPBRNM",
+            "ClusterBuild"
         }
     };
 
@@ -85,29 +86,19 @@ namespace af3d
         }
     }
 
-    MaterialType::MaterialType(MaterialTypeName name, const HardwareProgramPtr& prog, bool usesLight)
+    MaterialType::MaterialType(MaterialTypeName name, const HardwareProgramPtr& prog, bool usesLight, bool isCompute)
     : name_(name),
       prog_(prog),
-      usesLight_(usesLight)
+      usesLight_(usesLight),
+      isCompute_(isCompute)
     {
     }
 
-    bool MaterialType::reload(const std::string& vertSource, const std::string& fragSource, HardwareContext& ctx)
+    bool MaterialType::reload(const std::vector<HardwareShaderPtr>& shaders, HardwareContext& ctx)
     {
-        auto vertexShader = hwManager.createShader(HardwareShader::Type::Vertex);
-
-        if (!vertexShader->compile(vertSource, ctx)) {
-            return false;
+        for (const auto& shader : shaders) {
+            prog_->attachShader(shader, ctx);
         }
-
-        auto fragmentShader = hwManager.createShader(HardwareShader::Type::Fragment);
-
-        if (!fragmentShader->compile(fragSource, ctx)) {
-            return false;
-        }
-
-        prog_->attachShader(vertexShader, ctx);
-        prog_->attachShader(fragmentShader, ctx);
 
         if (!prog_->link(ctx)) {
             return false;
