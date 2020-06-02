@@ -39,6 +39,23 @@ namespace af3d
         Vector4f minPoint;
         Vector4f maxPoint;
     };
+
+    struct ShaderClusterLight
+    {
+        Vector4f pos;
+        Vector4f color;
+        Vector4f dir;
+        float cutoffCos;
+        float cutoffInnerCos;
+        float power;
+        std::uint32_t enabled = 0;
+    };
+
+    struct ShaderClusterTileData
+    {
+        std::uint32_t lightOffset;
+        std::uint32_t lightCount;
+    };
     #pragma pack()
 }
 

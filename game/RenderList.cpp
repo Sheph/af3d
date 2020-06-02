@@ -469,23 +469,49 @@ namespace af3d
             if (!clusterData.tilesSSBO) {
                 clusterData.tilesSSBO = hwManager.createDataBuffer(HardwareBuffer::Usage::StaticCopy, sizeof(ShaderClusterTile));
             }
+            if (!clusterData.tileDataSSBO) {
+                clusterData.tileDataSSBO = hwManager.createDataBuffer(HardwareBuffer::Usage::StaticCopy, sizeof(ShaderClusterTileData));
+            }
+            if (!clusterData.lightIndicesSSBO) {
+                clusterData.lightIndicesSSBO = hwManager.createDataBuffer(HardwareBuffer::Usage::StaticCopy, sizeof(std::uint32_t));
+            }
             if (clusterData.tilesSSBO->setValid()) {
                 auto ssbo = clusterData.tilesSSBO;
                 renderer.scheduleHwOp([ssbo](HardwareContext& ctx) {
                     ssbo->resize(settings.cluster.numClusters, ctx);
                 });
             }
+            if (clusterData.tileDataSSBO->setValid()) {
+                auto ssbo = clusterData.tileDataSSBO;
+                renderer.scheduleHwOp([ssbo](HardwareContext& ctx) {
+                    ssbo->resize(settings.cluster.numClusters, ctx);
+                });
+            }
+            if (clusterData.lightIndicesSSBO->setValid()) {
+                auto ssbo = clusterData.lightIndicesSSBO;
+                renderer.scheduleHwOp([ssbo](HardwareContext& ctx) {
+                    ssbo->resize(settings.cluster.numClusters * settings.cluster.maxLightsPerTile, ctx);
+                });
+            }
+
+            std::vector<HardwareTextureBinding> textures;
+            std::vector<StorageBufferBinding> storageBuffers;
+
             if (clusterData.prevProjMat != camera_->frustum().projMat()) {
                 // Projection changed, recalc cluster tile grid.
                 clusterData.prevProjMat = camera_->frustum().projMat();
                 auto material = materialManager.createMaterial(MaterialTypeClusterBuild);
-                std::vector<HardwareTextureBinding> textures;
-                std::vector<StorageBufferBinding> storageBuffers;
                 MaterialParams params(material->type(), true);
                 setAutoParams(material, textures, storageBuffers, params);
-                rn->add(std::move(tmpNode), -1, AttachmentPoints(), material, clusterData.va,
+                rn->add(std::move(tmpNode), -2, AttachmentPoints(), material, clusterData.va,
                     std::move(storageBuffers), settings.cluster.gridSize, std::move(params));
             }
+
+            auto material = materialManager.matClusterCull();
+            MaterialParams params(material->type(), true);
+            setAutoParams(material, textures, storageBuffers, params);
+            rn->add(std::move(tmpNode), -1, AttachmentPoints(), material, clusterData.va,
+                std::move(storageBuffers), settings.cluster.cullNumGroups, std::move(params));
         }
 
         for (const auto& geom : geomList_) {
@@ -551,6 +577,7 @@ namespace af3d
         const Matrix4f& viewProjMat = camera_->frustum().jitteredViewProjMat();
         const Matrix4f& stableViewProjMat = camera_->frustum().viewProjMat();
         const Matrix4f& stableProjMat = camera_->frustum().projMat();
+        const Matrix4f& stableViewMat = camera_->frustum().viewMat();
 
         const auto& activeUniforms = material->type()->prog()->activeUniforms();
         const auto& samplers = material->type()->prog()->samplers();
@@ -588,6 +615,10 @@ namespace af3d
 
         if (activeUniforms.count(UniformName::StableProjMatrix) > 0) {
             params.setUniform(UniformName::StableProjMatrix, stableProjMat);
+        }
+
+        if (activeUniforms.count(UniformName::StableViewMatrix) > 0) {
+            params.setUniform(UniformName::StableViewMatrix, stableViewMat);
         }
 
         bool prevStableMatSet = false;
@@ -664,8 +695,21 @@ namespace af3d
         }
 
         const auto& ssboNames = material->type()->prog()->storageBuffers();
+
         if (ssboNames[StorageBufferName::ClusterTiles]) {
             storageBuffers.emplace_back(StorageBufferName::ClusterTiles, camera_->clusterData().tilesSSBO);
+        }
+
+        if (ssboNames[StorageBufferName::ClusterTileData]) {
+            storageBuffers.emplace_back(StorageBufferName::ClusterTileData, camera_->clusterData().tileDataSSBO);
+        }
+
+        if (ssboNames[StorageBufferName::ClusterLightIndices]) {
+            storageBuffers.emplace_back(StorageBufferName::ClusterLightIndices, camera_->clusterData().lightIndicesSSBO);
+        }
+
+        if (ssboNames[StorageBufferName::ClusterLights]) {
+            storageBuffers.emplace_back(StorageBufferName::ClusterLights, env_->lightsSSBO());
         }
     }
 }

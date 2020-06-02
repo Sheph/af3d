@@ -59,4 +59,9 @@ namespace af3d
     {
         params.setUniform(UniformName::LightDir, Vector3f(radius_, 0.0f, 0.0f));
     }
+
+    void PointLight::doSetupCluster(ShaderClusterLight& cLight) const
+    {
+        cLight.dir = Vector4f(radius_, 0.0f, 0.0f, 0.0f);
+    }
 }

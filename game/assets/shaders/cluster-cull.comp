@@ -1,0 +1,133 @@
+#define LOCAL_SIZE_X 16
+#define LOCAL_SIZE_Y 9
+#define LOCAL_SIZE_Z 4
+
+layout(local_size_x = LOCAL_SIZE_X, local_size_y = LOCAL_SIZE_Y, local_size_z = LOCAL_SIZE_Z) in;
+
+uniform mat4 stableView;
+
+struct ClusterTile
+{
+    vec4 minPoint;
+    vec4 maxPoint;
+};
+
+struct ClusterLight
+{
+    vec4 pos;
+    vec4 color;
+    vec4 dir;
+    float cutoffCos;
+    float cutoffInnerCos;
+    float power;
+    uint enabled;
+};
+
+struct ClusterTileData
+{
+    uint lightOffset;
+    uint lightCount;
+};
+
+layout (std430, binding = 1) readonly buffer clusterTilesSSBO
+{
+    ClusterTile clusterTiles[];
+};
+
+layout (std430, binding = 2) writeonly buffer clusterTileDataSSBO
+{
+    ClusterTileData clusterTileData[];
+};
+
+layout (std430, binding = 3) writeonly buffer clusterLightIndicesSSBO
+{
+    uint clusterLightIndices[];
+};
+
+layout (std430, binding = 4) readonly buffer clusterLightsSSBO
+{
+    ClusterLight clusterLights[];
+};
+
+shared ClusterLight sharedLights[LOCAL_SIZE_X * LOCAL_SIZE_Y * LOCAL_SIZE_Z];
+
+float sqDistPointAABB(vec3 point, uint tile)
+{
+    float sqDist = 0.0;
+    const ClusterTile currentCell = clusterTiles[tile];
+
+    if (point.x < currentCell.minPoint.x) {
+        sqDist += (currentCell.minPoint.x - point.x) * (currentCell.minPoint.x - point.x);
+    } else if (point.x > currentCell.maxPoint.x) {
+        sqDist += (point.x - currentCell.maxPoint.x) * (point.x - currentCell.maxPoint.x);
+    }
+
+    if (point.y < currentCell.minPoint.y) {
+        sqDist += (currentCell.minPoint.y - point.y) * (currentCell.minPoint.y - point.y);
+    } else if (point.y > currentCell.maxPoint.y) {
+        sqDist += (point.y - currentCell.maxPoint.y) * (point.y - currentCell.maxPoint.y);
+    }
+
+    if (point.z < currentCell.minPoint.z) {
+        sqDist += (currentCell.minPoint.z - point.z) * (currentCell.minPoint.z - point.z);
+    } else if (point.z > currentCell.maxPoint.z) {
+        sqDist += (point.z - currentCell.maxPoint.z) * (point.z - currentCell.maxPoint.z);
+    }
+
+    return sqDist;
+}
+
+bool testSphereAABB(uint light, uint tile)
+{
+    float radius = length(sharedLights[light].dir.xyz);
+    vec3 center = vec3(stableView * sharedLights[light].pos);
+    float squaredDistance = sqDistPointAABB(center, tile);
+    return squaredDistance <= (radius * radius);
+}
+
+void main()
+{
+    uint threadCount = LOCAL_SIZE_X * LOCAL_SIZE_Y * LOCAL_SIZE_Z;
+    uint lightCount  = clusterLights.length();
+    uint numBatches = (lightCount + threadCount - 1) / threadCount;
+    uint maxLightsPerTile = clusterLightIndices.length() / clusterTileData.length();
+    uint tileIndex = gl_LocalInvocationIndex + gl_WorkGroupSize.x * gl_WorkGroupSize.y * gl_WorkGroupSize.z * gl_WorkGroupID.z;
+
+    uint visibleLightCount = 0;
+    uint visibleLightIndices[100];
+
+    for (uint batch = 0; batch < numBatches; ++batch) {
+        uint lightIndex = batch * threadCount + gl_LocalInvocationIndex;
+
+        // Prevent overflow by clamping to last light which is always null
+        lightIndex = min(lightIndex, lightCount);
+
+        // Populating shared light array
+        sharedLights[gl_LocalInvocationIndex] = clusterLights[lightIndex];
+
+        memoryBarrierShared();
+        barrier();
+
+        // Iterating within the current batch of lights
+        for (uint light = 0; light < threadCount; ++light) {
+            if (sharedLights[light].enabled == 1) {
+                if ((sharedLights[light].pos.w == 1.0) || testSphereAABB(light, tileIndex)) {
+                    visibleLightIndices[visibleLightCount] = batch * threadCount + light;
+                    visibleLightCount += 1;
+                    if (visibleLightCount >= maxLightsPerTile) {
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    uint offset = tileIndex * maxLightsPerTile;
+
+    for (uint i = 0; i < visibleLightCount; ++i) {
+        clusterLightIndices[offset + i] = visibleLightIndices[i];
+    }
+
+    clusterTileData[tileIndex].lightOffset = offset;
+    clusterTileData[tileIndex].lightCount = visibleLightCount;
+}

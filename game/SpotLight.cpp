@@ -80,4 +80,12 @@ namespace af3d
         params.setUniform(UniformName::LightCutoffInnerCos, btCos(innerAngle_ * 0.5f));
         params.setUniform(UniformName::LightPower, power_);
     }
+
+    void SpotLight::doSetupCluster(ShaderClusterLight& cLight) const
+    {
+        cLight.dir = Vector4f(worldTransform().getBasis() * btVector3_forward * radius_, 0.0f);
+        cLight.cutoffCos = btCos(angle_ * 0.5f);
+        cLight.cutoffInnerCos = btCos(innerAngle_ * 0.5f);
+        cLight.power = power_;
+    }
 }

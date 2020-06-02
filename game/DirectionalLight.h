@@ -49,6 +49,8 @@ namespace af3d
 
     private:
         void doSetupMaterial(const btVector3& eyePos, MaterialParams& params) const override;
+
+        void doSetupCluster(ShaderClusterLight& cLight) const override;
     };
 
     using DirectionalLightPtr = std::shared_ptr<DirectionalLight>;

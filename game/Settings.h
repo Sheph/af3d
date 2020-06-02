@@ -104,6 +104,7 @@ namespace af3d
         struct Cluster
         {
             Vector3i gridSize;
+            Vector3i cullNumGroups;
             std::uint32_t numClusters;
             std::uint32_t maxLights;
             std::uint32_t maxLightsPerTile;

@@ -57,4 +57,9 @@ namespace af3d
     {
         params.setUniform(UniformName::LightDir, worldTransform().getBasis() * btVector3_forward);
     }
+
+    void DirectionalLight::doSetupCluster(ShaderClusterLight& cLight) const
+    {
+        cLight.dir = Vector4f(worldTransform().getBasis() * btVector3_forward, 0.0f);
+    }
 }

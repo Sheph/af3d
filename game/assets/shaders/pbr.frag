@@ -31,28 +31,34 @@ uniform mat4 lightProbeInvModel;
 uniform vec3 lightProbePos;
 uniform int lightProbeType;
 
+struct ClusterLight
+{
+    vec4 pos;
+    vec4 color;
+    vec4 dir;
+    float cutoffCos;
+    float cutoffInnerCos;
+    float power;
+    uint enabled;
+};
+
 struct ClusterTileData
 {
     uint lightOffset;
     uint lightCount;
 };
 
-struct ClusterLight
-{
-    vec4 position;
-};
-
-layout (std430, binding = 2) buffer clusterTileDataSSBO
+layout (std430, binding = 2) readonly buffer clusterTileDataSSBO
 {
     ClusterTileData clusterTileData[];
 };
 
-layout (std430, binding = 3) buffer clusterLightIndicesSSBO
+layout (std430, binding = 3) readonly buffer clusterLightIndicesSSBO
 {
     uint clusterLightIndices[];
 };
 
-layout (std430, binding = 4) buffer clusterLightsSSBO
+layout (std430, binding = 4) readonly buffer clusterLightsSSBO
 {
     ClusterLight clusterLights[];
 };

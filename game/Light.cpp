@@ -151,6 +151,22 @@ namespace af3d
         doSetupMaterial(eyePos, params);
     }
 
+    void Light::setupCluster(ShaderClusterLight& cLight) const
+    {
+        if (!visible()) {
+            cLight.enabled = false;
+            return;
+        }
+
+        const auto& xf = worldTransform();
+
+        cLight.enabled = true;
+        cLight.pos = Vector4f(xf.getOrigin(), typeId_);
+        Color c = gammaToLinear(color_);
+        cLight.color = Vector4f(c.x(), c.y(), c.z(), 0.0) * c.w();
+        doSetupCluster(cLight);
+    }
+
     void Light::setLocalAABBImpl(const AABB& value)
     {
         localAABB_ = value;
@@ -159,6 +175,7 @@ namespace af3d
 
     void Light::onRegister()
     {
+        index_ = scene()->addLight(this);
         prevParentXf_ = parent()->smoothTransform();
         worldXf_ = prevParentXf_ * xf_;
         prevAABB_ = getWorldAABB();
@@ -182,6 +199,7 @@ namespace af3d
 
     void Light::onUnregister()
     {
+        scene()->removeLight(this);
         manager()->removeAABB(cookie_);
         if (markerRc_) {
             markerRc_->removeFromParent();

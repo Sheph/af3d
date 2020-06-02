@@ -40,6 +40,7 @@
 namespace af3d
 {
     class LightProbeComponent;
+    class Light;
 
     class Scene : public SceneObjectManager
     {
@@ -115,6 +116,10 @@ namespace af3d
         void addCamera(const CameraPtr& c);
 
         void removeCamera(const CameraPtr& c);
+
+        int addLight(Light* light);
+
+        void removeLight(Light* light);
 
         void addLightProbe(LightProbeComponent* probe);
 

@@ -33,13 +33,6 @@
 
 namespace af3d
 {
-    static const char* glslCommonHeader = "#version 430 core\n" \
-        "#define OUT_FRAG_VELOCITY() \\\n" \
-        "vec2 a = (v_clipPos.xy / v_clipPos.w); \\\n" \
-        "vec2 b = (v_prevClipPos.xy / v_prevClipPos.w); \\\n" \
-        "fragVelocity = (a - b)\n" \
-        "#line 1\n";
-
     static const struct {
         const char* vert;
         const char* frag;
@@ -72,7 +65,8 @@ namespace af3d
         {"shaders/skybox.vert", "shaders/skybox.frag", nullptr, false, nullptr},
         {"shaders/basic.vert", "shaders/pbr.frag", nullptr, true, "#define FAST 1\n"},
         {"shaders/basic.vert", "shaders/pbr.frag", nullptr, true, "#define FAST 1\n#define NM 1\n"},
-        {nullptr, nullptr, "shaders/cluster-build.comp", false, nullptr}
+        {nullptr, nullptr, "shaders/cluster-build.comp", false, nullptr},
+        {nullptr, nullptr, "shaders/cluster-cull.comp", false, nullptr}
     };
 
     MaterialManager materialManager;
@@ -89,6 +83,14 @@ namespace af3d
     bool MaterialManager::init()
     {
         LOG4CPLUS_DEBUG(logger(), "materialManager: init...");
+
+        glslCommonHeader_ = "#version 430 core\n" \
+            "#define OUT_FRAG_VELOCITY() \\\n" \
+            "vec2 a = (v_clipPos.xy / v_clipPos.w); \\\n" \
+            "vec2 b = (v_prevClipPos.xy / v_prevClipPos.w); \\\n" \
+            "fragVelocity = (a - b)\n" \
+            "#line 1\n";
+
         for (int i = MaterialTypeFirst; i <= MaterialTypeMax; ++i) {
             MaterialTypeName name = static_cast<MaterialTypeName>(i);
             materialTypes_[name] = std::make_shared<MaterialType>(name, hwManager.createProgram(),
@@ -109,6 +111,7 @@ namespace af3d
         matOutlineInactive_.reset();
         matOutlineHovered_.reset();
         matOutlineSelected_.reset();
+        matClusterCull_.reset();
         runtime_assert(immediateMaterials_.empty());
         cachedMaterials_.clear();
         for (int i = MaterialTypeFirst; i <= MaterialTypeMax; ++i) {
@@ -145,7 +148,7 @@ namespace af3d
                     computeSource = shaders[mat->name()].header + computeSource;
                 }
 
-                computeSource = glslCommonHeader + computeSource;
+                computeSource = glslCommonHeader_ + computeSource;
 
                 auto computeShader = hwManager.createShader(HardwareShader::Type::Compute);
 
@@ -182,8 +185,8 @@ namespace af3d
                     fragSource = shaders[mat->name()].header + fragSource;
                 }
 
-                vertSource = glslCommonHeader + vertSource;
-                fragSource = glslCommonHeader + fragSource;
+                vertSource = glslCommonHeader_ + vertSource;
+                fragSource = glslCommonHeader_ + fragSource;
 
                 auto vertexShader = hwManager.createShader(HardwareShader::Type::Vertex);
 
@@ -241,6 +244,8 @@ namespace af3d
             matOutlineSelected_ = createMaterial(MaterialTypeOutline);
             matOutlineSelected_->params().setUniform(UniformName::MainColor, gammaToLinear(settings.editor.outlineColorSelected));
             matOutlineSelected_->setCullFaceMode(GL_FRONT);
+
+            matClusterCull_ = createMaterial(MaterialTypeClusterCull);
         }
 
         return true;

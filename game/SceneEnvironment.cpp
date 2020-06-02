@@ -25,11 +25,37 @@
 
 #include "SceneEnvironment.h"
 #include "LightProbeComponent.h"
+#include "Light.h"
+#include "HardwareResourceManager.h"
+#include "Renderer.h"
+#include "Settings.h"
+#include "Logger.h"
+#include "ShaderDataTypes.h"
 
 namespace af3d
 {
+    namespace
+    {
+        struct LightsSSBOUpdate : boost::noncopyable
+        {
+            HardwareDataBufferPtr ssbo;
+            bool recreate = false;
+            std::pair<int, int> indexRange{std::numeric_limits<int>::max(), 0};
+            std::vector<std::pair<int, ShaderClusterLight>> lights;
+        };
+    };
+
+    SceneEnvironment::SceneEnvironment()
+    : lightsSSBO_(hwManager.createDataBuffer(HardwareBuffer::Usage::DynamicDraw, sizeof(ShaderClusterLight)))
+    {
+        for (int i = 0; i < static_cast<int>(settings.cluster.maxLights); ++i) {
+            lightsFreeIndices_.insert(i);
+        }
+    }
+
     SceneEnvironment::~SceneEnvironment()
     {
+        btAssert(lights_.empty());
         btAssert(lightProbes_.empty());
         btAssert(globalProbe_ == nullptr);
     }
@@ -44,6 +70,71 @@ namespace af3d
     void SceneEnvironment::preSwap()
     {
         defaultVa_.upload();
+
+        bool recreate = lightsSSBO_->setValid();
+        if (!lights_.empty() || !lightsRemovedIndices_.empty() || recreate) {
+            auto upd = std::make_shared<LightsSSBOUpdate>();
+            upd->ssbo = lightsSSBO_;
+            upd->recreate = recreate;
+            upd->lights.reserve(lights_.size() + lightsRemovedIndices_.size());
+            for (auto light : lights_) {
+                upd->indexRange.first = std::min(upd->indexRange.first, light->index());
+                upd->indexRange.second = std::max(upd->indexRange.second, light->index());
+                upd->lights.emplace_back(light->index(), ShaderClusterLight());
+                light->setupCluster(upd->lights.back().second);
+            }
+            for (auto idx : lightsRemovedIndices_) {
+                upd->indexRange.first = std::min(upd->indexRange.first, idx);
+                upd->indexRange.second = std::max(upd->indexRange.second, idx);
+                upd->lights.emplace_back(idx, ShaderClusterLight());
+            }
+            lightsRemovedIndices_.clear();
+            renderer.scheduleHwOp([upd](HardwareContext& ctx) {
+                ShaderClusterLight* ptr;
+                if (upd->recreate) {
+                    upd->ssbo->resize(settings.cluster.maxLights, ctx);
+                    ptr = (ShaderClusterLight*)upd->ssbo->lock(HardwareBuffer::WriteOnly, ctx);
+                    auto ptrBase = ptr;
+                    for (int i = 0; i < upd->ssbo->count(ctx); ++i, ++ptr) {
+                        ptr->enabled = 0;
+                    }
+                    ptr = ptrBase + upd->indexRange.first;
+                } else {
+                    btAssert(upd->indexRange.second >= upd->indexRange.first);
+                    ptr = (ShaderClusterLight*)upd->ssbo->lock(upd->indexRange.first,
+                        upd->indexRange.second - upd->indexRange.first + 1, HardwareBuffer::ReadWrite, ctx);
+                }
+                for (const auto& lp : upd->lights) {
+                    auto dest = ptr + (lp.first - upd->indexRange.first);
+                    *dest = lp.second;
+                }
+                upd->ssbo->unlock(ctx);
+            });
+        }
+    }
+
+    int SceneEnvironment::addLight(Light* light)
+    {
+        if (lightsFreeIndices_.empty()) {
+            LOG4CPLUS_WARN(logger(), "Too many lights...");
+            return -1;
+        }
+        int idx = *lightsFreeIndices_.begin();
+        lightsFreeIndices_.erase(lightsFreeIndices_.begin());
+        lights_.insert(light);
+        lightsRemovedIndices_.erase(idx);
+        return idx;
+    }
+
+    void SceneEnvironment::removeLight(Light* light)
+    {
+        if (lights_.erase(light) <= 0) {
+            return;
+        }
+        btAssert(light->index() >= 0);
+        bool res = lightsFreeIndices_.insert(light->index()).second;
+        btAssert(res);
+        lightsRemovedIndices_.insert(light->index());
     }
 
     void SceneEnvironment::addLightProbe(LightProbeComponent* probe)

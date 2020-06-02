@@ -55,6 +55,8 @@ namespace af3d
             return GL_MAP_WRITE_BIT;
         case ReadOnly:
             return GL_MAP_READ_BIT;
+        case ReadWrite:
+            return GL_MAP_WRITE_BIT | GL_MAP_READ_BIT;
         }
     }
 

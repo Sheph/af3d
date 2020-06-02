@@ -66,11 +66,14 @@ namespace af3d
         inline const MaterialPtr& matOutlineInactive() const { return matOutlineInactive_; }
         inline const MaterialPtr& matOutlineHovered() const { return matOutlineHovered_; }
         inline const MaterialPtr& matOutlineSelected() const { return matOutlineSelected_; }
+        inline const MaterialPtr& matClusterCull() const { return matClusterCull_; }
 
     private:
         using MaterialTypes = std::array<MaterialTypePtr, MaterialTypeMax + 1>;
         using CachedMaterials = std::unordered_map<std::string, MaterialPtr>;
         using ImmediateMaterials = std::unordered_set<Material*>;
+
+        std::string glslCommonHeader_;
 
         MaterialTypes materialTypes_;
         CachedMaterials cachedMaterials_;
@@ -81,6 +84,7 @@ namespace af3d
         MaterialPtr matOutlineInactive_;
         MaterialPtr matOutlineHovered_;
         MaterialPtr matOutlineSelected_;
+        MaterialPtr matClusterCull_;
     };
 
     extern MaterialManager materialManager;

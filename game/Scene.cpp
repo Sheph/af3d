@@ -871,6 +871,16 @@ namespace af3d
         }
     }
 
+    int Scene::addLight(Light* light)
+    {
+        return impl_->env_->addLight(light);
+    }
+
+    void Scene::removeLight(Light* light)
+    {
+        impl_->env_->removeLight(light);
+    }
+
     void Scene::addLightProbe(LightProbeComponent* probe)
     {
         impl_->env_->addLightProbe(probe);

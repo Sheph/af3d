@@ -29,6 +29,7 @@
 #include "RenderMeshComponent.h"
 #include "Material.h"
 #include "AObject.h"
+#include "ShaderDataTypes.h"
 #include "af3d/Types.h"
 #include "af3d/AABB.h"
 #include "af3d/Vector4.h"
@@ -49,6 +50,8 @@ namespace af3d
 
         std::pair<AObjectPtr, float> testRay(const Frustum& frustum, const Ray& ray, void* part) override;
 
+        inline int index() const { return index_; }
+
         inline const btTransform& transform() const { return xf_; }
         void setTransform(const btTransform& value);
 
@@ -66,6 +69,8 @@ namespace af3d
         inline RenderComponentPtr markerRc() const { return markerRc_; }
 
         void setupMaterial(const btVector3& eyePos, MaterialParams& params) const;
+
+        void setupCluster(ShaderClusterLight& cLight) const;
 
         APropertyValue propertyLocalTransformGet(const std::string&) const { return transform(); }
         void propertyLocalTransformSet(const std::string&, const APropertyValue& value) { setTransform(value.toTransform()); }
@@ -93,8 +98,11 @@ namespace af3d
 
         virtual void doSetupMaterial(const btVector3& eyePos, MaterialParams& params) const = 0;
 
+        virtual void doSetupCluster(ShaderClusterLight& cLight) const = 0;
+
         void setMarkerParams(float alpha, bool depthTest);
 
+        int index_ = -1;
         int typeId_ = 0; // 0 - ambient light.
         bool usesDirection_ = false;
         btTransform xf_ = btTransform::getIdentity();

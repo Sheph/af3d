@@ -65,9 +65,9 @@ namespace af3d
         MaterialTypeFastPBR = 23,
         MaterialTypeFastPBRNM = 24,
         MaterialTypeClusterBuild = 25,
-        //MaterialTypeClusterCull = 26,
+        MaterialTypeClusterCull = 26,
         MaterialTypeFirst = MaterialTypeBasic,
-        MaterialTypeMax = MaterialTypeClusterBuild
+        MaterialTypeMax = MaterialTypeClusterCull
     };
 
     MaterialTypeName materialTypeWithNM(MaterialTypeName matTypeName);

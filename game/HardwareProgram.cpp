@@ -77,6 +77,7 @@ namespace af3d
         {"prevStableMVP", UniformName::PrevStableMatrix},
         {"curStableMVP", UniformName::CurStableMatrix},
         {"stableProj", UniformName::StableProjMatrix},
+        {"stableView", UniformName::StableViewMatrix},
         {"eyePos", UniformName::EyePos},
         {"lightPos", UniformName::LightPos},
         {"lightColor", UniformName::LightColor},

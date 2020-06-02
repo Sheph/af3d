@@ -56,7 +56,8 @@ namespace af3d
             "SkyBox",
             "FastPBR",
             "FastPBRNM",
-            "ClusterBuild"
+            "ClusterBuild",
+            "ClusterCull"
         }
     };
 

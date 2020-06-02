@@ -54,6 +54,8 @@ namespace af3d
     private:
         void doSetupMaterial(const btVector3& eyePos, MaterialParams& params) const override;
 
+        void doSetupCluster(ShaderClusterLight& cLight) const override;
+
         float radius_ = 0.0f;
     };
 

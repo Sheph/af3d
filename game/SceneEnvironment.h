@@ -30,12 +30,13 @@
 
 namespace af3d
 {
+    class Light;
     class LightProbeComponent;
 
     class SceneEnvironment : boost::noncopyable
     {
     public:
-        SceneEnvironment() = default;
+        SceneEnvironment();
         ~SceneEnvironment();
 
         inline float realDt() const { return realDt_; }
@@ -49,6 +50,10 @@ namespace af3d
 
         void preSwap();
 
+        int addLight(Light* light);
+
+        void removeLight(Light* light);
+
         void addLightProbe(LightProbeComponent* probe);
 
         void removeLightProbe(LightProbeComponent* probe);
@@ -57,11 +62,21 @@ namespace af3d
 
         LightProbeComponent* getLightProbeFor(const btVector3& pos);
 
+        inline const HardwareDataBufferPtr& lightsSSBO() const { return lightsSSBO_; }
+
     private:
+        using IndexSet = std::set<int>;
+
         float realDt_ = 0.0f;
         float dt_ = 0.0f;
         float time_ = 0.0f;
         VertexArrayWriter defaultVa_;
+        HardwareDataBufferPtr lightsSSBO_;
+
+        std::unordered_set<Light*> lights_;
+        IndexSet lightsFreeIndices_;
+        IndexSet lightsRemovedIndices_;
+
         std::unordered_set<LightProbeComponent*> lightProbes_;
         LightProbeComponent* globalProbe_ = nullptr;
     };

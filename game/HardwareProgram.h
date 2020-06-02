@@ -52,6 +52,7 @@ namespace af3d
         PrevStableMatrix,
         CurStableMatrix,
         StableProjMatrix,
+        StableViewMatrix,
         EyePos,
         LightPos, // LightPos = vec4(x,y,z,lightType)
         LightColor, // LightColor = vec3(r,g,b)

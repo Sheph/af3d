@@ -118,6 +118,12 @@ namespace af3d
         return cachedJitteredViewProjMat_;
     }
 
+    const Matrix4f& Frustum::viewMat() const
+    {
+        updateViewProjMat();
+        return cachedViewMat_;
+    }
+
     const Frustum::Planes& Frustum::planes() const
     {
         updateViewProjMat();
@@ -214,6 +220,7 @@ namespace af3d
         cachedJitteredViewProjMat_ = cachedProjMat_ * xfInv;
         cachedProjMat_[0][2] = t1;
         cachedProjMat_[1][2] = t2;
+        cachedViewMat_ = Matrix4f(xf_);
     }
 
     bool Frustum::isVisible(const AABB& aabb) const

@@ -89,6 +89,7 @@ namespace af3d
         const Matrix4f& projMat() const;
         const Matrix4f& viewProjMat() const;
         const Matrix4f& jitteredViewProjMat() const;
+        const Matrix4f& viewMat() const;
         const Planes& planes() const;
 
         inline const btPlane& plane(Plane p) const { return planes()[static_cast<int>(p)]; }
@@ -119,6 +120,7 @@ namespace af3d
         mutable Matrix4f cachedProjMat_;
         mutable Matrix4f cachedViewProjMat_;
         mutable Matrix4f cachedJitteredViewProjMat_;
+        mutable Matrix4f cachedViewMat_;
         mutable Planes cachedPlanes_;
 
         mutable bool recalcProjMat_ = true;
