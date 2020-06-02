@@ -105,6 +105,8 @@ namespace af3d
         {
             Vector3i gridSize;
             std::uint32_t numClusters;
+            std::uint32_t maxLights;
+            std::uint32_t maxLightsPerTile;
         };
 
         Settings() = default;

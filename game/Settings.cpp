@@ -150,5 +150,7 @@ namespace af3d
         auto v = appConfig->getVector3f("cluster.gridSize");
         cluster.gridSize = Vector3i(v.x(), v.y(), v.z());
         cluster.numClusters = cluster.gridSize.x() * cluster.gridSize.y() * cluster.gridSize.z();
+        cluster.maxLights = appConfig->getInt("cluster.maxLights");
+        cluster.maxLightsPerTile = appConfig->getInt("cluster.maxLightsPerTile");
     }
 }
