@@ -29,13 +29,25 @@
 namespace af3d
 {
     HardwareResource::HardwareResource(HardwareResourceManager* mgr)
-    : mgr_(mgr)
+    : mgr_(mgr),
+      valid_(false)
     {
     }
 
     HardwareResource::~HardwareResource()
     {
         btAssert(!mgr_);
+    }
+
+    void HardwareResource::invalidate(HardwareContext& ctx)
+    {
+        valid_ = false;
+        doInvalidate(ctx);
+    }
+
+    bool HardwareResource::setValid()
+    {
+        return !valid_.exchange(true);
     }
 
     void HardwareResource::cleanup(const CleanupFn& fn)

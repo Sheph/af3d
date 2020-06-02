@@ -1303,6 +1303,11 @@ static bool OGLPreInit()
     GL_GET_PROC(GetString, glGetString);
     GL_GET_PROC(GetStringi, glGetStringi);
     GL_GET_PROC(Scissor, glScissor);
+    GL_GET_PROC(GetProgramInterfaceiv, glGetProgramInterfaceiv);
+    GL_GET_PROC(GetProgramResourceiv, glGetProgramResourceiv);
+    GL_GET_PROC(GetProgramResourceName, glGetProgramResourceName);
+    GL_GET_PROC(BindBufferBase, glBindBufferBase);
+    GL_GET_PROC(DispatchCompute, glDispatchCompute);
 
     int n = 0;
 

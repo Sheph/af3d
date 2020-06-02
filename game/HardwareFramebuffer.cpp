@@ -44,7 +44,7 @@ namespace af3d
         }
     }
 
-    void HardwareFramebuffer::invalidate(HardwareContext& ctx)
+    void HardwareFramebuffer::doInvalidate(HardwareContext& ctx)
     {
         mrt_ = HardwareMRT();
         id_ = 0;
@@ -102,6 +102,7 @@ namespace af3d
         if (id_ == 0) {
             ogl.GenFramebuffers(1, &id_);
             btAssert(id_ != 0);
+            setValid();
         }
     }
 }

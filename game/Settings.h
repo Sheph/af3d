@@ -101,6 +101,12 @@ namespace af3d
             Color jointMarkerColorOff;
         };
 
+        struct Cluster
+        {
+            Vector3i gridSize;
+            std::uint32_t numClusters;
+        };
+
         Settings() = default;
         ~Settings() = default;
 
@@ -130,6 +136,7 @@ namespace af3d
         Physics physics;
         ImGui imGui;
         Editor editor;
+        Cluster cluster;
     };
 
     extern Settings settings;

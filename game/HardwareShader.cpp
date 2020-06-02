@@ -60,7 +60,7 @@ namespace af3d
         }
     }
 
-    void HardwareShader::invalidate(HardwareContext& ctx)
+    void HardwareShader::doInvalidate(HardwareContext& ctx)
     {
         id_ = 0;
     }
@@ -75,6 +75,7 @@ namespace af3d
         if (id_ == 0) {
             id_ = ogl.CreateShader(glShaderType(type_));
             btAssert(id_ != 0);
+            setValid();
         }
 
         const char* str = source.c_str();

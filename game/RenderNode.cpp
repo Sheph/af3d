@@ -41,7 +41,7 @@ namespace af3d
 
     void RenderNode::add(RenderNode&& tmpNode, int pass, const AttachmentPoints& drawBuffers, const MaterialPtr& material,
         GLenum depthFunc, float depthValue, const BlendingParams& blendingParams, bool flipCull,
-        std::vector<HardwareTextureBinding>&& textures,
+        std::vector<HardwareTextureBinding>&& textures, std::vector<StorageBufferBinding>&& storageBuffers,
         const VertexArraySlice& vaSlice, GLenum primitiveMode, const ScissorParams& scissorParams,
         MaterialParams&& materialParamsAuto)
     {
@@ -66,7 +66,7 @@ namespace af3d
         node = node->insertCullFace(std::move(tmpNode), cullFaceMode);
         node = node->insertMaterialType(std::move(tmpNode), material->type());
         node = node->insertTextures(std::move(tmpNode), std::move(textures));
-        node = node->insertVertexArray(std::move(tmpNode), vaSlice.va());
+        node = node->insertVertexArray(std::move(tmpNode), vaSlice.va(), std::move(storageBuffers));
         node = node->insertDraw(std::move(tmpNode), numDraws_++);
 
         node->va_ = vaSlice.va();
@@ -78,6 +78,32 @@ namespace af3d
         node->drawCount_ = vaSlice.count();
         node->drawBaseVertex_ = vaSlice.baseVertex();
         node->depthWrite_ = material->depthWrite();
+    }
+
+    void RenderNode::add(RenderNode&& tmpNode, int pass, const AttachmentPoints& drawBuffers, const MaterialPtr& material,
+        const VertexArrayPtr& va,
+        std::vector<StorageBufferBinding>&& storageBuffers,
+        const Vector3i& computeNumGroups,
+        MaterialParams&& materialParamsAuto)
+    {
+        btAssert(type_ == Type::Root);
+        btAssert(material->type()->isCompute());
+
+        RenderNode* node = this;
+
+        node = node->insertPass(std::move(tmpNode), pass, drawBuffers);
+        node = node->insertDepthTest(std::move(tmpNode), false, 0);
+        node = node->insertDepth(std::move(tmpNode), 0.0f);
+        node = node->insertBlendingParams(std::move(tmpNode), BlendingParams());
+        node = node->insertCullFace(std::move(tmpNode), 0);
+        node = node->insertMaterialType(std::move(tmpNode), material->type());
+        node = node->insertTextures(std::move(tmpNode), std::vector<HardwareTextureBinding>{});
+        node = node->insertVertexArray(std::move(tmpNode), va, std::move(storageBuffers));
+        node = node->insertDraw(std::move(tmpNode), numDraws_++);
+
+        node->materialParams_ = material->params();
+        node->materialParamsAuto_ = std::move(materialParamsAuto);
+        node->computeNumGroups_ = computeNumGroups;
     }
 
     bool RenderNode::operator<(const RenderNode& other) const
@@ -183,7 +209,11 @@ namespace af3d
 
     bool RenderNode::compareVertexArray(const RenderNode& other) const
     {
-        return va_ < other.va_;
+        if (va_ != other.va_) {
+            return va_ < other.va_;
+        } else {
+            return storageBuffers_ < other.storageBuffers_;
+        }
     }
 
     bool RenderNode::compareDraw(const RenderNode& other) const
@@ -242,10 +272,11 @@ namespace af3d
         return insertImpl(std::move(tmpNode));
     }
 
-    RenderNode* RenderNode::insertVertexArray(RenderNode&& tmpNode, const VertexArrayPtr& va)
+    RenderNode* RenderNode::insertVertexArray(RenderNode&& tmpNode, const VertexArrayPtr& va, std::vector<StorageBufferBinding>&& storageBuffers)
     {
         tmpNode.type_ = Type::VertexArray;
         tmpNode.va_ = va;
+        tmpNode.storageBuffers_ = std::move(storageBuffers);
         return insertImpl(std::move(tmpNode));
     }
 
@@ -371,6 +402,10 @@ namespace af3d
     void RenderNode::applyVertexArray(HardwareContext& ctx) const
     {
         ogl.BindVertexArray(va_->vao(ctx)->id(ctx));
+        for (const auto& bb : storageBuffers_) {
+            ogl.BindBufferBase(GL_SHADER_STORAGE_BUFFER,
+                HardwareProgram::getStorageBufferIndex(bb.first), bb.second->id(ctx));
+        }
     }
 
     void RenderNode::applyVertexArrayDone(HardwareContext& ctx) const
@@ -380,6 +415,14 @@ namespace af3d
 
     void RenderNode::applyDraw(HardwareContext& ctx) const
     {
+        materialParamsAuto_.apply(ctx);
+        materialParams_.apply(ctx);
+
+        if (computeNumGroups_) {
+            ogl.DispatchCompute(computeNumGroups_->x(), computeNumGroups_->y(), computeNumGroups_->z());
+            return;
+        }
+
         if (scissorParams_.enabled) {
             ogl.Scissor(scissorParams_.x, scissorParams_.y, scissorParams_.width, scissorParams_.height);
             ogl.Enable(GL_SCISSOR_TEST);
@@ -389,8 +432,6 @@ namespace af3d
             ogl.DepthMask(GL_FALSE);
         }
 
-        materialParamsAuto_.apply(ctx);
-        materialParams_.apply(ctx);
         if (drawCount_ == 0) {
             if (va_->ebo()) {
                 ogl.DrawElements(drawPrimitiveMode_, va_->ebo()->count(ctx),

@@ -31,6 +31,7 @@
 #include <boost/noncopyable.hpp>
 #include <memory>
 #include <functional>
+#include <atomic>
 
 namespace af3d
 {
@@ -45,15 +46,20 @@ namespace af3d
         explicit HardwareResource(HardwareResourceManager* mgr);
         virtual ~HardwareResource();
 
-        virtual void invalidate(HardwareContext& ctx) = 0;
+        void invalidate(HardwareContext& ctx);
 
         virtual GLuint id(HardwareContext& ctx) const = 0;
+
+        bool setValid();
 
     protected:
         void cleanup(const CleanupFn& fn = CleanupFn());
 
     private:
+        virtual void doInvalidate(HardwareContext& ctx) = 0;
+
         HardwareResourceManager* mgr_;
+        std::atomic<bool> valid_;
     };
 
     using HardwareResourcePtr = std::shared_ptr<HardwareResource>;

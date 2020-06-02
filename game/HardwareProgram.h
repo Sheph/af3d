@@ -119,8 +119,8 @@ namespace af3d
         ClusterTiles = 0,
         ClusterTileData,
         ClusterLightIndices,
-        Lights,
-        Max = Lights
+        ClusterLights,
+        Max = ClusterLights
     };
 
     struct VariableTypeInfo
@@ -173,8 +173,6 @@ namespace af3d
 
         static GLuint getStorageBufferIndex(StorageBufferName name);
 
-        void invalidate(HardwareContext& ctx) override;
-
         GLuint id(HardwareContext& ctx) const override;
 
         void attachShader(const HardwareShaderPtr& shader, HardwareContext& ctx);
@@ -186,7 +184,11 @@ namespace af3d
         inline const StorageBuffers& storageBuffers() const { return storageBuffers_; }
 
     private:
+        void doInvalidate(HardwareContext& ctx) override;
+
         bool fillUniforms(HardwareContext& ctx);
+
+        bool fillStorageBuffers(HardwareContext& ctx);
 
         std::vector<std::pair<GLuint, HardwareShaderPtr>> shaders_;
         GLuint id_ = 0;

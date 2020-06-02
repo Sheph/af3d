@@ -65,6 +65,8 @@ namespace af3d
             return GL_DYNAMIC_DRAW;
         case Usage::StreamDraw:
             return GL_STREAM_DRAW;
+        case Usage::StaticCopy:
+            return GL_STATIC_COPY;
         default:
             btAssert(false);
         case Usage::StaticDraw:
@@ -72,7 +74,7 @@ namespace af3d
         }
     }
 
-    void HardwareBuffer::invalidate(HardwareContext& ctx)
+    void HardwareBuffer::doInvalidate(HardwareContext& ctx)
     {
         id_ = 0;
         count_ = 0;
@@ -130,6 +132,7 @@ namespace af3d
         if (id_ == 0) {
             ogl.GenBuffers(1, &id_);
             btAssert(id_ != 0);
+            setValid();
         }
     }
 }

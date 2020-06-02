@@ -181,7 +181,11 @@ namespace af3d
             bool flipCull = false;
         };
 
-        void setAutoParams(const Geometry& geom, std::vector<HardwareTextureBinding>& textures, MaterialParams& params) const;
+        void setAutoParams(const Geometry& geom, std::vector<HardwareTextureBinding>& textures,
+            std::vector<StorageBufferBinding>& storageBuffers, MaterialParams& params) const;
+        void setAutoParams(const MaterialPtr& material, std::vector<HardwareTextureBinding>& textures,
+            std::vector<StorageBufferBinding>& storageBuffers, MaterialParams& params,
+            const Matrix4f& modelMat = Matrix4f::getIdentity(), const Matrix4f& prevModelMat = Matrix4f::getIdentity()) const;
 
         using GeometryList = std::vector<Geometry>;
         using LightList = std::vector<LightPtr>;

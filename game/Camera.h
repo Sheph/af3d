@@ -28,6 +28,8 @@
 
 #include "RenderTarget.h"
 #include "CameraLayer.h"
+#include "HardwareDataBuffer.h"
+#include "VertexArray.h"
 #include "OGL.h"
 #include "af3d/Frustum.h"
 #include "af3d/AABB2.h"
@@ -42,6 +44,15 @@ namespace af3d
         public AObject
     {
     public:
+        struct ClusterData
+        {
+            Matrix4f prevProjMat = Matrix4f::getIdentity();
+            VertexArrayPtr va; // empty VA, needed for VAO.
+            HardwareDataBufferPtr tilesSSBO; // tile grid built for 'proj' matrix.
+            HardwareDataBufferPtr tileDataSSBO; // tile data obtained by culling lights.
+            HardwareDataBufferPtr lightIndicesSSBO; // indices of lights being used.
+        };
+
         Camera();
         ~Camera() = default;
 
@@ -102,6 +113,9 @@ namespace af3d
         inline const RenderTarget& renderTarget(AttachmentPoint attachmentPoint = AttachmentPoint::Color0) const { return renderTarget_[static_cast<int>(attachmentPoint)]; }
         inline void setRenderTarget(AttachmentPoint attachmentPoint, const RenderTarget& value) { renderTarget_[static_cast<int>(attachmentPoint)] = value; }
 
+        inline const ClusterData& clusterData() const { return clusterData_; }
+        inline ClusterData& clusterData() { return clusterData_; }
+
         HardwareMRT getHardwareMRT() const;
 
         // For velocity buffer calculation.
@@ -124,6 +138,8 @@ namespace af3d
         std::array<RenderTarget, static_cast<int>(AttachmentPoint::Max) + 1> renderTarget_;
 
         boost::optional<Matrix4f> prevViewProjMat_;
+
+        ClusterData clusterData_;
     };
 
     ACLASS_DECLARE(Camera)

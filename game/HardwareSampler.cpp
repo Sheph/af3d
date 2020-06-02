@@ -44,7 +44,7 @@ namespace af3d
         }
     }
 
-    void HardwareSampler::invalidate(HardwareContext& ctx)
+    void HardwareSampler::doInvalidate(HardwareContext& ctx)
     {
         id_ = 0;
     }
@@ -71,6 +71,7 @@ namespace af3d
         if (id_ == 0) {
             ogl.GenSamplers(1, &id_);
             btAssert(id_ != 0);
+            setValid();
         }
     }
 }

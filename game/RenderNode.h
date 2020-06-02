@@ -31,6 +31,7 @@
 #include "HardwareMRT.h"
 #include "af3d/AABB2.h"
 #include <set>
+#include <boost/optional.hpp>
 
 namespace af3d
 {
@@ -67,9 +68,15 @@ namespace af3d
 
         void add(RenderNode&& tmpNode, int pass, const AttachmentPoints& drawBuffers, const MaterialPtr& material,
             GLenum depthFunc, float depthValue, const BlendingParams& blendingParams, bool flipCull,
-            std::vector<HardwareTextureBinding>&& textures,
+            std::vector<HardwareTextureBinding>&& textures, std::vector<StorageBufferBinding>&& storageBuffers,
             const VertexArraySlice& vaSlice, GLenum primitiveMode,
             const ScissorParams& scissorParams, MaterialParams&& materialParamsAuto);
+
+        void add(RenderNode&& tmpNode, int pass, const AttachmentPoints& drawBuffers, const MaterialPtr& material,
+            const VertexArrayPtr& va,
+            std::vector<StorageBufferBinding>&& storageBuffers,
+            const Vector3i& computeNumGroups,
+            MaterialParams&& materialParamsAuto);
 
         bool operator<(const RenderNode& other) const;
 
@@ -109,7 +116,7 @@ namespace af3d
         RenderNode* insertCullFace(RenderNode&& tmpNode, GLenum cullFaceMode);
         RenderNode* insertMaterialType(RenderNode&& tmpNode, const MaterialTypePtr& materialType);
         RenderNode* insertTextures(RenderNode&& tmpNode, std::vector<HardwareTextureBinding>&& textures);
-        RenderNode* insertVertexArray(RenderNode&& tmpNode, const VertexArrayPtr& va);
+        RenderNode* insertVertexArray(RenderNode&& tmpNode, const VertexArrayPtr& va, std::vector<StorageBufferBinding>&& storageBuffers);
         RenderNode* insertDraw(RenderNode&& tmpNode, int drawIdx);
         RenderNode* insertImpl(RenderNode&& tmpNode);
 
@@ -191,6 +198,7 @@ namespace af3d
         ScissorParams scissorParams_;
         MaterialParams materialParams_;
         MaterialParams materialParamsAuto_;
+        boost::optional<Vector3i> computeNumGroups_;
 
         Children children_;
     };

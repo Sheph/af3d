@@ -25,8 +25,13 @@
 
 #include "RenderList.h"
 #include "LightProbeComponent.h"
+#include "HardwareResourceManager.h"
+#include "MaterialManager.h"
+#include "Renderer.h"
 #include "Light.h"
 #include "Logger.h"
+#include "ShaderDataTypes.h"
+#include "Settings.h"
 
 namespace af3d
 {
@@ -447,10 +452,47 @@ namespace af3d
 
         RenderNode tmpNode;
 
+        bool needClusterData = false;
+        for (const auto& geom : geomList_) {
+            const auto& ssbos = geom.material->type()->prog()->storageBuffers();
+            if (ssbos[StorageBufferName::ClusterTileData]) {
+                needClusterData = true;
+                break;
+            }
+        }
+
+        if (needClusterData) {
+            auto& clusterData = camera_->clusterData();
+            if (!clusterData.va) {
+                clusterData.va = std::make_shared<VertexArray>(hwManager.createVertexArray(), VertexArrayLayout(), VBOList());
+            }
+            if (!clusterData.tilesSSBO) {
+                clusterData.tilesSSBO = hwManager.createDataBuffer(HardwareBuffer::Usage::StaticCopy, sizeof(ShaderClusterTile));
+            }
+            if (clusterData.tilesSSBO->setValid()) {
+                auto ssbo = clusterData.tilesSSBO;
+                renderer.scheduleHwOp([ssbo](HardwareContext& ctx) {
+                    ssbo->resize(settings.cluster.numClusters, ctx);
+                });
+            }
+            if (clusterData.prevProjMat != camera_->frustum().projMat()) {
+                // Projection changed, recalc cluster tile grid.
+                clusterData.prevProjMat = camera_->frustum().projMat();
+                auto material = materialManager.createMaterial(MaterialTypeClusterBuild);
+                std::vector<HardwareTextureBinding> textures;
+                std::vector<StorageBufferBinding> storageBuffers;
+                MaterialParams params(material->type(), true);
+                setAutoParams(material, textures, storageBuffers, params);
+                rn->add(std::move(tmpNode), -1, AttachmentPoints(), material, clusterData.va,
+                    std::move(storageBuffers), settings.cluster.gridSize, std::move(params));
+            }
+        }
+
         for (const auto& geom : geomList_) {
             std::vector<HardwareTextureBinding> textures;
+            std::vector<StorageBufferBinding> storageBuffers;
             MaterialParams params(geom.material->type(), true);
-            setAutoParams(geom, textures, params);
+            setAutoParams(geom, textures, storageBuffers, params);
             const auto& activeUniforms = geom.material->type()->prog()->activeUniforms();
             if (activeUniforms.count(UniformName::LightPos) > 0) {
                 params.setUniform(UniformName::LightPos, Vector4f_zero);
@@ -463,7 +505,7 @@ namespace af3d
             rn->add(std::move(tmpNode), 0, drawBuffers, geom.material,
                 GL_LEQUAL, geom.depthValue,
                 geom.material->blendingParams(), geom.flipCull,
-                std::move(textures),
+                std::move(textures), std::move(storageBuffers),
                 geom.vaSlice, geom.primitiveMode, geom.scissorParams,
                 std::move(params));
         }
@@ -481,12 +523,13 @@ namespace af3d
                     continue;
                 }
                 std::vector<HardwareTextureBinding> textures;
+                std::vector<StorageBufferBinding> storageBuffers;
                 MaterialParams params(geom.material->type(), true);
-                setAutoParams(geom, textures, params);
+                setAutoParams(geom, textures, storageBuffers, params);
                 light->setupMaterial(camera_->frustum().transform().getOrigin(), params);
                 rn->add(std::move(tmpNode), pass, drawBuffers, geom.material,
                     GL_EQUAL, geom.depthValue,
-                    lightBp, geom.flipCull, std::move(textures),
+                    lightBp, geom.flipCull, std::move(textures), std::move(storageBuffers),
                     geom.vaSlice, geom.primitiveMode, geom.scissorParams,
                     std::move(params));
             }
@@ -495,19 +538,27 @@ namespace af3d
         return rn;
     }
 
-    void RenderList::setAutoParams(const Geometry& geom, std::vector<HardwareTextureBinding>& textures, MaterialParams& params) const
+    void RenderList::setAutoParams(const Geometry& geom, std::vector<HardwareTextureBinding>& textures,
+        std::vector<StorageBufferBinding>& storageBuffers, MaterialParams& params) const
+    {
+        setAutoParams(geom.material, textures, storageBuffers, params, geom.modelMat, geom.prevModelMat);
+    }
+
+    void RenderList::setAutoParams(const MaterialPtr& material, std::vector<HardwareTextureBinding>& textures,
+        std::vector<StorageBufferBinding>& storageBuffers, MaterialParams& params,
+        const Matrix4f& modelMat, const Matrix4f& prevModelMat) const
     {
         const Matrix4f& viewProjMat = camera_->frustum().jitteredViewProjMat();
         const Matrix4f& stableViewProjMat = camera_->frustum().viewProjMat();
         const Matrix4f& stableProjMat = camera_->frustum().projMat();
 
-        const auto& activeUniforms = geom.material->type()->prog()->activeUniforms();
-        const auto& samplers = geom.material->type()->prog()->samplers();
+        const auto& activeUniforms = material->type()->prog()->activeUniforms();
+        const auto& samplers = material->type()->prog()->samplers();
 
         for (int i = 0; i <= static_cast<int>(SamplerName::Max); ++i) {
             SamplerName sName = static_cast<SamplerName>(i);
             if (samplers[sName]) {
-                const auto& tb = geom.material->textureBinding(sName);
+                const auto& tb = material->textureBinding(sName);
                 textures.emplace_back(tb.tex ? tb.tex->hwTex() : HardwareTexturePtr(), tb.params);
                 if ((sName == SamplerName::Irradiance) && !textures.back().tex) {
                     auto probe = env_->getLightProbeFor(btVector3_zero);
@@ -543,25 +594,25 @@ namespace af3d
         bool curStableMatSet = false;
 
         if (activeUniforms.count(UniformName::ModelViewProjMatrix) > 0) {
-            params.setUniform(UniformName::ModelViewProjMatrix, viewProjMat * geom.modelMat);
+            params.setUniform(UniformName::ModelViewProjMatrix, viewProjMat * modelMat);
             if (!prevStableMatSet && activeUniforms.count(UniformName::PrevStableMatrix) > 0) {
                 prevStableMatSet = true;
-                params.setUniform(UniformName::PrevStableMatrix, camera_->prevViewProjMat() * geom.prevModelMat);
+                params.setUniform(UniformName::PrevStableMatrix, camera_->prevViewProjMat() * prevModelMat);
             }
             if (!curStableMatSet && activeUniforms.count(UniformName::CurStableMatrix) > 0) {
                 curStableMatSet = true;
-                params.setUniform(UniformName::CurStableMatrix, stableViewProjMat * geom.modelMat);
+                params.setUniform(UniformName::CurStableMatrix, stableViewProjMat * modelMat);
             }
         }
         if (activeUniforms.count(UniformName::ModelMatrix) > 0) {
-            params.setUniform(UniformName::ModelMatrix, geom.modelMat);
+            params.setUniform(UniformName::ModelMatrix, modelMat);
             if (!prevStableMatSet && activeUniforms.count(UniformName::PrevStableMatrix) > 0) {
                 prevStableMatSet = true;
-                params.setUniform(UniformName::PrevStableMatrix, camera_->prevViewProjMat() * geom.prevModelMat);
+                params.setUniform(UniformName::PrevStableMatrix, camera_->prevViewProjMat() * prevModelMat);
             }
             if (!curStableMatSet && activeUniforms.count(UniformName::CurStableMatrix) > 0) {
                 curStableMatSet = true;
-                params.setUniform(UniformName::CurStableMatrix, stableViewProjMat * geom.modelMat);
+                params.setUniform(UniformName::CurStableMatrix, stableViewProjMat * modelMat);
             }
         }
         if (!prevStableMatSet && activeUniforms.count(UniformName::PrevStableMatrix) > 0) {
@@ -579,7 +630,7 @@ namespace af3d
             params.setUniform(UniformName::ViewportSize, Vector2f::fromVector2i(camera_->viewport().getSize()));
         }
         if (activeUniforms.count(UniformName::Time) > 0) {
-            params.setUniform(UniformName::Time, env_->time() + geom.material->timeOffset());
+            params.setUniform(UniformName::Time, env_->time() + material->timeOffset());
         }
         if (activeUniforms.count(UniformName::Dt) > 0) {
             params.setUniform(UniformName::Dt, env_->dt());
@@ -610,6 +661,11 @@ namespace af3d
             if (probe) {
                 params.setUniform(UniformName::LightProbeType, probe->isGlobal() ? 0 : 1);
             }
+        }
+
+        const auto& ssboNames = material->type()->prog()->storageBuffers();
+        if (ssboNames[StorageBufferName::ClusterTiles]) {
+            storageBuffers.emplace_back(StorageBufferName::ClusterTiles, camera_->clusterData().tilesSSBO);
         }
     }
 }

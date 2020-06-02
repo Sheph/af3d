@@ -153,6 +153,11 @@ namespace af3d
         const GLubyte* (GLAPIENTRY* GetString)(GLenum name);
         const GLubyte* (GLAPIENTRY* GetStringi)(GLenum name, GLuint index);
         void (GLAPIENTRY* Scissor)(GLint x, GLint y, GLsizei width, GLsizei height);
+        void (GLAPIENTRY* GetProgramInterfaceiv)(GLuint program, GLenum programInterface, GLenum pname, GLint* params);
+        void (GLAPIENTRY* GetProgramResourceiv)(GLuint program, GLenum programInterface, GLuint index, GLsizei propCount, const GLenum* props, GLsizei bufSize, GLsizei* length, GLint* params);
+        void (GLAPIENTRY* GetProgramResourceName)(GLuint program, GLenum programInterface, GLuint index, GLsizei bufSize, GLsizei* length, char* name);
+        void (GLAPIENTRY* BindBufferBase)(GLenum target, GLuint index, GLuint buffer);
+        void (GLAPIENTRY* DispatchCompute)(GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z);
     };
 
     extern OGL ogl;

@@ -60,7 +60,7 @@ namespace af3d
         {"clusterTilesSSBO", StorageBufferName::ClusterTiles},
         {"clusterTileDataSSBO", StorageBufferName::ClusterTileData},
         {"clusterLightIndicesSSBO", StorageBufferName::ClusterLightIndices},
-        {"lightsSSBO", StorageBufferName::Lights}
+        {"clusterLightsSSBO", StorageBufferName::ClusterLights}
     };
 
     static const GLuint staticStorageBufferIndices[static_cast<int>(StorageBufferName::Max) + 1] = {
@@ -190,7 +190,7 @@ namespace af3d
         return staticStorageBufferIndices[static_cast<int>(name)];
     }
 
-    void HardwareProgram::invalidate(HardwareContext& ctx)
+    void HardwareProgram::doInvalidate(HardwareContext& ctx)
     {
         shaders_.clear();
         id_ = 0;
@@ -208,6 +208,7 @@ namespace af3d
         if (id_ == 0) {
             id_ = ogl.CreateProgram();
             btAssert(id_ != 0);
+            setValid();
         }
 
         auto sId = shader->id(ctx);
@@ -241,6 +242,10 @@ namespace af3d
         }
 
         if (!fillUniforms(ctx)) {
+            return false;
+        }
+
+        if (!fillStorageBuffers(ctx)) {
             return false;
         }
 
@@ -298,6 +303,35 @@ namespace af3d
             }
         }
         ogl.UseProgram(0);
+
+        return true;
+    }
+
+    bool HardwareProgram::fillStorageBuffers(HardwareContext& ctx)
+    {
+        GLint cnt = 0;
+        ogl.GetProgramInterfaceiv(id_, GL_SHADER_STORAGE_BLOCK, GL_ACTIVE_RESOURCES, &cnt);
+
+        const GLenum properties[1] = { GL_NAME_LENGTH };
+
+        for (GLuint i = 0; i < static_cast<GLuint>(cnt); ++i) {
+            GLint values[1] = { 0 };
+            ogl.GetProgramResourceiv(id_, GL_SHADER_STORAGE_BLOCK, i,
+                sizeof(properties) / sizeof(properties[0]), properties,
+                sizeof(values) / sizeof(values[0]), nullptr, values);
+            std::string buffName(values[0], '\0');
+            ogl.GetProgramResourceName(id_, GL_SHADER_STORAGE_BLOCK, i,
+                buffName.size(), nullptr, &buffName[0]);
+            buffName.resize(buffName.size() - 1);
+
+            auto it = staticStorageBufferMap.find(buffName);
+            if (it == staticStorageBufferMap.end()) {
+                LOG4CPLUS_ERROR(logger(), "Bad storage buffer name: " << buffName);
+                return false;
+            }
+
+            storageBuffers_.set(it->second);
+        }
 
         return true;
     }

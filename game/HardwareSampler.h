@@ -36,14 +36,14 @@ namespace af3d
         explicit HardwareSampler(HardwareResourceManager* mgr);
         ~HardwareSampler();
 
-        void invalidate(HardwareContext& ctx) override;
-
         GLuint id(HardwareContext& ctx) const override;
 
         void setParameterFloat(GLenum pname, GLfloat param, HardwareContext& ctx);
         void setParameterInt(GLenum pname, GLint param, HardwareContext& ctx);
 
     private:
+        void doInvalidate(HardwareContext& ctx) override;
+
         void createSampler();
 
         GLuint id_ = 0;

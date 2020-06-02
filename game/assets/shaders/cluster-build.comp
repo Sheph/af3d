@@ -4,8 +4,8 @@ uniform mat4 stableProj;
 
 struct ClusterTile
 {
-    vec3 minPoint;
-    vec3 maxPoint;
+    vec4 minPoint;
+    vec4 maxPoint;
 };
 
 layout (std430, binding = 1) buffer clusterTilesSSBO
@@ -67,6 +67,6 @@ void main()
     vec3 maxPointNear = lineIntersectionToZPlane(eyePos, maxPoint_vS, tileNear);
     vec3 maxPointFar = lineIntersectionToZPlane(eyePos, maxPoint_vS, tileFar);
 
-    clusterTiles[tileIndex].minPoint = min(min(minPointNear, minPointFar),min(maxPointNear, maxPointFar));
-    clusterTiles[tileIndex].maxPoint = max(max(minPointNear, minPointFar),max(maxPointNear, maxPointFar));
+    clusterTiles[tileIndex].minPoint = vec4(min(min(minPointNear, minPointFar),min(maxPointNear, maxPointFar)), 0.0);
+    clusterTiles[tileIndex].maxPoint = vec4(max(max(minPointNear, minPointFar),max(maxPointNear, maxPointFar)), 0.0);
 }

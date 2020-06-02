@@ -143,5 +143,12 @@ namespace af3d
         editor.jointMarkerColorHovered = appConfig->getColor("editor.jointMarkerColorHovered");
         editor.jointMarkerColorSelected = appConfig->getColor("editor.jointMarkerColorSelected");
         editor.jointMarkerColorOff = appConfig->getColor("editor.jointMarkerColorOff");
+
+        /*
+         * cluster.
+         */
+        auto v = appConfig->getVector3f("cluster.gridSize");
+        cluster.gridSize = Vector3i(v.x(), v.y(), v.z());
+        cluster.numClusters = cluster.gridSize.x() * cluster.gridSize.y() * cluster.gridSize.z();
     }
 }

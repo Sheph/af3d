@@ -82,7 +82,7 @@ namespace af3d
         }
     }
 
-    void HardwareTexture::invalidate(HardwareContext& ctx)
+    void HardwareTexture::doInvalidate(HardwareContext& ctx)
     {
         id_ = 0;
     }
@@ -156,6 +156,7 @@ namespace af3d
         if (id_ == 0) {
             ogl.GenTextures(1, &id_);
             btAssert(id_ != 0);
+            setValid();
         }
     }
 }

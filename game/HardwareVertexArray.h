@@ -40,8 +40,6 @@ namespace af3d
         explicit HardwareVertexArray(HardwareResourceManager* mgr);
         ~HardwareVertexArray();
 
-        void invalidate(HardwareContext& ctx) override;
-
         GLuint id(HardwareContext& ctx) const override;
 
         void setup(const VertexArrayLayout& layout,
@@ -50,6 +48,8 @@ namespace af3d
             HardwareContext& ctx);
 
     private:
+        void doInvalidate(HardwareContext& ctx) override;
+
         VertexArrayLayout layout_;
         VBOList vbos_;
         HardwareIndexBufferPtr ebo_;

@@ -37,7 +37,8 @@ namespace af3d
         {
             StaticDraw = 0,
             DynamicDraw,
-            StreamDraw
+            StreamDraw,
+            StaticCopy
         };
 
         enum Access
@@ -61,8 +62,6 @@ namespace af3d
 
         GLenum glUsage() const;
 
-        void invalidate(HardwareContext& ctx) override;
-
         GLuint id(HardwareContext& ctx) const override;
 
         void resize(GLsizeiptr cnt, HardwareContext& ctx);
@@ -78,6 +77,8 @@ namespace af3d
         void unlock(HardwareContext& ctx);
 
     private:
+        void doInvalidate(HardwareContext& ctx) override;
+
         virtual void doResize(HardwareContext& ctx) = 0;
 
         virtual void doReload(GLsizeiptr cnt, const GLvoid* data, HardwareContext& ctx) = 0;

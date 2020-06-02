@@ -31,6 +31,32 @@ uniform mat4 lightProbeInvModel;
 uniform vec3 lightProbePos;
 uniform int lightProbeType;
 
+struct ClusterTileData
+{
+    uint lightOffset;
+    uint lightCount;
+};
+
+struct ClusterLight
+{
+    vec4 position;
+};
+
+layout (std430, binding = 2) buffer clusterTileDataSSBO
+{
+    ClusterTileData clusterTileData[];
+};
+
+layout (std430, binding = 3) buffer clusterLightIndicesSSBO
+{
+    uint clusterLightIndices[];
+};
+
+layout (std430, binding = 4) buffer clusterLightsSSBO
+{
+    ClusterLight clusterLights[];
+};
+
 in vec2 v_texCoord;
 in vec3 v_pos;
 #ifdef NM

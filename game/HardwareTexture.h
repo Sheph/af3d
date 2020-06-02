@@ -77,8 +77,6 @@ namespace af3d
 
         inline TextureFormat format() const { return format_; }
 
-        void invalidate(HardwareContext& ctx) override;
-
         GLuint id(HardwareContext& ctx) const override;
 
         void upload(GLint internalFormat, GLenum format, GLenum dataType, const GLvoid* pixels, bool genMipmap, GLint level, HardwareContext& ctx);
@@ -92,6 +90,8 @@ namespace af3d
         void generateMipmap(HardwareContext& ctx);
 
     private:
+        void doInvalidate(HardwareContext& ctx) override;
+
         void createTexture();
 
         TextureType type_;

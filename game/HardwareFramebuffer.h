@@ -36,8 +36,6 @@ namespace af3d
         explicit HardwareFramebuffer(HardwareResourceManager* mgr);
         ~HardwareFramebuffer();
 
-        void invalidate(HardwareContext& ctx) override;
-
         GLuint id(HardwareContext& ctx) const override;
 
         inline const HardwareRenderTarget& attachment(AttachmentPoint attachmentPoint, HardwareContext& ctx) const { return mrt_.attachment(attachmentPoint); }
@@ -47,6 +45,8 @@ namespace af3d
         bool checkStatus();
 
     private:
+        void doInvalidate(HardwareContext& ctx) override;
+
         void createFramebuffer();
 
         HardwareMRT mrt_;

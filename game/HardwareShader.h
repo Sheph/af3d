@@ -45,13 +45,13 @@ namespace af3d
 
         static GLenum glShaderType(Type type);
 
-        void invalidate(HardwareContext& ctx) override;
-
         GLuint id(HardwareContext& ctx) const override;
 
         bool compile(const std::string& source, HardwareContext& ctx);
 
     private:
+        void doInvalidate(HardwareContext& ctx) override;
+
         Type type_ = Type::Vertex;
         GLuint id_ = 0;
     };

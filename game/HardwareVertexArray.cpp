@@ -44,7 +44,7 @@ namespace af3d
         }
     }
 
-    void HardwareVertexArray::invalidate(HardwareContext& ctx)
+    void HardwareVertexArray::doInvalidate(HardwareContext& ctx)
     {
         layout_ = VertexArrayLayout();
         vbos_.clear();
@@ -74,6 +74,7 @@ namespace af3d
         if (id_ == 0) {
             ogl.GenVertexArrays(1, &id_);
             btAssert(id_ != 0);
+            setValid();
         }
         ogl.BindVertexArray(id_);
 

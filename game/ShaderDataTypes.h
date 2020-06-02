@@ -23,36 +23,23 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _HARDWARE_RENDERBUFFER_H_
-#define _HARDWARE_RENDERBUFFER_H_
+#ifndef _SHADERDATATYPES_H_
+#define _SHADERDATATYPES_H_
 
-#include "HardwareResource.h"
+#include "af3d/Types.h"
+#include "af3d/Vector2.h"
+#include "af3d/Vector3.h"
+#include "af3d/Vector4.h"
 
 namespace af3d
 {
-    class HardwareRenderbuffer : public HardwareResource
+    #pragma pack(1)
+    struct ShaderClusterTile
     {
-    public:
-        HardwareRenderbuffer(HardwareResourceManager* mgr, std::uint32_t width, std::uint32_t height);
-        ~HardwareRenderbuffer();
-
-        inline std::uint32_t width() const { return width_; }
-
-        inline std::uint32_t height() const { return height_; }
-
-        GLuint id(HardwareContext& ctx) const override;
-
-        void allocate(GLint internalFormat, HardwareContext& ctx);
-
-    private:
-        void doInvalidate(HardwareContext& ctx) override;
-
-        std::uint32_t width_;
-        std::uint32_t height_;
-        GLuint id_ = 0;
+        Vector4f minPoint;
+        Vector4f maxPoint;
     };
-
-    using HardwareRenderbufferPtr = std::shared_ptr<HardwareRenderbuffer>;
+    #pragma pack()
 }
 
 #endif

@@ -46,7 +46,7 @@ namespace af3d
         }
     }
 
-    void HardwareRenderbuffer::invalidate(HardwareContext& ctx)
+    void HardwareRenderbuffer::doInvalidate(HardwareContext& ctx)
     {
         id_ = 0;
     }
@@ -61,6 +61,7 @@ namespace af3d
         if (id_ == 0) {
             ogl.GenRenderbuffers(1, &id_);
             btAssert(id_ != 0);
+            setValid();
         }
 
         ogl.BindRenderbuffer(GL_RENDERBUFFER, id_);
