@@ -92,15 +92,15 @@ void main()
     uint numBatches = (lightCount + threadCount - 1) / threadCount;
     uint maxLightsPerTile = clusterLightIndices.length() / clusterTileData.length();
     uint tileIndex = gl_LocalInvocationIndex + gl_WorkGroupSize.x * gl_WorkGroupSize.y * gl_WorkGroupSize.z * gl_WorkGroupID.z;
+    uint offset = tileIndex * maxLightsPerTile;
 
     uint visibleLightCount = 0;
-    uint visibleLightIndices[100];
 
     for (uint batch = 0; batch < numBatches; ++batch) {
         uint lightIndex = batch * threadCount + gl_LocalInvocationIndex;
 
         // Prevent overflow by clamping to last light which is always null
-        lightIndex = min(lightIndex, lightCount);
+        lightIndex = min(lightIndex, lightCount - 1);
 
         // Populating shared light array
         sharedLights[gl_LocalInvocationIndex] = clusterLights[lightIndex];
@@ -111,23 +111,20 @@ void main()
         // Iterating within the current batch of lights
         for (uint light = 0; light < threadCount; ++light) {
             if (sharedLights[light].enabled == 1) {
-                if ((sharedLights[light].pos.w == 1.0) || testSphereAABB(light, tileIndex)) {
-                    visibleLightIndices[visibleLightCount] = batch * threadCount + light;
+                if (sharedLights[light].pos.w == 1.0) {
+                    clusterLightIndices[offset + visibleLightCount % maxLightsPerTile] = batch * threadCount + light;
                     visibleLightCount += 1;
-                    if (visibleLightCount >= maxLightsPerTile) {
-                        break;
-                    }
+                } else if ((visibleLightCount < maxLightsPerTile) && testSphereAABB(light, tileIndex)) {
+                    clusterLightIndices[offset + visibleLightCount] = batch * threadCount + light;
+                    visibleLightCount += 1;
                 }
             }
         }
-    }
 
-    uint offset = tileIndex * maxLightsPerTile;
-
-    for (uint i = 0; i < visibleLightCount; ++i) {
-        clusterLightIndices[offset + i] = visibleLightIndices[i];
+        memoryBarrierShared();
+        barrier();
     }
 
     clusterTileData[tileIndex].lightOffset = offset;
-    clusterTileData[tileIndex].lightCount = visibleLightCount;
+    clusterTileData[tileIndex].lightCount = min(visibleLightCount, maxLightsPerTile);
 }

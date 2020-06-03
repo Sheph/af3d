@@ -111,7 +111,7 @@ namespace af3d
         float orthoHeight_ = 40.0f;
         float aspect_ = 4.0f / 3.0f;
         float nearDist_ = 0.05f;
-        float farDist_ = 1000.0f;
+        float farDist_ = 300.0f;
         bool flipY_ = false;
 
         btTransform xf_ = btTransform::getIdentity();

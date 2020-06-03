@@ -420,6 +420,7 @@ namespace af3d
 
         if (computeNumGroups_) {
             ogl.DispatchCompute(computeNumGroups_->x(), computeNumGroups_->y(), computeNumGroups_->z());
+            ogl.MemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
             return;
         }
 

@@ -1308,6 +1308,7 @@ static bool OGLPreInit()
     GL_GET_PROC(GetProgramResourceName, glGetProgramResourceName);
     GL_GET_PROC(BindBufferBase, glBindBufferBase);
     GL_GET_PROC(DispatchCompute, glDispatchCompute);
+    GL_GET_PROC(MemoryBarrier, glMemoryBarrier);
 
     int n = 0;
 

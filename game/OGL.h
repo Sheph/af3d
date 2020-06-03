@@ -158,6 +158,7 @@ namespace af3d
         void (GLAPIENTRY* GetProgramResourceName)(GLuint program, GLenum programInterface, GLuint index, GLsizei bufSize, GLsizei* length, char* name);
         void (GLAPIENTRY* BindBufferBase)(GLenum target, GLuint index, GLuint buffer);
         void (GLAPIENTRY* DispatchCompute)(GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z);
+        void (GLAPIENTRY* MemoryBarrier)(GLbitfield barriers);
     };
 
     extern OGL ogl;
