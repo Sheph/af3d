@@ -73,14 +73,6 @@ namespace af3d
         power_ = value;
     }
 
-    void SpotLight::doSetupMaterial(const btVector3& eyePos, MaterialParams& params) const
-    {
-        params.setUniform(UniformName::LightDir, worldTransform().getBasis() * btVector3_forward * radius_);
-        params.setUniform(UniformName::LightCutoffCos, btCos(angle_ * 0.5f));
-        params.setUniform(UniformName::LightCutoffInnerCos, btCos(innerAngle_ * 0.5f));
-        params.setUniform(UniformName::LightPower, power_);
-    }
-
     void SpotLight::doSetupCluster(ShaderClusterLight& cLight) const
     {
         cLight.dir = Vector4f(worldTransform().getBasis() * btVector3_forward * radius_, 0.0f);

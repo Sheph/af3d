@@ -48,8 +48,6 @@ namespace af3d
         void setLocalAABB(const AABB& value);
 
     private:
-        void doSetupMaterial(const btVector3& eyePos, MaterialParams& params) const override;
-
         void doSetupCluster(ShaderClusterLight& cLight) const override;
     };
 

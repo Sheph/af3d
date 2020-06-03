@@ -452,6 +452,9 @@ namespace af3d
 
         RenderNode tmpNode;
 
+        std::vector<HardwareTextureBinding> textures;
+        std::vector<StorageBufferBinding> storageBuffers;
+
         bool needClusterData = false;
         for (const auto& geom : geomList_) {
             const auto& ssbos = geom.material->type()->prog()->storageBuffers();
@@ -478,24 +481,21 @@ namespace af3d
             if (clusterData.tilesSSBO->setValid()) {
                 auto ssbo = clusterData.tilesSSBO;
                 renderer.scheduleHwOp([ssbo](HardwareContext& ctx) {
-                    ssbo->resize(settings.cluster.numClusters, ctx);
+                    ssbo->resize(settings.cluster.numTiles, ctx);
                 });
             }
             if (clusterData.tileDataSSBO->setValid()) {
                 auto ssbo = clusterData.tileDataSSBO;
                 renderer.scheduleHwOp([ssbo](HardwareContext& ctx) {
-                    ssbo->resize(settings.cluster.numClusters, ctx);
+                    ssbo->resize(settings.cluster.numTiles, ctx);
                 });
             }
             if (clusterData.lightIndicesSSBO->setValid()) {
                 auto ssbo = clusterData.lightIndicesSSBO;
                 renderer.scheduleHwOp([ssbo](HardwareContext& ctx) {
-                    ssbo->resize(settings.cluster.numClusters * settings.cluster.maxLightsPerTile, ctx);
+                    ssbo->resize(settings.cluster.numTiles * settings.cluster.maxLightsPerTile, ctx);
                 });
             }
-
-            std::vector<HardwareTextureBinding> textures;
-            std::vector<StorageBufferBinding> storageBuffers;
 
             if (clusterData.prevProjMat != camera_->frustum().projMat()) {
                 // Projection changed, recalc cluster tile grid.
@@ -515,16 +515,8 @@ namespace af3d
         }
 
         for (const auto& geom : geomList_) {
-            std::vector<HardwareTextureBinding> textures;
-            std::vector<StorageBufferBinding> storageBuffers;
             MaterialParams params(geom.material->type(), true);
             setAutoParams(geom, textures, storageBuffers, params);
-            const auto& activeUniforms = geom.material->type()->prog()->activeUniforms();
-            if (activeUniforms.count(UniformName::LightColor) > 0) {
-                auto ac = camera_->ambientColor();
-                ac = gammaToLinear(ac);
-                params.setUniform(UniformName::LightColor, Vector3f(ac.x(), ac.y(), ac.z()) * ac.w());
-            }
             rn->add(std::move(tmpNode), 0, drawBuffers, geom.material,
                 GL_LEQUAL, geom.depthValue,
                 geom.material->blendingParams(), geom.flipCull,
@@ -579,6 +571,12 @@ namespace af3d
                     }
                 }
             }
+        }
+
+        if (activeUniforms.count(UniformName::AmbientColor) > 0) {
+            auto ac = camera_->ambientColor();
+            ac = gammaToLinear(ac);
+            params.setUniform(UniformName::AmbientColor, Vector3f(ac.x(), ac.y(), ac.z()) * ac.w());
         }
 
         if (activeUniforms.count(UniformName::ViewProjMatrix) > 0) {

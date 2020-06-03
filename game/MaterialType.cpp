@@ -87,10 +87,9 @@ namespace af3d
         }
     }
 
-    MaterialType::MaterialType(MaterialTypeName name, const HardwareProgramPtr& prog, bool usesLight, bool isCompute)
+    MaterialType::MaterialType(MaterialTypeName name, const HardwareProgramPtr& prog, bool isCompute)
     : name_(name),
       prog_(prog),
-      usesLight_(usesLight),
       isCompute_(isCompute)
     {
     }

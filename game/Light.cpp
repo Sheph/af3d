@@ -142,15 +142,6 @@ namespace af3d
         return localAABB_.getTransformed(worldTransform());
     }
 
-    void Light::setupMaterial(const btVector3& eyePos, MaterialParams& params) const
-    {
-        const auto& xf = worldTransform();
-        params.setUniform(UniformName::LightPos, Vector4f(xf.getOrigin(), typeId_));
-        Color c = gammaToLinear(color_);
-        params.setUniform(UniformName::LightColor, Vector3f(c.x(), c.y(), c.z()) * c.w());
-        doSetupMaterial(eyePos, params);
-    }
-
     void Light::setupCluster(ShaderClusterLight& cLight) const
     {
         if (!visible()) {

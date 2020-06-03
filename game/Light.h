@@ -68,8 +68,6 @@ namespace af3d
 
         inline RenderComponentPtr markerRc() const { return markerRc_; }
 
-        void setupMaterial(const btVector3& eyePos, MaterialParams& params) const;
-
         void setupCluster(ShaderClusterLight& cLight) const;
 
         APropertyValue propertyLocalTransformGet(const std::string&) const { return transform(); }
@@ -95,8 +93,6 @@ namespace af3d
         void onRegister() override;
 
         void onUnregister() override;
-
-        virtual void doSetupMaterial(const btVector3& eyePos, MaterialParams& params) const = 0;
 
         virtual void doSetupCluster(ShaderClusterLight& cLight) const = 0;
 

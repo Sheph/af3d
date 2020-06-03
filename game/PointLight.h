@@ -52,8 +52,6 @@ namespace af3d
         void propertyRadiusSet(const std::string&, const APropertyValue& value) { setRadius(value.toFloat()); }
 
     private:
-        void doSetupMaterial(const btVector3& eyePos, MaterialParams& params) const override;
-
         void doSetupCluster(ShaderClusterLight& cLight) const override;
 
         float radius_ = 0.0f;

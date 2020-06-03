@@ -37,36 +37,35 @@ namespace af3d
         const char* vert;
         const char* frag;
         const char* compute;
-        bool usesLight;
         const char* header;
     } shaders[MaterialTypeMax + 1] = {
-        {"shaders/basic.vert", "shaders/basic.frag", nullptr, true, nullptr},
-        {"shaders/basic.vert", "shaders/basic.frag", nullptr, true, "#define NM 1\n"},
-        {"shaders/unlit.vert", "shaders/unlit.frag", nullptr, false, nullptr},
-        {"shaders/unlit-vc.vert", "shaders/unlit-vc.frag", nullptr, false, nullptr},
-        {"shaders/imm.vert", "shaders/imm.frag", nullptr, false, nullptr},
-        {"shaders/outline.vert", "shaders/outline.frag", nullptr, false, nullptr},
-        {"shaders/grid.vert", "shaders/grid.frag", nullptr, false, nullptr},
-        {"shaders/filter.vert", "shaders/filter-vhs.frag", nullptr, false, nullptr},
-        {"shaders/filter-cubemap.vert", "shaders/filter-irradiance-conv.frag", nullptr, false, nullptr},
-        {"shaders/basic.vert", "shaders/pbr.frag", nullptr, true, nullptr},
-        {"shaders/basic.vert", "shaders/pbr.frag", nullptr, true, "#define NM 1\n"},
-        {"shaders/filter.vert", "shaders/filter-cube2equirect.frag", nullptr, false, nullptr},
-        {"shaders/filter-cubemap.vert", "shaders/filter-equirect2cube.frag", nullptr, false, nullptr},
-        {"shaders/filter-cubemap.vert", "shaders/filter-specularcm.frag", nullptr, false, nullptr},
-        {"shaders/filter.vert", "shaders/filter-specularlut.frag", nullptr, false, nullptr},
-        {"shaders/filter-fxaa.vert", "shaders/filter-fxaa.frag", nullptr, false, nullptr},
-        {"shaders/filter.vert", "shaders/filter-tone-mapping.frag", nullptr, false, nullptr},
-        {"shaders/filter.vert", "shaders/filter-gaussian-blur.frag", nullptr, false, nullptr},
-        {"shaders/filter.vert", "shaders/filter-bloom-pass1.frag", nullptr, false, nullptr},
-        {"shaders/filter.vert", "shaders/filter-bloom-pass2.frag", nullptr, false, nullptr},
-        {"shaders/filter.vert", "shaders/filter-taa.frag", nullptr, false, nullptr},
-        {"shaders/filter.vert", "shaders/filter-downscale.frag", nullptr, false, nullptr},
-        {"shaders/skybox.vert", "shaders/skybox.frag", nullptr, false, nullptr},
-        {"shaders/basic.vert", "shaders/pbr.frag", nullptr, true, "#define FAST 1\n"},
-        {"shaders/basic.vert", "shaders/pbr.frag", nullptr, true, "#define FAST 1\n#define NM 1\n"},
-        {nullptr, nullptr, "shaders/cluster-build.comp", false, nullptr},
-        {nullptr, nullptr, "shaders/cluster-cull.comp", false, nullptr}
+        {"shaders/basic.vert", "shaders/basic.frag", nullptr, nullptr},
+        {"shaders/basic.vert", "shaders/basic.frag", nullptr, "#define NM 1\n"},
+        {"shaders/unlit.vert", "shaders/unlit.frag", nullptr, nullptr},
+        {"shaders/unlit-vc.vert", "shaders/unlit-vc.frag", nullptr, nullptr},
+        {"shaders/imm.vert", "shaders/imm.frag", nullptr, nullptr},
+        {"shaders/outline.vert", "shaders/outline.frag", nullptr, nullptr},
+        {"shaders/grid.vert", "shaders/grid.frag", nullptr, nullptr},
+        {"shaders/filter.vert", "shaders/filter-vhs.frag", nullptr, nullptr},
+        {"shaders/filter-cubemap.vert", "shaders/filter-irradiance-conv.frag", nullptr, nullptr},
+        {"shaders/basic.vert", "shaders/pbr.frag", nullptr, nullptr},
+        {"shaders/basic.vert", "shaders/pbr.frag", nullptr, "#define NM 1\n"},
+        {"shaders/filter.vert", "shaders/filter-cube2equirect.frag", nullptr, nullptr},
+        {"shaders/filter-cubemap.vert", "shaders/filter-equirect2cube.frag", nullptr, nullptr},
+        {"shaders/filter-cubemap.vert", "shaders/filter-specularcm.frag", nullptr, nullptr},
+        {"shaders/filter.vert", "shaders/filter-specularlut.frag", nullptr, nullptr},
+        {"shaders/filter-fxaa.vert", "shaders/filter-fxaa.frag", nullptr, nullptr},
+        {"shaders/filter.vert", "shaders/filter-tone-mapping.frag", nullptr, nullptr},
+        {"shaders/filter.vert", "shaders/filter-gaussian-blur.frag", nullptr, nullptr},
+        {"shaders/filter.vert", "shaders/filter-bloom-pass1.frag", nullptr, nullptr},
+        {"shaders/filter.vert", "shaders/filter-bloom-pass2.frag", nullptr, nullptr},
+        {"shaders/filter.vert", "shaders/filter-taa.frag", nullptr, nullptr},
+        {"shaders/filter.vert", "shaders/filter-downscale.frag", nullptr, nullptr},
+        {"shaders/skybox.vert", "shaders/skybox.frag", nullptr, nullptr},
+        {"shaders/basic.vert", "shaders/pbr.frag", nullptr, "#define FAST 1\n"},
+        {"shaders/basic.vert", "shaders/pbr.frag", nullptr, "#define FAST 1\n#define NM 1\n"},
+        {nullptr, nullptr, "shaders/cluster-build.comp", nullptr},
+        {nullptr, nullptr, "shaders/cluster-cull.comp", nullptr}
     };
 
     MaterialManager materialManager;
@@ -97,7 +96,7 @@ namespace af3d
         for (int i = MaterialTypeFirst; i <= MaterialTypeMax; ++i) {
             MaterialTypeName name = static_cast<MaterialTypeName>(i);
             materialTypes_[name] = std::make_shared<MaterialType>(name, hwManager.createProgram(),
-                shaders[name].usesLight, (shaders[name].compute != nullptr));
+                (shaders[name].compute != nullptr));
         }
 
         return true;

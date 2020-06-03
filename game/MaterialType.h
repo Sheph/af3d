@@ -88,7 +88,7 @@ namespace af3d
             EnumUnorderedMap<UniformName, GLsizei> defaultUniforms;
         };
 
-        MaterialType(MaterialTypeName name, const HardwareProgramPtr& prog, bool usesLight, bool isCompute);
+        MaterialType(MaterialTypeName name, const HardwareProgramPtr& prog, bool isCompute);
         ~MaterialType() = default;
 
         inline MaterialTypeName name() const { return name_; }
@@ -96,8 +96,6 @@ namespace af3d
         inline bool hasNM() const { return materialTypeHasNM(name()); }
 
         inline const HardwareProgramPtr& prog() const { return prog_; }
-
-        inline bool usesLight() const { return usesLight_; }
 
         inline bool isCompute() const { return isCompute_; }
 
@@ -132,7 +130,6 @@ namespace af3d
 
         MaterialTypeName name_;
         HardwareProgramPtr prog_;
-        bool usesLight_;
         bool isCompute_;
         ParamListInfo autoParamListInfo_;
         ParamListInfo paramListInfo_;

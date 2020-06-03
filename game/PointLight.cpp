@@ -55,11 +55,6 @@ namespace af3d
         setLocalAABBImpl(AABB(-btVector3_one * value, btVector3_one * value));
     }
 
-    void PointLight::doSetupMaterial(const btVector3& eyePos, MaterialParams& params) const
-    {
-        params.setUniform(UniformName::LightDir, Vector3f(radius_, 0.0f, 0.0f));
-    }
-
     void PointLight::doSetupCluster(ShaderClusterLight& cLight) const
     {
         cLight.dir = Vector4f(radius_, 0.0f, 0.0f, 0.0f);

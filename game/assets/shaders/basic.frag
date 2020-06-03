@@ -9,7 +9,7 @@ uniform vec4 mainColor;
 uniform vec4 specularColor;
 uniform float shininess;
 uniform vec3 eyePos;
-uniform vec3 lightColor;
+uniform vec3 ambientColor;
 uniform vec4 clusterCfg;
 
 struct ClusterLight
@@ -73,7 +73,7 @@ void main()
 
     {
         // ambient
-        fragColor = texture(texMain, v_texCoord) * mainColor * vec4(lightColor, 1.0);
+        fragColor = texture(texMain, v_texCoord) * mainColor * vec4(ambientColor, 1.0);
     }
 
 #ifdef NM

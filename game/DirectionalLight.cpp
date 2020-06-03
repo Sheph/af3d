@@ -53,11 +53,6 @@ namespace af3d
         setLocalAABBImpl(value);
     }
 
-    void DirectionalLight::doSetupMaterial(const btVector3& eyePos, MaterialParams& params) const
-    {
-        params.setUniform(UniformName::LightDir, worldTransform().getBasis() * btVector3_forward);
-    }
-
     void DirectionalLight::doSetupCluster(ShaderClusterLight& cLight) const
     {
         cLight.dir = Vector4f(worldTransform().getBasis() * btVector3_forward, 0.0f);

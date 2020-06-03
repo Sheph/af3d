@@ -54,12 +54,7 @@ namespace af3d
         StableProjMatrix,
         StableViewMatrix,
         EyePos,
-        LightPos, // LightPos = vec4(x,y,z,lightType)
-        LightColor, // LightColor = vec3(r,g,b)
-        LightDir, // length = distance
-        LightCutoffCos,
-        LightCutoffInnerCos,
-        LightPower,
+        AmbientColor,
         ViewportSize,
         Time,
         SpecularCMLevels,
