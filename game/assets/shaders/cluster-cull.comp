@@ -80,7 +80,7 @@ float sqDistPointAABB(vec3 point, uint tile)
 bool testSphereAABB(uint light, uint tile)
 {
     float radius = length(sharedLights[light].dir.xyz);
-    vec3 center = vec3(stableView * sharedLights[light].pos);
+    vec3 center = vec3(vec4(sharedLights[light].pos.xyz, 1.0) * stableView);
     float squaredDistance = sqDistPointAABB(center, tile);
     return squaredDistance <= (radius * radius);
 }

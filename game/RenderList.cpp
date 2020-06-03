@@ -520,9 +520,6 @@ namespace af3d
             MaterialParams params(geom.material->type(), true);
             setAutoParams(geom, textures, storageBuffers, params);
             const auto& activeUniforms = geom.material->type()->prog()->activeUniforms();
-            if (activeUniforms.count(UniformName::LightPos) > 0) {
-                params.setUniform(UniformName::LightPos, Vector4f_zero);
-            }
             if (activeUniforms.count(UniformName::LightColor) > 0) {
                 auto ac = camera_->ambientColor();
                 ac = gammaToLinear(ac);
@@ -534,31 +531,6 @@ namespace af3d
                 std::move(textures), std::move(storageBuffers),
                 geom.vaSlice, geom.primitiveMode, geom.scissorParams,
                 std::move(params));
-        }
-
-        int pass = 1;
-        BlendingParams lightBp(GL_ONE, GL_ONE, GL_ONE, GL_ONE);
-        for (int i = static_cast<int>(AttachmentPoint::Color1); i <= static_cast<int>(AttachmentPoint::Max); ++i) {
-            drawBuffers.reset(static_cast<AttachmentPoint>(i));
-        }
-
-        for (const auto& light : lightList_) {
-            auto lightAABB = light->getWorldAABB();
-            for (const auto& geom : geomList_) {
-                if (!geom.material->type()->usesLight() || !lightAABB.overlaps(geom.aabb)) {
-                    continue;
-                }
-                std::vector<HardwareTextureBinding> textures;
-                std::vector<StorageBufferBinding> storageBuffers;
-                MaterialParams params(geom.material->type(), true);
-                setAutoParams(geom, textures, storageBuffers, params);
-                light->setupMaterial(camera_->frustum().transform().getOrigin(), params);
-                rn->add(std::move(tmpNode), pass, drawBuffers, geom.material,
-                    GL_EQUAL, geom.depthValue,
-                    lightBp, geom.flipCull, std::move(textures), std::move(storageBuffers),
-                    geom.vaSlice, geom.primitiveMode, geom.scissorParams,
-                    std::move(params));
-            }
         }
 
         return rn;
@@ -692,6 +664,13 @@ namespace af3d
             if (probe) {
                 params.setUniform(UniformName::LightProbeType, probe->isGlobal() ? 0 : 1);
             }
+        }
+        if (activeUniforms.count(UniformName::ClusterCfg) > 0) {
+            float zNear = camera_->frustum().nearDist();
+            float zFar = camera_->frustum().farDist();
+            float scalingFactor = (float)settings.cluster.gridSize.z() / std::log2f(zFar / zNear);
+            float biasFactor = -((float)settings.cluster.gridSize.z() * std::log2f(zNear) / std::log2f(zFar / zNear));
+            params.setUniform(UniformName::ClusterCfg, Vector4f(zNear, zFar, scalingFactor, biasFactor));
         }
 
         const auto& ssboNames = material->type()->prog()->storageBuffers();

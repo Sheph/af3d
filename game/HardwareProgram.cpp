@@ -93,6 +93,7 @@ namespace af3d
         {"lightProbeInvModel", UniformName::LightProbeInvMatrix},
         {"lightProbePos", UniformName::LightProbePos},
         {"lightProbeType", UniformName::LightProbeType},
+        {"clusterCfg", UniformName::ClusterCfg},
         {"mainColor", UniformName::MainColor},
         {"specularColor", UniformName::SpecularColor},
         {"shininess", UniformName::Shininess},

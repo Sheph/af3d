@@ -88,8 +88,11 @@ namespace af3d
             "#define OUT_FRAG_VELOCITY() \\\n" \
             "vec2 a = (v_clipPos.xy / v_clipPos.w); \\\n" \
             "vec2 b = (v_prevClipPos.xy / v_prevClipPos.w); \\\n" \
-            "fragVelocity = (a - b)\n" \
-            "#line 1\n";
+            "fragVelocity = (a - b)\n";
+        glslCommonHeader_ += "#define CLUSTER_GRID_X " + std::to_string(settings.cluster.gridSize.x()) + "\n";
+        glslCommonHeader_ += "#define CLUSTER_GRID_Y " + std::to_string(settings.cluster.gridSize.y()) + "\n";
+        glslCommonHeader_ += "#define CLUSTER_GRID_Z " + std::to_string(settings.cluster.gridSize.z()) + "\n";
+        glslCommonHeader_ += "#line 1\n";
 
         for (int i = MaterialTypeFirst; i <= MaterialTypeMax; ++i) {
             MaterialTypeName name = static_cast<MaterialTypeName>(i);

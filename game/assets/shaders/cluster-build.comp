@@ -58,8 +58,8 @@ void main()
     float zFar = D / (C + 1.0);
 
     // Near and far values of the cluster in view space
-    float tileNear = -zNear * pow(zFar/ zNear, gl_WorkGroupID.z / float(gl_NumWorkGroups.z));
-    float tileFar = -zNear * pow(zFar/ zNear, (gl_WorkGroupID.z + 1) / float(gl_NumWorkGroups.z));
+    float tileNear = -zNear * pow(zFar / zNear, gl_WorkGroupID.z / float(gl_NumWorkGroups.z));
+    float tileFar = -zNear * pow(zFar / zNear, (gl_WorkGroupID.z + 1) / float(gl_NumWorkGroups.z));
 
     // Finding the 4 intersection points made from the maxPoint to the cluster near/far plane
     vec3 minPointNear = lineIntersectionToZPlane(eyePos, minPoint_vS, tileNear);

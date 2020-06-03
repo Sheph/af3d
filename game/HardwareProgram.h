@@ -68,8 +68,9 @@ namespace af3d
         LightProbeInvMatrix,
         LightProbePos,
         LightProbeType,
+        ClusterCfg,
         FirstAuto = ViewProjMatrix,
-        MaxAuto = LightProbeType,
+        MaxAuto = ClusterCfg,
         MainColor, // Light only!
         SpecularColor, // Light only!
         Shininess, // Light only!

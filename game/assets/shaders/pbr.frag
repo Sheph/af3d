@@ -16,12 +16,6 @@ uniform sampler2D texSpecularLUT;
 
 uniform vec4 mainColor;
 uniform vec3 eyePos;
-uniform vec4 lightPos;
-uniform vec3 lightColor;
-uniform vec3 lightDir;
-uniform float lightCutoffCos;
-uniform float lightCutoffInnerCos;
-uniform float lightPower;
 uniform int specularCMLevels;
 uniform float emissiveFactor;
 #ifdef NM
@@ -30,6 +24,7 @@ uniform int normalFormat;
 uniform mat4 lightProbeInvModel;
 uniform vec3 lightProbePos;
 uniform int lightProbeType;
+uniform vec4 clusterCfg;
 
 struct ClusterLight
 {
@@ -135,8 +130,19 @@ vec3 reflDirectionFixup(vec3 ReflDirectionWS, vec3 DirectionWS, vec3 PositionWS)
     return ReflDirectionWS;
 }
 
+float linearDepth(float depthRange)
+{
+    float linear = 2.0 * clusterCfg.x * clusterCfg.y / (clusterCfg.y + clusterCfg.x - depthRange * (clusterCfg.y - clusterCfg.x));
+    return linear;
+}
+
 void main()
 {
+    vec4 ndc = v_clipPos / v_clipPos.w;
+    uint zTile = uint(max(log2(linearDepth(ndc.z)) * clusterCfg.z + clusterCfg.w, 0.0));
+    uvec3 tiles = uvec3(uvec2((0.5 * (ndc.xy + 1.0)) * vec2(CLUSTER_GRID_X, CLUSTER_GRID_Y)), zTile);
+    uint tileIndex = tiles.x + CLUSTER_GRID_X * tiles.y + (CLUSTER_GRID_X * CLUSTER_GRID_Y) * tiles.z;
+
     vec4 albedoFull = texture(texMain, v_texCoord) * mainColor;
     vec3 albedo = albedoFull.rgb;
 #ifdef FAST
@@ -167,7 +173,7 @@ void main()
     // Fresnel reflectance at normal incidence (for metals use albedo color).
     vec3 F0 = mix(Fdielectric, albedo, metalness);
 
-    if (lightPos.w == 0.0) {
+    {
         // ambient
 
 #ifndef FAST
@@ -208,60 +214,67 @@ void main()
 
         // Total ambient lighting contribution.
         fragColor = vec4((diffuseIBL + specularIBL) * ao + emissive, albedoFull.a);
-        OUT_FRAG_VELOCITY();
-        return;
     }
 
+    uint lightCount = clusterTileData[tileIndex].lightCount;
+    uint lightOffset = clusterTileData[tileIndex].lightOffset;
     vec3 Li;
     float attenuation;
 
-    if (lightPos.w == 1.0) {
-        // directional
-        attenuation = 1.0;
-        Li = -lightDir;
-    } else {
-        vec3 positionToLightSource = vec3(lightPos.xyz - v_pos);
-        Li = normalize(positionToLightSource);
-        attenuation = max(0.0, 1.0 - length(positionToLightSource) / length(lightDir));
-        if (lightPos.w == 3.0) {
-            // spot
-            float spotCosine = dot(-Li, normalize(lightDir));
-            if (spotCosine < lightCutoffCos) {
-                attenuation = 0.0;
-            } else {
-                float spotValue = smoothstep(lightCutoffCos, lightCutoffInnerCos, spotCosine);
-                attenuation = attenuation * pow(spotValue, lightPower);
+    for (uint i = 0; i < lightCount; i++) {
+        uint lightIndex = clusterLightIndices[lightOffset + i];
+        const ClusterLight light = clusterLights[lightIndex];
+
+        if (light.pos.w == 1.0) {
+            // directional
+            attenuation = 1.0;
+            Li = -light.dir.xyz;
+        } else {
+            vec3 positionToLightSource = vec3(light.pos.xyz - v_pos);
+            Li = normalize(positionToLightSource);
+            attenuation = max(0.0, 1.0 - length(positionToLightSource) / length(light.dir.xyz));
+            if (light.pos.w == 3.0) {
+                // spot
+                float spotCosine = dot(-Li, normalize(light.dir.xyz));
+                if (spotCosine < light.cutoffCos) {
+                    attenuation = 0.0;
+                } else {
+                    float spotValue = smoothstep(light.cutoffCos, light.cutoffInnerCos, spotCosine);
+                    attenuation = attenuation * pow(spotValue, light.power);
+                }
             }
         }
+
+        // Half-vector between Li and Lo.
+        vec3 Lh = normalize(Li + Lo);
+
+        // Calculate angles between surface normal and various light vectors.
+        float cosLi = max(0.0, dot(N, Li));
+        float cosLh = max(0.0, dot(N, Lh));
+
+        // Calculate Fresnel term for direct lighting.
+        vec3 F  = fresnelSchlick(F0, max(0.0, dot(Lh, Lo)));
+        // Calculate normal distribution for specular BRDF.
+        float D = ndfGGX(cosLh, roughness);
+        // Calculate geometric attenuation for specular BRDF.
+        float G = gaSchlickGGX(cosLi, cosLo, roughness);
+
+        // Diffuse scattering happens due to light being refracted multiple times by a dielectric medium.
+        // Metals on the other hand either reflect or absorb energy, so diffuse contribution is always zero.
+        // To be energy conserving we must scale diffuse BRDF contribution based on Fresnel factor & metalness.
+        vec3 kd = mix(vec3(1.0) - F, vec3(0.0), metalness);
+
+        // Lambert diffuse BRDF.
+        // We don't scale by 1/PI for lighting & material units to be more convenient.
+        // See: https://seblagarde.wordpress.com/2012/01/08/pi-or-not-to-pi-in-game-lighting-equation/
+        vec3 diffuseBRDF = kd * albedo;
+
+        // Cook-Torrance specular microfacet BRDF.
+        vec3 specularBRDF = (F * D * G) / max(Epsilon, 4.0 * cosLi * cosLo);
+
+        // Total contribution for this light.
+        fragColor += vec4((diffuseBRDF + specularBRDF) * light.color.xyz * cosLi * attenuation, albedoFull.a);
     }
 
-    // Half-vector between Li and Lo.
-    vec3 Lh = normalize(Li + Lo);
-
-    // Calculate angles between surface normal and various light vectors.
-    float cosLi = max(0.0, dot(N, Li));
-    float cosLh = max(0.0, dot(N, Lh));
-
-    // Calculate Fresnel term for direct lighting.
-    vec3 F  = fresnelSchlick(F0, max(0.0, dot(Lh, Lo)));
-    // Calculate normal distribution for specular BRDF.
-    float D = ndfGGX(cosLh, roughness);
-    // Calculate geometric attenuation for specular BRDF.
-    float G = gaSchlickGGX(cosLi, cosLo, roughness);
-
-    // Diffuse scattering happens due to light being refracted multiple times by a dielectric medium.
-    // Metals on the other hand either reflect or absorb energy, so diffuse contribution is always zero.
-    // To be energy conserving we must scale diffuse BRDF contribution based on Fresnel factor & metalness.
-    vec3 kd = mix(vec3(1.0) - F, vec3(0.0), metalness);
-
-    // Lambert diffuse BRDF.
-    // We don't scale by 1/PI for lighting & material units to be more convenient.
-    // See: https://seblagarde.wordpress.com/2012/01/08/pi-or-not-to-pi-in-game-lighting-equation/
-    vec3 diffuseBRDF = kd * albedo;
-
-    // Cook-Torrance specular microfacet BRDF.
-    vec3 specularBRDF = (F * D * G) / max(Epsilon, 4.0 * cosLi * cosLo);
-
-    // Total contribution for this light.
-    fragColor = vec4((diffuseBRDF + specularBRDF) * lightColor * cosLi * attenuation, albedoFull.a);
+    OUT_FRAG_VELOCITY();
 }

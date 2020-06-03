@@ -9,12 +9,40 @@ uniform vec4 mainColor;
 uniform vec4 specularColor;
 uniform float shininess;
 uniform vec3 eyePos;
-uniform vec4 lightPos;
 uniform vec3 lightColor;
-uniform vec3 lightDir;
-uniform float lightCutoffCos;
-uniform float lightCutoffInnerCos;
-uniform float lightPower;
+uniform vec4 clusterCfg;
+
+struct ClusterLight
+{
+    vec4 pos;
+    vec4 color;
+    vec4 dir;
+    float cutoffCos;
+    float cutoffInnerCos;
+    float power;
+    uint enabled;
+};
+
+struct ClusterTileData
+{
+    uint lightOffset;
+    uint lightCount;
+};
+
+layout (std430, binding = 2) readonly buffer clusterTileDataSSBO
+{
+    ClusterTileData clusterTileData[];
+};
+
+layout (std430, binding = 3) readonly buffer clusterLightIndicesSSBO
+{
+    uint clusterLightIndices[];
+};
+
+layout (std430, binding = 4) readonly buffer clusterLightsSSBO
+{
+    ClusterLight clusterLights[];
+};
 
 in vec2 v_texCoord;
 in vec3 v_pos;
@@ -30,13 +58,22 @@ in vec4 v_clipPos;
 layout (location = 0) out vec4 fragColor;
 layout (location = 1) out vec2 fragVelocity;
 
+float linearDepth(float depthRange)
+{
+    float linear = 2.0 * clusterCfg.x * clusterCfg.y / (clusterCfg.y + clusterCfg.x - depthRange * (clusterCfg.y - clusterCfg.x));
+    return linear;
+}
+
 void main()
 {
-    if (lightPos.w == 0.0) {
+    vec4 ndc = v_clipPos / v_clipPos.w;
+    uint zTile = uint(max(log2(linearDepth(ndc.z)) * clusterCfg.z + clusterCfg.w, 0.0));
+    uvec3 tiles = uvec3(uvec2((0.5 * (ndc.xy + 1.0)) * vec2(CLUSTER_GRID_X, CLUSTER_GRID_Y)), zTile);
+    uint tileIndex = tiles.x + CLUSTER_GRID_X * tiles.y + (CLUSTER_GRID_X * CLUSTER_GRID_Y) * tiles.z;
+
+    {
         // ambient
         fragColor = texture(texMain, v_texCoord) * mainColor * vec4(lightColor, 1.0);
-        OUT_FRAG_VELOCITY();
-        return;
     }
 
 #ifdef NM
@@ -48,36 +85,46 @@ void main()
     vec3 lightDirection;
     float attenuation;
 
-    if (lightPos.w == 1.0) {
-        // directional
-        attenuation = 1.0;
-        lightDirection = -lightDir;
-    } else {
-        vec3 positionToLightSource = vec3(lightPos.xyz - v_pos);
-        lightDirection = normalize(positionToLightSource);
-        attenuation = max(0.0, 1.0 - length(positionToLightSource) / length(lightDir));
-        if (lightPos.w == 3.0) {
-            // spot
-            float spotCosine = dot(-lightDirection, normalize(lightDir));
-            if (spotCosine < lightCutoffCos) {
-                attenuation = 0.0;
-            } else {
-                float spotValue = smoothstep(lightCutoffCos, lightCutoffInnerCos, spotCosine);
-                attenuation = attenuation * pow(spotValue, lightPower);
+    uint lightCount = clusterTileData[tileIndex].lightCount;
+    uint lightOffset = clusterTileData[tileIndex].lightOffset;
+
+    for (uint i = 0; i < lightCount; i++) {
+        uint lightIndex = clusterLightIndices[lightOffset + i];
+        const ClusterLight light = clusterLights[lightIndex];
+
+        if (light.pos.w == 1.0) {
+            // directional
+            attenuation = 1.0;
+            lightDirection = -light.dir.xyz;
+        } else {
+            vec3 positionToLightSource = vec3(light.pos.xyz - v_pos);
+            lightDirection = normalize(positionToLightSource);
+            attenuation = max(0.0, 1.0 - length(positionToLightSource) / length(light.dir.xyz));
+            if (light.pos.w == 3.0) {
+                // spot
+                float spotCosine = dot(-lightDirection, normalize(light.dir.xyz));
+                if (spotCosine < light.cutoffCos) {
+                    attenuation = 0.0;
+                } else {
+                    float spotValue = smoothstep(light.cutoffCos, light.cutoffInnerCos, spotCosine);
+                    attenuation = attenuation * pow(spotValue, light.power);
+                }
             }
         }
-    }
 
-    float diffuseCoeff = max(0.0, dot(normalDirection, lightDirection));
-    vec4 diffuseReflection = texture(texMain, v_texCoord) * mainColor * vec4(lightColor, 1.0) * diffuseCoeff;
+        float diffuseCoeff = max(0.0, dot(normalDirection, lightDirection));
+        vec4 diffuseReflection = texture(texMain, v_texCoord) * mainColor * vec4(light.color.xyz, 1.0) * diffuseCoeff;
 
 #ifdef BLINN
-    vec4 specularReflection = texture(texSpecular, v_texCoord) * specularColor * vec4(lightColor, 1.0) *
-        pow(max(0.0, dot(normalize(viewDirection + lightDirection), normalDirection)), shininess * 2.0);
+        vec4 specularReflection = texture(texSpecular, v_texCoord) * specularColor * vec4(light.color.xyz, 1.0) *
+            pow(max(0.0, dot(normalize(viewDirection + lightDirection), normalDirection)), shininess * 2.0);
 #else
-    vec4 specularReflection = texture(texSpecular, v_texCoord) * specularColor * vec4(lightColor, 1.0) *
-        pow(max(0.0, dot(reflect(-lightDirection, normalDirection), viewDirection)), shininess);
+        vec4 specularReflection = texture(texSpecular, v_texCoord) * specularColor * vec4(light.color.xyz, 1.0) *
+            pow(max(0.0, dot(reflect(-lightDirection, normalDirection), viewDirection)), shininess);
 #endif
 
-    fragColor = attenuation * (diffuseReflection + specularReflection);
+        fragColor += attenuation * (diffuseReflection + specularReflection);
+    }
+
+    OUT_FRAG_VELOCITY();
 }
