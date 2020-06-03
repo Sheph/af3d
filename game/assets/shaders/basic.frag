@@ -113,13 +113,13 @@ void main()
         }
 
         float diffuseCoeff = max(0.0, dot(normalDirection, lightDirection));
-        vec4 diffuseReflection = texture(texMain, v_texCoord) * mainColor * vec4(light.color.xyz, 1.0) * diffuseCoeff;
+        vec4 diffuseReflection = texture(texMain, v_texCoord) * mainColor * vec4(light.color.xyz, 0.0) * diffuseCoeff;
 
 #ifdef BLINN
-        vec4 specularReflection = texture(texSpecular, v_texCoord) * specularColor * vec4(light.color.xyz, 1.0) *
+        vec4 specularReflection = texture(texSpecular, v_texCoord) * specularColor * vec4(light.color.xyz, 0.0) *
             pow(max(0.0, dot(normalize(viewDirection + lightDirection), normalDirection)), shininess * 2.0);
 #else
-        vec4 specularReflection = texture(texSpecular, v_texCoord) * specularColor * vec4(light.color.xyz, 1.0) *
+        vec4 specularReflection = texture(texSpecular, v_texCoord) * specularColor * vec4(light.color.xyz, 0.0) *
             pow(max(0.0, dot(reflect(-lightDirection, normalDirection), viewDirection)), shininess);
 #endif
 

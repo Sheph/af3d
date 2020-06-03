@@ -273,7 +273,7 @@ void main()
         vec3 specularBRDF = (F * D * G) / max(Epsilon, 4.0 * cosLi * cosLo);
 
         // Total contribution for this light.
-        fragColor += vec4((diffuseBRDF + specularBRDF) * light.color.xyz * cosLi * attenuation, albedoFull.a);
+        fragColor += vec4((diffuseBRDF + specularBRDF) * light.color.xyz * cosLi * attenuation, 0.0);
     }
 
     OUT_FRAG_VELOCITY();
