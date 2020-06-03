@@ -1,8 +1,4 @@
-#define LOCAL_SIZE_X 16
-#define LOCAL_SIZE_Y 9
-#define LOCAL_SIZE_Z 4
-
-layout(local_size_x = LOCAL_SIZE_X, local_size_y = LOCAL_SIZE_Y, local_size_z = LOCAL_SIZE_Z) in;
+layout(local_size_x = CLUSTER_CULL_X, local_size_y = CLUSTER_CULL_Y, local_size_z = CLUSTER_CULL_Z) in;
 
 uniform mat4 stableView;
 
@@ -49,7 +45,7 @@ layout (std430, binding = 4) readonly buffer clusterLightsSSBO
     ClusterLight clusterLights[];
 };
 
-shared ClusterLight sharedLights[LOCAL_SIZE_X * LOCAL_SIZE_Y * LOCAL_SIZE_Z];
+shared ClusterLight sharedLights[CLUSTER_CULL_X * CLUSTER_CULL_Y * CLUSTER_CULL_Z];
 
 float sqDistPointAABB(vec3 point, uint tile)
 {
@@ -87,7 +83,7 @@ bool testSphereAABB(uint light, uint tile)
 
 void main()
 {
-    uint threadCount = LOCAL_SIZE_X * LOCAL_SIZE_Y * LOCAL_SIZE_Z;
+    uint threadCount = CLUSTER_CULL_X * CLUSTER_CULL_Y * CLUSTER_CULL_Z;
     uint lightCount  = clusterLights.length();
     uint numBatches = (lightCount + threadCount - 1) / threadCount;
     uint maxLightsPerTile = clusterLightIndices.length() / clusterTileData.length();
