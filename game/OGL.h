@@ -87,6 +87,16 @@ namespace af3d
             GLsizei width, GLsizei height,
             GLint border, GLenum format, GLenum type,
             const GLvoid* pixels);
+        void (GLAPIENTRY* TexImage3D)(GLenum target,
+            GLint level,
+            GLint internalformat,
+            GLsizei width,
+            GLsizei height,
+            GLsizei depth,
+            GLint border,
+            GLenum format,
+            GLenum type,
+            const void* data);
         void (GLAPIENTRY* CompressedTexImage2D)(GLenum target,
             GLint level,
             GLenum internalformat,
@@ -144,6 +154,10 @@ namespace af3d
         void (GLAPIENTRY* DeleteFramebuffers)(GLsizei n, const GLuint* framebuffers);
         void (GLAPIENTRY* BindFramebuffer)(GLenum target, GLuint framebuffer);
         void (GLAPIENTRY* FramebufferTexture2D)(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
+        void (GLAPIENTRY* FramebufferTextureLayer)(GLenum target, GLenum attachment,
+            GLuint texture,
+            GLint level,
+            GLint layer);
         GLenum (GLAPIENTRY* CheckFramebufferStatus)(GLenum target);
         void (GLAPIENTRY* Uniform1f)(GLint location, GLfloat v0);
         void (GLAPIENTRY* Uniform2f)(GLint location, GLfloat v0, GLfloat v1);

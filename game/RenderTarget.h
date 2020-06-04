@@ -37,10 +37,12 @@ namespace af3d
         RenderTarget() = default;
         explicit RenderTarget(const TexturePtr& texture,
             GLint level = 0,
-            TextureCubeFace cubeFace = TextureCubeXP)
+            TextureCubeFace cubeFace = TextureCubeXP,
+            GLint layer = 0)
         : texture_(texture),
           level_(level),
-          cubeFace_(cubeFace)
+          cubeFace_(cubeFace),
+          layer_(layer)
         {
         }
         ~RenderTarget() = default;
@@ -48,6 +50,7 @@ namespace af3d
         inline const TexturePtr& texture() const { return texture_; }
         inline GLint level() const { return level_; }
         inline TextureCubeFace cubeFace() const { return cubeFace_; }
+        inline GLint layer() const { return layer_; }
 
         inline std::uint32_t width() const { return texture_ ? textureMipSize(texture_->width(), level_) : 0; }
         inline std::uint32_t height() const { return texture_ ? textureMipSize(texture_->height(), level_) : 0; }
@@ -67,13 +70,14 @@ namespace af3d
 
         inline HardwareRenderTarget toHardware() const
         {
-            return texture_ ? HardwareRenderTarget(texture_->hwTex(), level_, cubeFace_) : HardwareRenderTarget();
+            return texture_ ? HardwareRenderTarget(texture_->hwTex(), level_, cubeFace_, layer_) : HardwareRenderTarget();
         }
 
     private:
         TexturePtr texture_;
         GLint level_ = 0;
         TextureCubeFace cubeFace_ = TextureCubeXP;
+        GLint layer_ = 0;
     };
 }
 

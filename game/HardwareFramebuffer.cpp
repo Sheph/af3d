@@ -73,10 +73,16 @@ namespace af3d
 
             auto texType = *target.texType();
             GLenum textarget = HardwareTexture::glType(texType);
-            if (texType == TextureTypeCubeMap) {
-                textarget = HardwareTexture::glCubeFace(target.cubeFace());
+
+            if (texType == TextureTypeCubeMapArray) {
+                ogl.FramebufferTextureLayer(GL_FRAMEBUFFER, glAttachmentPoint(attachmentPoint),
+                    rId, target.level(), target.layer() * 6 + target.cubeFace());
+            } else {
+                if (texType == TextureTypeCubeMap) {
+                    textarget = HardwareTexture::glCubeFace(target.cubeFace());
+                }
+                ogl.FramebufferTexture2D(GL_FRAMEBUFFER, glAttachmentPoint(attachmentPoint), textarget, rId, target.level());
             }
-            ogl.FramebufferTexture2D(GL_FRAMEBUFFER, glAttachmentPoint(attachmentPoint), textarget, rId, target.level());
         } else {
             auto rId = target.res()->id(ctx);
             btAssert(rId != 0);

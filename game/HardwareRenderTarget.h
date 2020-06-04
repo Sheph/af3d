@@ -39,11 +39,13 @@ namespace af3d
         HardwareRenderTarget() = default;
         explicit HardwareRenderTarget(const HardwareTexturePtr& texture,
             GLint level = 0,
-            TextureCubeFace cubeFace = TextureCubeXP)
+            TextureCubeFace cubeFace = TextureCubeXP,
+            GLint layer = 0)
         : texType_(texture->type()),
           res_(texture),
           level_(level),
           cubeFace_(cubeFace),
+          layer_(layer),
           width_(texture->width()),
           height_(texture->height())
         {
@@ -60,6 +62,7 @@ namespace af3d
         inline const HardwareResourcePtr& res() const { return res_; }
         inline GLint level() const { return level_; }
         inline TextureCubeFace cubeFace() const { return cubeFace_; }
+        inline GLint layer() const { return layer_; }
 
         inline std::uint32_t fullWidth() const { return width_; }
         inline std::uint32_t fullHeight() const { return height_; }
@@ -81,7 +84,8 @@ namespace af3d
         {
             return (res_ == other.res_) &&
                 (level_ == other.level_) &&
-                (cubeFace_ == other.cubeFace_);
+                (cubeFace_ == other.cubeFace_) &&
+                (layer_ == other.layer_);
         }
 
         inline bool operator!=(const HardwareRenderTarget& other) const
@@ -94,6 +98,7 @@ namespace af3d
         HardwareResourcePtr res_;
         GLint level_ = 0;
         TextureCubeFace cubeFace_ = TextureCubeXP;
+        GLint layer_ = 0;
         std::uint32_t width_ = 0;
         std::uint32_t height_ = 0;
     };

@@ -73,7 +73,7 @@ namespace af3d
                 if ((info_.width != texture.width()) && (newHeight != texture.height())) {
                     LOG4CPLUS_DEBUG(logger(), "textureManager: loading (recreate) " << info_.width << "x" << info_.height
                         << " " << path_ << ", format = " << ImageReader::glFormatStr(info_.format) << ", SRGB = " << ((info_.flags & ImageReader::FlagSRGB) != 0) << "...");
-                    auto hwTex = hwManager.createTexture(texture.type(), info_.width, newHeight);
+                    auto hwTex = hwManager.createTexture(texture.type(), info_.width, newHeight, texture.depth());
                     texture.setHwTex(hwTex);
                 } else {
                     LOG4CPLUS_DEBUG(logger(), "textureManager: loading " << info_.width << "x" << info_.height
@@ -231,7 +231,7 @@ namespace af3d
 
                     if ((newWidth != texture.width()) && (newHeight != texture.height())) {
                         LOG4CPLUS_DEBUG(logger(), "textureManager: offscreen scaled texture (recreate) " << newWidth << "x" << newHeight << "...");
-                        auto hwTex = hwManager.createTexture(texture.type(), newWidth, newHeight);
+                        auto hwTex = hwManager.createTexture(texture.type(), newWidth, newHeight, texture.depth());
                         texture.setHwTex(hwTex);
                     } else {
                         LOG4CPLUS_DEBUG(logger(), "textureManager: offscreen scaled texture " << newWidth << "x" << newHeight << "...");
@@ -267,8 +267,8 @@ namespace af3d
     bool TextureManager::init()
     {
         LOG4CPLUS_DEBUG(logger(), "textureManager: init...");
-        white1x1_ = createTexture(TextureType2D, 1, 1);
-        black1x1_ = createTexture(TextureType2D, 1, 1);
+        white1x1_ = createTexture(TextureType2D, 1, 1, 0);
+        black1x1_ = createTexture(TextureType2D, 1, 1, 0);
         return true;
     }
 
@@ -338,24 +338,24 @@ namespace af3d
         }
 
         auto tex = std::make_shared<Texture>(this, path,
-            hwManager.createTexture(TextureType2D, width, height, texFormat), loader);
+            hwManager.createTexture(TextureType2D, width, height, 0, texFormat), loader);
         tex->load();
         cachedTextures_.emplace(path, tex);
 
         return tex;
     }
 
-    TexturePtr TextureManager::createTexture(TextureType type, std::uint32_t width, std::uint32_t height,
+    TexturePtr TextureManager::createTexture(TextureType type, std::uint32_t width, std::uint32_t height, std::uint32_t depth,
         const ResourceLoaderPtr& loader)
     {
         auto tex = std::make_shared<Texture>(this, "",
-            hwManager.createTexture(type, width, height), loader);
+            hwManager.createTexture(type, width, height, depth), loader);
         tex->load();
         immediateTextures_.insert(tex.get());
         return tex;
     }
 
-    TexturePtr TextureManager::createRenderTextureScaled(TextureType type, float scale, GLint internalFormat, GLenum format, GLenum dataType,
+    TexturePtr TextureManager::createRenderTextureScaled(TextureType type, float scale, std::uint32_t depth, GLint internalFormat, GLenum format, GLenum dataType,
         bool genMipmap, std::vector<Byte>&& pixels)
     {
         btAssert(scale > 0.0f);
@@ -363,14 +363,14 @@ namespace af3d
         std::uint32_t width = static_cast<float>(settings.viewWidth) / scale;
         std::uint32_t height = static_cast<float>(settings.viewHeight) / scale;
 
-        return createTexture(type, width, height,
+        return createTexture(type, width, height, depth,
             std::make_shared<OffscreenTextureGenerator>(scale, internalFormat, format, dataType, genMipmap, std::move(pixels)));
     }
 
-    TexturePtr TextureManager::createRenderTexture(TextureType type, std::uint32_t width, std::uint32_t height, GLint internalFormat, GLenum format, GLenum dataType,
+    TexturePtr TextureManager::createRenderTexture(TextureType type, std::uint32_t width, std::uint32_t height, std::uint32_t depth, GLint internalFormat, GLenum format, GLenum dataType,
         bool genMipmap, std::vector<Byte>&& pixels)
     {
-        return createTexture(type, width, height,
+        return createTexture(type, width, height, depth,
             std::make_shared<OffscreenTextureGenerator>(0.0f, internalFormat, format, dataType, genMipmap, std::move(pixels)));
     }
 

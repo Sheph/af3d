@@ -53,7 +53,7 @@ namespace af3d
 
         bool renderReload(HardwareContext& ctx);
 
-        HardwareTexturePtr createTexture(TextureType type, std::uint32_t width, std::uint32_t height,
+        HardwareTexturePtr createTexture(TextureType type, std::uint32_t width, std::uint32_t height, std::uint32_t depth,
             TextureFormat format = TextureFormatAny);
         HardwareDataBufferPtr createDataBuffer(HardwareBuffer::Usage usage, GLsizeiptr elementSize);
         HardwareIndexBufferPtr createIndexBuffer(HardwareBuffer::Usage usage, HardwareIndexBuffer::DataType dataType);

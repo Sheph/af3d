@@ -42,7 +42,7 @@ namespace af3d
 
         std::uint32_t cubeSize = 2048;
         auto cubeTexture = textureManager.createRenderTexture(TextureTypeCubeMap,
-            cubeSize, cubeSize, GL_RGB16F, GL_RGB, GL_FLOAT);
+            cubeSize, cubeSize, 0, GL_RGB16F, GL_RGB, GL_FLOAT);
         equirect2cube_ = std::make_shared<Equirect2CubeComponent>(texture, cubeTexture, camOrderSkyBox);
 
         auto material = materialManager.createMaterial(MaterialTypeSkyBox);

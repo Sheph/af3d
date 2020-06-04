@@ -163,7 +163,7 @@ namespace af3d
         auto tex = textureManager.loadTexture(getIrradianceTexName(), false);
         if (tex) {
             irradianceTexture_ = textureManager.createRenderTexture(TextureTypeCubeMap,
-                irradianceResolution_, irradianceResolution_, GL_RGB16F, GL_RGB, GL_FLOAT);
+                irradianceResolution_, irradianceResolution_, 0, GL_RGB16F, GL_RGB, GL_FLOAT);
             irrEquirect2cube_ = std::make_shared<Equirect2CubeComponent>(tex, irradianceTexture_, camOrderLightProbe);
             parent()->addComponent(irrEquirect2cube_);
         } else {
@@ -176,20 +176,20 @@ namespace af3d
                 data[i + 2] = color.z();
             }
             irradianceTexture_ = textureManager.createRenderTexture(TextureTypeCubeMap,
-                irradianceResolution_, irradianceResolution_, GL_RGB16F, GL_RGB, GL_UNSIGNED_BYTE, false, std::move(data));
+                irradianceResolution_, irradianceResolution_, 0, GL_RGB16F, GL_RGB, GL_UNSIGNED_BYTE, false, std::move(data));
         }
 
         tex = textureManager.loadTexture(getSpecularTexName(), false);
         if (tex) {
             specularTexture_ = textureManager.createRenderTexture(TextureTypeCubeMap,
-                specularResolution_, specularResolution_, GL_RGB16F, GL_RGB, GL_FLOAT, true);
+                specularResolution_, specularResolution_, 0, GL_RGB16F, GL_RGB, GL_FLOAT, true);
             specularEquirect2cube_ = std::make_shared<Equirect2CubeComponent>(tex, specularTexture_, camOrderLightProbe, specularMipLevels_);
             parent()->addComponent(specularEquirect2cube_);
         } else {
             // No saved specular map, use black.
             std::vector<Byte> data(specularResolution_ * specularResolution_ * 3, 0);
             specularTexture_ = textureManager.createRenderTexture(TextureTypeCubeMap,
-                specularResolution_, specularResolution_, GL_RGB16F, GL_RGB, GL_UNSIGNED_BYTE, true, std::move(data));
+                specularResolution_, specularResolution_, 0, GL_RGB16F, GL_RGB, GL_UNSIGNED_BYTE, true, std::move(data));
         }
 
         specularLUTTexture_ = textureManager.loadTexture(getSpecularLUTTexName(), false);
@@ -256,7 +256,7 @@ namespace af3d
         }
 
         auto sceneCaptureTexture = textureManager.createRenderTexture(TextureTypeCubeMap,
-            sceneCaptureSize, sceneCaptureSize, GL_RGB16F, GL_RGB, GL_FLOAT);
+            sceneCaptureSize, sceneCaptureSize, 0, GL_RGB16F, GL_RGB, GL_FLOAT);
 
         auto mainCamera = scene()->mainCamera()->findComponent<CameraComponent>()->camera();
 
@@ -300,7 +300,7 @@ namespace af3d
         irrCube2equirectFilter_->material()->params().setUniform(UniformName::MipLevel, 0.0f);
         irrCube2equirectFilter_->camera()->setOrder(camOrderLightProbe + 2);
         irrCube2equirectFilter_->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(textureManager.createRenderTexture(TextureType2D,
-            equirectSz.x(), equirectSz.y(), GL_RGB16F, GL_RGB, GL_FLOAT)));
+            equirectSz.x(), equirectSz.y(), 0, GL_RGB16F, GL_RGB, GL_FLOAT)));
         parent()->addComponent(irrCube2equirectFilter_);
     }
 
@@ -361,7 +361,7 @@ namespace af3d
             filter->material()->params().setUniform(UniformName::MipLevel, static_cast<float>(mip));
             filter->camera()->setOrder(camOrderLightProbe + 1);
             filter->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(textureManager.createRenderTexture(TextureType2D,
-                textureMipSize(equirectSz0.x(), mip), textureMipSize(equirectSz0.y(), mip), GL_RGB16F, GL_RGB, GL_FLOAT)));
+                textureMipSize(equirectSz0.x(), mip), textureMipSize(equirectSz0.y(), mip), 0, GL_RGB16F, GL_RGB, GL_FLOAT)));
             parent()->addComponent(filter);
             specularCube2EquirectFilters_.push_back(filter);
         }

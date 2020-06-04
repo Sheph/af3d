@@ -41,12 +41,13 @@ namespace af3d
         return arr[face];
     }
 
-    HardwareTexture::HardwareTexture(HardwareResourceManager* mgr, TextureType type, std::uint32_t width, std::uint32_t height,
+    HardwareTexture::HardwareTexture(HardwareResourceManager* mgr, TextureType type, std::uint32_t width, std::uint32_t height, std::uint32_t depth,
         TextureFormat format)
     : HardwareResource(mgr),
       type_(type),
       width_(width),
       height_(height),
+      depth_(depth),
       format_(format)
     {
     }
@@ -65,7 +66,16 @@ namespace af3d
 
     GLenum HardwareTexture::glType(TextureType type)
     {
-        return (type == TextureType2D) ? GL_TEXTURE_2D : GL_TEXTURE_CUBE_MAP;
+        switch (type) {
+        case TextureTypeCubeMap:
+            return GL_TEXTURE_CUBE_MAP;
+        case TextureTypeCubeMapArray:
+            return GL_TEXTURE_CUBE_MAP_ARRAY;
+        default:
+            btAssert(false);
+        case TextureType2D:
+            return GL_TEXTURE_2D;
+        }
     }
 
     GLenum HardwareTexture::glCubeFace(TextureCubeFace face)
@@ -101,7 +111,7 @@ namespace af3d
             if (genMipmap) {
                 ogl.GenerateMipmap(GL_TEXTURE_2D);
             }
-        } else {
+        } else if (type_ == TextureTypeCubeMap) {
             uploadCubeFace(TextureCubeXP, internalFormat, format, dataType, pixels, false, level, ctx);
             uploadCubeFace(TextureCubeXN, internalFormat, format, dataType, pixels, false, level, ctx);
             uploadCubeFace(TextureCubeYP, internalFormat, format, dataType, pixels, false, level, ctx);
@@ -110,6 +120,12 @@ namespace af3d
             uploadCubeFace(TextureCubeZN, internalFormat, format, dataType, pixels, false, level, ctx);
             if (genMipmap) {
                 ogl.GenerateMipmap(GL_TEXTURE_CUBE_MAP);
+            }
+        } else {
+            btAssert(type_ == TextureTypeCubeMapArray);
+            ogl.TexImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, level, internalFormat, textureMipSize(width_, level), textureMipSize(height_, level), depth_ * 6, 0, format, dataType, pixels);
+            if (genMipmap) {
+                ogl.GenerateMipmap(GL_TEXTURE_CUBE_MAP_ARRAY);
             }
         }
     }

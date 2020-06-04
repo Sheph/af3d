@@ -41,9 +41,9 @@ namespace af3d
       plusWeights_(5)
     {
         std::vector<Byte> data(srcCamera->renderTarget().texture()->width() * srcCamera->renderTarget().texture()->height() * 3);
-        prevTex_ = textureManager.createRenderTextureScaled(TextureType2D, 1.0f, GL_RGB16F, GL_RGB, GL_UNSIGNED_BYTE, false, std::move(data));
+        prevTex_ = textureManager.createRenderTextureScaled(TextureType2D, 1.0f, 0, GL_RGB16F, GL_RGB, GL_UNSIGNED_BYTE, false, std::move(data));
         std::vector<Byte> data2(srcCamera->renderTarget().texture()->width() * srcCamera->renderTarget().texture()->height() * 3);
-        outTex_ = textureManager.createRenderTextureScaled(TextureType2D, 1.0f, GL_RGB16F, GL_RGB, GL_UNSIGNED_BYTE, false, std::move(data2));
+        outTex_ = textureManager.createRenderTextureScaled(TextureType2D, 1.0f, 0, GL_RGB16F, GL_RGB, GL_UNSIGNED_BYTE, false, std::move(data2));
 
         taaFilter_ = std::make_shared<RenderFilterComponent>(MaterialTypeFilterTAA);
         taaFilter_->material()->setTextureBinding(SamplerName::Main,

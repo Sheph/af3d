@@ -1245,6 +1245,7 @@ static bool OGLPreInit()
     GL_GET_PROC(BindTexture, glBindTexture);
     GL_GET_PROC(ActiveTexture, glActiveTexture);
     GL_GET_PROC(TexImage2D, glTexImage2D);
+    GL_GET_PROC(TexImage3D, glTexImage3D);
     GL_GET_PROC(CompressedTexImage2D, glCompressedTexImage2D);
     GL_GET_PROC(TexParameteri, glTexParameteri);
     GL_GET_PROC(ClearColor, glClearColor);
@@ -1294,6 +1295,7 @@ static bool OGLPreInit()
     GL_GET_PROC(DeleteFramebuffers, glDeleteFramebuffers);
     GL_GET_PROC(BindFramebuffer, glBindFramebuffer);
     GL_GET_PROC(FramebufferTexture2D, glFramebufferTexture2D);
+    GL_GET_PROC(FramebufferTextureLayer, glFramebufferTextureLayer);
     GL_GET_PROC(CheckFramebufferStatus, glCheckFramebufferStatus);
     GL_GET_PROC(Uniform1f, glUniform1f);
     GL_GET_PROC(Uniform2f, glUniform2f);

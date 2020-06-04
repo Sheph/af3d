@@ -34,7 +34,8 @@ namespace af3d
     {
         TextureType2D = 0,
         TextureTypeCubeMap,
-        TextureTypeMax = TextureTypeCubeMap
+        TextureTypeCubeMapArray,
+        TextureTypeMax = TextureTypeCubeMapArray
     };
 
     enum TextureCubeFace
@@ -61,8 +62,8 @@ namespace af3d
     class HardwareTexture : public HardwareResource
     {
     public:
-        HardwareTexture(HardwareResourceManager* mgr, TextureType type, std::uint32_t width, std::uint32_t height,
-            TextureFormat format = TextureFormatAny);
+        HardwareTexture(HardwareResourceManager* mgr, TextureType type, std::uint32_t width, std::uint32_t height, std::uint32_t depth,
+            TextureFormat format);
         ~HardwareTexture();
 
         static GLenum glType(TextureType type);
@@ -74,6 +75,8 @@ namespace af3d
         inline std::uint32_t width() const { return width_; }
 
         inline std::uint32_t height() const { return height_; }
+
+        inline std::uint32_t depth() const { return depth_; }
 
         inline TextureFormat format() const { return format_; }
 
@@ -97,6 +100,7 @@ namespace af3d
         TextureType type_;
         std::uint32_t width_;
         std::uint32_t height_;
+        std::uint32_t depth_;
         TextureFormat format_;
         GLuint id_ = 0;
     };

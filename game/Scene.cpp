@@ -277,11 +277,11 @@ namespace af3d
         dummy_ = std::make_shared<SceneObject>();
 
         auto screenTex = textureManager.createRenderTextureScaled(TextureType2D,
-            1.0f, GL_RGB16F, GL_RGB, GL_FLOAT);
+            1.0f, 0, GL_RGB16F, GL_RGB, GL_FLOAT);
         auto velocityTex = textureManager.createRenderTextureScaled(TextureType2D,
-            1.0f, GL_RG16F, GL_RG, GL_FLOAT);
+            1.0f, 0, GL_RG16F, GL_RG, GL_FLOAT);
         auto depthTex = textureManager.createRenderTextureScaled(TextureType2D,
-            1.0f, GL_DEPTH_COMPONENT24, GL_DEPTH_COMPONENT, GL_FLOAT);
+            1.0f, 0, GL_DEPTH_COMPONENT24, GL_DEPTH_COMPONENT, GL_FLOAT);
 
         auto mc = std::make_shared<Camera>();
         mc->setLayer(CameraLayer::Main);
@@ -302,7 +302,7 @@ namespace af3d
             auto filter = postProcessToneMapping(camOrderPostProcess + 100, tex);
             if (settings.aaMode == Settings::AAMode::FXAA) {
                 auto toneMappedTex = textureManager.createRenderTextureScaled(TextureType2D,
-                    1.0f, GL_RGB, GL_RGB, GL_UNSIGNED_BYTE);
+                    1.0f, 0, GL_RGB, GL_RGB, GL_UNSIGNED_BYTE);
                 filter->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(toneMappedTex));
                 filter = postProcessFXAA(camOrderPostProcess + 200, filter->camera()->renderTarget().texture());
             }
@@ -313,7 +313,7 @@ namespace af3d
                 postProcessTAA(camOrderPostProcess, mc, {filter->material()});
             } else if (settings.aaMode == Settings::AAMode::FXAA) {
                 auto toneMappedTex = textureManager.createRenderTextureScaled(TextureType2D,
-                    1.0f, GL_RGB, GL_RGB, GL_UNSIGNED_BYTE);
+                    1.0f, 0, GL_RGB, GL_RGB, GL_UNSIGNED_BYTE);
                 filter->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(toneMappedTex));
                 filter = postProcessFXAA(camOrderPostProcess + 200, filter->camera()->renderTarget().texture());
             }
@@ -666,11 +666,11 @@ namespace af3d
         std::vector<MaterialPtr>& mats)
     {
         auto tex1 = textureManager.createRenderTextureScaled(TextureType2D,
-            2.0f, GL_RGB16F, GL_RGB, GL_FLOAT, true);
+            2.0f, 0, GL_RGB16F, GL_RGB, GL_FLOAT, true);
         auto tex2 = textureManager.createRenderTextureScaled(TextureType2D,
-            2.0f, GL_RGB16F, GL_RGB, GL_FLOAT, true);
+            2.0f, 0, GL_RGB16F, GL_RGB, GL_FLOAT, true);
         auto outTex = textureManager.createRenderTextureScaled(TextureType2D,
-            1.0f, GL_RGB16F, GL_RGB, GL_FLOAT);
+            1.0f, 0, GL_RGB16F, GL_RGB, GL_FLOAT);
 
         auto ppFilter = std::make_shared<RenderFilterComponent>(MaterialTypeFilterBloomPass1);
         ppFilter->material()->setTextureBinding(SamplerName::Main,
