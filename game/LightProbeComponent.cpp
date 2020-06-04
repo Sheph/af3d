@@ -65,6 +65,11 @@ namespace af3d
 
     void LightProbeComponent::preRender(float dt)
     {
+        if (prevXf_ != parent()->smoothTransform()) {
+            prevXf_ = parent()->smoothTransform();
+            dirty_ = true;
+        }
+
         if (irrCube2equirectFilter_ && (irrCube2equirectFilter_->numFramesRendered() > 0)) {
             auto tex = irrCube2equirectFilter_->camera()->renderTarget().texture();
             std::vector<Byte> pixels(tex->width() * tex->height() * 3 * sizeof(float));
@@ -157,9 +162,27 @@ namespace af3d
         startIrradianceGen();
     }
 
+    bool LightProbeComponent::resetDirty()
+    {
+        bool wasDirty = dirty_;
+        dirty_ = false;
+        return wasDirty;
+    }
+
+    void LightProbeComponent::setupCluster(ShaderClusterProbe& cProbe)
+    {
+        cProbe.pos = Vector4f(parent()->smoothPos(), 0.0f);
+        const auto& b = bounds();
+        auto mat = Matrix4f(parent()->smoothTransform() * toTransform(b.getCenter())).scaled(b.getExtents());
+        cProbe.invModel = mat.inverse();
+        cProbe.cubeIdx = index_;
+        cProbe.enabled = 1;
+    }
+
     void LightProbeComponent::onRegister()
     {
-        scene()->addLightProbe(this);
+        index_ = scene()->addLightProbe(this);
+        prevXf_ = parent()->smoothTransform();
         auto tex = textureManager.loadTexture(getIrradianceTexName(), false);
         if (tex) {
             irradianceTexture_ = textureManager.createRenderTexture(TextureTypeCubeMap,

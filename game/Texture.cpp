@@ -55,7 +55,7 @@ namespace af3d
             {
                 Texture& texture = static_cast<Texture&>(res);
 
-                LOG4CPLUS_DEBUG(logger(), "textureManager: loading " << texture.width() << "x" << texture.height() << (genMipmap_ ? " + mipmap..." : "..."));
+                LOG4CPLUS_DEBUG(logger(), "textureManager: loading " << texture.width() << "x" << texture.height() << "x" << texture.depth() << (genMipmap_ ? " + mipmap..." : "..."));
 
                 texture.hwTex()->upload(internalFormat_, format_, type_,
                     reinterpret_cast<const GLvoid*>(&pixels_[0]), genMipmap_, 0, ctx);
@@ -69,6 +69,43 @@ namespace af3d
             GLenum type_;
             std::vector<Byte> pixels_;
             bool genMipmap_;
+        };
+
+        class TextureUpdater : public ResourceLoader
+        {
+        public:
+            TextureUpdater(GLenum format,
+                GLenum type,
+                std::vector<Byte>&& pixels,
+                GLint level,
+                GLint layer)
+            : format_(format),
+              type_(type),
+              pixels_(std::move(pixels)),
+              level_(level),
+              layer_(layer)
+            {
+            }
+
+            void load(Resource& res, HardwareContext& ctx) override
+            {
+                Texture& texture = static_cast<Texture&>(res);
+
+                LOG4CPLUS_DEBUG(logger(), "textureManager: updating " << texture.width() << "x" << texture.height() << "x" << texture.depth()
+                    << ", level = " << level_ << ", layer = " << layer_);
+
+                texture.hwTex()->update(format_, type_,
+                    reinterpret_cast<const GLvoid*>(&pixels_[0]), level_, layer_, ctx);
+
+                pixels_.clear();
+            }
+
+        private:
+            GLenum format_;
+            GLenum type_;
+            std::vector<Byte> pixels_;
+            GLint level_;
+            GLint layer_;
         };
     }
 
@@ -99,6 +136,11 @@ namespace af3d
     void Texture::upload(GLint internalFormat, GLenum format, GLenum type, std::vector<Byte>&& pixels, bool genMipmap)
     {
         load(std::make_shared<TextureUploader>(internalFormat, format, type, std::move(pixels), genMipmap));
+    }
+
+    void Texture::update(GLenum format, GLenum type, std::vector<Byte>&& pixels, GLint level, GLint layer)
+    {
+        load(std::make_shared<TextureUpdater>(format, type, std::move(pixels), level, layer));
     }
 
     void Texture::download(GLenum format, GLenum type, std::vector<Byte>& pixels)

@@ -62,6 +62,8 @@ namespace af3d
 
         void upload(GLint internalFormat, GLenum format, GLenum type, std::vector<Byte>&& pixels, bool genMipmap);
 
+        void update(GLenum format, GLenum type, std::vector<Byte>&& pixels, GLint level, GLint layer);
+
         void download(GLenum format, GLenum type, std::vector<Byte>& pixels);
 
         void download(GLenum format, GLenum type, Byte* pixels);

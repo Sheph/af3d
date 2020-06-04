@@ -32,6 +32,7 @@
 #include "RenderProxyComponent.h"
 #include "Equirect2CubeComponent.h"
 #include "Texture.h"
+#include "ShaderDataTypes.h"
 #include <boost/optional.hpp>
 
 namespace af3d
@@ -54,6 +55,12 @@ namespace af3d
 
         void recreate();
 
+        bool resetDirty();
+
+        void setupCluster(ShaderClusterProbe& cProbe);
+
+        inline int index() const { return index_; }
+
         inline std::uint32_t irradianceResolution() const { return irradianceResolution_; }
         inline std::uint32_t specularResolution() const { return specularResolution_; }
         inline std::uint32_t specularMipLevels() const { return specularMipLevels_; }
@@ -66,6 +73,9 @@ namespace af3d
         inline bool isGlobal() const { return !bounds_; }
 
         inline const AABB& bounds() const { return bounds_ ? *bounds_ : AABB_empty; }
+
+        inline bool hasIrradiance() const { return !!irrEquirect2cube_; }
+        inline bool hasSpecular() const { return !!specularEquirect2cube_; }
 
     private:
         static const std::uint32_t sceneCaptureSize = 512;
@@ -90,6 +100,10 @@ namespace af3d
         std::string getSpecularLUTTexName();
 
         void renderBounds(RenderList& rl);
+
+        int index_ = -1;
+        bool dirty_ = true;
+        btTransform prevXf_ = btTransform::getIdentity();
 
         boost::optional<AABB> bounds_;
 

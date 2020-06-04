@@ -84,9 +84,9 @@ namespace af3d
 
         void upload(GLint internalFormat, GLenum format, GLenum dataType, const GLvoid* pixels, bool genMipmap, GLint level, HardwareContext& ctx);
 
-        void uploadCubeFace(TextureCubeFace face, GLint internalFormat, GLenum format, GLenum dataType, const GLvoid* pixels, bool genMipmap, GLint level, HardwareContext& ctx);
-
         void uploadCompressed(GLint internalFormat, const GLvoid* data, GLsizei dataSize, bool genMipmap, GLint level, HardwareContext& ctx);
+
+        void update(GLenum format, GLenum dataType, const GLvoid* pixels, GLint level, GLint layer, HardwareContext& ctx);
 
         void download(GLenum format, GLenum dataType, GLvoid* pixels, HardwareContext& ctx);
 
@@ -96,6 +96,8 @@ namespace af3d
         void doInvalidate(HardwareContext& ctx) override;
 
         void createTexture();
+
+        void uploadCubeFace(TextureCubeFace face, GLint internalFormat, GLenum format, GLenum dataType, const GLvoid* pixels, bool genMipmap, GLint level, HardwareContext& ctx);
 
         TextureType type_;
         std::uint32_t width_;

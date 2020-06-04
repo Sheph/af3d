@@ -147,6 +147,7 @@ namespace af3d
         /*
          * cluster.
          */
+
         auto v = appConfig->getVector3f("cluster.gridSize");
         cluster.gridSize = Vector3i(v.x(), v.y(), v.z());
         v = appConfig->getVector3f("cluster.cullNumGroups");
@@ -154,5 +155,15 @@ namespace af3d
         cluster.numTiles = cluster.gridSize.x() * cluster.gridSize.y() * cluster.gridSize.z();
         cluster.maxLights = appConfig->getInt("cluster.maxLights");
         cluster.maxLightsPerTile = appConfig->getInt("cluster.maxLightsPerTile");
+        cluster.maxProbes = appConfig->getInt("cluster.maxProbes");
+        cluster.maxProbesPerTile = appConfig->getInt("cluster.maxProbesPerTile");
+
+        /*
+         * light probe.
+         */
+
+        lightProbe.irradianceResolution = appConfig->getInt("light probe.irradianceResolution");
+        lightProbe.specularResolution = appConfig->getInt("light probe.specularResolution");
+        lightProbe.specularMipLevels = appConfig->getInt("light probe.specularMipLevels");
     }
 }

@@ -230,15 +230,15 @@ namespace af3d
                     std::uint32_t newHeight = static_cast<float>(settings.viewHeight) / scale_;
 
                     if ((newWidth != texture.width()) && (newHeight != texture.height())) {
-                        LOG4CPLUS_DEBUG(logger(), "textureManager: offscreen scaled texture (recreate) " << newWidth << "x" << newHeight << "...");
+                        LOG4CPLUS_DEBUG(logger(), "textureManager: offscreen scaled texture (recreate) " << newWidth << "x" << newHeight << "x" << texture.depth() << "...");
                         auto hwTex = hwManager.createTexture(texture.type(), newWidth, newHeight, texture.depth());
                         texture.setHwTex(hwTex);
                     } else {
-                        LOG4CPLUS_DEBUG(logger(), "textureManager: offscreen scaled texture " << newWidth << "x" << newHeight << "...");
+                        LOG4CPLUS_DEBUG(logger(), "textureManager: offscreen scaled texture " << newWidth << "x" << newHeight << "x" << texture.depth() << "...");
                     }
                     texture.hwTex()->upload(internalFormat_, format_, dataType_, (pixels_.empty() ? nullptr : &pixels_[0]), genMipmap_, 0, ctx);
                 } else {
-                    LOG4CPLUS_DEBUG(logger(), "textureManager: offscreen fixed texture " << texture.width() << "x" << texture.height() << "...");
+                    LOG4CPLUS_DEBUG(logger(), "textureManager: offscreen fixed texture " << texture.width() << "x" << texture.height() << "x" << texture.depth() << "...");
                     texture.hwTex()->upload(internalFormat_, format_, dataType_, (pixels_.empty() ? nullptr : &pixels_[0]), genMipmap_, 0, ctx);
                 }
             }

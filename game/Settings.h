@@ -108,6 +108,15 @@ namespace af3d
             std::uint32_t numTiles;
             std::uint32_t maxLights;
             std::uint32_t maxLightsPerTile;
+            std::uint32_t maxProbes;
+            std::uint32_t maxProbesPerTile;
+        };
+
+        struct LightProbe
+        {
+            std::uint32_t irradianceResolution;
+            std::uint32_t specularResolution;
+            std::uint32_t specularMipLevels;
         };
 
         Settings() = default;
@@ -140,6 +149,7 @@ namespace af3d
         ImGui imGui;
         Editor editor;
         Cluster cluster;
+        LightProbe lightProbe;
     };
 
     extern Settings settings;

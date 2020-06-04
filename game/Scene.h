@@ -121,7 +121,7 @@ namespace af3d
 
         void removeLight(Light* light);
 
-        void addLightProbe(LightProbeComponent* probe);
+        int addLightProbe(LightProbeComponent* probe);
 
         void removeLightProbe(LightProbeComponent* probe);
 

@@ -105,6 +105,17 @@ namespace af3d
             GLint border,
             GLsizei imageSize,
             const void * data);
+        void (GLAPIENTRY* TexSubImage3D)(GLenum target,
+            GLint level,
+            GLint xoffset,
+            GLint yoffset,
+            GLint zoffset,
+            GLsizei width,
+            GLsizei height,
+            GLsizei depth,
+            GLenum format,
+            GLenum type,
+            const void* data);
         void (GLAPIENTRY* TexParameteri)(GLenum target, GLenum pname, GLint param);
         void (GLAPIENTRY* ClearColor)(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
         void (GLAPIENTRY* Clear)(GLbitfield mask);

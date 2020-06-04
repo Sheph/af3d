@@ -1246,6 +1246,7 @@ static bool OGLPreInit()
     GL_GET_PROC(ActiveTexture, glActiveTexture);
     GL_GET_PROC(TexImage2D, glTexImage2D);
     GL_GET_PROC(TexImage3D, glTexImage3D);
+    GL_GET_PROC(TexSubImage3D, glTexSubImage3D);
     GL_GET_PROC(CompressedTexImage2D, glCompressedTexImage2D);
     GL_GET_PROC(TexParameteri, glTexParameteri);
     GL_GET_PROC(ClearColor, glClearColor);

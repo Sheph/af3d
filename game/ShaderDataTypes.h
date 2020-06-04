@@ -51,10 +51,20 @@ namespace af3d
         std::uint32_t enabled = 0;
     };
 
+    struct ShaderClusterProbe
+    {
+        Vector4f pos;
+        Matrix4f invModel;
+        std::uint32_t cubeIdx;
+        std::uint32_t enabled = 0;
+    };
+
     struct ShaderClusterTileData
     {
         std::uint32_t lightOffset;
         std::uint32_t lightCount;
+        std::uint32_t probeOffset;
+        std::uint32_t probeCount;
     };
     #pragma pack()
 }

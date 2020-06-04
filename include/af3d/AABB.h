@@ -69,6 +69,12 @@ namespace af3d
             return upperBound - lowerBound;
         }
 
+        float getArea() const
+        {
+            auto sz = getSize();
+            return sz.x() * sz.y() * sz.z();
+        }
+
         float getLargestSize() const
         {
             auto v = getSize();

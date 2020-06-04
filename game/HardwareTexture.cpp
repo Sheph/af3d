@@ -152,6 +152,15 @@ namespace af3d
         }
     }
 
+    void HardwareTexture::update(GLenum format, GLenum dataType, const GLvoid* pixels, GLint level, GLint layer, HardwareContext& ctx)
+    {
+        createTexture();
+        ctx.bindTexture(type_, id_);
+        btAssert(type_ == TextureTypeCubeMapArray);
+        ogl.TexSubImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, level, 0, 0, layer * (TextureCubeFaceMax + 1),
+            textureMipSize(width_, level), textureMipSize(height_, level), (TextureCubeFaceMax + 1), format, dataType, pixels);
+    }
+
     void HardwareTexture::download(GLenum format, GLenum dataType, GLvoid* pixels, HardwareContext& ctx)
     {
         createTexture();

@@ -27,6 +27,7 @@
 #define _SCENE_ENVIRONMENT_H_
 
 #include "VertexArrayWriter.h"
+#include "Texture.h"
 
 namespace af3d
 {
@@ -54,7 +55,7 @@ namespace af3d
 
         void removeLight(Light* light);
 
-        void addLightProbe(LightProbeComponent* probe);
+        int addLightProbe(LightProbeComponent* probe);
 
         void removeLightProbe(LightProbeComponent* probe);
 
@@ -67,18 +68,30 @@ namespace af3d
     private:
         using IndexSet = std::set<int>;
 
+        void preSwapLights();
+
+        void preSwapProbes();
+
+        void updateProbeTextures(LightProbeComponent* probe);
+
         float realDt_ = 0.0f;
         float dt_ = 0.0f;
         float time_ = 0.0f;
         VertexArrayWriter defaultVa_;
         HardwareDataBufferPtr lightsSSBO_;
+        HardwareDataBufferPtr probesSSBO_;
+        TexturePtr irradianceTexture_;
+        std::uint32_t irradianceTextureGeneration_ = std::numeric_limits<std::uint32_t>::max();
+        TexturePtr specularTexture_;
 
         std::unordered_set<Light*> lights_;
         IndexSet lightsFreeIndices_;
         IndexSet lightsRemovedIndices_;
 
-        std::unordered_set<LightProbeComponent*> lightProbes_;
         LightProbeComponent* globalProbe_ = nullptr;
+        std::unordered_set<LightProbeComponent*> probes_;
+        IndexSet probesFreeIndices_;
+        bool probesNeedUpdate_ = true;
     };
 
     using SceneEnvironmentPtr = std::shared_ptr<SceneEnvironment>;
