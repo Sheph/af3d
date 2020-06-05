@@ -95,6 +95,7 @@ namespace af3d
         LightProbeComponent* globalProbe_ = nullptr;
         std::unordered_set<LightProbeComponent*> probes_;
         IndexSet probesFreeIndices_;
+        std::unordered_set<LightProbeComponent*> probesToCheck_;
         bool probesNeedUpdate_ = true;
     };
 

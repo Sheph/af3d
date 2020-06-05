@@ -39,6 +39,8 @@ struct ClusterProbe
     mat4 invModel;
     uint cubeIdx;
     uint enabled;
+    float padding1;
+    float padding2;
 };
 
 struct ClusterTileData
@@ -126,7 +128,7 @@ vec3 fresnelSchlick(vec3 F0, float cosTheta)
 }
 
 // See: https://seblagarde.wordpress.com/2012/09/29/image-based-lighting-approaches-and-parallax-corrected-cubemap/
-vec3 reflDirectionFixup(mat4 lightProbeInvModel, vec3 lightProbePos, vec3 ReflDirectionWS, vec3 DirectionWS, vec3 PositionWS)
+vec3 reflDirectionFixup(mat4 lightProbeInvModel, vec3 lightProbePos, vec3 ReflDirectionWS, vec3 DirectionWS, vec3 PositionWS, out float blendFactor)
 {
     // Intersection with OBB convertto unit box space
     // Transform in local unit parallax cube space (scaled and rotated)
@@ -142,6 +144,8 @@ vec3 reflDirectionFixup(mat4 lightProbeInvModel, vec3 lightProbePos, vec3 ReflDi
     // Use Distance in WS directly to recover intersection
     vec3 IntersectPositionWS = PositionWS + ReflDirectionWS * Distance;
     ReflDirectionWS = IntersectPositionWS - lightProbePos;
+
+    blendFactor = 1.0 - pow(clamp(max(abs(PositionLS.x), max(abs(PositionLS.y), abs(PositionLS.z))), 0.0, 1.0), 10.0);
 
     return ReflDirectionWS;
 }
@@ -189,6 +193,9 @@ void main()
     // Fresnel reflectance at normal incidence (for metals use albedo color).
     vec3 F0 = mix(Fdielectric, albedo, metalness);
 
+    uint probeCount = clusterTileData[tileIndex].probeCount;
+    uint probeOffset = clusterTileData[tileIndex].probeOffset;
+
     {
         // ambient
 
@@ -198,16 +205,39 @@ void main()
         vec3 emissive = texture(texEmissive, v_texCoord).rgb * emissiveFactor;
 
         // Specular reflection vector.
-        vec3 Lr = 2.0 * cosLo * N - Lo;
+        const vec3 Lr = 2.0 * cosLo * N - Lo;
 
-        if (1 == 0) {
-            Lr = reflDirectionFixup(clusterProbes[0].invModel, clusterProbes[0].pos.xyz, normalize(Lr), -Lo, eyePos);
+        float totalBlend = 0.0;
+        vec3 totalIrradiance = vec3(0.0);
+        vec3 totalSpecularIrradiance = vec3(0.0);
+
+        for (uint i = 1; i <= probeCount; i++) {
+            uint probeIndex = clusterProbeIndices[probeOffset + i];
+            const ClusterProbe probe = clusterProbes[probeIndex];
+            float layer = float(probe.cubeIdx);
+
+            float blendFactor;
+            vec3 LrFixed = reflDirectionFixup(probe.invModel, probe.pos.xyz, normalize(Lr), -Lo, v_pos, blendFactor);
+
+            // Sample diffuse irradiance at normal direction.
+            vec3 irradiance = texture(texIrradiance, vec4(N, layer)).rgb;
+
+            // Sample pre-filtered specular reflection environment at correct mipmap level.
+            vec3 specularIrradiance = textureLod(texSpecularCM, vec4(LrFixed, layer), roughness * SPECULAR_CM_LEVELS).rgb;
+
+            totalIrradiance += (1.0 - totalBlend) * blendFactor * irradiance;
+            totalSpecularIrradiance += (1.0 - totalBlend) * blendFactor * specularIrradiance;
+            totalBlend = blendFactor + (1.0 - blendFactor) * totalBlend;
+
+            if (totalBlend >= 1.0) {
+                break;
+            }
         }
 
-        float layer = float(clusterProbes[0].cubeIdx);
-
-        // Sample diffuse irradiance at normal direction.
-        vec3 irradiance = texture(texIrradiance, vec4(N, layer)).rgb;
+        if (totalBlend < 0.99) {
+            totalIrradiance = mix(texture(texIrradiance, vec4(N, 0.0)).rgb, totalIrradiance, totalBlend);
+            totalSpecularIrradiance = mix(textureLod(texSpecularCM, vec4(Lr, 0.0), roughness * SPECULAR_CM_LEVELS).rgb, totalSpecularIrradiance, totalBlend);
+        }
 
         // Calculate Fresnel term for ambient lighting.
         // Since we use pre-filtered cubemap(s) and irradiance is coming from many directions
@@ -219,16 +249,13 @@ void main()
         vec3 kd = mix(vec3(1.0) - F, vec3(0.0), metalness);
 
         // Irradiance map contains exitant radiance assuming Lambertian BRDF, no need to scale by 1/PI here either.
-        vec3 diffuseIBL = kd * albedo * irradiance;
-
-        // Sample pre-filtered specular reflection environment at correct mipmap level.
-        vec3 specularIrradiance = textureLod(texSpecularCM, vec4(Lr, layer), roughness * SPECULAR_CM_LEVELS).rgb;
+        vec3 diffuseIBL = kd * albedo * totalIrradiance;
 
         // Split-sum approximation factors for Cook-Torrance specular BRDF.
         vec2 specularBRDF = texture(texSpecularLUT, vec2(cosLo, roughness)).rg;
 
         // Total specular IBL contribution.
-        vec3 specularIBL = (F0 * specularBRDF.x + specularBRDF.y) * specularIrradiance;
+        vec3 specularIBL = (F0 * specularBRDF.x + specularBRDF.y) * totalSpecularIrradiance;
 
         // Total ambient lighting contribution.
         fragColor = vec4((diffuseIBL + specularIBL) * ao + emissive, albedoFull.a);

@@ -25,6 +25,8 @@ struct ClusterProbe
     mat4 invModel;
     uint cubeIdx;
     uint enabled;
+    float padding1;
+    float padding2;
 };
 
 struct ClusterTileData

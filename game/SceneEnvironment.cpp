@@ -132,6 +132,7 @@ namespace af3d
             int idx = *probesFreeIndices_.begin();
             probesFreeIndices_.erase(probesFreeIndices_.begin());
             probes_.insert(probe);
+            probesToCheck_.insert(probe);
             probesNeedUpdate_ = true;
             return LightProbeRenderTarget(idx, irradianceTexture_, specularTexture_);
         }
@@ -149,6 +150,7 @@ namespace af3d
             btAssert(probe->index() > 0);
             bool res = probesFreeIndices_.insert(probe->index()).second;
             btAssert(res);
+            probesToCheck_.erase(probe);
             probesNeedUpdate_ = true;
         }
     }
@@ -220,7 +222,13 @@ namespace af3d
             for (auto probe : probes_) {
                 updateProbeTextures(probe);
             }
+        } else {
+            for (auto probe : probesToCheck_) {
+                updateProbeTextures(probe);
+            }
         }
+
+        probesToCheck_.clear();
 
         bool needUpdate = probesNeedUpdate_;
         probesNeedUpdate_ = false;
@@ -246,7 +254,7 @@ namespace af3d
         }
 
         std::sort(probes.begin(), probes.end(), [](const ProbePair& a, const ProbePair& b) {
-            return a.second->bounds().getArea() < b.second->bounds().getArea();
+            return a.second->bounds().getArea() > b.second->bounds().getArea();
         });
 
         auto upd = std::make_shared<ProbesSSBOUpdate>();

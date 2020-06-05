@@ -88,7 +88,7 @@ namespace af3d
             equirectTex->load();
             irrEquirect2cube_ = std::make_shared<Equirect2CubeComponent>(equirectTex, rt_.irradianceTexture, rt_.index, camOrderLightProbe);
             parent()->addComponent(irrEquirect2cube_);
-        } else if (specularLUTGenFilter_ && (specularLUTGenFilter_->numFramesRendered() > 0)) {
+        } else if (!specularCube2EquirectFilters_.empty() && (specularCube2EquirectFilters_[0]->numFramesRendered() > 0)) {
             btAssert(settings.lightProbe.specularMipLevels == specularCube2EquirectFilters_.size());
             auto mip0Tex = specularCube2EquirectFilters_[0]->camera()->renderTarget().texture();
 
@@ -114,17 +114,20 @@ namespace af3d
                 writer.writeHDR(mip0Tex->width(), height, 3, pixels);
             }
 
-            auto tex = specularLUTGenFilter_->camera()->renderTarget().texture();
-            pixels.resize(tex->width() * tex->height() * 3 * sizeof(float));
-            tex->download(GL_RGB, GL_FLOAT, pixels);
-            pixels.resize(specularLUTSize * specularLUTSize * 3 * sizeof(float));
+            bool lutReload = false;
 
-            {
+            if (specularLUTGenFilter_) {
+                auto tex = specularLUTGenFilter_->camera()->renderTarget().texture();
+                pixels.resize(tex->width() * tex->height() * 3 * sizeof(float));
+                tex->download(GL_RGB, GL_FLOAT, pixels);
+                pixels.resize(specularLUTSize * specularLUTSize * 3 * sizeof(float));
+
                 std::string fname = platform->assetsPath() + "/" + getSpecularLUTTexName();
                 std::ofstream os(fname,
                     std::ios_base::binary | std::ios_base::out | std::ios_base::trunc);
                 ImageWriter writer(fname, os);
                 writer.writeHDR(specularLUTSize, specularLUTSize, 3, pixels);
+                lutReload = true;
             }
 
             stopSpecularGen();
@@ -136,8 +139,10 @@ namespace af3d
             specularEquirect2cube_ = std::make_shared<Equirect2CubeComponent>(equirectTex, rt_.specularTexture, rt_.index, camOrderLightProbe, settings.lightProbe.specularMipLevels);
             parent()->addComponent(specularEquirect2cube_);
 
-            specularLUTTexture_->invalidate();
-            specularLUTTexture_->load();
+            if (lutReload) {
+                specularLUTTexture_->invalidate();
+                specularLUTTexture_->load();
+            }
 
             LOG4CPLUS_INFO(logger(), "LightProbe(" << parent()->name() << "): done");
         }
@@ -147,7 +152,7 @@ namespace af3d
     {
         btAssert(scene());
 
-        if (irrCube2equirectFilter_ || specularLUTGenFilter_) {
+        if (irrCube2equirectFilter_ || !specularCube2EquirectFilters_.empty()) {
             LOG4CPLUS_WARN(logger(), "LightProbe(" << parent()->name() << "): recreation still in progress...");
             return;
         }
@@ -366,17 +371,21 @@ namespace af3d
             specularCube2EquirectFilters_.push_back(filter);
         }
 
-        specularLUTGenFilter_ = std::make_shared<RenderFilterComponent>(MaterialTypeFilterSpecularLUT);
-        specularLUTGenFilter_->camera()->setOrder(camOrderLightProbe);
-        specularLUTGenFilter_->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(specularLUTTexture_));
-        parent()->addComponent(specularLUTGenFilter_);
+        if (isGlobal()) {
+            specularLUTGenFilter_ = std::make_shared<RenderFilterComponent>(MaterialTypeFilterSpecularLUT);
+            specularLUTGenFilter_->camera()->setOrder(camOrderLightProbe);
+            specularLUTGenFilter_->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(specularLUTTexture_));
+            parent()->addComponent(specularLUTGenFilter_);
+        }
     }
 
     void LightProbeComponent::stopSpecularGen()
     {
-        if (specularLUTGenFilter_) {
-            specularLUTGenFilter_->removeFromParent();
-            specularLUTGenFilter_.reset();
+        if (!specularCube2EquirectFilters_.empty()) {
+            if (specularLUTGenFilter_) {
+                specularLUTGenFilter_->removeFromParent();
+                specularLUTGenFilter_.reset();
+            }
             for (size_t i = 0; i < specularGenFilters_.size(); ++i) {
                 specularGenFilters_[i]->removeFromParent();
             }
