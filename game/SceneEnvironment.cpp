@@ -265,7 +265,7 @@ namespace af3d
             upd->probes[i + 1] = probes[i].first;
         }
 
-        LOG4CPLUS_TRACE(logger(), "Updating probes ssbo...");
+        LOG4CPLUS_TRACE(logger(), "Updating probes ssbo (" << probes.size() << ")...");
 
         renderer.scheduleHwOp([upd](HardwareContext& ctx) {
             upd->ssbo->reload(upd->probes.size(), &upd->probes[0], ctx);

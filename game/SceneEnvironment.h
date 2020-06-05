@@ -65,6 +65,8 @@ namespace af3d
 
         inline const HardwareDataBufferPtr& lightsSSBO() const { return lightsSSBO_; }
 
+        inline const HardwareDataBufferPtr& probesSSBO() const { return probesSSBO_; }
+
     private:
         using IndexSet = std::set<int>;
 

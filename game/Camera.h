@@ -51,6 +51,7 @@ namespace af3d
             HardwareDataBufferPtr tilesSSBO; // tile grid built for 'proj' matrix.
             HardwareDataBufferPtr tileDataSSBO; // tile data obtained by culling lights.
             HardwareDataBufferPtr lightIndicesSSBO; // indices of lights being used.
+            HardwareDataBufferPtr probeIndicesSSBO; // indices of probes being used.
         };
 
         Camera();

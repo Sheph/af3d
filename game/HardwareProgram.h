@@ -117,7 +117,9 @@ namespace af3d
         ClusterTileData,
         ClusterLightIndices,
         ClusterLights,
-        Max = ClusterLights
+        ClusterProbeIndices,
+        ClusterProbes,
+        Max = ClusterProbes
     };
 
     struct VariableTypeInfo

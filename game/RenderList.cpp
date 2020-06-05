@@ -478,6 +478,9 @@ namespace af3d
             if (!clusterData.lightIndicesSSBO) {
                 clusterData.lightIndicesSSBO = hwManager.createDataBuffer(HardwareBuffer::Usage::StaticCopy, sizeof(std::uint32_t));
             }
+            if (!clusterData.probeIndicesSSBO) {
+                clusterData.probeIndicesSSBO = hwManager.createDataBuffer(HardwareBuffer::Usage::StaticCopy, sizeof(std::uint32_t));
+            }
             if (clusterData.tilesSSBO->setValid()) {
                 auto ssbo = clusterData.tilesSSBO;
                 renderer.scheduleHwOp([ssbo](HardwareContext& ctx) {
@@ -494,6 +497,12 @@ namespace af3d
                 auto ssbo = clusterData.lightIndicesSSBO;
                 renderer.scheduleHwOp([ssbo](HardwareContext& ctx) {
                     ssbo->resize(settings.cluster.numTiles * settings.cluster.maxLightsPerTile, ctx);
+                });
+            }
+            if (clusterData.probeIndicesSSBO->setValid()) {
+                auto ssbo = clusterData.probeIndicesSSBO;
+                renderer.scheduleHwOp([ssbo](HardwareContext& ctx) {
+                    ssbo->resize(settings.cluster.numTiles * settings.cluster.maxProbesPerTile, ctx);
                 });
             }
 
@@ -687,6 +696,14 @@ namespace af3d
 
         if (ssboNames[StorageBufferName::ClusterLights]) {
             storageBuffers.emplace_back(StorageBufferName::ClusterLights, env_->lightsSSBO());
+        }
+
+        if (ssboNames[StorageBufferName::ClusterProbeIndices]) {
+            storageBuffers.emplace_back(StorageBufferName::ClusterProbeIndices, camera_->clusterData().probeIndicesSSBO);
+        }
+
+        if (ssboNames[StorageBufferName::ClusterProbes]) {
+            storageBuffers.emplace_back(StorageBufferName::ClusterProbes, env_->probesSSBO());
         }
     }
 }

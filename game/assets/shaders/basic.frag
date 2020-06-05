@@ -27,6 +27,8 @@ struct ClusterTileData
 {
     uint lightOffset;
     uint lightCount;
+    uint probeOffset;
+    uint probeCount;
 };
 
 layout (std430, binding = 2) readonly buffer clusterTileDataSSBO
@@ -71,9 +73,12 @@ void main()
     uvec3 tiles = uvec3(uvec2((0.5 * (ndc.xy + 1.0)) * vec2(CLUSTER_GRID_X, CLUSTER_GRID_Y)), zTile);
     uint tileIndex = tiles.x + CLUSTER_GRID_X * tiles.y + (CLUSTER_GRID_X * CLUSTER_GRID_Y) * tiles.z;
 
+    vec4 diffuse = texture(texMain, v_texCoord) * mainColor;
+    vec4 specular = texture(texSpecular, v_texCoord) * specularColor;
+
     {
         // ambient
-        fragColor = texture(texMain, v_texCoord) * mainColor * vec4(ambientColor, 1.0);
+        fragColor = diffuse * vec4(ambientColor, 1.0);
     }
 
 #ifdef NM
@@ -113,13 +118,13 @@ void main()
         }
 
         float diffuseCoeff = max(0.0, dot(normalDirection, lightDirection));
-        vec4 diffuseReflection = texture(texMain, v_texCoord) * mainColor * vec4(light.color.xyz, 0.0) * diffuseCoeff;
+        vec4 diffuseReflection = diffuse * vec4(light.color.xyz, 0.0) * diffuseCoeff;
 
 #ifdef BLINN
-        vec4 specularReflection = texture(texSpecular, v_texCoord) * specularColor * vec4(light.color.xyz, 0.0) *
+        vec4 specularReflection = specular * vec4(light.color.xyz, 0.0) *
             pow(max(0.0, dot(normalize(viewDirection + lightDirection), normalDirection)), shininess * 2.0);
 #else
-        vec4 specularReflection = texture(texSpecular, v_texCoord) * specularColor * vec4(light.color.xyz, 0.0) *
+        vec4 specularReflection = specular * vec4(light.color.xyz, 0.0) *
             pow(max(0.0, dot(reflect(-lightDirection, normalDirection), viewDirection)), shininess);
 #endif
 

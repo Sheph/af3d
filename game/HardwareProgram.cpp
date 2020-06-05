@@ -60,14 +60,18 @@ namespace af3d
         {"clusterTilesSSBO", StorageBufferName::ClusterTiles},
         {"clusterTileDataSSBO", StorageBufferName::ClusterTileData},
         {"clusterLightIndicesSSBO", StorageBufferName::ClusterLightIndices},
-        {"clusterLightsSSBO", StorageBufferName::ClusterLights}
+        {"clusterLightsSSBO", StorageBufferName::ClusterLights},
+        {"clusterProbeIndicesSSBO", StorageBufferName::ClusterProbeIndices},
+        {"clusterProbesSSBO", StorageBufferName::ClusterProbes}
     };
 
     static const GLuint staticStorageBufferIndices[static_cast<int>(StorageBufferName::Max) + 1] = {
         1,
         2,
         3,
-        4
+        4,
+        5,
+        6
     };
 
     static const std::unordered_map<std::string, UniformName> staticUniformMap = {

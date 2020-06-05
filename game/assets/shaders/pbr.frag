@@ -41,6 +41,8 @@ struct ClusterTileData
 {
     uint lightOffset;
     uint lightCount;
+    uint probeOffset;
+    uint probeCount;
 };
 
 layout (std430, binding = 2) readonly buffer clusterTileDataSSBO
@@ -233,11 +235,15 @@ void main()
             vec3 positionToLightSource = vec3(light.pos.xyz - v_pos);
             Li = normalize(positionToLightSource);
             attenuation = max(0.0, 1.0 - length(positionToLightSource) / length(light.dir.xyz));
+            if (attenuation <= 0.0) {
+                continue;
+            }
             if (light.pos.w == 3.0) {
                 // spot
                 float spotCosine = dot(-Li, normalize(light.dir.xyz));
                 if (spotCosine < light.cutoffCos) {
                     attenuation = 0.0;
+                    continue;
                 } else {
                     float spotValue = smoothstep(light.cutoffCos, light.cutoffInnerCos, spotCosine);
                     attenuation = attenuation * pow(spotValue, light.power);

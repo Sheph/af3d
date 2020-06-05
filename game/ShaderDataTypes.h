@@ -57,6 +57,7 @@ namespace af3d
         Matrix4f invModel;
         std::uint32_t cubeIdx;
         std::uint32_t enabled = 0;
+        float padding[2];
     };
 
     struct ShaderClusterTileData

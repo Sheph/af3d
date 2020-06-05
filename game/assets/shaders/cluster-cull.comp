@@ -19,10 +19,20 @@ struct ClusterLight
     uint enabled;
 };
 
+struct ClusterProbe
+{
+    vec4 pos;
+    mat4 invModel;
+    uint cubeIdx;
+    uint enabled;
+};
+
 struct ClusterTileData
 {
     uint lightOffset;
     uint lightCount;
+    uint probeOffset;
+    uint probeCount;
 };
 
 layout (std430, binding = 1) readonly buffer clusterTilesSSBO
@@ -45,7 +55,27 @@ layout (std430, binding = 4) readonly buffer clusterLightsSSBO
     ClusterLight clusterLights[];
 };
 
-shared ClusterLight sharedLights[CLUSTER_CULL_X * CLUSTER_CULL_Y * CLUSTER_CULL_Z];
+layout (std430, binding = 5) writeonly buffer clusterProbeIndicesSSBO
+{
+    uint clusterProbeIndices[];
+};
+
+layout (std430, binding = 6) readonly buffer clusterProbesSSBO
+{
+    ClusterProbe clusterProbes[];
+};
+
+struct TmpData
+{
+    mat4 invModel;
+    vec4 pos;
+    vec4 dir;
+    uint enabled;
+};
+
+shared TmpData sharedData[CLUSTER_CULL_X * CLUSTER_CULL_Y * CLUSTER_CULL_Z];
+
+ClusterTile tileWS;
 
 float sqDistPointAABB(vec3 point, uint tile)
 {
@@ -75,44 +105,78 @@ float sqDistPointAABB(vec3 point, uint tile)
 
 bool testSphereAABB(uint light, uint tile)
 {
-    float radius = length(sharedLights[light].dir.xyz);
-    vec3 center = vec3(vec4(sharedLights[light].pos.xyz, 1.0) * stableView);
+    float radius = length(sharedData[light].dir.xyz);
+    vec3 center = vec3(vec4(sharedData[light].pos.xyz, 1.0) * stableView);
     float squaredDistance = sqDistPointAABB(center, tile);
     return squaredDistance <= (radius * radius);
 }
 
-void main()
+void tileTransform(const ClusterTile tile, mat4 mat, out ClusterTile outTile)
 {
-    uint threadCount = CLUSTER_CULL_X * CLUSTER_CULL_Y * CLUSTER_CULL_Z;
+    vec3 corners[8];
+    corners[0] = tile.minPoint.xyz;
+    corners[1] = vec3(tile.minPoint.x, tile.maxPoint.y, tile.minPoint.z);
+    corners[2] = vec3(tile.minPoint.x, tile.maxPoint.y, tile.maxPoint.z);
+    corners[3] = vec3(tile.minPoint.x, tile.minPoint.y, tile.maxPoint.z);
+    corners[4] = vec3(tile.maxPoint.x, tile.minPoint.y, tile.minPoint.z);
+    corners[5] = vec3(tile.maxPoint.x, tile.maxPoint.y, tile.minPoint.z);
+    corners[6] = tile.maxPoint.xyz;
+    corners[7] = vec3(tile.maxPoint.x, tile.minPoint.y, tile.maxPoint.z);
+    outTile.minPoint = vec4(1000000);
+    outTile.maxPoint = vec4(-1000000);
+
+    for (uint i = 0; i < 8; ++i) {
+        corners[i] = (vec4(corners[i], 1.0) * mat).xyz;
+        outTile.minPoint.xyz = min(outTile.minPoint.xyz, corners[i]);
+        outTile.maxPoint.xyz = max(outTile.maxPoint.xyz, corners[i]);
+    }
+}
+
+bool testProbeAABB(uint probe, uint tile)
+{
+    ClusterTile tilePS;
+    tileTransform(tileWS, sharedData[probe].invModel, tilePS);
+    if ((tilePS.minPoint.x > 1.0) || (tilePS.maxPoint.x < -1.0)) {
+        return false;
+    }
+    if ((tilePS.minPoint.y > 1.0) || (tilePS.maxPoint.y < -1.0)) {
+        return false;
+    }
+    if ((tilePS.minPoint.z > 1.0) || (tilePS.maxPoint.z < -1.0)) {
+        return false;
+    }
+    return true;
+}
+
+void cullLights(uint threadCount, uint tileIndex)
+{
     uint lightCount  = clusterLights.length();
     uint numBatches = (lightCount + threadCount - 1) / threadCount;
     uint maxLightsPerTile = clusterLightIndices.length() / clusterTileData.length();
-    uint tileIndex = gl_LocalInvocationIndex + gl_WorkGroupSize.x * gl_WorkGroupSize.y * gl_WorkGroupSize.z * gl_WorkGroupID.z;
     uint offset = tileIndex * maxLightsPerTile;
 
-    uint visibleLightCount = 0;
+    uint visibleCount = 0;
 
     for (uint batch = 0; batch < numBatches; ++batch) {
         uint lightIndex = batch * threadCount + gl_LocalInvocationIndex;
 
-        // Prevent overflow by clamping to last light which is always null
         lightIndex = min(lightIndex, lightCount - 1);
 
-        // Populating shared light array
-        sharedLights[gl_LocalInvocationIndex] = clusterLights[lightIndex];
+        sharedData[gl_LocalInvocationIndex].pos = clusterLights[lightIndex].pos;
+        sharedData[gl_LocalInvocationIndex].dir = clusterLights[lightIndex].dir;
+        sharedData[gl_LocalInvocationIndex].enabled = clusterLights[lightIndex].enabled;
 
         memoryBarrierShared();
         barrier();
 
-        // Iterating within the current batch of lights
         for (uint light = 0; light < threadCount; ++light) {
-            if (sharedLights[light].enabled == 1) {
-                if (sharedLights[light].pos.w == 1.0) {
-                    clusterLightIndices[offset + visibleLightCount % maxLightsPerTile] = batch * threadCount + light;
-                    visibleLightCount += 1;
-                } else if ((visibleLightCount < maxLightsPerTile) && testSphereAABB(light, tileIndex)) {
-                    clusterLightIndices[offset + visibleLightCount] = batch * threadCount + light;
-                    visibleLightCount += 1;
+            if (sharedData[light].enabled == 1) {
+                if (sharedData[light].pos.w == 1.0) {
+                    clusterLightIndices[offset + visibleCount % maxLightsPerTile] = batch * threadCount + light;
+                    visibleCount += 1;
+                } else if ((visibleCount < maxLightsPerTile) && testSphereAABB(light, tileIndex)) {
+                    clusterLightIndices[offset + visibleCount] = batch * threadCount + light;
+                    visibleCount += 1;
                 }
             }
         }
@@ -122,5 +186,58 @@ void main()
     }
 
     clusterTileData[tileIndex].lightOffset = offset;
-    clusterTileData[tileIndex].lightCount = min(visibleLightCount, maxLightsPerTile);
+    clusterTileData[tileIndex].lightCount = min(visibleCount, maxLightsPerTile);
+}
+
+void cullProbes(uint threadCount, uint tileIndex)
+{
+    uint probeCount = clusterProbes.length();
+    uint numBatches = (probeCount + threadCount - 1) / threadCount;
+    uint maxProbesPerTile = clusterProbeIndices.length() / clusterTileData.length();
+    uint offset = tileIndex * maxProbesPerTile;
+
+    uint visibleCount = 1;
+
+    clusterProbeIndices[offset + 0] = 0;
+
+    for (uint batch = 0; batch < numBatches; ++batch) {
+        uint probeIndex = batch * threadCount + gl_LocalInvocationIndex;
+
+        probeIndex = min(probeIndex, probeCount - 1);
+
+        sharedData[gl_LocalInvocationIndex].enabled = clusterProbes[probeIndex].enabled;
+        sharedData[gl_LocalInvocationIndex].invModel = clusterProbes[probeIndex].invModel;
+
+        memoryBarrierShared();
+        barrier();
+
+        for (uint probe = 0; probe < threadCount; ++probe) {
+            if (sharedData[probe].enabled == 1) {
+                uint idx = batch * threadCount + probe;
+                if (idx == 0) {
+                    // skip
+                } else if ((visibleCount < maxProbesPerTile) && testProbeAABB(probe, tileIndex)) {
+                    clusterProbeIndices[offset + visibleCount] = idx;
+                    visibleCount += 1;
+                }
+            }
+        }
+
+        memoryBarrierShared();
+        barrier();
+    }
+
+    clusterTileData[tileIndex].probeOffset = offset;
+    clusterTileData[tileIndex].probeCount = min(visibleCount, maxProbesPerTile) - 1;
+}
+
+void main()
+{
+    uint threadCount = CLUSTER_CULL_X * CLUSTER_CULL_Y * CLUSTER_CULL_Z;
+    uint tileIndex = gl_LocalInvocationIndex + gl_WorkGroupSize.x * gl_WorkGroupSize.y * gl_WorkGroupSize.z * gl_WorkGroupID.z;
+
+    tileTransform(clusterTiles[tileIndex], inverse(stableView), tileWS);
+
+    cullLights(threadCount, tileIndex);
+    cullProbes(threadCount, tileIndex);
 }
