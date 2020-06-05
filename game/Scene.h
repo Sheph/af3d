@@ -121,13 +121,11 @@ namespace af3d
 
         void removeLight(Light* light);
 
-        int addLightProbe(LightProbeComponent* probe);
+        LightProbeRenderTarget addLightProbe(LightProbeComponent* probe);
 
         void removeLightProbe(LightProbeComponent* probe);
 
-        void recreateGlobalLightProbe(std::uint32_t irradianceRes,
-            std::uint32_t specularRes,
-            std::uint32_t specularMipLevels);
+        void recreateGlobalLightProbe();
 
         inline bool playable() const { return playable_; }
 
@@ -180,15 +178,6 @@ namespace af3d
         void propertyCollisionMatrixSet(const std::string&, const APropertyValue& value) { setCollisionMatrix(value.toObject<CollisionMatrix>()); }
 
         APropertyValue propertyCameraTransformGet(const std::string&) const;
-
-        APropertyValue propertyGlobalIrradianceResGet(const std::string&) const;
-        void propertyGlobalIrradianceResSet(const std::string&, const APropertyValue& value);
-
-        APropertyValue propertyGlobalSpecularResGet(const std::string&) const;
-        void propertyGlobalSpecularResSet(const std::string&, const APropertyValue& value);
-
-        APropertyValue propertyGlobalSpecularMipLevelsGet(const std::string&) const;
-        void propertyGlobalSpecularMipLevelsSet(const std::string&, const APropertyValue& value);
 
         APropertyValue propertyUpdateLightProbesGet(const std::string&) const { return false; }
         void propertyUpdateLightProbesSet(const std::string&, const APropertyValue& value);

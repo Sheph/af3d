@@ -63,7 +63,7 @@ namespace af3d
         scene->setName(name());
         scene->setScriptPath(scriptPath_);
 
-        scene->recreateGlobalLightProbe(globalIrradianceRes_, globalSpecularRes_, globalSpecularMipLevels_);
+        scene->recreateGlobalLightProbe();
 
         auto camera = scene->mainCamera()->findComponent<CameraComponent>()->camera();
 

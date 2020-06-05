@@ -35,7 +35,7 @@ namespace af3d
     ACLASS_DEFINE_BEGIN(Equirect2CubeComponent, PhasedComponent)
     ACLASS_DEFINE_END(Equirect2CubeComponent)
 
-    Equirect2CubeComponent::Equirect2CubeComponent(const TexturePtr& src, const TexturePtr& target, int camOrder, std::uint32_t numMipLevels)
+    Equirect2CubeComponent::Equirect2CubeComponent(const TexturePtr& src, const TexturePtr& target, std::uint32_t layer, int camOrder, std::uint32_t numMipLevels)
     : PhasedComponent(AClass_Equirect2CubeComponent, phasePreRender),
       targetGeneration_(target->generation())
     {
@@ -56,7 +56,7 @@ namespace af3d
                 filter->camera()->setFov(btRadians(90.0f));
                 filter->camera()->setAspect(1.0f);
                 filter->camera()->setTransform(btTransform(textureCubeFaceBasis(face)));
-                filter->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(target, mip, face));
+                filter->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(target, mip, face, layer));
                 filters_.push_back(filter);
             }
         }

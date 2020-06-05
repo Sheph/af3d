@@ -79,6 +79,21 @@ namespace af3d
         TextureCubeFace cubeFace_ = TextureCubeXP;
         GLint layer_ = 0;
     };
+
+    struct LightProbeRenderTarget
+    {
+        LightProbeRenderTarget() = default;
+        LightProbeRenderTarget(int index,
+            const TexturePtr& irradianceTexture,
+            const TexturePtr& specularTexture)
+        : index(index),
+          irradianceTexture(irradianceTexture),
+          specularTexture(specularTexture) {}
+
+        int index = -1;
+        TexturePtr irradianceTexture;
+        TexturePtr specularTexture;
+    };
 }
 
 #endif

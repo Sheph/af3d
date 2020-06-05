@@ -94,6 +94,7 @@ namespace af3d
         glslCommonHeader_ += "#define CLUSTER_CULL_X " + std::to_string(settings.cluster.gridSize.x() / settings.cluster.cullNumGroups.x()) + "\n";
         glslCommonHeader_ += "#define CLUSTER_CULL_Y " + std::to_string(settings.cluster.gridSize.y() / settings.cluster.cullNumGroups.y()) + "\n";
         glslCommonHeader_ += "#define CLUSTER_CULL_Z " + std::to_string(settings.cluster.gridSize.z() / settings.cluster.cullNumGroups.z()) + "\n";
+        glslCommonHeader_ += "#define SPECULAR_CM_LEVELS " + std::to_string(settings.lightProbe.specularMipLevels - 1) + "\n";
         glslCommonHeader_ += "#line 1\n";
 
         for (int i = MaterialTypeFirst; i <= MaterialTypeMax; ++i) {

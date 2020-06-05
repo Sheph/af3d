@@ -57,12 +57,8 @@ namespace af3d
         AmbientColor,
         ViewportSize,
         Time,
-        SpecularCMLevels,
         Dt,
         RealDt,
-        LightProbeInvMatrix,
-        LightProbePos,
-        LightProbeType,
         ClusterCfg,
         FirstAuto = ViewProjMatrix,
         MaxAuto = ClusterCfg,
@@ -90,7 +86,8 @@ namespace af3d
         LowpassWeights,
         PlusWeights,
         NormalFormat,
-        Max = NormalFormat
+        TLayer,
+        Max = TLayer
     };
 
     enum class SamplerName

@@ -561,19 +561,13 @@ namespace af3d
                 const auto& tb = material->textureBinding(sName);
                 textures.emplace_back(tb.tex ? tb.tex->hwTex() : HardwareTexturePtr(), tb.params);
                 if ((sName == SamplerName::Irradiance) && !textures.back().tex) {
-                    auto probe = env_->getLightProbeFor(btVector3_zero);
-                    if (probe) {
-                        textures.back() = HardwareTextureBinding(probe->irradianceTexture()->hwTex(),
-                            SamplerParams(GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR));
-                    }
+                    textures.back() = HardwareTextureBinding(env_->irradianceTexture()->hwTex(),
+                        SamplerParams(GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR));
                 } else if ((sName == SamplerName::SpecularCM) && !textures.back().tex) {
-                    auto probe = env_->getLightProbeFor(btVector3_zero);
-                    if (probe) {
-                        textures.back() = HardwareTextureBinding(probe->specularTexture()->hwTex(),
-                            SamplerParams(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR));
-                    }
+                    textures.back() = HardwareTextureBinding(env_->specularTexture()->hwTex(),
+                        SamplerParams(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR));
                 } else if ((sName == SamplerName::SpecularLUT) && !textures.back().tex) {
-                    auto probe = env_->getLightProbeFor(btVector3_zero);
+                    auto probe = env_->globalLightProbe();
                     if (probe) {
                         textures.back() = HardwareTextureBinding(probe->specularLUTTexture()->hwTex(),
                             SamplerParams(GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR));
@@ -647,30 +641,6 @@ namespace af3d
         }
         if (activeUniforms.count(UniformName::RealDt) > 0) {
             params.setUniform(UniformName::RealDt, env_->realDt());
-        }
-        if (activeUniforms.count(UniformName::SpecularCMLevels) > 0) {
-            auto probe = env_->getLightProbeFor(btVector3_zero);
-            params.setUniform(UniformName::SpecularCMLevels, static_cast<int>(probe ? probe->specularTextureLevels() : 0));
-        }
-        if (activeUniforms.count(UniformName::LightProbeInvMatrix) > 0) {
-            auto probe = env_->getLightProbeFor(btVector3_zero);
-            if (probe) {
-                const auto& bounds = probe->bounds();
-                auto mat = Matrix4f(probe->parent()->transform() * toTransform(bounds.getCenter())).scaled(bounds.getExtents());
-                params.setUniform(UniformName::LightProbeInvMatrix, mat.inverse());
-            }
-        }
-        if (activeUniforms.count(UniformName::LightProbePos) > 0) {
-            auto probe = env_->getLightProbeFor(btVector3_zero);
-            if (probe) {
-                params.setUniform(UniformName::LightProbePos, probe->parent()->pos());
-            }
-        }
-        if (activeUniforms.count(UniformName::LightProbeType) > 0) {
-            auto probe = env_->getLightProbeFor(btVector3_zero);
-            if (probe) {
-                params.setUniform(UniformName::LightProbeType, probe->isGlobal() ? 0 : 1);
-            }
         }
         if (activeUniforms.count(UniformName::ClusterCfg) > 0) {
             float zNear = camera_->frustum().nearDist();

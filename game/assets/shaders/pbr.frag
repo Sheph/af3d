@@ -10,20 +10,16 @@ uniform sampler2D texMetalness;
 uniform sampler2D texAO;
 #endif
 uniform sampler2D texEmissive;
-uniform samplerCube texIrradiance;
-uniform samplerCube texSpecularCM;
+uniform samplerCubeArray texIrradiance;
+uniform samplerCubeArray texSpecularCM;
 uniform sampler2D texSpecularLUT;
 
 uniform vec4 mainColor;
 uniform vec3 eyePos;
-uniform int specularCMLevels;
 uniform float emissiveFactor;
 #ifdef NM
 uniform int normalFormat;
 #endif
-uniform mat4 lightProbeInvModel;
-uniform vec3 lightProbePos;
-uniform int lightProbeType;
 uniform vec4 clusterCfg;
 
 struct ClusterLight
@@ -34,6 +30,14 @@ struct ClusterLight
     float cutoffCos;
     float cutoffInnerCos;
     float power;
+    uint enabled;
+};
+
+struct ClusterProbe
+{
+    vec4 pos;
+    mat4 invModel;
+    uint cubeIdx;
     uint enabled;
 };
 
@@ -58,6 +62,16 @@ layout (std430, binding = 3) readonly buffer clusterLightIndicesSSBO
 layout (std430, binding = 4) readonly buffer clusterLightsSSBO
 {
     ClusterLight clusterLights[];
+};
+
+layout (std430, binding = 5) readonly buffer clusterProbeIndicesSSBO
+{
+    uint clusterProbeIndices[];
+};
+
+layout (std430, binding = 6) readonly buffer clusterProbesSSBO
+{
+    ClusterProbe clusterProbes[];
 };
 
 in vec2 v_texCoord;
@@ -112,7 +126,7 @@ vec3 fresnelSchlick(vec3 F0, float cosTheta)
 }
 
 // See: https://seblagarde.wordpress.com/2012/09/29/image-based-lighting-approaches-and-parallax-corrected-cubemap/
-vec3 reflDirectionFixup(vec3 ReflDirectionWS, vec3 DirectionWS, vec3 PositionWS)
+vec3 reflDirectionFixup(mat4 lightProbeInvModel, vec3 lightProbePos, vec3 ReflDirectionWS, vec3 DirectionWS, vec3 PositionWS)
 {
     // Intersection with OBB convertto unit box space
     // Transform in local unit parallax cube space (scaled and rotated)
@@ -186,12 +200,14 @@ void main()
         // Specular reflection vector.
         vec3 Lr = 2.0 * cosLo * N - Lo;
 
-        if (lightProbeType == 1) {
-            Lr = reflDirectionFixup(normalize(Lr), -Lo, eyePos);
+        if (1 == 0) {
+            Lr = reflDirectionFixup(clusterProbes[0].invModel, clusterProbes[0].pos.xyz, normalize(Lr), -Lo, eyePos);
         }
 
+        float layer = float(clusterProbes[0].cubeIdx);
+
         // Sample diffuse irradiance at normal direction.
-        vec3 irradiance = texture(texIrradiance, N).rgb;
+        vec3 irradiance = texture(texIrradiance, vec4(N, layer)).rgb;
 
         // Calculate Fresnel term for ambient lighting.
         // Since we use pre-filtered cubemap(s) and irradiance is coming from many directions
@@ -206,7 +222,7 @@ void main()
         vec3 diffuseIBL = kd * albedo * irradiance;
 
         // Sample pre-filtered specular reflection environment at correct mipmap level.
-        vec3 specularIrradiance = textureLod(texSpecularCM, Lr, roughness * specularCMLevels).rgb;
+        vec3 specularIrradiance = textureLod(texSpecularCM, vec4(Lr, layer), roughness * SPECULAR_CM_LEVELS).rgb;
 
         // Split-sum approximation factors for Cook-Torrance specular BRDF.
         vec2 specularBRDF = texture(texSpecularLUT, vec2(cosLo, roughness)).rg;

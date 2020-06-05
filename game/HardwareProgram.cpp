@@ -86,12 +86,8 @@ namespace af3d
         {"ambientColor", UniformName::AmbientColor},
         {"viewportSize", UniformName::ViewportSize},
         {"time", UniformName::Time},
-        {"specularCMLevels", UniformName::SpecularCMLevels},
         {"dt", UniformName::Dt},
         {"realDt", UniformName::RealDt},
-        {"lightProbeInvModel", UniformName::LightProbeInvMatrix},
-        {"lightProbePos", UniformName::LightProbePos},
-        {"lightProbeType", UniformName::LightProbeType},
         {"clusterCfg", UniformName::ClusterCfg},
         {"mainColor", UniformName::MainColor},
         {"specularColor", UniformName::SpecularColor},
@@ -116,7 +112,8 @@ namespace af3d
         {"sampleWeights[0]", UniformName::SampleWeights},
         {"lowpassWeights[0]", UniformName::LowpassWeights},
         {"plusWeights[0]", UniformName::PlusWeights},
-        {"normalFormat", UniformName::NormalFormat}
+        {"normalFormat", UniformName::NormalFormat},
+        {"tLayer", UniformName::TLayer}
     };
 
     static const std::unordered_map<std::string, SamplerName> staticSamplerMap = {
@@ -270,7 +267,7 @@ namespace af3d
 
             ogl.GetActiveUniform(id_, i, bufSize, &length, &size, &type, name);
 
-            if ((type == GL_SAMPLER_2D) || (type == GL_SAMPLER_CUBE)) {
+            if ((type == GL_SAMPLER_2D) || (type == GL_SAMPLER_CUBE) || (type == GL_SAMPLER_CUBE_MAP_ARRAY)) {
                 auto it = staticSamplerMap.find(name);
                 if (it == staticSamplerMap.end()) {
                     LOG4CPLUS_ERROR(logger(), "Bad sampler name: " << name);

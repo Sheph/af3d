@@ -42,15 +42,10 @@ namespace af3d
     ACLASS_DEFINE_BEGIN(LightProbeComponent, PhasedComponent)
     ACLASS_DEFINE_END(LightProbeComponent)
 
-    LightProbeComponent::LightProbeComponent(std::uint32_t irradianceResolution, std::uint32_t specularResolution,
-        std::uint32_t specularMipLevels, const boost::optional<AABB>& bounds)
+    LightProbeComponent::LightProbeComponent(const boost::optional<AABB>& bounds)
     : PhasedComponent(AClass_LightProbeComponent, phasePreRender),
-      bounds_(bounds),
-      irradianceResolution_(irradianceResolution),
-      specularResolution_(specularResolution),
-      specularMipLevels_(specularMipLevels)
+      bounds_(bounds)
     {
-        runtime_assert(specularMipLevels_ > 0);
     }
 
     const AClass& LightProbeComponent::staticKlass()
@@ -91,21 +86,21 @@ namespace af3d
             auto equirectTex = textureManager.loadTexture(getIrradianceTexName(), false);
             equirectTex->invalidate();
             equirectTex->load();
-            irrEquirect2cube_ = std::make_shared<Equirect2CubeComponent>(equirectTex, irradianceTexture_, camOrderLightProbe);
+            irrEquirect2cube_ = std::make_shared<Equirect2CubeComponent>(equirectTex, rt_.irradianceTexture, rt_.index, camOrderLightProbe);
             parent()->addComponent(irrEquirect2cube_);
         } else if (specularLUTGenFilter_ && (specularLUTGenFilter_->numFramesRendered() > 0)) {
-            btAssert(specularMipLevels_ == specularCube2EquirectFilters_.size());
+            btAssert(settings.lightProbe.specularMipLevels == specularCube2EquirectFilters_.size());
             auto mip0Tex = specularCube2EquirectFilters_[0]->camera()->renderTarget().texture();
 
             std::uint32_t numPixels = 0;
-            for (std::uint32_t mip = 0; mip < specularMipLevels_; ++mip) {
+            for (std::uint32_t mip = 0; mip < settings.lightProbe.specularMipLevels; ++mip) {
                 numPixels += textureMipSize(mip0Tex->width(), mip) * textureMipSize(mip0Tex->height(), mip);
             }
             std::uint32_t height = (numPixels + mip0Tex->width() - 1) / mip0Tex->width();
 
             std::vector<Byte> pixels(mip0Tex->width() * height * 3 * sizeof(float), 0);
             numPixels = 0;
-            for (std::uint32_t mip = 0; mip < specularMipLevels_; ++mip) {
+            for (std::uint32_t mip = 0; mip < settings.lightProbe.specularMipLevels; ++mip) {
                 auto tex = specularCube2EquirectFilters_[mip]->camera()->renderTarget().texture();
                 tex->download(GL_RGB, GL_FLOAT, &pixels[0] + (numPixels * 3 * sizeof(float)));
                 numPixels += textureMipSize(mip0Tex->width(), mip) * textureMipSize(mip0Tex->height(), mip);
@@ -138,7 +133,7 @@ namespace af3d
             auto equirectTex = textureManager.loadTexture(getSpecularTexName(), false);
             equirectTex->invalidate();
             equirectTex->load();
-            specularEquirect2cube_ = std::make_shared<Equirect2CubeComponent>(equirectTex, specularTexture_, camOrderLightProbe, specularMipLevels_);
+            specularEquirect2cube_ = std::make_shared<Equirect2CubeComponent>(equirectTex, rt_.specularTexture, rt_.index, camOrderLightProbe, settings.lightProbe.specularMipLevels);
             parent()->addComponent(specularEquirect2cube_);
 
             specularLUTTexture_->invalidate();
@@ -175,44 +170,24 @@ namespace af3d
         const auto& b = bounds();
         auto mat = Matrix4f(parent()->smoothTransform() * toTransform(b.getCenter())).scaled(b.getExtents());
         cProbe.invModel = mat.inverse();
-        cProbe.cubeIdx = index_;
+        cProbe.cubeIdx = rt_.index;
         cProbe.enabled = 1;
     }
 
     void LightProbeComponent::onRegister()
     {
-        index_ = scene()->addLightProbe(this);
+        rt_ = scene()->addLightProbe(this);
         prevXf_ = parent()->smoothTransform();
         auto tex = textureManager.loadTexture(getIrradianceTexName(), false);
         if (tex) {
-            irradianceTexture_ = textureManager.createRenderTexture(TextureTypeCubeMap,
-                irradianceResolution_, irradianceResolution_, 0, GL_RGB16F, GL_RGB, GL_FLOAT);
-            irrEquirect2cube_ = std::make_shared<Equirect2CubeComponent>(tex, irradianceTexture_, camOrderLightProbe);
+            irrEquirect2cube_ = std::make_shared<Equirect2CubeComponent>(tex, rt_.irradianceTexture, rt_.index, camOrderLightProbe);
             parent()->addComponent(irrEquirect2cube_);
-        } else {
-            // No saved irradiance map, use camera clear color.
-            PackedColor color = toPackedColor(gammaToLinear(scene()->mainCamera()->findComponent<CameraComponent>()->camera()->clearColor()));
-            std::vector<Byte> data(irradianceResolution_ * irradianceResolution_ * 3);
-            for (size_t i = 0; i < data.size(); i += 3) {
-                data[i + 0] = color.x();
-                data[i + 1] = color.y();
-                data[i + 2] = color.z();
-            }
-            irradianceTexture_ = textureManager.createRenderTexture(TextureTypeCubeMap,
-                irradianceResolution_, irradianceResolution_, 0, GL_RGB16F, GL_RGB, GL_UNSIGNED_BYTE, false, std::move(data));
         }
 
         tex = textureManager.loadTexture(getSpecularTexName(), false);
         if (tex) {
-            specularTexture_ = textureManager.createRenderTexture(TextureTypeCubeMap,
-                specularResolution_, specularResolution_, 0, GL_RGB16F, GL_RGB, GL_FLOAT, true);
-            specularEquirect2cube_ = std::make_shared<Equirect2CubeComponent>(tex, specularTexture_, camOrderLightProbe, specularMipLevels_);
+            specularEquirect2cube_ = std::make_shared<Equirect2CubeComponent>(tex, rt_.specularTexture, rt_.index, camOrderLightProbe, settings.lightProbe.specularMipLevels);
             parent()->addComponent(specularEquirect2cube_);
-        } else {
-            // No saved specular map, use black.
-            std::vector<Byte> data(specularResolution_ * specularResolution_ * 3, 0);
-            specularTexture_ = textureManager.createRenderTexture(TextureTypeCubeMap,
-                specularResolution_, specularResolution_, 0, GL_RGB16F, GL_RGB, GL_UNSIGNED_BYTE, true, std::move(data));
         }
 
         specularLUTTexture_ = textureManager.loadTexture(getSpecularLUTTexName(), false);
@@ -311,16 +286,17 @@ namespace af3d
             irrGenFilters_[i]->camera()->setFov(btRadians(90.0f));
             irrGenFilters_[i]->camera()->setAspect(1.0f);
             irrGenFilters_[i]->camera()->setTransform(btTransform(textureCubeFaceBasis(face)));
-            irrGenFilters_[i]->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(irradianceTexture_, 0, face));
+            irrGenFilters_[i]->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(rt_.irradianceTexture, 0, face, rt_.index));
             parent()->addComponent(irrGenFilters_[i]);
         }
 
-        auto equirectSz = cubeSize2equirect(irradianceTexture_->width());
+        auto equirectSz = cubeSize2equirect(rt_.irradianceTexture->width());
         irrCube2equirectFilter_ = std::make_shared<RenderFilterComponent>(MaterialTypeFilterCube2Equirect);
         irrCube2equirectFilter_->material()->setTextureBinding(SamplerName::Main,
-            TextureBinding(irradianceTexture_,
+            TextureBinding(rt_.irradianceTexture,
                 SamplerParams(GL_LINEAR, GL_LINEAR)));
         irrCube2equirectFilter_->material()->params().setUniform(UniformName::MipLevel, 0.0f);
+        irrCube2equirectFilter_->material()->params().setUniform(UniformName::TLayer, static_cast<float>(rt_.index));
         irrCube2equirectFilter_->camera()->setOrder(camOrderLightProbe + 2);
         irrCube2equirectFilter_->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(textureManager.createRenderTexture(TextureType2D,
             equirectSz.x(), equirectSz.y(), 0, GL_RGB16F, GL_RGB, GL_FLOAT)));
@@ -357,10 +333,10 @@ namespace af3d
                 SamplerParams(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR)));
         auto baseMesh = meshManager.createBoxMesh(btVector3(2.0f, 2.0f, 2.0f), filterMaterial);
 
-        auto equirectSz0 = cubeSize2equirect(specularResolution_);
+        auto equirectSz0 = cubeSize2equirect(settings.lightProbe.specularResolution);
 
-        for (std::uint32_t mip = 0; mip < specularMipLevels_; ++mip) {
-            float roughness = (float)mip / (float)(specularMipLevels_ - 1);
+        for (std::uint32_t mip = 0; mip < settings.lightProbe.specularMipLevels; ++mip) {
+            float roughness = (float)mip / (float)(settings.lightProbe.specularMipLevels - 1);
 
             auto mesh = baseMesh->clone();
             mesh->subMeshes()[0]->material()->params().setUniform(UniformName::Roughness, roughness);
@@ -372,16 +348,17 @@ namespace af3d
                 filter->camera()->setFov(btRadians(90.0f));
                 filter->camera()->setAspect(1.0f);
                 filter->camera()->setTransform(btTransform(textureCubeFaceBasis(face)));
-                filter->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(specularTexture_, mip, face));
+                filter->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(rt_.specularTexture, mip, face, rt_.index));
                 parent()->addComponent(filter);
                 specularGenFilters_.push_back(filter);
             }
 
             auto filter = std::make_shared<RenderFilterComponent>(MaterialTypeFilterCube2Equirect);
             filter->material()->setTextureBinding(SamplerName::Main,
-                TextureBinding(specularTexture_,
+                TextureBinding(rt_.specularTexture,
                     SamplerParams(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR)));
             filter->material()->params().setUniform(UniformName::MipLevel, static_cast<float>(mip));
+            filter->material()->params().setUniform(UniformName::TLayer, static_cast<float>(rt_.index));
             filter->camera()->setOrder(camOrderLightProbe + 1);
             filter->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(textureManager.createRenderTexture(TextureType2D,
                 textureMipSize(equirectSz0.x(), mip), textureMipSize(equirectSz0.y(), mip), 0, GL_RGB16F, GL_RGB, GL_FLOAT)));

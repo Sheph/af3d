@@ -36,7 +36,7 @@ namespace af3d
         public PhasedComponent
     {
     public:
-        Equirect2CubeComponent(const TexturePtr& src, const TexturePtr& target, int camOrder, std::uint32_t numMipLevels = 1);
+        Equirect2CubeComponent(const TexturePtr& src, const TexturePtr& target, std::uint32_t layer, int camOrder, std::uint32_t numMipLevels = 1);
         ~Equirect2CubeComponent() = default;
 
         static const AClass& staticKlass();

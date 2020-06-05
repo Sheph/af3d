@@ -118,22 +118,22 @@ namespace af3d
         lightsRemovedIndices_.insert(light->index());
     }
 
-    int SceneEnvironment::addLightProbe(LightProbeComponent* probe)
+    LightProbeRenderTarget SceneEnvironment::addLightProbe(LightProbeComponent* probe)
     {
         if (probe->isGlobal()) {
             globalProbe_ = probe;
             probesNeedUpdate_ = true;
-            return 0;
+            return LightProbeRenderTarget(0, irradianceTexture_, specularTexture_);
         } else {
             if (probesFreeIndices_.empty()) {
                 LOG4CPLUS_WARN(logger(), "Too many probes...");
-                return -1;
+                return LightProbeRenderTarget(1, irradianceTexture_, specularTexture_);
             }
             int idx = *probesFreeIndices_.begin();
             probesFreeIndices_.erase(probesFreeIndices_.begin());
             probes_.insert(probe);
             probesNeedUpdate_ = true;
-            return idx;
+            return LightProbeRenderTarget(idx, irradianceTexture_, specularTexture_);
         }
     }
 
@@ -161,11 +161,6 @@ namespace af3d
         for (auto probe : probes_) {
             probe->recreate();
         }
-    }
-
-    LightProbeComponent* SceneEnvironment::getLightProbeFor(const btVector3& pos)
-    {
-        return probes_.empty() ? globalProbe_ : *probes_.begin();
     }
 
     void SceneEnvironment::preSwapLights()

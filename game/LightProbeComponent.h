@@ -41,8 +41,7 @@ namespace af3d
         public PhasedComponent
     {
     public:
-        LightProbeComponent(std::uint32_t irradianceResolution, std::uint32_t specularResolution,
-            std::uint32_t specularMipLevels, const boost::optional<AABB>& bounds = boost::optional<AABB>());
+        LightProbeComponent(const boost::optional<AABB>& bounds = boost::optional<AABB>());
         ~LightProbeComponent() = default;
 
         static const AClass& staticKlass();
@@ -59,16 +58,7 @@ namespace af3d
 
         void setupCluster(ShaderClusterProbe& cProbe);
 
-        inline int index() const { return index_; }
-
-        inline std::uint32_t irradianceResolution() const { return irradianceResolution_; }
-        inline std::uint32_t specularResolution() const { return specularResolution_; }
-        inline std::uint32_t specularMipLevels() const { return specularMipLevels_; }
-
-        inline const TexturePtr& irradianceTexture() const { return irradianceTexture_; }
-        inline const TexturePtr& specularTexture() const { return specularTexture_; }
-        inline const TexturePtr& specularLUTTexture() const { return specularLUTTexture_; }
-        inline std::uint32_t specularTextureLevels() const { return specularMipLevels_ - 1; }
+        inline int index() const { return rt_.index; }
 
         inline bool isGlobal() const { return !bounds_; }
 
@@ -76,6 +66,7 @@ namespace af3d
 
         inline bool hasIrradiance() const { return !!irrEquirect2cube_; }
         inline bool hasSpecular() const { return !!specularEquirect2cube_; }
+        inline const TexturePtr& specularLUTTexture() const { return specularLUTTexture_; }
 
     private:
         static const std::uint32_t sceneCaptureSize = 512;
@@ -101,18 +92,12 @@ namespace af3d
 
         void renderBounds(RenderList& rl);
 
-        int index_ = -1;
         bool dirty_ = true;
         btTransform prevXf_ = btTransform::getIdentity();
 
         boost::optional<AABB> bounds_;
 
-        std::uint32_t irradianceResolution_;
-        std::uint32_t specularResolution_;
-        std::uint32_t specularMipLevels_;
-
-        TexturePtr irradianceTexture_;
-        TexturePtr specularTexture_;
+        LightProbeRenderTarget rt_;
         TexturePtr specularLUTTexture_;
 
         std::array<CameraPtr, 6> sceneCaptureCameras_;

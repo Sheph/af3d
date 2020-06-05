@@ -360,15 +360,14 @@ namespace af3d
         SceneObjectManager::setName(value);
         auto probe = impl_->env_->globalLightProbe();
         if (probe) {
-            recreateGlobalLightProbe(probe->irradianceResolution(),
-                probe->specularResolution(), probe->specularMipLevels());
+            recreateGlobalLightProbe();
         }
     }
 
     void Scene::prepare()
     {
         if (!impl_->env_->globalLightProbe()) {
-            recreateGlobalLightProbe(64, 128, 5);
+            recreateGlobalLightProbe();
         }
     }
 
@@ -881,7 +880,7 @@ namespace af3d
         impl_->env_->removeLight(light);
     }
 
-    int Scene::addLightProbe(LightProbeComponent* probe)
+    LightProbeRenderTarget Scene::addLightProbe(LightProbeComponent* probe)
     {
         return impl_->env_->addLightProbe(probe);
     }
@@ -891,16 +890,14 @@ namespace af3d
         impl_->env_->removeLightProbe(probe);
     }
 
-    void Scene::recreateGlobalLightProbe(std::uint32_t irradianceRes,
-        std::uint32_t specularRes,
-        std::uint32_t specularMipLevels)
+    void Scene::recreateGlobalLightProbe()
     {
         auto oldProbe = impl_->env_->globalLightProbe();
         if (oldProbe) {
             oldProbe->removeFromParent();
         }
         dummy_->addComponent(
-            std::make_shared<LightProbeComponent>(irradianceRes, specularRes, specularMipLevels));
+            std::make_shared<LightProbeComponent>());
     }
 
     void Scene::setRespawnPoint(const btTransform& value)
@@ -985,51 +982,6 @@ namespace af3d
     APropertyValue Scene::propertyCameraTransformGet(const std::string&) const
     {
         return mainCamera()->transform();
-    }
-
-    APropertyValue Scene::propertyGlobalIrradianceResGet(const std::string&) const
-    {
-        auto probe = impl_->env_->globalLightProbe();
-        return probe ? static_cast<int>(probe->irradianceResolution()) : 0;
-    }
-
-    void Scene::propertyGlobalIrradianceResSet(const std::string&, const APropertyValue& value)
-    {
-        auto probe = impl_->env_->globalLightProbe();
-        if (probe) {
-            recreateGlobalLightProbe(value.toInt(),
-                probe->specularResolution(), probe->specularMipLevels());
-        }
-    }
-
-    APropertyValue Scene::propertyGlobalSpecularResGet(const std::string&) const
-    {
-        auto probe = impl_->env_->globalLightProbe();
-        return probe ? static_cast<int>(probe->specularResolution()) : 0;
-    }
-
-    void Scene::propertyGlobalSpecularResSet(const std::string&, const APropertyValue& value)
-    {
-        auto probe = impl_->env_->globalLightProbe();
-        if (probe) {
-            recreateGlobalLightProbe(probe->irradianceResolution(),
-                value.toInt(), probe->specularMipLevels());
-        }
-    }
-
-    APropertyValue Scene::propertyGlobalSpecularMipLevelsGet(const std::string&) const
-    {
-        auto probe = impl_->env_->globalLightProbe();
-        return probe ? static_cast<int>(probe->specularMipLevels()) : 0;
-    }
-
-    void Scene::propertyGlobalSpecularMipLevelsSet(const std::string&, const APropertyValue& value)
-    {
-        auto probe = impl_->env_->globalLightProbe();
-        if (probe) {
-            recreateGlobalLightProbe(probe->irradianceResolution(),
-                probe->specularResolution(), value.toInt());
-        }
     }
 
     void Scene::propertyUpdateLightProbesSet(const std::string&, const APropertyValue& value)

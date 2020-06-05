@@ -27,7 +27,7 @@
 #define _SCENE_ENVIRONMENT_H_
 
 #include "VertexArrayWriter.h"
-#include "Texture.h"
+#include "RenderTarget.h"
 
 namespace af3d
 {
@@ -55,17 +55,19 @@ namespace af3d
 
         void removeLight(Light* light);
 
-        int addLightProbe(LightProbeComponent* probe);
+        LightProbeRenderTarget addLightProbe(LightProbeComponent* probe);
 
         void removeLightProbe(LightProbeComponent* probe);
 
         void updateLightProbes();
 
-        LightProbeComponent* getLightProbeFor(const btVector3& pos);
-
         inline const HardwareDataBufferPtr& lightsSSBO() const { return lightsSSBO_; }
 
         inline const HardwareDataBufferPtr& probesSSBO() const { return probesSSBO_; }
+
+        inline const TexturePtr& irradianceTexture() const { return irradianceTexture_; }
+
+        inline const TexturePtr& specularTexture() const { return specularTexture_; }
 
     private:
         using IndexSet = std::set<int>;

@@ -113,15 +113,6 @@ namespace af3d
 
         APropertyValue propertyCameraTransformGet(const std::string&) const { return cameraXf_; }
 
-        APropertyValue propertyGlobalIrradianceResGet(const std::string&) const { return static_cast<int>(globalIrradianceRes_); }
-        void propertyGlobalIrradianceResSet(const std::string&, const APropertyValue& value) { globalIrradianceRes_ = value.toInt(); }
-
-        APropertyValue propertyGlobalSpecularResGet(const std::string&) const { return static_cast<int>(globalSpecularRes_); }
-        void propertyGlobalSpecularResSet(const std::string&, const APropertyValue& value) { globalSpecularRes_ = value.toInt(); }
-
-        APropertyValue propertyGlobalSpecularMipLevelsGet(const std::string&) const { return static_cast<int>(globalSpecularMipLevels_); }
-        void propertyGlobalSpecularMipLevelsSet(const std::string&, const APropertyValue& value) { globalSpecularMipLevels_ = value.toInt(); }
-
         APropertyValue propertyUpdateLightProbesGet(const std::string&) const { return false; }
         void propertyUpdateLightProbesSet(const std::string&, const APropertyValue& value) { }
 
@@ -136,10 +127,6 @@ namespace af3d
         std::string scriptPath_;
         btTransform cameraXf_;
         CollisionMatrixPtr collisionMatrix_;
-
-        std::uint32_t globalIrradianceRes_ = 0;
-        std::uint32_t globalSpecularRes_ = 0;
-        std::uint32_t globalSpecularMipLevels_ = 0;
     };
 
     using SceneAssetPtr = std::shared_ptr<SceneAsset>;
@@ -154,9 +141,6 @@ namespace af3d
         ACLASS_PROPERTY(Class, Root, "root", "Scene root body", SceneObject, SceneObjectPtr(), General, APropertyEditable) \
         ACLASS_PROPERTY(Class, CollisionMatrix, "collision matrix", "Scene collision matrix", CollisionMatrix, CollisionMatrixPtr(), General, APropertyEditable) \
         ACLASS_PROPERTY_RO(Class, CameraTransform, AProperty_CameraTransform, "Camera transform", Transform, Position, APropertyEditable) \
-        ACLASS_PROPERTY(Class, GlobalIrradianceRes, "global irradiance res", "Global light probe irradiance resolution", UInt, 64, General, APropertyEditable) \
-        ACLASS_PROPERTY(Class, GlobalSpecularRes, "global specular res", "Global light probe specular resolution", UInt, 128, General, APropertyEditable) \
-        ACLASS_PROPERTY(Class, GlobalSpecularMipLevels, "global spec mip levels", "Global light probe specular mip levels", UInt, 5, General, APropertyEditable) \
         ACLASS_PROPERTY(Class, UpdateLightProbes, "update light probes", "Update light probes", Bool, false, General, APropertyEditable|APropertyTransient)
 }
 
