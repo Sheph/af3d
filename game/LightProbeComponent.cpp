@@ -42,9 +42,10 @@ namespace af3d
     ACLASS_DEFINE_BEGIN(LightProbeComponent, PhasedComponent)
     ACLASS_DEFINE_END(LightProbeComponent)
 
-    LightProbeComponent::LightProbeComponent(const boost::optional<AABB>& bounds)
+    LightProbeComponent::LightProbeComponent(const boost::optional<AABB>& bounds, bool spherical)
     : PhasedComponent(AClass_LightProbeComponent, phasePreRender),
-      bounds_(bounds)
+      bounds_(bounds),
+      spherical_(spherical)
     {
     }
 
@@ -176,6 +177,7 @@ namespace af3d
         auto mat = Matrix4f(parent()->smoothTransform() * toTransform(b.getCenter())).scaled(b.getExtents());
         cProbe.invModel = mat.inverse();
         cProbe.cubeIdx = rt_.index;
+        cProbe.spherical = spherical_;
         cProbe.enabled = 1;
     }
 
@@ -423,13 +425,25 @@ namespace af3d
         dd.setRenderList(&rl);
         if (w->emObject()->isSelected(parent()->sharedThis())) {
             dd.setAlpha(0.8f);
-            dd.drawBox(bounds_->lowerBound, bounds_->upperBound,
-                parent()->smoothTransform(), btVector3(1.0f, 1.0f, 1.0f));
+            if (spherical_) {
+                auto p = parent()->smoothTransform() * bounds_->getCenter();
+                auto ext = bounds_->getExtents();
+                dd.drawSphere(p, btMin(btMin(ext.x(), ext.y()), ext.z()), btVector3(1.0f, 1.0f, 1.0f));
+            } else {
+                dd.drawBox(bounds_->lowerBound, bounds_->upperBound,
+                    parent()->smoothTransform(), btVector3(1.0f, 1.0f, 1.0f));
+            }
             dd.flushLines(false);
         } else {
             dd.setAlpha(0.1f);
-            dd.drawBox(bounds_->lowerBound, bounds_->upperBound,
-                parent()->smoothTransform(), btVector3(1.0f, 1.0f, 1.0f));
+            if (spherical_) {
+                auto p = parent()->smoothTransform() * bounds_->getCenter();
+                auto ext = bounds_->getExtents();
+                dd.drawSphere(p, btMin(btMin(ext.x(), ext.y()), ext.z()), btVector3(1.0f, 1.0f, 1.0f));
+            } else {
+                dd.drawBox(bounds_->lowerBound, bounds_->upperBound,
+                    parent()->smoothTransform(), btVector3(1.0f, 1.0f, 1.0f));
+            }
             dd.flushLines(true);
         }
     }

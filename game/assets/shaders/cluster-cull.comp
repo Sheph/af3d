@@ -24,9 +24,9 @@ struct ClusterProbe
     vec4 pos;
     mat4 invModel;
     uint cubeIdx;
+    uint spherical;
     uint enabled;
-    float padding1;
-    float padding2;
+    float padding;
 };
 
 struct ClusterTileData
@@ -79,10 +79,9 @@ shared TmpData sharedData[CLUSTER_CULL_X * CLUSTER_CULL_Y * CLUSTER_CULL_Z];
 
 ClusterTile tileWS;
 
-float sqDistPointAABB(vec3 point, uint tile)
+float sqDistPointAABB(vec3 point, const ClusterTile currentCell)
 {
     float sqDist = 0.0;
-    const ClusterTile currentCell = clusterTiles[tile];
 
     if (point.x < currentCell.minPoint.x) {
         sqDist += (currentCell.minPoint.x - point.x) * (currentCell.minPoint.x - point.x);
@@ -109,7 +108,7 @@ bool testSphereAABB(uint light, uint tile)
 {
     float radius = length(sharedData[light].dir.xyz);
     vec3 center = vec3(vec4(sharedData[light].pos.xyz, 1.0) * stableView);
-    float squaredDistance = sqDistPointAABB(center, tile);
+    float squaredDistance = sqDistPointAABB(center, clusterTiles[tile]);
     return squaredDistance <= (radius * radius);
 }
 
@@ -138,14 +137,20 @@ bool testProbeAABB(uint probe, uint tile)
 {
     ClusterTile tilePS;
     tileTransform(tileWS, sharedData[probe].invModel, tilePS);
-    if ((tilePS.minPoint.x > 1.0) || (tilePS.maxPoint.x < -1.0)) {
-        return false;
-    }
-    if ((tilePS.minPoint.y > 1.0) || (tilePS.maxPoint.y < -1.0)) {
-        return false;
-    }
-    if ((tilePS.minPoint.z > 1.0) || (tilePS.maxPoint.z < -1.0)) {
-        return false;
+    if (sharedData[probe].pos.x == 1.0) {
+        if (sqDistPointAABB(vec3(0.0), tilePS) > 1.0) {
+            return false;
+        }
+    } else {
+        if ((tilePS.minPoint.x > 1.0) || (tilePS.maxPoint.x < -1.0)) {
+            return false;
+        }
+        if ((tilePS.minPoint.y > 1.0) || (tilePS.maxPoint.y < -1.0)) {
+            return false;
+        }
+        if ((tilePS.minPoint.z > 1.0) || (tilePS.maxPoint.z < -1.0)) {
+            return false;
+        }
     }
     return true;
 }
@@ -209,6 +214,7 @@ void cullProbes(uint threadCount, uint tileIndex)
 
         sharedData[gl_LocalInvocationIndex].enabled = clusterProbes[probeIndex].enabled;
         sharedData[gl_LocalInvocationIndex].invModel = clusterProbes[probeIndex].invModel;
+        sharedData[gl_LocalInvocationIndex].pos.x = float(clusterProbes[probeIndex].spherical);
 
         memoryBarrierShared();
         barrier();

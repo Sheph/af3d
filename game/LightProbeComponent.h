@@ -41,7 +41,7 @@ namespace af3d
         public PhasedComponent
     {
     public:
-        LightProbeComponent(const boost::optional<AABB>& bounds = boost::optional<AABB>());
+        explicit LightProbeComponent(const boost::optional<AABB>& bounds = boost::optional<AABB>(), bool spherical = false);
         ~LightProbeComponent() = default;
 
         static const AClass& staticKlass();
@@ -96,6 +96,7 @@ namespace af3d
         btTransform prevXf_ = btTransform::getIdentity();
 
         boost::optional<AABB> bounds_;
+        bool spherical_;
 
         LightProbeRenderTarget rt_;
         TexturePtr specularLUTTexture_;

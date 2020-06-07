@@ -38,9 +38,9 @@ struct ClusterProbe
     vec4 pos;
     mat4 invModel;
     uint cubeIdx;
+    uint spherical;
     uint enabled;
-    float padding1;
-    float padding2;
+    float padding;
 };
 
 struct ClusterTileData
@@ -128,7 +128,7 @@ vec3 fresnelSchlick(vec3 F0, float cosTheta)
 }
 
 // See: https://seblagarde.wordpress.com/2012/09/29/image-based-lighting-approaches-and-parallax-corrected-cubemap/
-vec3 reflDirectionFixup(mat4 lightProbeInvModel, vec3 lightProbePos, vec3 ReflDirectionWS, vec3 DirectionWS, vec3 PositionWS, out float blendFactor)
+vec3 reflDirectionFixupBox(mat4 lightProbeInvModel, vec3 lightProbePos, vec3 ReflDirectionWS, vec3 PositionWS, out float blendFactor)
 {
     // Intersection with OBB convertto unit box space
     // Transform in local unit parallax cube space (scaled and rotated)
@@ -146,6 +146,18 @@ vec3 reflDirectionFixup(mat4 lightProbeInvModel, vec3 lightProbePos, vec3 ReflDi
     ReflDirectionWS = IntersectPositionWS - lightProbePos;
 
     blendFactor = 1.0 - pow(clamp(max(abs(PositionLS.x), max(abs(PositionLS.y), abs(PositionLS.z))), 0.0, 1.0), 10.0);
+
+    return ReflDirectionWS;
+}
+
+vec3 reflDirectionFixupSphere(mat4 lightProbeInvModel, vec3 lightProbePos, vec3 ReflDirectionWS, vec3 PositionWS, out float blendFactor)
+{
+    vec3 PositionLS = (vec4(PositionWS, 1.0) * lightProbeInvModel).xyz;
+    vec3 LightProbePositionLS = (vec4(lightProbePos, 1.0) * lightProbeInvModel).xyz;
+
+    ReflDirectionWS = ReflDirectionWS + (PositionLS - LightProbePositionLS);
+
+    blendFactor = 1.0 - pow(clamp(length(PositionLS), 0.0, 1.0), 10.0);
 
     return ReflDirectionWS;
 }
@@ -178,11 +190,11 @@ void main()
     vec3 Lo = normalize(eyePos - v_pos);
 
 #ifdef NM
-    vec3 tN = texture(texNormal, v_texCoord).rgb;
+    vec3 tN = 2.0 * texture(texNormal, v_texCoord).rgb - 1;
     if (normalFormat == 1) {
-        tN.b = sqrt(1 - clamp(tN.r * tN.r + tN.g * tN.g, 0.0, 1.0));
+        tN.b = sqrt(1.0 - tN.r * tN.r - tN.g * tN.g);
     }
-    vec3 N = normalize(v_tbn * normalize(2.0 * tN - 1.0));
+    vec3 N = normalize(v_tbn * tN);
 #else
     vec3 N = normalize(v_normal);
 #endif
@@ -217,7 +229,12 @@ void main()
             float layer = float(probe.cubeIdx);
 
             float blendFactor;
-            vec3 LrFixed = reflDirectionFixup(probe.invModel, probe.pos.xyz, normalize(Lr), -Lo, v_pos, blendFactor);
+            vec3 LrFixed;
+            if (probe.spherical == 1) {
+                LrFixed = reflDirectionFixupSphere(probe.invModel, probe.pos.xyz, normalize(Lr), v_pos, blendFactor);
+            } else {
+                LrFixed = reflDirectionFixupBox(probe.invModel, probe.pos.xyz, normalize(Lr), v_pos, blendFactor);
+            }
 
             // Sample diffuse irradiance at normal direction.
             vec3 irradiance = texture(texIrradiance, vec4(N, layer)).rgb;

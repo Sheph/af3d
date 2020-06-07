@@ -59,7 +59,7 @@ namespace af3d
 
         SceneObjectPtr createTestCameraDisplay(const SceneObjectPtr& camObj, float scale);
 
-        SceneObjectPtr createLightProbe(const AABB& bounds);
+        SceneObjectPtr createLightProbe(const AABB& bounds, bool spherical);
 
         SceneObjectPtr createSkyBox(const std::string& texturePath);
     };
