@@ -65,7 +65,10 @@ namespace af3d
         {"shaders/basic.vert", "shaders/pbr.frag", nullptr, "#define FAST 1\n"},
         {"shaders/basic.vert", "shaders/pbr.frag", nullptr, "#define FAST 1\n#define NM 1\n"},
         {nullptr, nullptr, "shaders/cluster-build.comp", nullptr},
-        {nullptr, nullptr, "shaders/cluster-cull.comp", nullptr}
+        {nullptr, nullptr, "shaders/cluster-cull.comp", nullptr},
+        {"shaders/prepass1.vert", "shaders/prepass.frag", nullptr, nullptr},
+        {"shaders/prepass2.vert", "shaders/prepass.frag", nullptr, nullptr},
+        {"shaders/prepass-ws.vert", "shaders/prepass.frag", nullptr, nullptr}
     };
 
     MaterialManager materialManager;
@@ -83,11 +86,7 @@ namespace af3d
     {
         LOG4CPLUS_DEBUG(logger(), "materialManager: init...");
 
-        glslCommonHeader_ = "#version 430 core\n" \
-            "#define OUT_FRAG_VELOCITY() \\\n" \
-            "vec2 a = (v_clipPos.xy / v_clipPos.w); \\\n" \
-            "vec2 b = (v_prevClipPos.xy / v_prevClipPos.w); \\\n" \
-            "fragVelocity = (a - b)\n";
+        glslCommonHeader_ = "#version 430 core\n";
         glslCommonHeader_ += "#define CLUSTER_GRID_X " + std::to_string(settings.cluster.gridSize.x()) + "\n";
         glslCommonHeader_ += "#define CLUSTER_GRID_Y " + std::to_string(settings.cluster.gridSize.y()) + "\n";
         glslCommonHeader_ += "#define CLUSTER_GRID_Z " + std::to_string(settings.cluster.gridSize.z()) + "\n";
@@ -118,6 +117,9 @@ namespace af3d
         matOutlineHovered_.reset();
         matOutlineSelected_.reset();
         matClusterCull_.reset();
+        matPrepassWS_.reset();
+        matPrepass_[0].reset();
+        matPrepass_[1].reset();
         runtime_assert(immediateMaterials_.empty());
         cachedMaterials_.clear();
         for (int i = MaterialTypeFirst; i <= MaterialTypeMax; ++i) {
@@ -242,16 +244,23 @@ namespace af3d
             matOutlineInactive_ = createMaterial(MaterialTypeOutline);
             matOutlineInactive_->params().setUniform(UniformName::MainColor, gammaToLinear(settings.editor.outlineColorInactive));
             matOutlineInactive_->setCullFaceMode(GL_FRONT);
+            matOutlineInactive_->setBlendingParams(BlendingParams(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
             matOutlineHovered_ = createMaterial(MaterialTypeOutline);
             matOutlineHovered_->params().setUniform(UniformName::MainColor, gammaToLinear(settings.editor.outlineColorHovered));
             matOutlineHovered_->setCullFaceMode(GL_FRONT);
+            matOutlineHovered_->setBlendingParams(BlendingParams(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
             matOutlineSelected_ = createMaterial(MaterialTypeOutline);
             matOutlineSelected_->params().setUniform(UniformName::MainColor, gammaToLinear(settings.editor.outlineColorSelected));
             matOutlineSelected_->setCullFaceMode(GL_FRONT);
+            matOutlineSelected_->setBlendingParams(BlendingParams(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
             matClusterCull_ = createMaterial(MaterialTypeClusterCull);
+
+            matPrepassWS_ = createMaterial(MaterialTypePrepassWS);
+            matPrepass_[0] = createMaterial(MaterialTypePrepass1);
+            matPrepass_[1] = createMaterial(MaterialTypePrepass2);
         }
 
         return true;

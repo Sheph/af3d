@@ -57,7 +57,10 @@ namespace af3d
             "FastPBR",
             "FastPBRNM",
             "ClusterBuild",
-            "ClusterCull"
+            "ClusterCull",
+            "Prepass1",
+            "Prepass2",
+            "PrepassWS"
         }
     };
 

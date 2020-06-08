@@ -291,6 +291,7 @@ namespace af3d
         mc->setRenderTarget(AttachmentPoint::Depth, RenderTarget(depthTex));
         mc->setClearMask(mc->clearMask() | AttachmentPoint::Color1);
         mc->setClearColor(AttachmentPoint::Color1, linearToGamma(Color(65535.0f, 65535.0f, 65535.0f, 65535.0f)));
+        mc->setPrepass(true);
         addCamera(mc);
 
         if (settings.bloom) {

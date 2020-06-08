@@ -111,6 +111,12 @@ namespace af3d
         inline const Color& ambientColor() const { return ambientColor_; }
         inline void setAmbientColor(const Color& value) { ambientColor_ = value; }
 
+        inline bool prepass() const { return prepass_; }
+        // When using prepass be sure to setup depth or color1 render targets.
+        // If depth is set it'll receive depth buffer, depth buffer can be used in fragment shading.
+        // If color1 is set it'll receive velocity.
+        inline void setPrepass(bool value) { prepass_ = value; }
+
         inline const RenderTarget& renderTarget(AttachmentPoint attachmentPoint = AttachmentPoint::Color0) const { return renderTarget_[static_cast<int>(attachmentPoint)]; }
         inline void setRenderTarget(AttachmentPoint attachmentPoint, const RenderTarget& value) { renderTarget_[static_cast<int>(attachmentPoint)] = value; }
 
@@ -135,6 +141,7 @@ namespace af3d
         AttachmentPoints clearMask_ = AttachmentPoints(AttachmentPoint::Color0) | AttachmentPoint::Depth;
         AttachmentColors clearColors_;
         Color ambientColor_ = Color(0.2f, 0.2f, 0.2f, 1.0f);
+        bool prepass_ = false;
 
         std::array<RenderTarget, static_cast<int>(AttachmentPoint::Max) + 1> renderTarget_;
 

@@ -9,8 +9,6 @@ layout(location = 5) in vec3 bitangent;
 
 uniform mat4 viewProj;
 uniform mat4 model;
-uniform mat4 prevStableMVP;
-uniform mat4 curStableMVP;
 
 out vec2 v_texCoord;
 out vec3 v_pos;
@@ -20,7 +18,6 @@ out mat3 v_tbn;
 out vec3 v_normal;
 #endif
 
-out vec4 v_prevClipPos;
 out vec4 v_clipPos;
 
 void main()
@@ -42,8 +39,7 @@ void main()
     v_normal = normalize(normal * mat3(model));
 #endif
 
-    v_prevClipPos = vec4(pos, 1.0) * prevStableMVP;
-    v_clipPos = vec4(pos, 1.0) * curStableMVP;
+    v_clipPos = vec4(pos, 1.0) * model * viewProj;
 
-    gl_Position = vec4(pos, 1.0) * model * viewProj;
+    gl_Position = v_clipPos;
 }

@@ -39,8 +39,14 @@ namespace af3d
     {
     }
 
-    void RenderNode::add(RenderNode&& tmpNode, int pass, const AttachmentPoints& drawBuffers, const MaterialPtr& material,
-        GLenum depthFunc, float depthValue, const BlendingParams& blendingParams, bool flipCull,
+    void RenderNode::add(RenderNode&& tmpNode, int pass, const AttachmentPoints& drawBuffers,
+        const MaterialTypePtr& matType,
+        const MaterialParams& matParams,
+        const BlendingParams& matBlendingParams,
+        bool matDepthTest,
+        bool matDepthWrite,
+        GLenum matCullFaceMode,
+        GLenum depthFunc, float depthValue, bool flipCull,
         std::vector<HardwareTextureBinding>&& textures, std::vector<StorageBufferBinding>&& storageBuffers,
         const VertexArraySlice& vaSlice, GLenum primitiveMode, const ScissorParams& scissorParams,
         MaterialParams&& materialParamsAuto)
@@ -50,34 +56,33 @@ namespace af3d
         RenderNode* node = this;
 
         node = node->insertPass(std::move(tmpNode), pass, drawBuffers);
-        node = node->insertDepthTest(std::move(tmpNode), material->depthTest(), depthFunc);
+        node = node->insertDepthTest(std::move(tmpNode), matDepthTest, depthFunc);
         node = node->insertDepth(std::move(tmpNode), depthValue);
-        node = node->insertBlendingParams(std::move(tmpNode), blendingParams);
+        node = node->insertBlendingParams(std::move(tmpNode), matBlendingParams);
 
-        GLenum cullFaceMode = material->cullFaceMode();
         if (flipCull) {
-            if (cullFaceMode == GL_FRONT) {
-                cullFaceMode = GL_BACK;
-            } else if (cullFaceMode == GL_BACK) {
-                cullFaceMode = GL_FRONT;
+            if (matCullFaceMode == GL_FRONT) {
+                matCullFaceMode = GL_BACK;
+            } else if (matCullFaceMode == GL_BACK) {
+                matCullFaceMode = GL_FRONT;
             }
         }
 
-        node = node->insertCullFace(std::move(tmpNode), cullFaceMode);
-        node = node->insertMaterialType(std::move(tmpNode), material->type());
+        node = node->insertCullFace(std::move(tmpNode), matCullFaceMode);
+        node = node->insertMaterialType(std::move(tmpNode), matType);
         node = node->insertTextures(std::move(tmpNode), std::move(textures));
         node = node->insertVertexArray(std::move(tmpNode), vaSlice.va(), std::move(storageBuffers));
         node = node->insertDraw(std::move(tmpNode), numDraws_++);
 
         node->va_ = vaSlice.va();
         node->scissorParams_ = scissorParams;
-        node->materialParams_ = material->params();
+        node->materialParams_ = matParams;
         node->materialParamsAuto_ = std::move(materialParamsAuto);
         node->drawPrimitiveMode_ = primitiveMode;
         node->drawStart_ = vaSlice.start();
         node->drawCount_ = vaSlice.count();
         node->drawBaseVertex_ = vaSlice.baseVertex();
-        node->depthWrite_ = material->depthWrite();
+        node->depthWrite_ = matDepthWrite;
     }
 
     void RenderNode::add(RenderNode&& tmpNode, int pass, const AttachmentPoints& drawBuffers, const MaterialPtr& material,

@@ -67,6 +67,8 @@ namespace af3d
         inline const MaterialPtr& matOutlineHovered() const { return matOutlineHovered_; }
         inline const MaterialPtr& matOutlineSelected() const { return matOutlineSelected_; }
         inline const MaterialPtr& matClusterCull() const { return matClusterCull_; }
+        inline const MaterialPtr& matPrepassWS() const { return matPrepassWS_; }
+        inline const MaterialPtr& matPrepass(int i) const { return matPrepass_[i]; }
 
     private:
         using MaterialTypes = std::array<MaterialTypePtr, MaterialTypeMax + 1>;
@@ -85,6 +87,8 @@ namespace af3d
         MaterialPtr matOutlineHovered_;
         MaterialPtr matOutlineSelected_;
         MaterialPtr matClusterCull_;
+        MaterialPtr matPrepassWS_;
+        MaterialPtr matPrepass_[2];
     };
 
     extern MaterialManager materialManager;

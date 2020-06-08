@@ -445,7 +445,7 @@ void main()
         #else
             VelocityN = texture(texNoise, UV).xy;
         #endif
-        bool DynamicN = VelocityN.x < 65534.0;
+        bool DynamicN = VelocityN.x < 60000.0;
         if(DynamicN)
         {
             BackN = VelocityN;

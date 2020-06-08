@@ -54,11 +54,9 @@ in mat3 v_tbn;
 in vec3 v_normal;
 #endif
 
-in vec4 v_prevClipPos;
 in vec4 v_clipPos;
 
-layout (location = 0) out vec4 fragColor;
-layout (location = 1) out vec2 fragVelocity;
+out vec4 fragColor;
 
 float linearDepth(float depthRange)
 {
@@ -130,6 +128,4 @@ void main()
 
         fragColor += attenuation * (diffuseReflection + specularReflection);
     }
-
-    OUT_FRAG_VELOCITY();
 }

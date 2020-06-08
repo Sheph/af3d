@@ -450,18 +450,53 @@ namespace af3d
         auto rn = std::make_shared<RenderNode>(camera_->viewport(), camera_->clearMask(), camera_->clearColors(), mrt);
         auto drawBuffers = mrt.getDrawBuffers();
 
+        if (camera_->prepass()) {
+            btAssert(drawBuffers[AttachmentPoint::Color1] || drawBuffers[AttachmentPoint::Depth]);
+        }
+
         RenderNode tmpNode;
 
         std::vector<HardwareTextureBinding> textures;
         std::vector<StorageBufferBinding> storageBuffers;
 
+        AttachmentPoints prepassDrawBuffers;
+        if (drawBuffers[AttachmentPoint::Depth]) {
+            prepassDrawBuffers.set(AttachmentPoint::Depth);
+        }
+        if (drawBuffers[AttachmentPoint::Color1]) {
+            prepassDrawBuffers.set(AttachmentPoint::Color1);
+        }
+
         bool needClusterData = false;
         for (const auto& geom : geomList_) {
-            const auto& ssbos = geom.material->type()->prog()->storageBuffers();
-            if (ssbos[StorageBufferName::ClusterTileData]) {
-                needClusterData = true;
-                break;
+            if (!needClusterData) {
+                const auto& ssbos = geom.material->type()->prog()->storageBuffers();
+                if (ssbos[StorageBufferName::ClusterTileData]) {
+                    needClusterData = true;
+                }
             }
+            if (camera_->prepass() && (geom.material->type()->name() != MaterialTypeSkyBox) && !geom.material->blendingParams().isEnabled()) {
+                const auto& activeUniforms = geom.material->type()->prog()->activeUniforms();
+                const auto& mat = (activeUniforms.count(UniformName::ModelViewProjMatrix) != 0) ? materialManager.matPrepass(0) :
+                    ((activeUniforms.count(UniformName::ModelMatrix) != 0) ? materialManager.matPrepass(1) : materialManager.matPrepassWS());
+                MaterialParams params(mat->type(), true);
+                setAutoParams(mat, textures, storageBuffers, params, geom.modelMat, geom.prevModelMat);
+                rn->add(std::move(tmpNode), 0, prepassDrawBuffers,
+                    mat->type(),
+                    mat->params(),
+                    mat->blendingParams(),
+                    geom.material->depthTest(),
+                    geom.material->depthWrite(),
+                    geom.material->cullFaceMode(),
+                    GL_LESS, geom.depthValue, geom.flipCull,
+                    std::move(textures), std::move(storageBuffers),
+                    geom.vaSlice, geom.primitiveMode, geom.scissorParams,
+                    std::move(params));
+            }
+        }
+
+        if (camera_->prepass()) {
+            drawBuffers.reset(AttachmentPoint::Color1);
         }
 
         if (needClusterData) {
@@ -526,12 +561,51 @@ namespace af3d
         for (const auto& geom : geomList_) {
             MaterialParams params(geom.material->type(), true);
             setAutoParams(geom, textures, storageBuffers, params);
-            rn->add(std::move(tmpNode), 0, drawBuffers, geom.material,
-                GL_LEQUAL, geom.depthValue,
-                geom.material->blendingParams(), geom.flipCull,
-                std::move(textures), std::move(storageBuffers),
-                geom.vaSlice, geom.primitiveMode, geom.scissorParams,
-                std::move(params));
+            if (camera_->prepass()) {
+                int pass;
+                GLenum depthFunc;
+                if (geom.material->type()->name() == MaterialTypeSkyBox) {
+                    pass = 2;
+                    depthFunc = GL_LEQUAL;
+                } else if (geom.material->blendingParams().isEnabled()) {
+                    pass = 3;
+                    depthFunc = GL_LEQUAL;
+                } else {
+                    pass = 1;
+                    depthFunc = GL_EQUAL;
+                }
+                rn->add(std::move(tmpNode), pass, drawBuffers,
+                    geom.material->type(),
+                    geom.material->params(),
+                    geom.material->blendingParams(),
+                    geom.material->depthTest(),
+                    false,
+                    geom.material->cullFaceMode(),
+                    depthFunc, geom.depthValue, geom.flipCull,
+                    std::move(textures), std::move(storageBuffers),
+                    geom.vaSlice, geom.primitiveMode, geom.scissorParams,
+                    std::move(params));
+            } else {
+                int pass;
+                if (geom.material->type()->name() == MaterialTypeSkyBox) {
+                    pass = 2;
+                } else if (geom.material->blendingParams().isEnabled()) {
+                    pass = 3;
+                } else {
+                    pass = 1;
+                }
+                rn->add(std::move(tmpNode), pass, drawBuffers,
+                    geom.material->type(),
+                    geom.material->params(),
+                    geom.material->blendingParams(),
+                    geom.material->depthTest(),
+                    geom.material->depthWrite(),
+                    geom.material->cullFaceMode(),
+                    GL_LEQUAL, geom.depthValue, geom.flipCull,
+                    std::move(textures), std::move(storageBuffers),
+                    geom.vaSlice, geom.primitiveMode, geom.scissorParams,
+                    std::move(params));
+            }
         }
 
         return rn;

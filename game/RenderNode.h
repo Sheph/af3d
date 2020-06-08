@@ -66,8 +66,14 @@ namespace af3d
 
         inline const AABB2i& viewport() const { btAssert(type_ == Type::Root); return viewport_; }
 
-        void add(RenderNode&& tmpNode, int pass, const AttachmentPoints& drawBuffers, const MaterialPtr& material,
-            GLenum depthFunc, float depthValue, const BlendingParams& blendingParams, bool flipCull,
+        void add(RenderNode&& tmpNode, int pass, const AttachmentPoints& drawBuffers,
+            const MaterialTypePtr& matType,
+            const MaterialParams& matParams,
+            const BlendingParams& matBlendingParams,
+            bool matDepthTest,
+            bool matDepthWrite,
+            GLenum matCullFaceMode,
+            GLenum depthFunc, float depthValue, bool flipCull,
             std::vector<HardwareTextureBinding>&& textures, std::vector<StorageBufferBinding>&& storageBuffers,
             const VertexArraySlice& vaSlice, GLenum primitiveMode,
             const ScissorParams& scissorParams, MaterialParams&& materialParamsAuto);
