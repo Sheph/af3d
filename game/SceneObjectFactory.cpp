@@ -236,11 +236,11 @@ namespace af3d
         return obj;
     }
 
-    SceneObjectPtr SceneObjectFactory::createLightProbe(const AABB& bounds, bool spherical)
+    SceneObjectPtr SceneObjectFactory::createLightProbe(const AABB& bounds, bool spherical, const Color& ambientColor, const Color& specularColor)
     {
         auto obj = std::make_shared<SceneObject>();
 
-        obj->addComponent(std::make_shared<LightProbeComponent>(bounds, spherical));
+        obj->addComponent(std::make_shared<LightProbeComponent>(bounds, spherical, ambientColor, specularColor));
 
         return obj;
     }
@@ -340,13 +340,16 @@ namespace af3d
     {
         return sceneObjectFactory.createLightProbe(
             AABB(params.get("lower bound").toVec3(), params.get("upper bound").toVec3()),
-            params.get("spherical").toBool());
+            params.get("spherical").toBool(),
+            params.get("ambient color").toColor(), params.get("specular color").toColor());
     }
     SCENEOBJECT_DEFINE_PROPS(LightProbe)
     SCENEOBJECT_PARAM(LightProbe, AProperty_Name, "Object name", String, "")
     SCENEOBJECT_PARAM(LightProbe, "spherical", "Use spherical capture", Bool, false)
     SCENEOBJECT_PARAM(LightProbe, "lower bound", "Lower bound", Vec3f, btVector3(-0.5f, -0.5f, -0.5f))
     SCENEOBJECT_PARAM(LightProbe, "upper bound", "Upper bound", Vec3f, btVector3(0.5f, 0.5f, 0.5f))
+    SCENEOBJECT_PARAM(LightProbe, "ambient color", "Ambient color", ColorRGB, Color(1.0f, 1.0f, 1.0f, 1.0f))
+    SCENEOBJECT_PARAM(LightProbe, "specular color", "Specular color", ColorRGB, Color(0.5f, 0.5f, 0.5f, 1.0f))
     SCENEOBJECT_DEFINE_END(LightProbe)
 
     SCENEOBJECT_DEFINE_BEGIN(SkyBox)

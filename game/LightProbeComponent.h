@@ -41,7 +41,8 @@ namespace af3d
         public PhasedComponent
     {
     public:
-        explicit LightProbeComponent(const boost::optional<AABB>& bounds = boost::optional<AABB>(), bool spherical = false);
+        explicit LightProbeComponent(const boost::optional<AABB>& bounds = boost::optional<AABB>(), bool spherical = false,
+            const Color& ambientColor = Color_one, const Color& specularColor = Color_zero);
         ~LightProbeComponent() = default;
 
         static const AClass& staticKlass();
@@ -52,7 +53,7 @@ namespace af3d
 
         void preRender(float dt) override;
 
-        void recreate();
+        bool recreate();
 
         bool resetDirty();
 
@@ -67,6 +68,9 @@ namespace af3d
         inline bool hasIrradiance() const { return !!irrEquirect2cube_; }
         inline bool hasSpecular() const { return !!specularEquirect2cube_; }
         inline const TexturePtr& specularLUTTexture() const { return specularLUTTexture_; }
+
+        inline const Color& ambientColor() const { return ambientColor_; }
+        inline const Color& specularColor() const { return specularColor_; }
 
     private:
         static const std::uint32_t sceneCaptureSize = 512;
@@ -97,6 +101,8 @@ namespace af3d
 
         boost::optional<AABB> bounds_;
         bool spherical_;
+        Color ambientColor_;
+        Color specularColor_;
 
         LightProbeRenderTarget rt_;
         TexturePtr specularLUTTexture_;

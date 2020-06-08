@@ -28,8 +28,6 @@
 #include "Light.h"
 #include "HardwareResourceManager.h"
 #include "TextureManager.h"
-#include "Scene.h"
-#include "CameraComponent.h"
 #include "Renderer.h"
 #include "Settings.h"
 #include "Logger.h"
@@ -158,10 +156,14 @@ namespace af3d
     void SceneEnvironment::updateLightProbes()
     {
         if (globalProbe_) {
-            globalProbe_->recreate();
+            if (globalProbe_->recreate()) {
+                updateProbeTextures(globalProbe_);
+            }
         }
         for (auto probe : probes_) {
-            probe->recreate();
+            if (probe->recreate()) {
+                updateProbeTextures(probe);
+            }
         }
     }
 
@@ -278,22 +280,26 @@ namespace af3d
     void SceneEnvironment::updateProbeTextures(LightProbeComponent* probe)
     {
         if (!probe->hasIrradiance()) {
-            // No saved irradiance map, use camera clear color.
-            PackedColor color = toPackedColor(gammaToLinear(probe->scene()->mainCamera()->findComponent<CameraComponent>()->camera()->clearColor()));
-            std::vector<Byte> data(settings.lightProbe.irradianceResolution * settings.lightProbe.irradianceResolution * 3 * (TextureCubeFaceMax + 1));
-            for (size_t i = 0; i < data.size(); i += 3) {
-                data[i + 0] = color.x();
-                data[i + 1] = color.y();
-                data[i + 2] = color.z();
+            Color color = gammaToLinear(probe->ambientColor());
+            std::vector<Byte> data(settings.lightProbe.irradianceResolution * settings.lightProbe.irradianceResolution * 3 * (TextureCubeFaceMax + 1) * sizeof(float));
+            for (size_t i = 0; i < data.size(); i += 3 * sizeof(float)) {
+                *(float*)&data[i + sizeof(float) * 0] = color.x();
+                *(float*)&data[i + sizeof(float) * 1] = color.y();
+                *(float*)&data[i + sizeof(float) * 2] = color.z();
             }
-            irradianceTexture_->update(GL_RGB, GL_UNSIGNED_BYTE, std::move(data), 0, probe->index());
+            irradianceTexture_->update(GL_RGB, GL_FLOAT, std::move(data), 0, probe->index());
         }
         if (!probe->hasSpecular()) {
-            // No saved specular map, use black.
+            Color color = gammaToLinear(probe->specularColor());
             std::uint32_t mip = 0;
             while (std::uint32_t sz = textureMipSize(settings.lightProbe.specularResolution, mip)) {
-                std::vector<Byte> data(sz * sz * 3 * (TextureCubeFaceMax + 1), 0);
-                specularTexture_->update(GL_RGB, GL_UNSIGNED_BYTE, std::move(data), mip, probe->index());
+                std::vector<Byte> data(sz * sz * 3 * (TextureCubeFaceMax + 1) * sizeof(float));
+                for (size_t i = 0; i < data.size(); i += 3 * sizeof(float)) {
+                    *(float*)&data[i + sizeof(float) * 0] = color.x();
+                    *(float*)&data[i + sizeof(float) * 1] = color.y();
+                    *(float*)&data[i + sizeof(float) * 2] = color.z();
+                }
+                specularTexture_->update(GL_RGB, GL_FLOAT, std::move(data), mip, probe->index());
                 ++mip;
             }
         }

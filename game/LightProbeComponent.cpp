@@ -42,10 +42,13 @@ namespace af3d
     ACLASS_DEFINE_BEGIN(LightProbeComponent, PhasedComponent)
     ACLASS_DEFINE_END(LightProbeComponent)
 
-    LightProbeComponent::LightProbeComponent(const boost::optional<AABB>& bounds, bool spherical)
+    LightProbeComponent::LightProbeComponent(const boost::optional<AABB>& bounds, bool spherical,
+        const Color& ambientColor, const Color& specularColor)
     : PhasedComponent(AClass_LightProbeComponent, phasePreRender),
       bounds_(bounds),
-      spherical_(spherical)
+      spherical_(spherical),
+      ambientColor_(ambientColor),
+      specularColor_(specularColor)
     {
     }
 
@@ -149,18 +152,20 @@ namespace af3d
         }
     }
 
-    void LightProbeComponent::recreate()
+    bool LightProbeComponent::recreate()
     {
         btAssert(scene());
 
         if (irrCube2equirectFilter_ || !specularCube2EquirectFilters_.empty()) {
             LOG4CPLUS_WARN(logger(), "LightProbe(" << parent()->name() << "): recreation still in progress...");
-            return;
+            return false;
         }
 
         LOG4CPLUS_INFO(logger(), "LightProbe(" << parent()->name() << "): recreating...");
 
         startIrradianceGen();
+
+        return true;
     }
 
     bool LightProbeComponent::resetDirty()

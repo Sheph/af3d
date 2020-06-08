@@ -127,6 +127,8 @@ vec3 fresnelSchlick(vec3 F0, float cosTheta)
     return F0 + (vec3(1.0) - F0) * pow(1.0 - cosTheta + Epsilon, 5.0);
 }
 
+const float blendPower = 12.0;
+
 // See: https://seblagarde.wordpress.com/2012/09/29/image-based-lighting-approaches-and-parallax-corrected-cubemap/
 vec3 reflDirectionFixupBox(mat4 lightProbeInvModel, vec3 lightProbePos, vec3 ReflDirectionWS, vec3 PositionWS, out float blendFactor)
 {
@@ -145,7 +147,7 @@ vec3 reflDirectionFixupBox(mat4 lightProbeInvModel, vec3 lightProbePos, vec3 Ref
     vec3 IntersectPositionWS = PositionWS + ReflDirectionWS * Distance;
     ReflDirectionWS = IntersectPositionWS - lightProbePos;
 
-    blendFactor = 1.0 - pow(clamp(max(abs(PositionLS.x), max(abs(PositionLS.y), abs(PositionLS.z))), 0.0, 1.0), 10.0);
+    blendFactor = 1.0 - pow(clamp(max(abs(PositionLS.x), max(abs(PositionLS.y), abs(PositionLS.z))), 0.0, 1.0), blendPower);
 
     return ReflDirectionWS;
 }
@@ -157,7 +159,7 @@ vec3 reflDirectionFixupSphere(mat4 lightProbeInvModel, vec3 lightProbePos, vec3 
 
     ReflDirectionWS = ReflDirectionWS + (PositionLS - LightProbePositionLS);
 
-    blendFactor = 1.0 - pow(clamp(length(PositionLS), 0.0, 1.0), 10.0);
+    blendFactor = 1.0 - pow(clamp(length(PositionLS), 0.0, 1.0), blendPower);
 
     return ReflDirectionWS;
 }
