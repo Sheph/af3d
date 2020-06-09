@@ -29,6 +29,27 @@
 
 namespace af3d
 {
+    void RenderNode::DrawBufferBinding::setup(const AttachmentPoints& drawBuffers, const HardwareProgram::Outputs& outputs)
+    {
+        if (drawBuffers.empty()) {
+            numBuffers = -1;
+            return;
+        }
+
+        numBuffers = 0;
+        int n = 0;
+        for (int i = static_cast<int>(AttachmentPoint::Color0);
+            (i <= static_cast<int>(AttachmentPoint::Max)) && (numBuffers < static_cast<int>(outputs.size())); ++i) {
+            AttachmentPoint p = static_cast<AttachmentPoint>(i);
+            if (drawBuffers[p]) {
+                if (outputs.count(n) > 0) {
+                    buffers[numBuffers++] = glAttachmentPoint(p);
+                }
+                ++n;
+            }
+        }
+    }
+
     RenderNode::RenderNode(const AABB2i& viewport, const AttachmentPoints& clearMask, const AttachmentColors& clearColors, const HardwareMRT& mrt)
     : type_(Type::Root),
       viewport_(viewport),
@@ -39,7 +60,7 @@ namespace af3d
     {
     }
 
-    void RenderNode::add(RenderNode&& tmpNode, int pass, const AttachmentPoints& drawBuffers,
+    void RenderNode::add(RenderNode&& tmpNode, int pass, const AttachmentPoints& drawBuffers, const HardwareProgram::Outputs& outputs,
         const MaterialTypePtr& matType,
         const MaterialParams& matParams,
         const BlendingParams& matBlendingParams,
@@ -55,7 +76,7 @@ namespace af3d
 
         RenderNode* node = this;
 
-        node = node->insertPass(std::move(tmpNode), pass, drawBuffers);
+        node = node->insertPass(std::move(tmpNode), pass);
         node = node->insertDepthTest(std::move(tmpNode), matDepthTest, depthFunc);
         node = node->insertDepth(std::move(tmpNode), depthValue);
         node = node->insertBlendingParams(std::move(tmpNode), matBlendingParams);
@@ -78,6 +99,7 @@ namespace af3d
         node->scissorParams_ = scissorParams;
         node->materialParams_ = matParams;
         node->materialParamsAuto_ = std::move(materialParamsAuto);
+        node->drawBufferBinding_.setup(drawBuffers, outputs);
         node->drawPrimitiveMode_ = primitiveMode;
         node->drawStart_ = vaSlice.start();
         node->drawCount_ = vaSlice.count();
@@ -85,7 +107,7 @@ namespace af3d
         node->depthWrite_ = matDepthWrite;
     }
 
-    void RenderNode::add(RenderNode&& tmpNode, int pass, const AttachmentPoints& drawBuffers, const MaterialPtr& material,
+    void RenderNode::add(RenderNode&& tmpNode, int pass, const MaterialPtr& material,
         const VertexArrayPtr& va,
         std::vector<StorageBufferBinding>&& storageBuffers,
         const Vector3i& computeNumGroups,
@@ -96,7 +118,7 @@ namespace af3d
 
         RenderNode* node = this;
 
-        node = node->insertPass(std::move(tmpNode), pass, drawBuffers);
+        node = node->insertPass(std::move(tmpNode), pass);
         node = node->insertDepthTest(std::move(tmpNode), false, 0);
         node = node->insertDepth(std::move(tmpNode), 0.0f);
         node = node->insertBlendingParams(std::move(tmpNode), BlendingParams());
@@ -226,11 +248,10 @@ namespace af3d
         return drawIdx_ < other.drawIdx_;
     }
 
-    RenderNode* RenderNode::insertPass(RenderNode&& tmpNode, int pass, const AttachmentPoints& drawBuffers)
+    RenderNode* RenderNode::insertPass(RenderNode&& tmpNode, int pass)
     {
         tmpNode.type_ = Type::Pass;
         tmpNode.pass_ = pass;
-        tmpNode.drawBuffers_ = drawBuffers;
         return insertImpl(std::move(tmpNode));
     }
 
@@ -333,19 +354,6 @@ namespace af3d
 
     void RenderNode::applyPass(HardwareContext& ctx) const
     {
-        if (drawBuffers_.empty()) {
-            return;
-        }
-
-        GLenum buffers[static_cast<int>(AttachmentPoint::Max) - static_cast<int>(AttachmentPoint::Color0) + 1];
-        GLsizei n = 0;
-        for (int i = static_cast<int>(AttachmentPoint::Color0); i <= static_cast<int>(AttachmentPoint::Max); ++i) {
-            AttachmentPoint p = static_cast<AttachmentPoint>(i);
-            if (drawBuffers_[p]) {
-                buffers[n++] = glAttachmentPoint(p);
-            }
-        }
-        ogl.DrawBuffers(n, &buffers[0]);
     }
 
     void RenderNode::applyDepthTest(HardwareContext& ctx) const
@@ -436,6 +444,10 @@ namespace af3d
 
         if (!depthWrite_) {
             ogl.DepthMask(GL_FALSE);
+        }
+
+        if (drawBufferBinding_.numBuffers >= 0) {
+            ogl.DrawBuffers(drawBufferBinding_.numBuffers, &drawBufferBinding_.buffers[0]);
         }
 
         if (drawCount_ == 0) {

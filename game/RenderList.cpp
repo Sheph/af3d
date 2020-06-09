@@ -481,7 +481,7 @@ namespace af3d
                     ((activeUniforms.count(UniformName::ModelMatrix) != 0) ? materialManager.matPrepass(1) : materialManager.matPrepassWS());
                 MaterialParams params(mat->type(), true);
                 setAutoParams(mat, textures, storageBuffers, params, geom.modelMat, geom.prevModelMat);
-                rn->add(std::move(tmpNode), 0, prepassDrawBuffers,
+                rn->add(std::move(tmpNode), 0, prepassDrawBuffers, mat->type()->prog()->outputs(),
                     mat->type(),
                     mat->params(),
                     mat->blendingParams(),
@@ -547,14 +547,14 @@ namespace af3d
                 auto material = materialManager.createMaterial(MaterialTypeClusterBuild);
                 MaterialParams params(material->type(), true);
                 setAutoParams(material, textures, storageBuffers, params);
-                rn->add(std::move(tmpNode), -2, AttachmentPoints(), material, clusterData.va,
+                rn->add(std::move(tmpNode), -2, material, clusterData.va,
                     std::move(storageBuffers), settings.cluster.gridSize, std::move(params));
             }
 
             auto material = materialManager.matClusterCull();
             MaterialParams params(material->type(), true);
             setAutoParams(material, textures, storageBuffers, params);
-            rn->add(std::move(tmpNode), -1, AttachmentPoints(), material, clusterData.va,
+            rn->add(std::move(tmpNode), -1, material, clusterData.va,
                 std::move(storageBuffers), settings.cluster.cullNumGroups, std::move(params));
         }
 
@@ -574,7 +574,7 @@ namespace af3d
                     pass = 1;
                     depthFunc = GL_EQUAL;
                 }
-                rn->add(std::move(tmpNode), pass, drawBuffers,
+                rn->add(std::move(tmpNode), pass, drawBuffers, geom.material->type()->prog()->outputs(),
                     geom.material->type(),
                     geom.material->params(),
                     geom.material->blendingParams(),
@@ -594,7 +594,7 @@ namespace af3d
                 } else {
                     pass = 1;
                 }
-                rn->add(std::move(tmpNode), pass, drawBuffers,
+                rn->add(std::move(tmpNode), pass, drawBuffers, geom.material->type()->prog()->outputs(),
                     geom.material->type(),
                     geom.material->params(),
                     geom.material->blendingParams(),

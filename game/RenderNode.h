@@ -66,7 +66,7 @@ namespace af3d
 
         inline const AABB2i& viewport() const { btAssert(type_ == Type::Root); return viewport_; }
 
-        void add(RenderNode&& tmpNode, int pass, const AttachmentPoints& drawBuffers,
+        void add(RenderNode&& tmpNode, int pass, const AttachmentPoints& drawBuffers, const HardwareProgram::Outputs& outputs,
             const MaterialTypePtr& matType,
             const MaterialParams& matParams,
             const BlendingParams& matBlendingParams,
@@ -78,7 +78,7 @@ namespace af3d
             const VertexArraySlice& vaSlice, GLenum primitiveMode,
             const ScissorParams& scissorParams, MaterialParams&& materialParamsAuto);
 
-        void add(RenderNode&& tmpNode, int pass, const AttachmentPoints& drawBuffers, const MaterialPtr& material,
+        void add(RenderNode&& tmpNode, int pass, const MaterialPtr& material,
             const VertexArrayPtr& va,
             std::vector<StorageBufferBinding>&& storageBuffers,
             const Vector3i& computeNumGroups,
@@ -103,6 +103,14 @@ namespace af3d
             Draw
         };
 
+        struct DrawBufferBinding
+        {
+            void setup(const AttachmentPoints& drawBuffers, const HardwareProgram::Outputs& outputs);
+
+            GLenum buffers[static_cast<int>(AttachmentPoint::Max) - static_cast<int>(AttachmentPoint::Color0) + 1];
+            int numBuffers; // -1 - skip.
+        };
+
         using Children = std::set<RenderNode>;
 
         bool comparePass(const RenderNode& other) const;
@@ -115,7 +123,7 @@ namespace af3d
         bool compareVertexArray(const RenderNode& other) const;
         bool compareDraw(const RenderNode& other) const;
 
-        RenderNode* insertPass(RenderNode&& tmpNode, int pass, const AttachmentPoints& drawBuffers);
+        RenderNode* insertPass(RenderNode&& tmpNode, int pass);
         RenderNode* insertDepthTest(RenderNode&& tmpNode, bool depthTest, GLenum depthFunc);
         RenderNode* insertDepth(RenderNode&& tmpNode, float depth);
         RenderNode* insertBlendingParams(RenderNode&& tmpNode, const BlendingParams& blendingParams);
@@ -174,6 +182,7 @@ namespace af3d
             {
                 // Type::Draw
                 int drawIdx_;
+                DrawBufferBinding drawBufferBinding_;
                 GLenum drawPrimitiveMode_;
                 std::uint32_t drawStart_;
                 std::uint32_t drawCount_;
@@ -181,9 +190,6 @@ namespace af3d
                 bool depthWrite_;
             };
         };
-
-        // Type::Pass
-        AttachmentPoints drawBuffers_;
 
         // Type::BlendingParams
         BlendingParams blendingParams_;

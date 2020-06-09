@@ -247,6 +247,10 @@ namespace af3d
             return false;
         }
 
+        if (!fillOutputs(ctx)) {
+            return false;
+        }
+
         return true;
     }
 
@@ -329,6 +333,24 @@ namespace af3d
             }
 
             storageBuffers_.set(it->second);
+        }
+
+        return true;
+    }
+
+    bool HardwareProgram::fillOutputs(HardwareContext& ctx)
+    {
+        GLint cnt = 0;
+        ogl.GetProgramInterfaceiv(id_, GL_PROGRAM_OUTPUT, GL_ACTIVE_RESOURCES, &cnt);
+
+        const GLenum properties[1] = { GL_LOCATION };
+
+        for (GLuint i = 0; i < static_cast<GLuint>(cnt); ++i) {
+            GLint values[1] = { 0 };
+            ogl.GetProgramResourceiv(id_, GL_PROGRAM_OUTPUT, i,
+                sizeof(properties) / sizeof(properties[0]), properties,
+                sizeof(values) / sizeof(values[0]), nullptr, values);
+            outputs_.insert(values[0]);
         }
 
         return true;

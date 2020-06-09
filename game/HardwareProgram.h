@@ -157,6 +157,7 @@ namespace af3d
         using ActiveUniforms = EnumUnorderedMap<UniformName, VariableInfo>;
         using Samplers = EnumSet<SamplerName>;
         using StorageBuffers = EnumSet<StorageBufferName>;
+        using Outputs = std::unordered_set<int>;
 
         explicit HardwareProgram(HardwareResourceManager* mgr);
         ~HardwareProgram();
@@ -178,6 +179,7 @@ namespace af3d
         inline const ActiveUniforms& activeUniforms() const { return activeUniforms_; }
         inline const Samplers& samplers() const { return samplers_; }
         inline const StorageBuffers& storageBuffers() const { return storageBuffers_; }
+        inline const Outputs& outputs() const { return outputs_; }
 
     private:
         void doInvalidate(HardwareContext& ctx) override;
@@ -186,11 +188,14 @@ namespace af3d
 
         bool fillStorageBuffers(HardwareContext& ctx);
 
+        bool fillOutputs(HardwareContext& ctx);
+
         std::vector<std::pair<GLuint, HardwareShaderPtr>> shaders_;
         GLuint id_ = 0;
         ActiveUniforms activeUniforms_;
         Samplers samplers_;
         StorageBuffers storageBuffers_;
+        Outputs outputs_;
     };
 
     using HardwareProgramPtr = std::shared_ptr<HardwareProgram>;
