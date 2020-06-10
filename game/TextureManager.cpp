@@ -236,6 +236,8 @@ namespace af3d
                     } else {
                         LOG4CPLUS_DEBUG(logger(), "textureManager: offscreen scaled texture " << newWidth << "x" << newHeight << "x" << texture.depth() << "...");
                     }
+                    // FIXME: If texture resolution changes we'll still be uploading data for old resolution - bad!
+                    // just replace 'pixels_' with constant color.
                     texture.hwTex()->upload(internalFormat_, format_, dataType_, (pixels_.empty() ? nullptr : &pixels_[0]), genMipmap_, 0, ctx);
                 } else {
                     LOG4CPLUS_DEBUG(logger(), "textureManager: offscreen fixed texture " << texture.width() << "x" << texture.height() << "x" << texture.depth() << "...");
