@@ -56,6 +56,10 @@
 #include "TextureManager.h"
 #include "TAAComponent.h"
 #include "LightProbeComponent.h"
+#include "CameraRenderer.h"
+#include "RenderPassPrepass.h"
+#include "RenderPassCluster.h"
+#include "RenderPassGeometry.h"
 #include "editor/Playbar.h"
 #include <Rocket/Core/ElementDocument.h>
 #include <cmath>
@@ -283,7 +287,16 @@ namespace af3d
         auto depthTex = textureManager.createRenderTextureScaled(TextureType2D,
             1.0f, 0, GL_DEPTH_COMPONENT24, GL_DEPTH_COMPONENT, GL_FLOAT);
 
-        auto mc = std::make_shared<Camera>();
+        auto mc = std::make_shared<Camera>(false);
+
+        {
+            auto r = std::make_shared<CameraRenderer>();
+            r->addRenderPass(std::make_shared<RenderPassPrepass>(AttachmentPoint::Color1));
+            r->addRenderPass(std::make_shared<RenderPassCluster>());
+            r->addRenderPass(std::make_shared<RenderPassGeometry>(AttachmentPoint::Color0, true, true, true));
+            mc->addRenderer(r);
+        }
+
         mc->setLayer(CameraLayer::Main);
         mc->setAspect(settings.viewAspect);
         mc->setRenderTarget(AttachmentPoint::Color0, RenderTarget(screenTex));
@@ -291,7 +304,6 @@ namespace af3d
         mc->setRenderTarget(AttachmentPoint::Depth, RenderTarget(depthTex));
         mc->setClearMask(mc->clearMask() | AttachmentPoint::Color1);
         mc->setClearColor(AttachmentPoint::Color1, linearToGamma(Color(65535.0f, 65535.0f, 65535.0f, 65535.0f)));
-        mc->setPrepass(true);
         addCamera(mc);
 
         if (settings.bloom) {
@@ -524,20 +536,28 @@ namespace af3d
             }
         }
 
-        std::vector<CameraPtr> cams(cameras_.begin(), cameras_.end());
-        std::sort(cams.begin(), cams.end(), [](const CameraPtr& a, const CameraPtr& b) {
-            return a->order() < b->order();
+        std::vector<RenderList> rls;
+        std::vector<std::pair<CameraRendererPtr, size_t>> crs;
+
+        for (const auto& cam : cameras_) {
+            size_t idx = rls.size();
+            for (const auto& cr : cam->renderers()) {
+                crs.emplace_back(cr, idx);
+            }
+            rls.emplace_back(cam, impl_->env_);
+        }
+
+        std::sort(crs.begin(), crs.end(), [](const std::pair<CameraRendererPtr, size_t>& a, const std::pair<CameraRendererPtr, size_t>& b) {
+            return a.first->order() < b.first->order();
         });
 
         RenderNodeList rnList;
-        rnList.reserve(cams.size() + 1);
+        rnList.reserve(crs.size() + 1);
 
-        for (const auto& c : cams) {
-            RenderList rl(c, impl_->env_);
-
+        for (auto& rl : rls) {
             impl_->renderComponentManager_->render(rl);
 
-            if (c == cc->camera()) {
+            if (rl.camera()  == cc->camera()) {
                 if (inputManager.physicsDebugPressed()) {
                     impl_->debugDraw_.setRenderList(&rl);
                     impl_->physicsComponentManager_->world().debugDrawWorld();
@@ -550,9 +570,14 @@ namespace af3d
                     impl_->renderComponentManager_->debugDraw(rl);
                 }
             }
-
-            rnList.push_back(rl.compile());
         }
+
+        for (auto& cr : crs) {
+            rnList.push_back(cr.first->compile(rls[cr.second]));
+        }
+
+        crs.clear();
+        rls.clear();
 
         rnList.push_back(impl_->uiComponentManager_->render(impl_->env_));
 

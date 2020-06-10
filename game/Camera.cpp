@@ -24,17 +24,25 @@
  */
 
 #include "Camera.h"
+#include "CameraRenderer.h"
 #include "Settings.h"
+#include "RenderPassCluster.h"
+#include "RenderPassGeometry.h"
 
 namespace af3d
 {
     ACLASS_DEFINE_BEGIN(Camera, AObject)
     ACLASS_DEFINE_END(Camera)
 
-    Camera::Camera()
+    Camera::Camera(bool withDefaultRenderer)
     : AObject(AClass_Camera)
     {
-        clearColors_[static_cast<int>(AttachmentPoint::Color0)] = Color(0.23f, 0.23f, 0.23f, 1.0f);
+        if (withDefaultRenderer) {
+            auto r = std::make_shared<CameraRenderer>();
+            r->addRenderPass(std::make_shared<RenderPassCluster>());
+            r->addRenderPass(std::make_shared<RenderPassGeometry>(AttachmentPoint::Color0, true, true, false));
+            addRenderer(r);
+        }
     }
 
     const AClass& Camera::staticKlass()
@@ -49,30 +57,63 @@ namespace af3d
         return obj;
     }
 
+    void Camera::addRenderer(const CameraRendererPtr& cr)
+    {
+        renderers_.push_back(cr);
+    }
+
+    int Camera::order() const
+    {
+        return renderers_[0]->order();
+    }
+
+    void Camera::setOrder(int value)
+    {
+        renderers_[0]->setOrder(value);
+    }
+
     const AABB2i& Camera::viewport() const
     {
-        if (const auto& ct = renderTarget(AttachmentPoint::Color0)) {
-            viewport_ = AABB2i(Vector2i_zero, Vector2i(ct.width(), ct.height()));
-        } else if (const auto& dt = renderTarget(AttachmentPoint::Depth)) {
-            viewport_ = AABB2i(Vector2i_zero, Vector2i(dt.width(), dt.height()));
-        } else if (const auto& st = renderTarget(AttachmentPoint::Stencil)) {
-            viewport_ = AABB2i(Vector2i_zero, Vector2i(st.width(), st.height()));
-        }
-        return viewport_;
+        return renderers_[0]->viewport();
     }
 
     void Camera::setViewport(const AABB2i& value)
     {
-        viewport_ = value;
+        renderers_[0]->setViewport(value);
     }
 
-    HardwareMRT Camera::getHardwareMRT() const
+    const AttachmentPoints& Camera::clearMask() const
     {
-        HardwareMRT mrt;
-        for (int i = 0; i <= static_cast<int>(AttachmentPoint::Max); ++i) {
-            AttachmentPoint p = static_cast<AttachmentPoint>(i);
-            mrt.attachment(p) = renderTarget(p).toHardware();
-        }
-        return mrt;
+        return renderers_[0]->clearMask();
+    }
+
+    void Camera::setClearMask(const AttachmentPoints& value)
+    {
+        renderers_[0]->setClearMask(value);
+    }
+
+    const AttachmentColors& Camera::clearColors() const
+    {
+        return renderers_[0]->clearColors();
+    }
+
+    const Color& Camera::clearColor(AttachmentPoint attachmentPoint) const
+    {
+        return renderers_[0]->clearColor(attachmentPoint);
+    }
+
+    void Camera::setClearColor(AttachmentPoint attachmentPoint, const Color& value)
+    {
+        renderers_[0]->setClearColor(attachmentPoint, value);
+    }
+
+    const RenderTarget& Camera::renderTarget(AttachmentPoint attachmentPoint) const
+    {
+        return renderers_[0]->renderTarget(attachmentPoint);
+    }
+
+    void Camera::setRenderTarget(AttachmentPoint attachmentPoint, const RenderTarget& value)
+    {
+        renderers_[0]->setRenderTarget(attachmentPoint, value);
     }
 }

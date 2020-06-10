@@ -94,41 +94,9 @@ namespace af3d
         size_t startVertices_;
     };
 
-    class RenderList : boost::noncopyable
+    class RenderList
     {
     public:
-        RenderList(const CameraPtr& camera, const SceneEnvironmentPtr& env);
-        ~RenderList() = default;
-
-        inline const CameraPtr& camera() const { return camera_; }
-
-        void addGeometry(const Matrix4f& modelMat, const Matrix4f& prevModelMat,
-            const AABB& aabb, const MaterialPtr& material,
-            const VertexArraySlice& vaSlice, GLenum primitiveMode,
-            float depthValue = 0.0f,
-            const ScissorParams& scissorParams = ScissorParams());
-
-        void addGeometry(const MaterialPtr& material,
-            const VertexArraySlice& vaSlice, GLenum primitiveMode,
-            float depthValue = 0.0f,
-            const ScissorParams& scissorParams = ScissorParams());
-
-        RenderImm addGeometry(const MaterialPtr& material,
-            GLenum primitiveMode,
-            float depthValue = 0.0f,
-            const ScissorParams& scissorParams = ScissorParams());
-
-        // Create immediate geometry by using default VAO, use only for small stuff like UI!
-        VertexArraySlice createGeometry(const VertexImm* vertices, std::uint32_t numVertices,
-            const std::uint16_t* indices = nullptr, std::uint32_t numIndices = 0);
-
-        void addLight(const LightPtr& light);
-
-        RenderNodePtr compile() const;
-
-    private:
-        friend class RenderImm;
-
         struct Geometry
         {
             Geometry() = default;
@@ -181,14 +149,45 @@ namespace af3d
             bool flipCull = false;
         };
 
-        void setAutoParams(const Geometry& geom, std::vector<HardwareTextureBinding>& textures,
-            std::vector<StorageBufferBinding>& storageBuffers, MaterialParams& params) const;
-        void setAutoParams(const MaterialPtr& material, std::vector<HardwareTextureBinding>& textures,
-            std::vector<StorageBufferBinding>& storageBuffers, MaterialParams& params,
-            const Matrix4f& modelMat = Matrix4f::getIdentity(), const Matrix4f& prevModelMat = Matrix4f::getIdentity()) const;
-
         using GeometryList = std::vector<Geometry>;
         using LightList = std::vector<LightPtr>;
+
+        RenderList(const CameraPtr& camera, const SceneEnvironmentPtr& env);
+        ~RenderList() = default;
+
+        inline const CameraPtr& camera() const { return camera_; }
+        inline const SceneEnvironmentPtr& env() const { return env_; }
+        inline const GeometryList& geomList() const { return geomList_; }
+        inline const LightList& lightList() const { return lightList_; }
+
+        void addGeometry(const Matrix4f& modelMat, const Matrix4f& prevModelMat,
+            const AABB& aabb, const MaterialPtr& material,
+            const VertexArraySlice& vaSlice, GLenum primitiveMode,
+            float depthValue = 0.0f,
+            const ScissorParams& scissorParams = ScissorParams());
+
+        void addGeometry(const MaterialPtr& material,
+            const VertexArraySlice& vaSlice, GLenum primitiveMode,
+            float depthValue = 0.0f,
+            const ScissorParams& scissorParams = ScissorParams());
+
+        RenderImm addGeometry(const MaterialPtr& material,
+            GLenum primitiveMode,
+            float depthValue = 0.0f,
+            const ScissorParams& scissorParams = ScissorParams());
+
+        // Create immediate geometry by using default VAO, use only for small stuff like UI!
+        VertexArraySlice createGeometry(const VertexImm* vertices, std::uint32_t numVertices,
+            const std::uint16_t* indices = nullptr, std::uint32_t numIndices = 0);
+
+        void addLight(const LightPtr& light);
+
+        RenderList(RenderList&&) = default;
+        RenderList& operator=(RenderList&&) = default;
+
+    private:
+        RenderList(const RenderList&) = delete;
+        RenderList& operator=(const RenderList&) = delete;
 
         const CameraPtr& camera_;
         const SceneEnvironmentPtr& env_;

@@ -27,6 +27,7 @@
 #include "UIComponent.h"
 #include "Scene.h"
 #include "Settings.h"
+#include "CameraRenderer.h"
 
 namespace af3d
 {
@@ -139,6 +140,6 @@ namespace af3d
             debugDraw(rl);
         }
 
-        return rl.compile();
+        return uiCamera_->renderers()[0]->compile(rl);
     }
 }

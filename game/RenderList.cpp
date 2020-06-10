@@ -24,14 +24,6 @@
  */
 
 #include "RenderList.h"
-#include "LightProbeComponent.h"
-#include "HardwareResourceManager.h"
-#include "MaterialManager.h"
-#include "Renderer.h"
-#include "Light.h"
-#include "Logger.h"
-#include "ShaderDataTypes.h"
-#include "Settings.h"
 
 namespace af3d
 {
@@ -45,22 +37,22 @@ namespace af3d
       depthValue_(depthValue),
       scissorParams_(scissorParams),
       rl_(rl),
-      startVertices_(rl_.env_->defaultVa().data().vertices.size())
+      startVertices_(rl_.env()->defaultVa().data().vertices.size())
     {
     }
 
     RenderImm::~RenderImm()
     {
-        VertexArraySlice vaSlice(rl_.env_->defaultVa().vaNoEbo(),
+        VertexArraySlice vaSlice(rl_.env()->defaultVa().vaNoEbo(),
             startVertices_,
-            rl_.env_->defaultVa().data().vertices.size() - startVertices_,
+            rl_.env()->defaultVa().data().vertices.size() - startVertices_,
             0);
         rl_.addGeometry(material_, vaSlice, primitiveMode_, depthValue_, scissorParams_);
     }
 
     std::vector<VertexImm>& RenderImm::vertices()
     {
-        return rl_.env_->defaultVa().data().vertices;
+        return rl_.env()->defaultVa().data().vertices;
     }
 
     void RenderImm::addLine(const btVector3& pos, const btVector3& dir, const btVector3& up, const Color& c, bool withCovers)
@@ -442,312 +434,5 @@ namespace af3d
     void RenderList::addLight(const LightPtr& light)
     {
         lightList_.push_back(light);
-    }
-
-    RenderNodePtr RenderList::compile() const
-    {
-        auto mrt = camera_->getHardwareMRT();
-        auto rn = std::make_shared<RenderNode>(camera_->viewport(), camera_->clearMask(), camera_->clearColors(), mrt);
-        auto drawBuffers = mrt.getDrawBuffers();
-
-        if (camera_->prepass()) {
-            btAssert(drawBuffers[AttachmentPoint::Color1] || drawBuffers[AttachmentPoint::Depth]);
-        }
-
-        RenderNode tmpNode;
-
-        std::vector<HardwareTextureBinding> textures;
-        std::vector<StorageBufferBinding> storageBuffers;
-
-        AttachmentPoints prepassDrawBuffers;
-        if (drawBuffers[AttachmentPoint::Depth]) {
-            prepassDrawBuffers.set(AttachmentPoint::Depth);
-        }
-        if (drawBuffers[AttachmentPoint::Color1]) {
-            prepassDrawBuffers.set(AttachmentPoint::Color1);
-        }
-
-        bool needClusterData = false;
-        for (const auto& geom : geomList_) {
-            if (!needClusterData) {
-                const auto& ssbos = geom.material->type()->prog()->storageBuffers();
-                if (ssbos[StorageBufferName::ClusterTileData]) {
-                    needClusterData = true;
-                }
-            }
-            if (camera_->prepass() && (geom.material->type()->name() != MaterialTypeSkyBox) && !geom.material->blendingParams().isEnabled()) {
-                const auto& activeUniforms = geom.material->type()->prog()->activeUniforms();
-                const auto& mat = (activeUniforms.count(UniformName::ModelViewProjMatrix) != 0) ? materialManager.matPrepass(0) :
-                    ((activeUniforms.count(UniformName::ModelMatrix) != 0) ? materialManager.matPrepass(1) : materialManager.matPrepassWS());
-                MaterialParams params(mat->type(), true);
-                setAutoParams(mat, textures, storageBuffers, params, geom.modelMat, geom.prevModelMat);
-                rn->add(std::move(tmpNode), 0, prepassDrawBuffers, mat->type()->prog()->outputs(),
-                    mat->type(),
-                    mat->params(),
-                    mat->blendingParams(),
-                    geom.material->depthTest(),
-                    geom.material->depthWrite(),
-                    geom.material->cullFaceMode(),
-                    GL_LESS, geom.depthValue, geom.flipCull,
-                    std::move(textures), std::move(storageBuffers),
-                    geom.vaSlice, geom.primitiveMode, geom.scissorParams,
-                    std::move(params));
-            }
-        }
-
-        if (camera_->prepass()) {
-            drawBuffers.reset(AttachmentPoint::Color1);
-        }
-
-        if (needClusterData) {
-            auto& clusterData = camera_->clusterData();
-            if (!clusterData.va) {
-                clusterData.va = std::make_shared<VertexArray>(hwManager.createVertexArray(), VertexArrayLayout(), VBOList());
-            }
-            if (!clusterData.tilesSSBO) {
-                clusterData.tilesSSBO = hwManager.createDataBuffer(HardwareBuffer::Usage::StaticCopy, sizeof(ShaderClusterTile));
-            }
-            if (!clusterData.tileDataSSBO) {
-                clusterData.tileDataSSBO = hwManager.createDataBuffer(HardwareBuffer::Usage::StaticCopy, sizeof(ShaderClusterTileData));
-            }
-            if (!clusterData.lightIndicesSSBO) {
-                clusterData.lightIndicesSSBO = hwManager.createDataBuffer(HardwareBuffer::Usage::StaticCopy, sizeof(std::uint32_t));
-            }
-            if (!clusterData.probeIndicesSSBO) {
-                clusterData.probeIndicesSSBO = hwManager.createDataBuffer(HardwareBuffer::Usage::StaticCopy, sizeof(std::uint32_t));
-            }
-            if (clusterData.tilesSSBO->setValid()) {
-                auto ssbo = clusterData.tilesSSBO;
-                renderer.scheduleHwOp([ssbo](HardwareContext& ctx) {
-                    ssbo->resize(settings.cluster.numTiles, ctx);
-                });
-            }
-            if (clusterData.tileDataSSBO->setValid()) {
-                auto ssbo = clusterData.tileDataSSBO;
-                renderer.scheduleHwOp([ssbo](HardwareContext& ctx) {
-                    ssbo->resize(settings.cluster.numTiles, ctx);
-                });
-            }
-            if (clusterData.lightIndicesSSBO->setValid()) {
-                auto ssbo = clusterData.lightIndicesSSBO;
-                renderer.scheduleHwOp([ssbo](HardwareContext& ctx) {
-                    ssbo->resize(settings.cluster.numTiles * settings.cluster.maxLightsPerTile, ctx);
-                });
-            }
-            if (clusterData.probeIndicesSSBO->setValid()) {
-                auto ssbo = clusterData.probeIndicesSSBO;
-                renderer.scheduleHwOp([ssbo](HardwareContext& ctx) {
-                    ssbo->resize(settings.cluster.numTiles * settings.cluster.maxProbesPerTile, ctx);
-                });
-            }
-
-            if (clusterData.prevProjMat != camera_->frustum().projMat()) {
-                // Projection changed, recalc cluster tile grid.
-                clusterData.prevProjMat = camera_->frustum().projMat();
-                auto material = materialManager.createMaterial(MaterialTypeClusterBuild);
-                MaterialParams params(material->type(), true);
-                setAutoParams(material, textures, storageBuffers, params);
-                rn->add(std::move(tmpNode), -2, material, clusterData.va,
-                    std::move(storageBuffers), settings.cluster.gridSize, std::move(params));
-            }
-
-            auto material = materialManager.matClusterCull();
-            MaterialParams params(material->type(), true);
-            setAutoParams(material, textures, storageBuffers, params);
-            rn->add(std::move(tmpNode), -1, material, clusterData.va,
-                std::move(storageBuffers), settings.cluster.cullNumGroups, std::move(params));
-        }
-
-        for (const auto& geom : geomList_) {
-            MaterialParams params(geom.material->type(), true);
-            setAutoParams(geom, textures, storageBuffers, params);
-            if (camera_->prepass()) {
-                int pass;
-                GLenum depthFunc;
-                if (geom.material->type()->name() == MaterialTypeSkyBox) {
-                    pass = 2;
-                    depthFunc = GL_LEQUAL;
-                } else if (geom.material->blendingParams().isEnabled()) {
-                    pass = 3;
-                    depthFunc = GL_LEQUAL;
-                } else {
-                    pass = 1;
-                    depthFunc = GL_EQUAL;
-                }
-                rn->add(std::move(tmpNode), pass, drawBuffers, geom.material->type()->prog()->outputs(),
-                    geom.material->type(),
-                    geom.material->params(),
-                    geom.material->blendingParams(),
-                    geom.material->depthTest(),
-                    false,
-                    geom.material->cullFaceMode(),
-                    depthFunc, geom.depthValue, geom.flipCull,
-                    std::move(textures), std::move(storageBuffers),
-                    geom.vaSlice, geom.primitiveMode, geom.scissorParams,
-                    std::move(params));
-            } else {
-                int pass;
-                if (geom.material->type()->name() == MaterialTypeSkyBox) {
-                    pass = 2;
-                } else if (geom.material->blendingParams().isEnabled()) {
-                    pass = 3;
-                } else {
-                    pass = 1;
-                }
-                rn->add(std::move(tmpNode), pass, drawBuffers, geom.material->type()->prog()->outputs(),
-                    geom.material->type(),
-                    geom.material->params(),
-                    geom.material->blendingParams(),
-                    geom.material->depthTest(),
-                    geom.material->depthWrite(),
-                    geom.material->cullFaceMode(),
-                    GL_LEQUAL, geom.depthValue, geom.flipCull,
-                    std::move(textures), std::move(storageBuffers),
-                    geom.vaSlice, geom.primitiveMode, geom.scissorParams,
-                    std::move(params));
-            }
-        }
-
-        return rn;
-    }
-
-    void RenderList::setAutoParams(const Geometry& geom, std::vector<HardwareTextureBinding>& textures,
-        std::vector<StorageBufferBinding>& storageBuffers, MaterialParams& params) const
-    {
-        setAutoParams(geom.material, textures, storageBuffers, params, geom.modelMat, geom.prevModelMat);
-    }
-
-    void RenderList::setAutoParams(const MaterialPtr& material, std::vector<HardwareTextureBinding>& textures,
-        std::vector<StorageBufferBinding>& storageBuffers, MaterialParams& params,
-        const Matrix4f& modelMat, const Matrix4f& prevModelMat) const
-    {
-        const Matrix4f& viewProjMat = camera_->frustum().jitteredViewProjMat();
-        const Matrix4f& stableViewProjMat = camera_->frustum().viewProjMat();
-        const Matrix4f& stableProjMat = camera_->frustum().projMat();
-        const Matrix4f& stableViewMat = camera_->frustum().viewMat();
-
-        const auto& activeUniforms = material->type()->prog()->activeUniforms();
-        const auto& samplers = material->type()->prog()->samplers();
-
-        for (int i = 0; i <= static_cast<int>(SamplerName::Max); ++i) {
-            SamplerName sName = static_cast<SamplerName>(i);
-            if (samplers[sName]) {
-                const auto& tb = material->textureBinding(sName);
-                textures.emplace_back(tb.tex ? tb.tex->hwTex() : HardwareTexturePtr(), tb.params);
-                if ((sName == SamplerName::Irradiance) && !textures.back().tex) {
-                    textures.back() = HardwareTextureBinding(env_->irradianceTexture()->hwTex(),
-                        SamplerParams(GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR));
-                } else if ((sName == SamplerName::SpecularCM) && !textures.back().tex) {
-                    textures.back() = HardwareTextureBinding(env_->specularTexture()->hwTex(),
-                        SamplerParams(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR));
-                } else if ((sName == SamplerName::SpecularLUT) && !textures.back().tex) {
-                    auto probe = env_->globalLightProbe();
-                    if (probe) {
-                        textures.back() = HardwareTextureBinding(probe->specularLUTTexture()->hwTex(),
-                            SamplerParams(GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR));
-                    }
-                }
-            }
-        }
-
-        if (activeUniforms.count(UniformName::AmbientColor) > 0) {
-            auto ac = camera_->ambientColor();
-            ac = gammaToLinear(ac);
-            params.setUniform(UniformName::AmbientColor, Vector3f(ac.x(), ac.y(), ac.z()) * ac.w());
-        }
-
-        if (activeUniforms.count(UniformName::ViewProjMatrix) > 0) {
-            params.setUniform(UniformName::ViewProjMatrix, viewProjMat);
-        }
-
-        if (activeUniforms.count(UniformName::StableProjMatrix) > 0) {
-            params.setUniform(UniformName::StableProjMatrix, stableProjMat);
-        }
-
-        if (activeUniforms.count(UniformName::StableViewMatrix) > 0) {
-            params.setUniform(UniformName::StableViewMatrix, stableViewMat);
-        }
-
-        bool prevStableMatSet = false;
-        bool curStableMatSet = false;
-
-        if (activeUniforms.count(UniformName::ModelViewProjMatrix) > 0) {
-            params.setUniform(UniformName::ModelViewProjMatrix, viewProjMat * modelMat);
-            if (!prevStableMatSet && activeUniforms.count(UniformName::PrevStableMatrix) > 0) {
-                prevStableMatSet = true;
-                params.setUniform(UniformName::PrevStableMatrix, camera_->prevViewProjMat() * prevModelMat);
-            }
-            if (!curStableMatSet && activeUniforms.count(UniformName::CurStableMatrix) > 0) {
-                curStableMatSet = true;
-                params.setUniform(UniformName::CurStableMatrix, stableViewProjMat * modelMat);
-            }
-        }
-        if (activeUniforms.count(UniformName::ModelMatrix) > 0) {
-            params.setUniform(UniformName::ModelMatrix, modelMat);
-            if (!prevStableMatSet && activeUniforms.count(UniformName::PrevStableMatrix) > 0) {
-                prevStableMatSet = true;
-                params.setUniform(UniformName::PrevStableMatrix, camera_->prevViewProjMat() * prevModelMat);
-            }
-            if (!curStableMatSet && activeUniforms.count(UniformName::CurStableMatrix) > 0) {
-                curStableMatSet = true;
-                params.setUniform(UniformName::CurStableMatrix, stableViewProjMat * modelMat);
-            }
-        }
-        if (!prevStableMatSet && activeUniforms.count(UniformName::PrevStableMatrix) > 0) {
-            prevStableMatSet = true;
-            params.setUniform(UniformName::PrevStableMatrix, camera_->prevViewProjMat());
-        }
-        if (!curStableMatSet && activeUniforms.count(UniformName::CurStableMatrix) > 0) {
-            curStableMatSet = true;
-            params.setUniform(UniformName::CurStableMatrix, stableViewProjMat);
-        }
-        if (activeUniforms.count(UniformName::EyePos) > 0) {
-            params.setUniform(UniformName::EyePos, camera_->frustum().transform().getOrigin());
-        }
-        if (activeUniforms.count(UniformName::ViewportSize) > 0) {
-            params.setUniform(UniformName::ViewportSize, Vector2f::fromVector2i(camera_->viewport().getSize()));
-        }
-        if (activeUniforms.count(UniformName::Time) > 0) {
-            params.setUniform(UniformName::Time, env_->time() + material->timeOffset());
-        }
-        if (activeUniforms.count(UniformName::Dt) > 0) {
-            params.setUniform(UniformName::Dt, env_->dt());
-        }
-        if (activeUniforms.count(UniformName::RealDt) > 0) {
-            params.setUniform(UniformName::RealDt, env_->realDt());
-        }
-        if (activeUniforms.count(UniformName::ClusterCfg) > 0) {
-            float zNear = camera_->frustum().nearDist();
-            float zFar = camera_->frustum().farDist();
-            float scalingFactor = (float)settings.cluster.gridSize.z() / std::log2f(zFar / zNear);
-            float biasFactor = -((float)settings.cluster.gridSize.z() * std::log2f(zNear) / std::log2f(zFar / zNear));
-            params.setUniform(UniformName::ClusterCfg, Vector4f(zNear, zFar, scalingFactor, biasFactor));
-        }
-
-        const auto& ssboNames = material->type()->prog()->storageBuffers();
-
-        if (ssboNames[StorageBufferName::ClusterTiles]) {
-            storageBuffers.emplace_back(StorageBufferName::ClusterTiles, camera_->clusterData().tilesSSBO);
-        }
-
-        if (ssboNames[StorageBufferName::ClusterTileData]) {
-            storageBuffers.emplace_back(StorageBufferName::ClusterTileData, camera_->clusterData().tileDataSSBO);
-        }
-
-        if (ssboNames[StorageBufferName::ClusterLightIndices]) {
-            storageBuffers.emplace_back(StorageBufferName::ClusterLightIndices, camera_->clusterData().lightIndicesSSBO);
-        }
-
-        if (ssboNames[StorageBufferName::ClusterLights]) {
-            storageBuffers.emplace_back(StorageBufferName::ClusterLights, env_->lightsSSBO());
-        }
-
-        if (ssboNames[StorageBufferName::ClusterProbeIndices]) {
-            storageBuffers.emplace_back(StorageBufferName::ClusterProbeIndices, camera_->clusterData().probeIndicesSSBO);
-        }
-
-        if (ssboNames[StorageBufferName::ClusterProbes]) {
-            storageBuffers.emplace_back(StorageBufferName::ClusterProbes, env_->probesSSBO());
-        }
     }
 }

@@ -7,6 +7,10 @@ set(SOURCES
     CameraComponent.cpp
     CameraUsageComponent.cpp
     Camera.cpp
+    CameraRenderer.cpp
+    RenderPassPrepass.cpp
+    RenderPassCluster.cpp
+    RenderPassGeometry.cpp
     FPComponent.cpp
     DummyShell.cpp
     Game.cpp

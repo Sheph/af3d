@@ -66,6 +66,8 @@ namespace af3d
 
         inline const AABB2i& viewport() const { btAssert(type_ == Type::Root); return viewport_; }
 
+        inline const HardwareMRT& mrt() const { btAssert(type_ == Type::Root); return mrt_; }
+
         void add(RenderNode&& tmpNode, int pass, const AttachmentPoints& drawBuffers, const HardwareProgram::Outputs& outputs,
             const MaterialTypePtr& matType,
             const MaterialParams& matParams,

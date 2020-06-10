@@ -26,11 +26,9 @@
 #ifndef _CAMERA_H_
 #define _CAMERA_H_
 
-#include "RenderTarget.h"
+#include "AObject.h"
 #include "CameraLayer.h"
-#include "HardwareDataBuffer.h"
-#include "VertexArray.h"
-#include "OGL.h"
+#include "RenderTarget.h"
 #include "af3d/Frustum.h"
 #include "af3d/AABB2.h"
 #include <boost/optional.hpp>
@@ -40,21 +38,16 @@ namespace af3d
     class Camera;
     using CameraPtr = std::shared_ptr<Camera>;
 
+    class CameraRenderer;
+    using CameraRendererPtr = std::shared_ptr<CameraRenderer>;
+
+    using CameraRenderers = std::vector<CameraRendererPtr>;
+
     class Camera : public std::enable_shared_from_this<Camera>,
         public AObject
     {
     public:
-        struct ClusterData
-        {
-            Matrix4f prevProjMat = Matrix4f::getIdentity();
-            VertexArrayPtr va; // empty VA, needed for VAO.
-            HardwareDataBufferPtr tilesSSBO; // tile grid built for 'proj' matrix.
-            HardwareDataBufferPtr tileDataSSBO; // tile data obtained by culling lights.
-            HardwareDataBufferPtr lightIndicesSSBO; // indices of lights being used.
-            HardwareDataBufferPtr probeIndicesSSBO; // indices of probes being used.
-        };
-
-        Camera();
+        explicit Camera(bool withDefaultRenderer = true);
         ~Camera() = default;
 
         static const AClass& staticKlass();
@@ -63,8 +56,9 @@ namespace af3d
 
         AObjectPtr sharedThis() override { return shared_from_this(); }
 
-        inline int order() const { return order_; }
-        inline void setOrder(int value) { order_ = value; }
+        void addRenderer(const CameraRendererPtr& cr);
+
+        inline const CameraRenderers& renderers() const { return renderers_; }
 
         inline CameraLayer layer() const { return layer_; }
         inline void setLayer(CameraLayer value) { layer_ = value; }
@@ -96,34 +90,26 @@ namespace af3d
         inline const Vector2f& jitter() const { return frustum_.jitter(); }
         inline void setJitter(const Vector2f& value) { frustum_.setJitter(value); }
 
-        const AABB2i& viewport() const;
-        void setViewport(const AABB2i& value);
-
         inline const Frustum& frustum() const { return frustum_; }
-
-        inline const AttachmentPoints& clearMask() const { return clearMask_; }
-        inline void setClearMask(const AttachmentPoints& value) { clearMask_ = value; }
-
-        inline const AttachmentColors& clearColors() const { return clearColors_; }
-        inline const Color& clearColor(AttachmentPoint attachmentPoint = AttachmentPoint::Color0) const { return clearColors_[static_cast<int>(attachmentPoint)]; }
-        inline void setClearColor(AttachmentPoint attachmentPoint, const Color& value) { clearColors_[static_cast<int>(attachmentPoint)] = value; }
 
         inline const Color& ambientColor() const { return ambientColor_; }
         inline void setAmbientColor(const Color& value) { ambientColor_ = value; }
 
-        inline bool prepass() const { return prepass_; }
-        // When using prepass be sure to setup depth or color1 render targets.
-        // If depth is set it'll receive depth buffer, depth buffer can be used in fragment shading.
-        // If color1 is set it'll receive velocity.
-        inline void setPrepass(bool value) { prepass_ = value; }
+        int order() const;
+        void setOrder(int value);
 
-        inline const RenderTarget& renderTarget(AttachmentPoint attachmentPoint = AttachmentPoint::Color0) const { return renderTarget_[static_cast<int>(attachmentPoint)]; }
-        inline void setRenderTarget(AttachmentPoint attachmentPoint, const RenderTarget& value) { renderTarget_[static_cast<int>(attachmentPoint)] = value; }
+        const AABB2i& viewport() const;
+        void setViewport(const AABB2i& value);
 
-        inline const ClusterData& clusterData() const { return clusterData_; }
-        inline ClusterData& clusterData() { return clusterData_; }
+        const AttachmentPoints& clearMask() const;
+        void setClearMask(const AttachmentPoints& value);
 
-        HardwareMRT getHardwareMRT() const;
+        const AttachmentColors& clearColors() const;
+        const Color& clearColor(AttachmentPoint attachmentPoint = AttachmentPoint::Color0) const;
+        void setClearColor(AttachmentPoint attachmentPoint, const Color& value);
+
+        const RenderTarget& renderTarget(AttachmentPoint attachmentPoint = AttachmentPoint::Color0) const;
+        void setRenderTarget(AttachmentPoint attachmentPoint, const RenderTarget& value);
 
         // For velocity buffer calculation.
         inline const Matrix4f& prevViewProjMat() const { return prevViewProjMat_ ? *prevViewProjMat_ : frustum_.viewProjMat(); }
@@ -134,20 +120,12 @@ namespace af3d
         }
 
     private:
-        int order_ = 0;
         CameraLayer layer_ = CameraLayer::General;
         Frustum frustum_;
-        mutable AABB2i viewport_ = AABB2i(Vector2i(0, 0), Vector2i(0, 0));
-        AttachmentPoints clearMask_ = AttachmentPoints(AttachmentPoint::Color0) | AttachmentPoint::Depth;
-        AttachmentColors clearColors_;
         Color ambientColor_ = Color(0.2f, 0.2f, 0.2f, 1.0f);
-        bool prepass_ = false;
-
-        std::array<RenderTarget, static_cast<int>(AttachmentPoint::Max) + 1> renderTarget_;
-
         boost::optional<Matrix4f> prevViewProjMat_;
 
-        ClusterData clusterData_;
+        CameraRenderers renderers_;
     };
 
     ACLASS_DECLARE(Camera)
