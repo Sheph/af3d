@@ -57,6 +57,16 @@ namespace af3d
 
     using StorageBufferBinding = std::pair<StorageBufferName, HardwareDataBufferPtr>;
 
+    struct DrawBufferBinding
+    {
+        DrawBufferBinding() = default;
+        DrawBufferBinding(const AttachmentPoints& drawBuffers, const HardwareProgram::Outputs& outputs);
+
+        GLenum buffers[static_cast<int>(AttachmentPoint::Max) - static_cast<int>(AttachmentPoint::Color0) + 1];
+        int numBuffers; // -1 - skip.
+        std::uint32_t mask;
+    };
+
     class RenderNode
     {
     public:
@@ -68,7 +78,7 @@ namespace af3d
 
         inline const HardwareMRT& mrt() const { btAssert(type_ == Type::Root); return mrt_; }
 
-        void add(RenderNode&& tmpNode, int pass, const AttachmentPoints& drawBuffers, const HardwareProgram::Outputs& outputs,
+        void add(RenderNode&& tmpNode, int pass, const DrawBufferBinding& drawBufferBinding,
             const MaterialTypePtr& matType,
             const MaterialParams& matParams,
             const BlendingParams& matBlendingParams,
@@ -103,14 +113,6 @@ namespace af3d
             Textures,
             VertexArray,
             Draw
-        };
-
-        struct DrawBufferBinding
-        {
-            void setup(const AttachmentPoints& drawBuffers, const HardwareProgram::Outputs& outputs);
-
-            GLenum buffers[static_cast<int>(AttachmentPoint::Max) - static_cast<int>(AttachmentPoint::Color0) + 1];
-            int numBuffers; // -1 - skip.
         };
 
         using Children = std::set<RenderNode>;
@@ -183,14 +185,14 @@ namespace af3d
             struct
             {
                 // Type::Draw
-                int drawIdx_;
-                DrawBufferBinding drawBufferBinding_;
-                GLenum drawPrimitiveMode_;
-                std::uint32_t drawStart_;
-                std::uint32_t drawCount_;
-                std::uint32_t drawBaseVertex_;
-                bool depthWrite_;
-            };
+                int idx;
+                DrawBufferBinding bufferBinding;
+                GLenum primitiveMode;
+                std::uint32_t start;
+                std::uint32_t count;
+                std::uint32_t baseVertex;
+                bool depthWrite;
+            } draw_;
         };
 
         // Type::BlendingParams

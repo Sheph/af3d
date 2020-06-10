@@ -58,9 +58,10 @@ namespace af3d
                 const auto& activeUniforms = geom.material->type()->prog()->activeUniforms();
                 const auto& mat = (activeUniforms.count(UniformName::ModelViewProjMatrix) != 0) ? materialManager.matPrepass(0) :
                     ((activeUniforms.count(UniformName::ModelMatrix) != 0) ? materialManager.matPrepass(1) : materialManager.matPrepassWS());
+                DrawBufferBinding drawBufferBinding(prepassDrawBuffers, mat->type()->prog()->outputs());
                 MaterialParams params(mat->type(), true);
-                cr.setAutoParams(rl, mat, textures, storageBuffers, params, geom.modelMat, geom.prevModelMat);
-                rn->add(std::move(tmpNode), pass, prepassDrawBuffers, mat->type()->prog()->outputs(),
+                cr.setAutoParams(rl, mat, drawBufferBinding.mask, textures, storageBuffers, params, geom.modelMat, geom.prevModelMat);
+                rn->add(std::move(tmpNode), pass, drawBufferBinding,
                     mat->type(),
                     mat->params(),
                     mat->blendingParams(),

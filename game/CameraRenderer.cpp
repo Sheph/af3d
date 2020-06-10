@@ -56,13 +56,15 @@ namespace af3d
         passes_.push_back(pass);
     }
 
-    void CameraRenderer::setAutoParams(const RenderList& rl, const RenderList::Geometry& geom, std::vector<HardwareTextureBinding>& textures,
+    void CameraRenderer::setAutoParams(const RenderList& rl, const RenderList::Geometry& geom, std::uint32_t outputMask,
+        std::vector<HardwareTextureBinding>& textures,
         std::vector<StorageBufferBinding>& storageBuffers, MaterialParams& params) const
     {
-        setAutoParams(rl, geom.material, textures, storageBuffers, params, geom.modelMat, geom.prevModelMat);
+        setAutoParams(rl, geom.material, outputMask, textures, storageBuffers, params, geom.modelMat, geom.prevModelMat);
     }
 
-    void CameraRenderer::setAutoParams(const RenderList& rl, const MaterialPtr& material, std::vector<HardwareTextureBinding>& textures,
+    void CameraRenderer::setAutoParams(const RenderList& rl, const MaterialPtr& material, std::uint32_t outputMask,
+        std::vector<HardwareTextureBinding>& textures,
         std::vector<StorageBufferBinding>& storageBuffers, MaterialParams& params,
         const Matrix4f& modelMat, const Matrix4f& prevModelMat) const
     {
@@ -170,6 +172,9 @@ namespace af3d
             float scalingFactor = (float)settings.cluster.gridSize.z() / std::log2f(zFar / zNear);
             float biasFactor = -((float)settings.cluster.gridSize.z() * std::log2f(zNear) / std::log2f(zFar / zNear));
             params.setUniform(UniformName::ClusterCfg, Vector4f(zNear, zFar, scalingFactor, biasFactor));
+        }
+        if (activeUniforms.count(UniformName::OutputMask) > 0) {
+            params.setUniform(UniformName::OutputMask, outputMask);
         }
 
         const auto& ssboNames = material->type()->prog()->storageBuffers();

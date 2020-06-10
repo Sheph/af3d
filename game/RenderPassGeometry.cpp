@@ -59,8 +59,9 @@ namespace af3d
             if (!transparent && !withOpaque_) {
                 continue;
             }
+            DrawBufferBinding drawBufferBinding(drawBuffers, geom.material->type()->prog()->outputs());
             MaterialParams params(geom.material->type(), true);
-            cr.setAutoParams(rl, geom, textures, storageBuffers, params);
+            cr.setAutoParams(rl, geom, drawBufferBinding.mask, textures, storageBuffers, params);
             if (zPrepassed_) {
                 int pass;
                 GLenum depthFunc;
@@ -74,7 +75,7 @@ namespace af3d
                     pass = basePass;
                     depthFunc = GL_EQUAL;
                 }
-                rn->add(std::move(tmpNode), pass, drawBuffers, geom.material->type()->prog()->outputs(),
+                rn->add(std::move(tmpNode), pass, drawBufferBinding,
                     geom.material->type(),
                     geom.material->params(),
                     geom.material->blendingParams(),
@@ -94,7 +95,7 @@ namespace af3d
                 } else {
                     pass = basePass;
                 }
-                rn->add(std::move(tmpNode), pass, drawBuffers, geom.material->type()->prog()->outputs(),
+                rn->add(std::move(tmpNode), pass, drawBufferBinding,
                     geom.material->type(),
                     geom.material->params(),
                     geom.material->blendingParams(),

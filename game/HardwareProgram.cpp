@@ -89,6 +89,7 @@ namespace af3d
         {"dt", UniformName::Dt},
         {"realDt", UniformName::RealDt},
         {"clusterCfg", UniformName::ClusterCfg},
+        {"outputMask", UniformName::OutputMask},
         {"mainColor", UniformName::MainColor},
         {"specularColor", UniformName::SpecularColor},
         {"shininess", UniformName::Shininess},

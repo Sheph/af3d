@@ -100,14 +100,14 @@ namespace af3d
             prevProjMat_ = rl.camera()->frustum().projMat();
             auto material = materialManager.createMaterial(MaterialTypeClusterBuild);
             MaterialParams params(material->type(), true);
-            cr.setAutoParams(rl, material, textures, storageBuffers, params);
+            cr.setAutoParams(rl, material, 0, textures, storageBuffers, params);
             rn->add(std::move(tmpNode), pass, material, va_,
                 std::move(storageBuffers), settings.cluster.gridSize, std::move(params));
         }
 
         auto material = materialManager.matClusterCull();
         MaterialParams params(material->type(), true);
-        cr.setAutoParams(rl, material, textures, storageBuffers, params);
+        cr.setAutoParams(rl, material, 0, textures, storageBuffers, params);
         rn->add(std::move(tmpNode), pass + 1, material, va_,
             std::move(storageBuffers), settings.cluster.cullNumGroups, std::move(params));
 

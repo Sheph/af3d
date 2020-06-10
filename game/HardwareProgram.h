@@ -60,8 +60,9 @@ namespace af3d
         Dt,
         RealDt,
         ClusterCfg,
+        OutputMask,
         FirstAuto = ViewProjMatrix,
-        MaxAuto = ClusterCfg,
+        MaxAuto = OutputMask,
         MainColor, // Light only!
         SpecularColor, // Light only!
         Shininess, // Light only!

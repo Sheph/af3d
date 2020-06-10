@@ -57,9 +57,11 @@ namespace af3d
 
         void addRenderPass(const RenderPassPtr& pass);
 
-        void setAutoParams(const RenderList& rl, const RenderList::Geometry& geom, std::vector<HardwareTextureBinding>& textures,
+        void setAutoParams(const RenderList& rl, const RenderList::Geometry& geom, std::uint32_t outputMask,
+            std::vector<HardwareTextureBinding>& textures,
             std::vector<StorageBufferBinding>& storageBuffers, MaterialParams& params) const;
-        void setAutoParams(const RenderList& rl, const MaterialPtr& material, std::vector<HardwareTextureBinding>& textures,
+        void setAutoParams(const RenderList& rl, const MaterialPtr& material, std::uint32_t outputMask,
+            std::vector<HardwareTextureBinding>& textures,
             std::vector<StorageBufferBinding>& storageBuffers, MaterialParams& params,
             const Matrix4f& modelMat = Matrix4f::getIdentity(), const Matrix4f& prevModelMat = Matrix4f::getIdentity()) const;
 

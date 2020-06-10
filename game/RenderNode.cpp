@@ -29,8 +29,10 @@
 
 namespace af3d
 {
-    void RenderNode::DrawBufferBinding::setup(const AttachmentPoints& drawBuffers, const HardwareProgram::Outputs& outputs)
+    DrawBufferBinding::DrawBufferBinding(const AttachmentPoints& drawBuffers, const HardwareProgram::Outputs& outputs)
     {
+        mask = 0;
+
         if (drawBuffers.empty()) {
             numBuffers = -1;
             return;
@@ -44,6 +46,7 @@ namespace af3d
             if (drawBuffers[p]) {
                 if (outputs.count(n) > 0) {
                     buffers[numBuffers++] = glAttachmentPoint(p);
+                    mask |= (1 << n);
                 }
                 ++n;
             }
@@ -60,7 +63,7 @@ namespace af3d
     {
     }
 
-    void RenderNode::add(RenderNode&& tmpNode, int pass, const AttachmentPoints& drawBuffers, const HardwareProgram::Outputs& outputs,
+    void RenderNode::add(RenderNode&& tmpNode, int pass, const DrawBufferBinding& drawBufferBinding,
         const MaterialTypePtr& matType,
         const MaterialParams& matParams,
         const BlendingParams& matBlendingParams,
@@ -99,12 +102,12 @@ namespace af3d
         node->scissorParams_ = scissorParams;
         node->materialParams_ = matParams;
         node->materialParamsAuto_ = std::move(materialParamsAuto);
-        node->drawBufferBinding_.setup(drawBuffers, outputs);
-        node->drawPrimitiveMode_ = primitiveMode;
-        node->drawStart_ = vaSlice.start();
-        node->drawCount_ = vaSlice.count();
-        node->drawBaseVertex_ = vaSlice.baseVertex();
-        node->depthWrite_ = matDepthWrite;
+        node->draw_.bufferBinding = drawBufferBinding;
+        node->draw_.primitiveMode = primitiveMode;
+        node->draw_.start = vaSlice.start();
+        node->draw_.count = vaSlice.count();
+        node->draw_.baseVertex = vaSlice.baseVertex();
+        node->draw_.depthWrite = matDepthWrite;
     }
 
     void RenderNode::add(RenderNode&& tmpNode, int pass, const MaterialPtr& material,
@@ -245,7 +248,7 @@ namespace af3d
 
     bool RenderNode::compareDraw(const RenderNode& other) const
     {
-        return drawIdx_ < other.drawIdx_;
+        return draw_.idx < other.draw_.idx;
     }
 
     RenderNode* RenderNode::insertPass(RenderNode&& tmpNode, int pass)
@@ -309,7 +312,7 @@ namespace af3d
     RenderNode* RenderNode::insertDraw(RenderNode&& tmpNode, int drawIdx)
     {
         tmpNode.type_ = Type::Draw;
-        tmpNode.drawIdx_ = drawIdx;
+        tmpNode.draw_.idx = drawIdx;
         return insertImpl(std::move(tmpNode));
     }
 
@@ -442,33 +445,33 @@ namespace af3d
             ogl.Enable(GL_SCISSOR_TEST);
         }
 
-        if (!depthWrite_) {
+        if (!draw_.depthWrite) {
             ogl.DepthMask(GL_FALSE);
         }
 
-        if (drawBufferBinding_.numBuffers >= 0) {
-            ogl.DrawBuffers(drawBufferBinding_.numBuffers, &drawBufferBinding_.buffers[0]);
+        if (draw_.bufferBinding.numBuffers >= 0) {
+            ogl.DrawBuffers(draw_.bufferBinding.numBuffers, &draw_.bufferBinding.buffers[0]);
         }
 
-        if (drawCount_ == 0) {
+        if (draw_.count == 0) {
             if (va_->ebo()) {
-                ogl.DrawElements(drawPrimitiveMode_, va_->ebo()->count(ctx),
+                ogl.DrawElements(draw_.primitiveMode, va_->ebo()->count(ctx),
                     va_->ebo()->glDataType(),
-                    (const void*)(va_->ebo()->elementSize() * drawStart_));
+                    (const void*)(va_->ebo()->elementSize() * draw_.start));
             } else {
                 // FIXME: Empty draw, optimize this out!
             }
         } else {
             if (va_->ebo()) {
-                ogl.DrawElementsBaseVertex(drawPrimitiveMode_, drawCount_,
+                ogl.DrawElementsBaseVertex(draw_.primitiveMode, draw_.count,
                     va_->ebo()->glDataType(),
-                    (void*)(va_->ebo()->elementSize() * drawStart_), drawBaseVertex_);
+                    (void*)(va_->ebo()->elementSize() * draw_.start), draw_.baseVertex);
             } else {
-                ogl.DrawArrays(drawPrimitiveMode_, drawStart_, drawCount_);
+                ogl.DrawArrays(draw_.primitiveMode, draw_.start, draw_.count);
             }
         }
 
-        if (!depthWrite_) {
+        if (!draw_.depthWrite) {
             ogl.DepthMask(GL_TRUE);
         }
 
