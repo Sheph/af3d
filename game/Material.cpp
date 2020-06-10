@@ -70,6 +70,11 @@ namespace af3d
         setUniformImpl(name, reinterpret_cast<const Byte*>(value.v), GL_FLOAT, 3, 1, quiet);
     }
 
+    void MaterialParams::setUniform(UniformName name, const std::vector<Vector3f>& value, bool quiet)
+    {
+        setUniformImpl(name, reinterpret_cast<const Byte*>(&value[0].v), GL_FLOAT, 3, value.size(), quiet);
+    }
+
     void MaterialParams::setUniform(UniformName name, const btVector3& value, bool quiet)
     {
         setUniform(name, toVector3f(value), quiet);

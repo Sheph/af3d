@@ -213,6 +213,7 @@ namespace af3d
             float brightnessThreshold, int blurKSize, float blurSigma, float compositeStrength, std::vector<MaterialPtr>& mats);
         RenderFilterComponentPtr postProcessToneMapping(int order, const TexturePtr& inputTex);
         RenderFilterComponentPtr postProcessFXAA(int order, const TexturePtr& inputTex);
+        TexturePtr postProcessSSAO(int order, const CameraPtr& inputCamera, const TexturePtr& depthTexture, const TexturePtr& normalTexture);
 
         class Impl;
         std::unique_ptr<Impl> impl_;

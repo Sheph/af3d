@@ -23,28 +23,49 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _CONST_H_
-#define _CONST_H_
+#ifndef _SSAOCOMPONENT_H_
+#define _SSAOCOMPONENT_H_
 
-#include "af3d/Types.h"
+#include "PhasedComponent.h"
+#include "RenderFilterComponent.h"
+#include "Camera.h"
 
 namespace af3d
 {
-    static const int phaseOrderTAA = 9990;
-    // SSAO should update after TAA because it uses jittered mat.
-    static const int phaseOrderSSAO = 9999;
+    class SSAOComponent : public std::enable_shared_from_this<SSAOComponent>,
+        public PhasedComponent
+    {
+    public:
+        SSAOComponent(const CameraPtr& srcCamera,
+            const TexturePtr& depthTexture,
+            const TexturePtr& normalTexture,
+            int ksize,
+            int camOrder);
+        ~SSAOComponent() = default;
 
-    static const int zOrderMenu = 2;
-    static const int zOrderEditor = 100;
-    static const int zOrderEditorWorkspace = 101;
-    static const int zOrderImGui = 9999;
+        static const AClass& staticKlass();
 
-    static const int camOrderSkyBox = -200;
-    static const int camOrderLightProbe = -100;
-    static const int camOrderTestCamera = -10;
-    static const int camOrderTestDisplayFilter = -5;
-    static const int camOrderMain = 0;
-    static const int camOrderPostProcess = 10;
+        static AObjectPtr create(const APropertyValueMap& propVals);
+
+        AObjectPtr sharedThis() override { return shared_from_this(); }
+
+        void preRender(float dt) override;
+
+        inline const TexturePtr& outTexture() const { return blurFilter_[1]->camera()->renderTarget().texture(); }
+
+    private:
+        void onRegister() override;
+
+        void onUnregister() override;
+
+        CameraPtr srcCamera_;
+        RenderFilterComponentPtr ssaoFilter_;
+        RenderFilterComponentPtr blurFilter_[2];
+    };
+
+    using SSAOComponentPtr = std::shared_ptr<SSAOComponent>;
+
+    ACLASS_DECLARE(SSAOComponent)
 }
 
 #endif

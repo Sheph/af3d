@@ -69,7 +69,8 @@ namespace af3d
         {"shaders/prepass1.vert", "shaders/prepass.frag", nullptr, nullptr},
         {"shaders/prepass2.vert", "shaders/prepass.frag", nullptr, nullptr},
         {"shaders/prepass-ws.vert", "shaders/prepass.frag", nullptr, nullptr},
-        {"shaders/filter.vert", "shaders/filter-composite.frag", nullptr, nullptr}
+        {"shaders/filter.vert", "shaders/filter-composite.frag", nullptr, nullptr},
+        {"shaders/filter.vert", "shaders/filter-ssao.frag", nullptr, nullptr}
     };
 
     MaterialManager materialManager;

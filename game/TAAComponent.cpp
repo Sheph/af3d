@@ -26,6 +26,7 @@
 #include "TAAComponent.h"
 #include "TextureManager.h"
 #include "SceneObject.h"
+#include "Const.h"
 
 namespace af3d
 {
@@ -36,7 +37,7 @@ namespace af3d
         const TexturePtr& velocityTexture,
         const TexturePtr& depthTexture,
         const std::vector<MaterialPtr>& destMaterials, int camOrder)
-    : PhasedComponent(AClass_TAAComponent, phasePreRender, 9999),
+    : PhasedComponent(AClass_TAAComponent, phasePreRender, phaseOrderTAA),
       srcCamera_(srcCamera),
       destMaterials_(destMaterials),
       sampleWeights_(9),

@@ -47,6 +47,7 @@ namespace af3d
         void setUniform(UniformName name, std::uint32_t value, bool quiet = false);
         void setUniform(UniformName name, const Vector2f& value, bool quiet = false);
         void setUniform(UniformName name, const Vector3f& value, bool quiet = false);
+        void setUniform(UniformName name, const std::vector<Vector3f>& value, bool quiet = false);
         void setUniform(UniformName name, const btVector3& value, bool quiet = false);
         void setUniform(UniformName name, const Vector4f& value, bool quiet = false);
         void setUniform(UniformName name, const Matrix3f& value, bool quiet = false);

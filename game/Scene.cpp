@@ -55,6 +55,7 @@
 #include "AssetManager.h"
 #include "TextureManager.h"
 #include "TAAComponent.h"
+#include "SSAOComponent.h"
 #include "LightProbeComponent.h"
 #include "CameraRenderer.h"
 #include "RenderPassPrepass.h"
@@ -285,7 +286,7 @@ namespace af3d
         auto velocityTex = textureManager.createRenderTextureScaled(TextureType2D,
             1.0f, 0, GL_RG16F, GL_RG, GL_FLOAT);
         auto normalTex = textureManager.createRenderTextureScaled(TextureType2D,
-            1.0f, 0, GL_RGB, GL_RGB, GL_UNSIGNED_BYTE);
+            1.0f, 0, GL_RGB16F, GL_RGB, GL_FLOAT);
         auto ambientTex = textureManager.createRenderTextureScaled(TextureType2D,
             1.0f, 0, GL_RGB16F, GL_RGB, GL_FLOAT);
         auto depthTex = textureManager.createRenderTextureScaled(TextureType2D,
@@ -315,6 +316,8 @@ namespace af3d
             r->setClearColor(AttachmentPoint::Color3, linearToGamma(Color_zero));
             mc->addRenderer(r);
 
+            auto ssaoTex = postProcessSSAO(camOrderMain + 1, mc, depthTex, normalTex);
+
             auto compositeFilter = std::make_shared<RenderFilterComponent>(MaterialTypeFilterComposite);
             compositeFilter->material()->setTextureBinding(SamplerName::Main,
                 TextureBinding(ambientTex,
@@ -322,14 +325,17 @@ namespace af3d
             compositeFilter->material()->setTextureBinding(SamplerName::Specular,
                 TextureBinding(colorTex,
                     SamplerParams(GL_NEAREST, GL_NEAREST)));
-            compositeFilter->camera()->setOrder(camOrderMain + 1);
+            compositeFilter->material()->setTextureBinding(SamplerName::AO,
+                TextureBinding(ssaoTex,
+                    SamplerParams(GL_LINEAR)));
+            compositeFilter->camera()->setOrder(camOrderMain + 5);
             compositeFilter->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(screenTex));
             dummy_->addComponent(compositeFilter);
 
             r = std::make_shared<CameraRenderer>();
             r->addRenderPass(rpCluster, false);
             r->addRenderPass(std::make_shared<RenderPassGeometry>(AttachmentPoint::Color0, false, true, true));
-            r->setOrder(camOrderMain + 2);
+            r->setOrder(camOrderMain + 6);
             r->setRenderTarget(AttachmentPoint::Color0, RenderTarget(screenTex));
             r->setRenderTarget(AttachmentPoint::Depth, RenderTarget(depthTex));
             r->setClearMask(AttachmentPoints());
@@ -816,6 +822,13 @@ namespace af3d
         ppFilter->camera()->setOrder(order);
         dummy_->addComponent(ppFilter);
         return ppFilter;
+    }
+
+    TexturePtr Scene::postProcessSSAO(int order, const CameraPtr& inputCamera, const TexturePtr& depthTexture, const TexturePtr& normalTexture)
+    {
+        auto ssao = std::make_shared<SSAOComponent>(inputCamera, depthTexture, normalTexture, 16, order);
+        dummy_->addComponent(ssao);
+        return ssao->outTexture();
     }
 
     void Scene::addJoint(const JointPtr& joint)

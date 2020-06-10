@@ -61,7 +61,8 @@ namespace af3d
             "Prepass1",
             "Prepass2",
             "PrepassWS",
-            "FilterComposite"
+            "FilterComposite",
+            "FilterSSAO"
         }
     };
 

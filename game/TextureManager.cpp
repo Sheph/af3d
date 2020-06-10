@@ -271,6 +271,7 @@ namespace af3d
         LOG4CPLUS_DEBUG(logger(), "textureManager: init...");
         white1x1_ = createTexture(TextureType2D, 1, 1, 0);
         black1x1_ = createTexture(TextureType2D, 1, 1, 0);
+        ssaoNoise_ = createTexture(TextureType2D, 4, 4, 0);
         return true;
     }
 
@@ -279,6 +280,7 @@ namespace af3d
         LOG4CPLUS_DEBUG(logger(), "textureManager: shutdown...");
         white1x1_.reset();
         black1x1_.reset();
+        ssaoNoise_.reset();
         runtime_assert(immediateTextures_.empty());
         cachedTextures_.clear();
     }
@@ -298,6 +300,13 @@ namespace af3d
         white1x1_->upload(GL_SRGB_ALPHA, GL_RGBA, GL_UNSIGNED_BYTE, std::move(dataWhite), false);
         std::vector<Byte> dataBlack{0, 0, 0, 0};
         black1x1_->upload(GL_SRGB_ALPHA, GL_RGBA, GL_UNSIGNED_BYTE, std::move(dataBlack), false);
+        std::vector<Byte> dataSsaoNoise(4 * 4 * 3 * sizeof(float));
+        for (size_t i = 0; i < dataSsaoNoise.size(); i += 3 * sizeof(float)) {
+            *(float*)&dataSsaoNoise[i + sizeof(float) * 0] = 2.0f * getRandom(0.0f, 1.0) - 1.0f;
+            *(float*)&dataSsaoNoise[i + sizeof(float) * 1] = 2.0f * getRandom(0.0f, 1.0) - 1.0f;
+            *(float*)&dataSsaoNoise[i + sizeof(float) * 2] = 0.0f;
+        }
+        ssaoNoise_->upload(GL_RGB16F, GL_RGB, GL_FLOAT, std::move(dataSsaoNoise), false);
     }
 
     bool TextureManager::renderReload(HardwareContext& ctx)

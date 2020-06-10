@@ -144,6 +144,7 @@ set(SOURCES
     TVComponent.cpp
     Equirect2CubeComponent.cpp
     TAAComponent.cpp
+    SSAOComponent.cpp
     editor/Action.cpp
     editor/Workspace.cpp
     editor/MainPopup.cpp

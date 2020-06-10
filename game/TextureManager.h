@@ -66,6 +66,7 @@ namespace af3d
 
         inline TexturePtr white1x1() const { return white1x1_; }
         inline TexturePtr black1x1() const { return black1x1_; }
+        inline TexturePtr ssaoNoise() const { return ssaoNoise_; }
 
     private:
         using CachedTextures = std::unordered_map<std::string, TexturePtr>;
@@ -75,6 +76,7 @@ namespace af3d
         ImmediateTextures immediateTextures_;
         TexturePtr white1x1_;
         TexturePtr black1x1_;
+        TexturePtr ssaoNoise_;
     };
 
     extern TextureManager textureManager;

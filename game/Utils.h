@@ -96,6 +96,8 @@ namespace af3d
     }
 
     void setGaussianBlurParams(MaterialParams& params, int ksize, float sigma, bool isHorizontal);
+
+    void setSSAOKernelParams(MaterialParams& params, int ksize);
 }
 
 inline ImVec2 operator+(const ImVec2& v1, const ImVec2& v2)

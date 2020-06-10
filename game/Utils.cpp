@@ -78,9 +78,26 @@ namespace af3d
         int rSize = createGaussianDirectionalKernel(ksize, &kernel[0], &offset[0]);
         kernel.resize(rSize);
         offset.resize(rSize);
-        params.setUniform(UniformName::GaussianKernel, kernel);
-        params.setUniform(UniformName::GaussianOffset, offset);
-        params.setUniform(UniformName::GaussianMSize, ksize);
-        params.setUniform(UniformName::GaussianDir, static_cast<int>(isHorizontal));
+        params.setUniform(UniformName::Kernel, kernel);
+        params.setUniform(UniformName::KernelOffset, offset);
+        params.setUniform(UniformName::KernelSize, ksize);
+        params.setUniform(UniformName::KernelDir, static_cast<int>(isHorizontal));
+    }
+
+    void setSSAOKernelParams(MaterialParams& params, int ksize)
+    {
+        std::vector<Vector3f> kernel(ksize);
+        for (int i = 0; i < ksize; ++i) {
+            Vector3f sample(getRandom(0.0f, 1.0f) * 2.0f - 1.0f, getRandom(0.0f, 1.0f) * 2.0f - 1.0f, getRandom(0.2f, 1.0f));
+            btZeroNormalize(sample);
+            float scale = float(i) / ksize;
+
+            // Scale samples s.t. they're more aligned to center of kernel
+            scale = lerp(0.1f, 1.0f, scale * scale);
+            sample *= scale;
+            kernel[i] = sample;
+        }
+        params.setUniform(UniformName::Kernel, kernel);
+        params.setUniform(UniformName::KernelSize, ksize);
     }
 }
