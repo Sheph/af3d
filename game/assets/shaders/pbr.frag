@@ -21,6 +21,7 @@ uniform float emissiveFactor;
 uniform int normalFormat;
 #endif
 uniform vec4 clusterCfg;
+uniform int outputMask;
 
 struct ClusterLight
 {
@@ -83,10 +84,11 @@ in mat3 v_tbn;
 #else
 in vec3 v_normal;
 #endif
-
 in vec4 v_clipPos;
 
-out vec4 fragColor;
+layout (location = 0) out vec4 fragColor;
+layout (location = 1) out vec3 fragNormal;
+layout (location = 2) out vec4 fragAmbient;
 
 const float PI = 3.141592;
 const float Epsilon = 0.00001;
@@ -198,6 +200,7 @@ void main()
 #else
     vec3 N = normalize(v_normal);
 #endif
+    fragNormal = N;
 
     // Angle between surface normal and outgoing light direction.
     float cosLo = max(0.0, dot(N, Lo));
@@ -208,14 +211,15 @@ void main()
     uint probeCount = clusterTileData[tileIndex].probeCount;
     uint probeOffset = clusterTileData[tileIndex].probeOffset;
 
+    vec4 outColor = vec4(0.0);
+    vec4 outAmbient = vec4(0.0);
+
     {
         // ambient
 
 #ifndef FAST
         float ao = texture(texAO, v_texCoord).r;
 #endif
-        vec3 emissive = texture(texEmissive, v_texCoord).rgb * emissiveFactor;
-
         // Specular reflection vector.
         const vec3 Lr = 2.0 * cosLo * N - Lo;
 
@@ -275,7 +279,7 @@ void main()
         vec3 specularIBL = (F0 * specularBRDF.x + specularBRDF.y) * totalSpecularIrradiance;
 
         // Total ambient lighting contribution.
-        fragColor = vec4((diffuseIBL + specularIBL) * ao + emissive, albedoFull.a);
+        outAmbient = vec4((diffuseIBL + specularIBL) * ao, albedoFull.a);
     }
 
     uint lightCount = clusterTileData[tileIndex].lightCount;
@@ -339,6 +343,17 @@ void main()
         vec3 specularBRDF = (F * D * G) / max(Epsilon, 4.0 * cosLi * cosLo);
 
         // Total contribution for this light.
-        fragColor += vec4((diffuseBRDF + specularBRDF) * light.color.xyz * cosLi * attenuation, 0.0);
+        outColor += vec4((diffuseBRDF + specularBRDF) * light.color.xyz * cosLi * attenuation, 0.0);
+    }
+
+    vec3 emissive = texture(texEmissive, v_texCoord).rgb * emissiveFactor;
+
+    outColor += vec4(emissive, 0.0);
+
+    if (outputMask == 7) {
+        fragColor = outColor;
+        fragAmbient = outAmbient;
+    } else {
+        fragColor = outColor + outAmbient;
     }
 }

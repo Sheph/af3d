@@ -205,6 +205,9 @@ namespace af3d
         void reapJoints();
 
         void postProcessTAA(int order, const CameraPtr& inputCamera,
+            const TexturePtr& inputTexture,
+            const TexturePtr& velocityTexture,
+            const TexturePtr& depthTexture,
             const std::vector<MaterialPtr>& destMaterials);
         TexturePtr postProcessBloom(int order, const TexturePtr& inputTex,
             float brightnessThreshold, int blurKSize, float blurSigma, float compositeStrength, std::vector<MaterialPtr>& mats);

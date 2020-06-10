@@ -32,7 +32,10 @@ namespace af3d
     ACLASS_DEFINE_BEGIN(TAAComponent, PhasedComponent)
     ACLASS_DEFINE_END(TAAComponent)
 
-    TAAComponent::TAAComponent(const CameraPtr& srcCamera, const std::vector<MaterialPtr>& destMaterials, int camOrder)
+    TAAComponent::TAAComponent(const CameraPtr& srcCamera, const TexturePtr& inputTexture,
+        const TexturePtr& velocityTexture,
+        const TexturePtr& depthTexture,
+        const std::vector<MaterialPtr>& destMaterials, int camOrder)
     : PhasedComponent(AClass_TAAComponent, phasePreRender, 9999),
       srcCamera_(srcCamera),
       destMaterials_(destMaterials),
@@ -40,20 +43,20 @@ namespace af3d
       lowpassWeights_(9),
       plusWeights_(5)
     {
-        std::vector<Byte> data(srcCamera->renderTarget().texture()->width() * srcCamera->renderTarget().texture()->height() * 3);
+        std::vector<Byte> data(inputTexture->width() * inputTexture->height() * 3);
         prevTex_ = textureManager.createRenderTextureScaled(TextureType2D, 1.0f, 0, GL_RGB16F, GL_RGB, GL_UNSIGNED_BYTE, false, std::move(data));
-        std::vector<Byte> data2(srcCamera->renderTarget().texture()->width() * srcCamera->renderTarget().texture()->height() * 3);
+        std::vector<Byte> data2(inputTexture->width() * inputTexture->height() * 3);
         outTex_ = textureManager.createRenderTextureScaled(TextureType2D, 1.0f, 0, GL_RGB16F, GL_RGB, GL_UNSIGNED_BYTE, false, std::move(data2));
 
         taaFilter_ = std::make_shared<RenderFilterComponent>(MaterialTypeFilterTAA);
         taaFilter_->material()->setTextureBinding(SamplerName::Main,
-            TextureBinding(srcCamera->renderTarget().texture(),
+            TextureBinding(inputTexture,
                 SamplerParams(GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR)));
         taaFilter_->material()->setTextureBinding(SamplerName::Noise,
-            TextureBinding(srcCamera->renderTarget(AttachmentPoint::Color1).texture(),
+            TextureBinding(velocityTexture,
                 SamplerParams(GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR)));
         taaFilter_->material()->setTextureBinding(SamplerName::Depth,
-            TextureBinding(srcCamera->renderTarget(AttachmentPoint::Depth).texture(),
+            TextureBinding(depthTexture,
                 SamplerParams(GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR)));
         taaFilter_->camera()->setOrder(camOrder);
 

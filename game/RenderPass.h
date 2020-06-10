@@ -45,7 +45,7 @@ namespace af3d
     };
 
     using RenderPassPtr = std::shared_ptr<RenderPass>;
-    using RenderPasses = std::vector<RenderPassPtr>;
+    using RenderPasses = std::vector<std::pair<RenderPassPtr, bool>>;
 }
 
 #endif

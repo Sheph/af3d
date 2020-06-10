@@ -11,6 +11,7 @@ uniform float shininess;
 uniform vec3 eyePos;
 uniform vec3 ambientColor;
 uniform vec4 clusterCfg;
+uniform int outputMask;
 
 struct ClusterLight
 {
@@ -53,10 +54,11 @@ in mat3 v_tbn;
 #else
 in vec3 v_normal;
 #endif
-
 in vec4 v_clipPos;
 
-out vec4 fragColor;
+layout (location = 0) out vec4 fragColor;
+layout (location = 1) out vec3 fragNormal;
+layout (location = 2) out vec4 fragAmbient;
 
 float linearDepth(float depthRange)
 {
@@ -71,12 +73,15 @@ void main()
     uvec3 tiles = uvec3(uvec2((0.5 * (ndc.xy + 1.0)) * vec2(CLUSTER_GRID_X, CLUSTER_GRID_Y)), zTile);
     uint tileIndex = tiles.x + CLUSTER_GRID_X * tiles.y + (CLUSTER_GRID_X * CLUSTER_GRID_Y) * tiles.z;
 
+    vec4 outColor = vec4(0.0);
+    vec4 outAmbient = vec4(0.0);
+
     vec4 diffuse = texture(texMain, v_texCoord) * mainColor;
     vec4 specular = texture(texSpecular, v_texCoord) * specularColor;
 
     {
         // ambient
-        fragColor = diffuse * vec4(ambientColor, 1.0);
+        outAmbient = diffuse * vec4(ambientColor, 1.0);
     }
 
 #ifdef NM
@@ -84,6 +89,8 @@ void main()
 #else
     vec3 normalDirection = normalize(v_normal);
 #endif
+    fragNormal = normalDirection;
+
     vec3 viewDirection = normalize(eyePos - v_pos);
     vec3 lightDirection;
     float attenuation;
@@ -126,6 +133,13 @@ void main()
             pow(max(0.0, dot(reflect(-lightDirection, normalDirection), viewDirection)), shininess);
 #endif
 
-        fragColor += attenuation * (diffuseReflection + specularReflection);
+        outColor += attenuation * (diffuseReflection + specularReflection);
+    }
+
+    if (outputMask == 7) {
+        fragColor = outColor;
+        fragAmbient = outAmbient;
+    } else {
+        fragColor = outColor + outAmbient;
     }
 }

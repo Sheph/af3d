@@ -280,37 +280,71 @@ namespace af3d
 
         dummy_ = std::make_shared<SceneObject>();
 
-        auto screenTex = textureManager.createRenderTextureScaled(TextureType2D,
+        auto colorTex = textureManager.createRenderTextureScaled(TextureType2D,
             1.0f, 0, GL_RGB16F, GL_RGB, GL_FLOAT);
         auto velocityTex = textureManager.createRenderTextureScaled(TextureType2D,
             1.0f, 0, GL_RG16F, GL_RG, GL_FLOAT);
+        auto normalTex = textureManager.createRenderTextureScaled(TextureType2D,
+            1.0f, 0, GL_RGB, GL_RGB, GL_UNSIGNED_BYTE);
+        auto ambientTex = textureManager.createRenderTextureScaled(TextureType2D,
+            1.0f, 0, GL_RGB16F, GL_RGB, GL_FLOAT);
         auto depthTex = textureManager.createRenderTextureScaled(TextureType2D,
             1.0f, 0, GL_DEPTH_COMPONENT24, GL_DEPTH_COMPONENT, GL_FLOAT);
+        auto screenTex = textureManager.createRenderTextureScaled(TextureType2D,
+            1.0f, 0, GL_RGB16F, GL_RGB, GL_FLOAT);
 
         auto mc = std::make_shared<Camera>(false);
 
         {
+            auto rpCluster = std::make_shared<RenderPassCluster>();
+
             auto r = std::make_shared<CameraRenderer>();
             r->addRenderPass(std::make_shared<RenderPassPrepass>(AttachmentPoint::Color1));
-            r->addRenderPass(std::make_shared<RenderPassCluster>());
-            r->addRenderPass(std::make_shared<RenderPassGeometry>(AttachmentPoint::Color0, true, true, true));
+            r->addRenderPass(rpCluster);
+            r->addRenderPass(std::make_shared<RenderPassGeometry>(
+                AttachmentPoints(AttachmentPoint::Color0) | AttachmentPoint::Color2 | AttachmentPoint::Color3, true, false, true));
+            r->setOrder(camOrderMain);
+            r->setRenderTarget(AttachmentPoint::Color0, RenderTarget(colorTex));
+            r->setRenderTarget(AttachmentPoint::Color1, RenderTarget(velocityTex));
+            r->setRenderTarget(AttachmentPoint::Color2, RenderTarget(normalTex));
+            r->setRenderTarget(AttachmentPoint::Color3, RenderTarget(ambientTex));
+            r->setRenderTarget(AttachmentPoint::Depth, RenderTarget(depthTex));
+            r->setClearMask(r->clearMask() | AttachmentPoint::Color1 | AttachmentPoint::Color2 | AttachmentPoint::Color3);
+            r->setClearColor(AttachmentPoint::Color1, linearToGamma(Color(65535.0f, 65535.0f, 65535.0f, 65535.0f)));
+            r->setClearColor(AttachmentPoint::Color2, linearToGamma(Color_zero));
+            r->setClearColor(AttachmentPoint::Color3, linearToGamma(Color_zero));
+            mc->addRenderer(r);
+
+            auto compositeFilter = std::make_shared<RenderFilterComponent>(MaterialTypeFilterComposite);
+            compositeFilter->material()->setTextureBinding(SamplerName::Main,
+                TextureBinding(ambientTex,
+                    SamplerParams(GL_NEAREST, GL_NEAREST)));
+            compositeFilter->material()->setTextureBinding(SamplerName::Specular,
+                TextureBinding(colorTex,
+                    SamplerParams(GL_NEAREST, GL_NEAREST)));
+            compositeFilter->camera()->setOrder(camOrderMain + 1);
+            compositeFilter->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(screenTex));
+            dummy_->addComponent(compositeFilter);
+
+            r = std::make_shared<CameraRenderer>();
+            r->addRenderPass(rpCluster, false);
+            r->addRenderPass(std::make_shared<RenderPassGeometry>(AttachmentPoint::Color0, false, true, true));
+            r->setOrder(camOrderMain + 2);
+            r->setRenderTarget(AttachmentPoint::Color0, RenderTarget(screenTex));
+            r->setRenderTarget(AttachmentPoint::Depth, RenderTarget(depthTex));
+            r->setClearMask(AttachmentPoints());
             mc->addRenderer(r);
         }
 
         mc->setLayer(CameraLayer::Main);
         mc->setAspect(settings.viewAspect);
-        mc->setRenderTarget(AttachmentPoint::Color0, RenderTarget(screenTex));
-        mc->setRenderTarget(AttachmentPoint::Color1, RenderTarget(velocityTex));
-        mc->setRenderTarget(AttachmentPoint::Depth, RenderTarget(depthTex));
-        mc->setClearMask(mc->clearMask() | AttachmentPoint::Color1);
-        mc->setClearColor(AttachmentPoint::Color1, linearToGamma(Color(65535.0f, 65535.0f, 65535.0f, 65535.0f)));
         addCamera(mc);
 
         if (settings.bloom) {
             std::vector<MaterialPtr> mats;
             auto tex = postProcessBloom(camOrderPostProcess + 1, screenTex, 1.0f, 11, 2.0f, 0.5f, mats);
             if (settings.aaMode == Settings::AAMode::TAA) {
-                postProcessTAA(camOrderPostProcess, mc, mats);
+                postProcessTAA(camOrderPostProcess, mc, screenTex, velocityTex, depthTex, mats);
             }
             auto filter = postProcessToneMapping(camOrderPostProcess + 100, tex);
             if (settings.aaMode == Settings::AAMode::FXAA) {
@@ -323,7 +357,7 @@ namespace af3d
         } else {
             auto filter = postProcessToneMapping(camOrderPostProcess + 100, screenTex);
             if (settings.aaMode == Settings::AAMode::TAA) {
-                postProcessTAA(camOrderPostProcess, mc, {filter->material()});
+                postProcessTAA(camOrderPostProcess, mc, screenTex, velocityTex, depthTex, {filter->material()});
             } else if (settings.aaMode == Settings::AAMode::FXAA) {
                 auto toneMappedTex = textureManager.createRenderTextureScaled(TextureType2D,
                     1.0f, 0, GL_RGB, GL_RGB, GL_UNSIGNED_BYTE);
@@ -680,9 +714,12 @@ namespace af3d
     }
 
     void Scene::postProcessTAA(int order, const CameraPtr& inputCamera,
+        const TexturePtr& inputTexture,
+        const TexturePtr& velocityTexture,
+        const TexturePtr& depthTexture,
         const std::vector<MaterialPtr>& destMaterials)
     {
-        auto taa = std::make_shared<TAAComponent>(inputCamera, destMaterials, order);
+        auto taa = std::make_shared<TAAComponent>(inputCamera, inputTexture, velocityTexture, depthTexture, destMaterials, order);
         dummy_->addComponent(taa);
     }
 

@@ -55,7 +55,7 @@ namespace af3d
         inline const RenderTarget& renderTarget(AttachmentPoint attachmentPoint = AttachmentPoint::Color0) const { return renderTarget_[static_cast<int>(attachmentPoint)]; }
         inline void setRenderTarget(AttachmentPoint attachmentPoint, const RenderTarget& value) { renderTarget_[static_cast<int>(attachmentPoint)] = value; }
 
-        void addRenderPass(const RenderPassPtr& pass);
+        void addRenderPass(const RenderPassPtr& pass, bool run = true);
 
         void setAutoParams(const RenderList& rl, const RenderList::Geometry& geom, std::uint32_t outputMask,
             std::vector<HardwareTextureBinding>& textures,

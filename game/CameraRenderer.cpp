@@ -51,9 +51,9 @@ namespace af3d
         viewport_ = value;
     }
 
-    void CameraRenderer::addRenderPass(const RenderPassPtr& pass)
+    void CameraRenderer::addRenderPass(const RenderPassPtr& pass, bool run)
     {
-        passes_.push_back(pass);
+        passes_.emplace_back(pass, run);
     }
 
     void CameraRenderer::setAutoParams(const RenderList& rl, const RenderList::Geometry& geom, std::uint32_t outputMask,
@@ -174,7 +174,7 @@ namespace af3d
             params.setUniform(UniformName::ClusterCfg, Vector4f(zNear, zFar, scalingFactor, biasFactor));
         }
         if (activeUniforms.count(UniformName::OutputMask) > 0) {
-            params.setUniform(UniformName::OutputMask, outputMask);
+            params.setUniform(UniformName::OutputMask, static_cast<int>(outputMask));
         }
 
         const auto& ssboNames = material->type()->prog()->storageBuffers();
@@ -188,7 +188,7 @@ namespace af3d
         }
 
         for (const auto& pass : passes_) {
-            pass->fillParams(material, storageBuffers, params);
+            pass.first->fillParams(material, storageBuffers, params);
         }
     }
 
@@ -198,7 +198,9 @@ namespace af3d
         auto rn = std::make_shared<RenderNode>(viewport(), clearMask(), clearColors(), mrt);
         int passIdx = 0;
         for (const auto& pass : passes_) {
-            passIdx = pass->compile(*this, rl, passIdx, rn);
+            if (pass.second) {
+                passIdx = pass.first->compile(*this, rl, passIdx, rn);
+            }
         }
         return rn;
     }

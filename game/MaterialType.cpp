@@ -60,7 +60,8 @@ namespace af3d
             "ClusterCull",
             "Prepass1",
             "Prepass2",
-            "PrepassWS"
+            "PrepassWS",
+            "FilterComposite"
         }
     };
 

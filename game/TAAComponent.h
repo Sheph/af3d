@@ -36,7 +36,11 @@ namespace af3d
         public PhasedComponent
     {
     public:
-        TAAComponent(const CameraPtr& srcCamera, const std::vector<MaterialPtr>& destMaterials, int camOrder);
+        TAAComponent(const CameraPtr& srcCamera,
+            const TexturePtr& inputTexture,
+            const TexturePtr& velocityTexture,
+            const TexturePtr& depthTexture,
+            const std::vector<MaterialPtr>& destMaterials, int camOrder);
         ~TAAComponent() = default;
 
         static const AClass& staticKlass();
