@@ -142,6 +142,7 @@ namespace af3d
         bool trilinearFilter;
         AAMode aaMode;
         bool bloom;
+        bool ssao;
         std::uint32_t viewX;
         std::uint32_t viewY;
         std::set<VideoMode> winVideoModes;

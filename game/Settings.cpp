@@ -87,9 +87,11 @@ namespace af3d
 
         aaMode = static_cast<AAMode>(appConfig->getStringIndex(".aaMode", subKeys));
         bloom = appConfig->getBool(".bloom");
+        ssao = appConfig->getBool(".ssao");
 
         LOG4CPLUS_INFO(logger(), "AA mode : " << subKeys[static_cast<int>(aaMode)]);
         LOG4CPLUS_INFO(logger(), "Bloom : " << bloom);
+        LOG4CPLUS_INFO(logger(), "SSAO : " << ssao);
 
         /*
          * physics.
