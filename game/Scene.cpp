@@ -826,7 +826,7 @@ namespace af3d
 
     TexturePtr Scene::postProcessSSAO(int order, const CameraPtr& inputCamera, const TexturePtr& depthTexture, const TexturePtr& normalTexture)
     {
-        auto ssao = std::make_shared<SSAOComponent>(inputCamera, depthTexture, normalTexture, 64, order);
+        auto ssao = std::make_shared<SSAOComponent>(inputCamera, depthTexture, normalTexture, 16, order);
         dummy_->addComponent(ssao);
         return ssao->outTexture();
     }

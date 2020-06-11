@@ -44,9 +44,9 @@ namespace af3d
         float blurSigma = 2.0f;
 
         auto outTex1 = textureManager.createRenderTextureScaled(TextureType2D,
-            1.0f, 0, GL_R16F, GL_RED, GL_FLOAT);
+            2.0f, 0, GL_R16F, GL_RED, GL_FLOAT);
         auto outTex2 = textureManager.createRenderTextureScaled(TextureType2D,
-            1.0f, 0, GL_R16F, GL_RED, GL_FLOAT);
+            2.0f, 0, GL_R16F, GL_RED, GL_FLOAT);
 
         ssaoFilter_ = std::make_shared<RenderFilterComponent>(MaterialTypeFilterSSAO);
         ssaoFilter_->material()->setTextureBinding(SamplerName::Depth,
@@ -63,30 +63,27 @@ namespace af3d
         setSSAOKernelParams(ssaoFilter_->material()->params(), ksize);
         ssaoFilter_->material()->params().setUniform(UniformName::Radius, 0.5f);
 
-        blurFilter_[1] = std::make_shared<RenderFilterComponent>(MaterialTypeFilterSSAOBlur);
-        blurFilter_[1]->material()->setTextureBinding(SamplerName::Main,
-            TextureBinding(outTex1,
-                SamplerParams(GL_NEAREST, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST)));
-        blurFilter_[1]->camera()->setOrder(camOrder + 1);
-        blurFilter_[1]->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(outTex2));
-
-/*        blurFilter_[0] = std::make_shared<RenderFilterComponent>(MaterialTypeFilterGaussianBlur);
+        blurFilter_[0] = std::make_shared<RenderFilterComponent>(MaterialTypeFilterSSAOBlur);
         blurFilter_[0]->material()->setTextureBinding(SamplerName::Main,
             TextureBinding(outTex1,
                 SamplerParams(GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR)));
+        blurFilter_[0]->material()->setTextureBinding(SamplerName::Depth,
+            TextureBinding(depthTexture,
+                SamplerParams(GL_NEAREST, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST)));
         blurFilter_[0]->camera()->setOrder(camOrder + 1);
         blurFilter_[0]->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(outTex2));
         setGaussianBlurParams(blurFilter_[0]->material()->params(), blurKSize, blurSigma, false);
-        blurFilter_[0]->material()->params().setUniform(UniformName::MipLevel, 0.0f);
 
-        blurFilter_[1] = std::make_shared<RenderFilterComponent>(MaterialTypeFilterGaussianBlur);
+        blurFilter_[1] = std::make_shared<RenderFilterComponent>(MaterialTypeFilterSSAOBlur);
         blurFilter_[1]->material()->setTextureBinding(SamplerName::Main,
             TextureBinding(outTex2,
                 SamplerParams(GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR)));
+        blurFilter_[1]->material()->setTextureBinding(SamplerName::Depth,
+            TextureBinding(depthTexture,
+                SamplerParams(GL_NEAREST, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST)));
         blurFilter_[1]->camera()->setOrder(camOrder + 2);
         blurFilter_[1]->camera()->setRenderTarget(AttachmentPoint::Color0, RenderTarget(outTex1));
         setGaussianBlurParams(blurFilter_[1]->material()->params(), blurKSize, blurSigma, true);
-        blurFilter_[1]->material()->params().setUniform(UniformName::MipLevel, 0.0f);*/
     }
 
     const AClass& SSAOComponent::staticKlass()
@@ -102,24 +99,25 @@ namespace af3d
     void SSAOComponent::preRender(float dt)
     {
         ssaoFilter_->material()->params().setUniform(UniformName::ArgViewProjMatrix, srcCamera_->frustum().jitteredViewProjMat());
-        ssaoFilter_->material()->params().setUniform(UniformName::ArgNearFar, Vector2f(srcCamera_->frustum().nearDist(), srcCamera_->frustum().farDist()));
+
+        Vector2f nearFar(srcCamera_->frustum().nearDist(), srcCamera_->frustum().farDist());
+
+        ssaoFilter_->material()->params().setUniform(UniformName::ArgNearFar, nearFar);
+        blurFilter_[0]->material()->params().setUniform(UniformName::ArgNearFar, nearFar);
+        blurFilter_[1]->material()->params().setUniform(UniformName::ArgNearFar, nearFar);
     }
 
     void SSAOComponent::onRegister()
     {
         parent()->addComponent(ssaoFilter_);
-        if (blurFilter_[0]) {
-            parent()->addComponent(blurFilter_[0]);
-        }
+        parent()->addComponent(blurFilter_[0]);
         parent()->addComponent(blurFilter_[1]);
     }
 
     void SSAOComponent::onUnregister()
     {
         parent()->removeComponent(ssaoFilter_);
-        if (blurFilter_[0]) {
-            parent()->removeComponent(blurFilter_[0]);
-        }
+        parent()->removeComponent(blurFilter_[0]);
         parent()->removeComponent(blurFilter_[1]);
     }
 }

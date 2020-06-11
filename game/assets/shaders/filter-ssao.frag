@@ -21,13 +21,6 @@ float linearDepth(float d)
     return 2.0 * argNearFar.x * argNearFar.y / (argNearFar.y + argNearFar.x - d * (argNearFar.y - argNearFar.x));
 }
 
-vec3 WorldPosFromDepth(vec2 textureCoordinates)
-{
-    vec4 WSP = vec4(2.0 * textureCoordinates - 1.0, 2.0 * texture(texDepth, textureCoordinates).r - 1.0, 1.0) * invArgViewProj;
-    WSP /= WSP.w;
-    return WSP.xyz;
-}
-
 void main()
 {
     invArgViewProj = inverse(argViewProj);
@@ -39,7 +32,11 @@ void main()
         return;
     }
 
-    vec3 fragPos = WorldPosFromDepth(v_texCoord);
+    float fragDepth = texture(texDepth, v_texCoord).r;
+    float fragPosZ = linearDepth(fragDepth);
+    vec4 fragPos = vec4(2.0 * v_texCoord - 1.0, 2.0 * fragDepth - 1.0, 1.0) * invArgViewProj;
+    fragPos /= fragPos.w;
+
     vec3 randomVec = texture(texNoise, v_texCoord * (viewportSize / vec2(textureSize(texNoise, 0)))).xyz;
 
     // Make a TBN matrix to go from tangent -> world space (so we can put our hemipshere tangent sample points into world space)
@@ -51,7 +48,7 @@ void main()
     // Calculate the total amount of occlusion for this fragment
     float occlusion = 0.0f;
     for (int i = 0; i < kernelSize; ++i) {
-        vec3 sampleWorld = fragPos + (TBN * kernel[i]) * radius;
+        vec3 sampleWorld = fragPos.xyz + (TBN * kernel[i]) * radius;
 
         // Take our sample position in world space and convert it to screen coordinates
         vec4 sampleScreenSpace = vec4(sampleWorld, 1.0);
@@ -59,26 +56,13 @@ void main()
         sampleScreenSpace.xyz /= sampleScreenSpace.w; // Perspective division (Clip Space -> NDC)
         sampleScreenSpace.xyz = (sampleScreenSpace.xyz * 0.5) + 0.5; // [-1, 1] -> [0, 1]
 
-        if (1 == 1) {
-            // get sample depth
-            float fragPosZ = linearDepth(texture(texDepth, v_texCoord).r);
-            float sampleDepth = linearDepth(texture(texDepth, sampleScreenSpace.xy).r);
-            float sampleZ = linearDepth(sampleScreenSpace.z);
+        // get sample depth
+        float sampleDepth = linearDepth(texture(texDepth, sampleScreenSpace.xy).r);
+        float sampleZ = linearDepth(sampleScreenSpace.z);
 
-            float distCheck = smoothstep(0.0, 1.0, 15.0 / fragPosZ);
-
-            // range check & accumulate
-            float rangeCheck = smoothstep(0.0, 1.0, radius / abs(fragPosZ - sampleDepth));
-            occlusion += (sampleZ >= sampleDepth + 0.025 ? 1.0 : 0.0) * rangeCheck * distCheck;
-        } else {
-            float sceneDepth = texture(texDepth, sampleScreenSpace.xy).r;
-            // Peform a range check on the current fragment we are calculating the occlusion factor for, and the occlusion position
-            vec3 occlusionPos = WorldPosFromDepth(sampleScreenSpace.xy);
-            vec3 fragToOcclusionPos = fragPos - occlusionPos;
-            if (dot(fragToOcclusionPos, fragToOcclusionPos) <= radius * radius) {
-                occlusion += ((sampleScreenSpace.z > sceneDepth) ? 1.0 : 0.0);
-            }
-        }
+        // range check & accumulate
+        float rangeCheck = smoothstep(0.0, 1.0, radius / abs(fragPosZ - sampleDepth));
+        occlusion += (sampleZ >= sampleDepth + 0.025 ? 1.0 : 0.0) * rangeCheck;
     }
 
     // Finally we need to normalize our occlusion factor
