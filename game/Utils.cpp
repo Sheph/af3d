@@ -90,6 +90,7 @@ namespace af3d
         for (int i = 0; i < ksize; ++i) {
             Vector3f sample(getRandom(0.0f, 1.0f) * 2.0f - 1.0f, getRandom(0.0f, 1.0f) * 2.0f - 1.0f, getRandom(0.2f, 1.0f));
             btZeroNormalize(sample);
+            sample *= getRandom(0.0f, 1.0f);
             float scale = float(i) / ksize;
 
             // Scale samples s.t. they're more aligned to center of kernel

@@ -7,12 +7,19 @@ uniform vec3 kernel[64];
 uniform int kernelSize;
 uniform float radius;
 uniform mat4 argViewProj;
+uniform vec2 argNearFar;
 
 mat4 invArgViewProj;
 
 in vec2 v_texCoord;
 
 out float fragColor;
+
+float linearDepth(float d)
+{
+    d = 2.0 * d - 1.0;
+    return 2.0 * argNearFar.x * argNearFar.y / (argNearFar.y + argNearFar.x - d * (argNearFar.y - argNearFar.x));
+}
 
 vec3 WorldPosFromDepth(vec2 textureCoordinates)
 {
@@ -52,14 +59,25 @@ void main()
         sampleScreenSpace.xyz /= sampleScreenSpace.w; // Perspective division (Clip Space -> NDC)
         sampleScreenSpace.xyz = (sampleScreenSpace.xyz * 0.5) + 0.5; // [-1, 1] -> [0, 1]
 
-        // Check if our current samples depth is behind the screen space geometry's depth, if so then we know it is occluded in screenspace
-        float sceneDepth = texture(texDepth, sampleScreenSpace.xy).r;
+        if (1 == 1) {
+            // get sample depth
+            float fragPosZ = linearDepth(texture(texDepth, v_texCoord).r);
+            float sampleDepth = linearDepth(texture(texDepth, sampleScreenSpace.xy).r);
+            float sampleZ = linearDepth(sampleScreenSpace.z);
 
-        // Peform a range check on the current fragment we are calculating the occlusion factor for, and the occlusion position
-        vec3 occlusionPos = WorldPosFromDepth(sampleScreenSpace.xy);
-        vec3 fragToOcclusionPos = fragPos - occlusionPos;
-        if (dot(fragToOcclusionPos, fragToOcclusionPos) <= radius * radius) {
-            occlusion += ((sampleScreenSpace.z > sceneDepth) ? 1.0 : 0.0);
+            float distCheck = smoothstep(0.0, 1.0, 15.0 / fragPosZ);
+
+            // range check & accumulate
+            float rangeCheck = smoothstep(0.0, 1.0, radius / abs(fragPosZ - sampleDepth));
+            occlusion += (sampleZ >= sampleDepth + 0.025 ? 1.0 : 0.0) * rangeCheck * distCheck;
+        } else {
+            float sceneDepth = texture(texDepth, sampleScreenSpace.xy).r;
+            // Peform a range check on the current fragment we are calculating the occlusion factor for, and the occlusion position
+            vec3 occlusionPos = WorldPosFromDepth(sampleScreenSpace.xy);
+            vec3 fragToOcclusionPos = fragPos - occlusionPos;
+            if (dot(fragToOcclusionPos, fragToOcclusionPos) <= radius * radius) {
+                occlusion += ((sampleScreenSpace.z > sceneDepth) ? 1.0 : 0.0);
+            }
         }
     }
 

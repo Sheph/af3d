@@ -71,8 +71,9 @@ namespace af3d
         MaterialTypePrepassWS = 29,
         MaterialTypeFilterComposite = 30,
         MaterialTypeFilterSSAO = 31,
+        MaterialTypeFilterSSAOBlur = 32,
         MaterialTypeFirst = MaterialTypeBasic,
-        MaterialTypeMax = MaterialTypeFilterSSAO
+        MaterialTypeMax = MaterialTypeFilterSSAOBlur
     };
 
     MaterialTypeName materialTypeWithNM(MaterialTypeName matTypeName);
