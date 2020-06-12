@@ -46,7 +46,8 @@ namespace af3d
         Position,
         Params,
         Physics,
-        Max = Physics
+        Lighting,
+        Max = Lighting
     };
 
     class AProperty

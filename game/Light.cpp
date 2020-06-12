@@ -36,8 +36,9 @@ namespace af3d
     ACLASS_DEFINE_BEGIN_ABSTRACT(Light, RenderComponent)
     ACLASS_PROPERTY(Light, LocalTransform, AProperty_LocalTransform, "Local transform", Transform, btTransform::getIdentity(), Position, APropertyEditable)
     ACLASS_PROPERTY(Light, WorldTransform, AProperty_WorldTransform, "World transform", Transform, btTransform::getIdentity(), Position, APropertyEditable|APropertyTransient)
-    ACLASS_PROPERTY(Light, Color, "color", "Color", ColorRGB, Color(1.0f, 1.0f, 1.0f, 1.0f), General, APropertyEditable)
-    ACLASS_PROPERTY(Light, Intensity, "intensity", "Intensity", Float, 1.0f, General, APropertyEditable)
+    ACLASS_PROPERTY(Light, Color, "color", "Color", ColorRGB, Color(1.0f, 1.0f, 1.0f, 1.0f), Lighting, APropertyEditable)
+    ACLASS_PROPERTY(Light, Intensity, "intensity", "Intensity", Float, 1.0f, Lighting, APropertyEditable)
+    ACLASS_PROPERTY(Light, CastShadow, "cast shadow", "Cast shadow", Bool, false, Lighting, APropertyEditable)
     ACLASS_DEFINE_END(Light)
 
     Light::Light(const AClass& klass, int typeId, bool usesDirection)
@@ -140,6 +141,11 @@ namespace af3d
     AABB Light::getWorldAABB() const
     {
         return localAABB_.getTransformed(worldTransform());
+    }
+
+    void Light::setCastShadow(bool value)
+    {
+        castShadow_ = value;
     }
 
     void Light::setupCluster(ShaderClusterLight& cLight) const

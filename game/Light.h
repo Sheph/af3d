@@ -66,6 +66,9 @@ namespace af3d
         inline const AABB& localAABB() const { return localAABB_; }
         AABB getWorldAABB() const;
 
+        inline bool castShadow() const { return castShadow_; }
+        void setCastShadow(bool value);
+
         inline RenderComponentPtr markerRc() const { return markerRc_; }
 
         void setupCluster(ShaderClusterLight& cLight) const;
@@ -85,6 +88,9 @@ namespace af3d
 
         APropertyValue propertyIntensityGet(const std::string&) const { return intensity(); }
         void propertyIntensitySet(const std::string&, const APropertyValue& value) { setIntensity(value.toFloat()); }
+
+        APropertyValue propertyCastShadowGet(const std::string&) const { return castShadow(); }
+        void propertyCastShadowSet(const std::string&, const APropertyValue& value) { setCastShadow(value.toBool()); }
 
     protected:
         void setLocalAABBImpl(const AABB& value);
@@ -111,6 +117,8 @@ namespace af3d
         btTransform prevParentXf_ = btTransform::getIdentity();
         AABB prevAABB_ = AABB_empty;
         RenderCookie* cookie_ = nullptr;
+
+        bool castShadow_ = false;
 
         RenderMeshComponentPtr markerRc_;
         MeshPtr origMarkerMesh_;
