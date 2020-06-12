@@ -34,6 +34,7 @@ namespace af3d
     {
         TextureType2D = 0,
         TextureTypeCubeMap,
+        TextureType2DArray,
         TextureTypeCubeMapArray,
         TextureTypeMax = TextureTypeCubeMapArray
     };

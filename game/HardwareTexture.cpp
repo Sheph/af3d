@@ -69,6 +69,8 @@ namespace af3d
         switch (type) {
         case TextureTypeCubeMap:
             return GL_TEXTURE_CUBE_MAP;
+        case TextureType2DArray:
+            return GL_TEXTURE_2D_ARRAY;
         case TextureTypeCubeMapArray:
             return GL_TEXTURE_CUBE_MAP_ARRAY;
         default:
@@ -121,11 +123,16 @@ namespace af3d
             if (genMipmap) {
                 ogl.GenerateMipmap(GL_TEXTURE_CUBE_MAP);
             }
-        } else {
-            btAssert(type_ == TextureTypeCubeMapArray);
+        } else if (type_ == TextureTypeCubeMapArray) {
             ogl.TexImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, level, internalFormat, textureMipSize(width_, level), textureMipSize(height_, level), depth_ * 6, 0, format, dataType, pixels);
             if (genMipmap) {
                 ogl.GenerateMipmap(GL_TEXTURE_CUBE_MAP_ARRAY);
+            }
+        } else {
+            btAssert(type_ == TextureType2DArray);
+            ogl.TexImage3D(GL_TEXTURE_2D_ARRAY, level, internalFormat, textureMipSize(width_, level), textureMipSize(height_, level), depth_, 0, format, dataType, pixels);
+            if (genMipmap) {
+                ogl.GenerateMipmap(GL_TEXTURE_2D_ARRAY);
             }
         }
     }

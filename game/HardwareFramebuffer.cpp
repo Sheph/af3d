@@ -77,6 +77,9 @@ namespace af3d
             if (texType == TextureTypeCubeMapArray) {
                 ogl.FramebufferTextureLayer(GL_FRAMEBUFFER, glAttachmentPoint(attachmentPoint),
                     rId, target.level(), target.layer() * 6 + target.cubeFace());
+            } else if (texType == TextureType2DArray) {
+                ogl.FramebufferTextureLayer(GL_FRAMEBUFFER, glAttachmentPoint(attachmentPoint),
+                    rId, target.level(), target.layer());
             } else {
                 if (texType == TextureTypeCubeMap) {
                     textarget = HardwareTexture::glCubeFace(target.cubeFace());
