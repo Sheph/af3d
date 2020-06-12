@@ -119,6 +119,13 @@ namespace af3d
             std::uint32_t specularMipLevels;
         };
 
+        struct CSM
+        {
+            std::uint32_t maxCount;
+            std::uint32_t numSplits;
+            std::uint32_t resolution;
+        };
+
         Settings() = default;
         ~Settings() = default;
 
@@ -151,6 +158,7 @@ namespace af3d
         Editor editor;
         Cluster cluster;
         LightProbe lightProbe;
+        CSM csm;
     };
 
     extern Settings settings;

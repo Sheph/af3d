@@ -28,6 +28,7 @@
 
 #include "VertexArrayWriter.h"
 #include "RenderTarget.h"
+#include "ShadowManager.h"
 
 namespace af3d
 {
@@ -97,6 +98,8 @@ namespace af3d
         IndexSet probesFreeIndices_;
         std::unordered_set<LightProbeComponent*> probesToCheck_;
         bool probesNeedUpdate_ = true;
+
+        ShadowManager shadowMgr_;
     };
 
     using SceneEnvironmentPtr = std::shared_ptr<SceneEnvironment>;

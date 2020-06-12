@@ -167,5 +167,13 @@ namespace af3d
         lightProbe.irradianceResolution = appConfig->getInt("light probe.irradianceResolution");
         lightProbe.specularResolution = appConfig->getInt("light probe.specularResolution");
         lightProbe.specularMipLevels = appConfig->getInt("light probe.specularMipLevels");
+
+        /*
+         * csm.
+         */
+
+        csm.maxCount = appConfig->getInt("csm.maxCount");
+        csm.numSplits = appConfig->getInt("csm.numSplits");
+        csm.resolution = appConfig->getInt("csm.resolution");
     }
 }

@@ -11,6 +11,7 @@ set(SOURCES
     RenderPassPrepass.cpp
     RenderPassCluster.cpp
     RenderPassGeometry.cpp
+    RenderPassCSM.cpp
     FPComponent.cpp
     DummyShell.cpp
     Game.cpp
@@ -145,6 +146,8 @@ set(SOURCES
     Equirect2CubeComponent.cpp
     TAAComponent.cpp
     SSAOComponent.cpp
+    ShadowManager.cpp
+    ShadowMapCSM.cpp
     editor/Action.cpp
     editor/Workspace.cpp
     editor/MainPopup.cpp
