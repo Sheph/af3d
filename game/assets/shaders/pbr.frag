@@ -13,6 +13,7 @@ uniform sampler2D texEmissive;
 uniform samplerCubeArray texIrradiance;
 uniform samplerCubeArray texSpecularCM;
 uniform sampler2D texSpecularLUT;
+uniform sampler2DArray texShadowCSM;
 
 uniform vec4 mainColor;
 uniform vec3 eyePos;
@@ -22,6 +23,7 @@ uniform int normalFormat;
 #endif
 uniform vec4 clusterCfg;
 uniform int outputMask;
+uniform int immCameraIdx;
 
 struct ClusterLight
 {
@@ -32,6 +34,7 @@ struct ClusterLight
     float cutoffInnerCos;
     float power;
     uint enabled;
+    uint shadowIdx[MAX_IMM_CAMERAS + 1];
 };
 
 struct ClusterProbe
@@ -50,6 +53,13 @@ struct ClusterTileData
     uint lightCount;
     uint probeOffset;
     uint probeCount;
+};
+
+struct CSM
+{
+    float farBounds[4];
+    mat4 mat[4];
+    uint texIdx[4];
 };
 
 layout (std430, binding = 2) readonly buffer clusterTileDataSSBO
@@ -75,6 +85,11 @@ layout (std430, binding = 5) readonly buffer clusterProbeIndicesSSBO
 layout (std430, binding = 6) readonly buffer clusterProbesSSBO
 {
     ClusterProbe clusterProbes[];
+};
+
+layout (std430, binding = 7) readonly buffer shadowCSMSSBO
+{
+    CSM shadowCSM[];
 };
 
 in vec2 v_texCoord;
@@ -168,6 +183,29 @@ float linearDepth(float depthRange)
 {
     float linear = 2.0 * clusterCfg.x * clusterCfg.y / (clusterCfg.y + clusterCfg.x - depthRange * (clusterCfg.y - clusterCfg.x));
     return linear;
+}
+
+float processCSMShadow(const CSM csm)
+{
+    int idx = CSM_NUM_SPLITS - 1;
+    for (int i = 0; i < CSM_NUM_SPLITS - 1; ++i) {
+        if (gl_FragCoord.z < csm.farBounds[i]) {
+            idx = i;
+            break;
+        }
+    }
+
+    vec4 shadowPos = vec4(v_pos, 1.0) * csm.mat[idx];
+
+    shadowPos.w = shadowPos.z;
+    shadowPos.z = float(csm.texIdx[idx]);
+
+    float shadowD = texture(texShadowCSM, shadowPos.xyz).x;
+
+    // Get the difference of the stored depth and the distance of this fragment to the light.
+    float diff = shadowD - shadowPos.w;
+
+    return clamp(diff * 250.0 + 1.0, 0.0, 1.0);
 }
 
 void main()
@@ -295,6 +333,10 @@ void main()
             // directional
             attenuation = 1.0;
             Li = -light.dir.xyz;
+            uint csmIdx = light.shadowIdx[immCameraIdx];
+            if (csmIdx != -1) {
+                attenuation = processCSMShadow(shadowCSM[csmIdx]);
+            }
         } else {
             vec3 positionToLightSource = vec3(light.pos.xyz - v_pos);
             Li = normalize(positionToLightSource);

@@ -24,6 +24,9 @@
  */
 
 #include "DirectionalLight.h"
+#include "Scene.h"
+#include "Logger.h"
+#include "Settings.h"
 
 namespace af3d
 {
@@ -48,13 +51,86 @@ namespace af3d
         return obj;
     }
 
+    void DirectionalLight::update(float dt)
+    {
+        Light::update(dt);
+
+        for (auto it = shadowMaps_.begin(); it != shadowMaps_.end();) {
+            if (it->second.immCameraIdx >= -1) {
+                it->second.immCameraIdx = -2;
+                ++it;
+            } else {
+                it->second.csm->remove();
+                LOG4CPLUS_TRACE(logger(), "CSM for " << it->first << " removed = " << it->second.csm.get());
+                shadowMaps_.erase(it++);
+            }
+        }
+    }
+
+    void DirectionalLight::render(RenderList& rl, void* const* parts, size_t numParts)
+    {
+        Light::render(rl, parts, numParts);
+
+        if (!castShadow()) {
+            return;
+        }
+
+        if (!rl.camera()->canSeeShadows()) {
+            return;
+        }
+
+        auto it = shadowMaps_.find(rl.camera()->cookie());
+        if (it == shadowMaps_.end()) {
+            auto csm = std::make_shared<ShadowMapCSM>(scene());
+            if (!scene()->addShadowMap(csm.get())) {
+                return;
+            }
+            it = shadowMaps_.emplace(rl.camera()->cookie(), ShadowMapInfo(csm)).first;
+            LOG4CPLUS_TRACE(logger(), "CSM for " << it->first << " added = " << csm.get());
+        }
+        it->second.csm->update(rl.camera()->frustum(), worldTransform());
+        it->second.immCameraIdx = scene()->getImmCameraIdx(rl.camera()->cookie());
+    }
+
     void DirectionalLight::setLocalAABB(const AABB& value)
     {
         setLocalAABBImpl(value);
     }
 
-    void DirectionalLight::doSetupCluster(ShaderClusterLight& cLight) const
+    void DirectionalLight::onUnregister()
+    {
+        Light::onUnregister();
+
+        for (auto& kv : shadowMaps_) {
+            kv.second.csm->remove();
+        }
+        shadowMaps_.clear();
+    }
+
+    void DirectionalLight::doSetupCluster(ShaderClusterLightImpl& cLight) const
     {
         cLight.dir = Vector4f(worldTransform().getBasis() * btVector3_forward, 0.0f);
+        for (std::uint32_t i = 0; i < settings.maxImmCameras + 1; ++i) {
+            btAssert(i < sizeof(cLight.shadowIdx) / sizeof(cLight.shadowIdx[0]));
+            cLight.shadowIdx[i] = -1;
+        }
+        for (const auto &kv : shadowMaps_) {
+            if (kv.second.immCameraIdx < 0) {
+                continue;
+            }
+            btAssert(kv.second.immCameraIdx > 0);
+            btAssert(kv.second.immCameraIdx < static_cast<int>(settings.maxImmCameras + 1));
+            cLight.shadowIdx[kv.second.immCameraIdx] = kv.second.csm->index();
+        }
+    }
+
+    void DirectionalLight::doSetCastShadow(bool value)
+    {
+        if (!value) {
+            for (auto& kv : shadowMaps_) {
+                kv.second.csm->remove();
+            }
+            shadowMaps_.clear();
+        }
     }
 }

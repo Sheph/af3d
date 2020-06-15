@@ -95,6 +95,9 @@ namespace af3d
         inline const Color& ambientColor() const { return ambientColor_; }
         inline void setAmbientColor(const Color& value) { ambientColor_ = value; }
 
+        inline bool canSeeShadows() const { return canSeeShadows_; }
+        inline void setCanSeeShadows(bool value) { canSeeShadows_ = value; }
+
         int order() const;
         void setOrder(int value);
 
@@ -123,6 +126,7 @@ namespace af3d
         CameraLayer layer_ = CameraLayer::General;
         Frustum frustum_;
         Color ambientColor_ = Color(0.2f, 0.2f, 0.2f, 1.0f);
+        bool canSeeShadows_ = true;
         boost::optional<Matrix4f> prevViewProjMat_;
 
         CameraRenderers renderers_;

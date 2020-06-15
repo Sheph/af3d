@@ -41,6 +41,7 @@ namespace af3d
 {
     class LightProbeComponent;
     class Light;
+    class ShadowMapCSM;
 
     class Scene : public SceneObjectManager
     {
@@ -124,6 +125,11 @@ namespace af3d
         LightProbeRenderTarget addLightProbe(LightProbeComponent* probe);
 
         void removeLightProbe(LightProbeComponent* probe);
+
+        bool addShadowMap(ShadowMapCSM* csm);
+
+        // -1 if no more indices available.
+        int getImmCameraIdx(ACookie camCookie);
 
         void recreateGlobalLightProbe();
 

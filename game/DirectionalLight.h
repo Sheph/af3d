@@ -27,6 +27,7 @@
 #define _DIRECTIONAL_LIGHT_H_
 
 #include "Light.h"
+#include "ShadowMapCSM.h"
 
 namespace af3d
 {
@@ -45,10 +46,31 @@ namespace af3d
 
         AObjectPtr sharedThis() override { return shared_from_this(); }
 
+        void update(float dt) override;
+
+        void render(RenderList& rl, void* const* parts, size_t numParts) override;
+
         void setLocalAABB(const AABB& value);
 
     private:
-        void doSetupCluster(ShaderClusterLight& cLight) const override;
+        struct ShadowMapInfo
+        {
+            ShadowMapInfo() = default;
+            explicit ShadowMapInfo(const ShadowMapCSMPtr& csm) : csm(csm) {}
+
+            ShadowMapCSMPtr csm;
+            int immCameraIdx = -1;
+        };
+
+        using ShadowMaps = std::unordered_map<ACookie, ShadowMapInfo>; // viewCam cookie -> shadow map info.
+
+        void onUnregister() override;
+
+        void doSetupCluster(ShaderClusterLightImpl& cLight) const override;
+
+        void doSetCastShadow(bool value) override;
+
+        ShadowMaps shadowMaps_;
     };
 
     using DirectionalLightPtr = std::shared_ptr<DirectionalLight>;

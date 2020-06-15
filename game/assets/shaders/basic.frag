@@ -22,6 +22,7 @@ struct ClusterLight
     float cutoffInnerCos;
     float power;
     uint enabled;
+    uint shadowIdx[MAX_IMM_CAMERAS + 1];
 };
 
 struct ClusterTileData

@@ -28,6 +28,7 @@
 
 #include "ShadowMapCSM.h"
 #include "Texture.h"
+#include "HardwareDataBuffer.h"
 #include <set>
 
 namespace af3d
@@ -42,14 +43,19 @@ namespace af3d
 
         void removeShadowMap(ShadowMapCSM* csm);
 
+        void preSwap();
+
+        inline const TexturePtr& csmTexture() const { return csmTexture_; }
+        inline const HardwareDataBufferPtr& csmSSBO() const { return csmSSBO_; }
+
     private:
         using IndexSet = std::set<int>;
 
         TexturePtr csmTexture_;
+        HardwareDataBufferPtr csmSSBO_;
 
         std::unordered_set<ShadowMapCSM*> csms_;
         IndexSet csmFreeIndices_;
-        IndexSet csmRemovedIndices_;
     };
 }
 

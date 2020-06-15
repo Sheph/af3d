@@ -27,13 +27,26 @@
 #include "TextureManager.h"
 #include "Settings.h"
 #include "Logger.h"
+#include "ShaderDataTypes.h"
+#include "HardwareResourceManager.h"
+#include "Renderer.h"
 
 namespace af3d
 {
+    namespace
+    {
+        struct CSMSSBOUpdate : boost::noncopyable
+        {
+            HardwareDataBufferPtr ssbo;
+            std::vector<ShaderCSM> csms;
+        };
+    };
+
     ShadowManager::ShadowManager()
     : csmTexture_(textureManager.createRenderTexture(TextureType2DArray,
           settings.csm.resolution, settings.csm.resolution, (settings.csm.maxCount * settings.csm.numSplits),
-              GL_DEPTH_COMPONENT24, GL_DEPTH_COMPONENT, GL_FLOAT))
+              GL_DEPTH_COMPONENT24, GL_DEPTH_COMPONENT, GL_FLOAT)),
+      csmSSBO_(hwManager.createDataBuffer(HardwareBuffer::Usage::DynamicDraw, sizeof(ShaderCSM)))
     {
         for (int i = 0; i < static_cast<int>(settings.csm.maxCount); ++i) {
             csmFreeIndices_.insert(i);
@@ -54,7 +67,6 @@ namespace af3d
         int idx = *csmFreeIndices_.begin();
         csmFreeIndices_.erase(csmFreeIndices_.begin());
         csms_.insert(csm);
-        csmRemovedIndices_.erase(idx);
 
         csm->adopt(this, idx, CSMRenderTarget(csmTexture_,
             std::make_pair(idx * settings.csm.numSplits, (idx + 1) * settings.csm.numSplits - 1)));
@@ -71,8 +83,27 @@ namespace af3d
         btAssert(csm->index() >= 0);
         bool res = csmFreeIndices_.insert(csm->index()).second;
         btAssert(res);
-        csmRemovedIndices_.insert(csm->index());
 
         csm->abandon();
+    }
+
+    void ShadowManager::preSwap()
+    {
+        bool recreate = csmSSBO_->setValid();
+        if (csms_.empty() && !recreate) {
+            return;
+        }
+
+        auto upd = std::make_shared<CSMSSBOUpdate>();
+        upd->ssbo = csmSSBO_;
+        upd->csms.resize(settings.csm.maxCount);
+
+        for (auto csm : csms_) {
+            csm->setupSSBO(upd->csms[csm->index()]);
+        }
+
+        renderer.scheduleHwOp([upd](HardwareContext& ctx) {
+            upd->ssbo->reload(upd->csms.size(), &upd->csms[0], ctx);
+        });
     }
 }

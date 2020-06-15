@@ -42,7 +42,7 @@ namespace af3d
             HardwareDataBufferPtr ssbo;
             bool recreate = false;
             std::pair<int, int> indexRange{std::numeric_limits<int>::max(), 0};
-            std::vector<std::pair<int, ShaderClusterLight>> lights;
+            std::vector<std::pair<int, ShaderClusterLightImpl>> lights;
         };
 
         struct ProbesSSBOUpdate : boost::noncopyable
@@ -55,7 +55,7 @@ namespace af3d
     };
 
     SceneEnvironment::SceneEnvironment()
-    : lightsSSBO_(hwManager.createDataBuffer(HardwareBuffer::Usage::DynamicDraw, sizeof(ShaderClusterLight))),
+    : lightsSSBO_(hwManager.createDataBuffer(HardwareBuffer::Usage::DynamicDraw, sizeof(ShaderClusterLight) + sizeof(std::uint32_t) * (settings.maxImmCameras + 1))),
       probesSSBO_(hwManager.createDataBuffer(HardwareBuffer::Usage::DynamicDraw, sizeof(ShaderClusterProbe))),
       irradianceTexture_(textureManager.createRenderTexture(TextureTypeCubeMapArray,
           settings.lightProbe.irradianceResolution, settings.lightProbe.irradianceResolution, settings.cluster.maxProbes, GL_RGB16F, GL_RGB, GL_FLOAT)),
@@ -83,6 +83,9 @@ namespace af3d
         realDt_ = realDt;
         dt_ = dt;
         time_ += dt;
+
+        immCameras_.clear();
+        immCameras_[0] = 0; // 0 is special, all cameras without an imm index map into it.
     }
 
     void SceneEnvironment::preSwap()
@@ -90,6 +93,7 @@ namespace af3d
         defaultVa_.upload();
         preSwapLights();
         preSwapProbes();
+        shadowMgr_.preSwap();
     }
 
     int SceneEnvironment::addLight(Light* light)
@@ -167,6 +171,30 @@ namespace af3d
         }
     }
 
+    int SceneEnvironment::allocImmCameraIdx(ACookie camCookie)
+    {
+        auto it = immCameras_.find(camCookie);
+        if (it == immCameras_.end()) {
+            if (static_cast<std::uint32_t>(immCameras_.size()) >= (settings.maxImmCameras + 1)) {
+                LOG4CPLUS_WARN(logger(), "Too many imm cameras...");
+                return -1;
+            }
+            int idx = immCameras_.size();
+            immCameras_[camCookie] = idx;
+            return idx;
+        }
+        return it->second;
+    }
+
+    int SceneEnvironment::getImmCameraIdx(ACookie camCookie) const
+    {
+        auto it = immCameras_.find(camCookie);
+        if (it == immCameras_.end()) {
+            return 0;
+        }
+        return it->second;
+    }
+
     void SceneEnvironment::preSwapLights()
     {
         bool recreate = lightsSSBO_->setValid();
@@ -181,33 +209,33 @@ namespace af3d
         for (auto light : lights_) {
             upd->indexRange.first = std::min(upd->indexRange.first, light->index());
             upd->indexRange.second = std::max(upd->indexRange.second, light->index());
-            upd->lights.emplace_back(light->index(), ShaderClusterLight());
+            upd->lights.emplace_back(light->index(), ShaderClusterLightImpl());
             light->setupCluster(upd->lights.back().second);
         }
         for (auto idx : lightsRemovedIndices_) {
             upd->indexRange.first = std::min(upd->indexRange.first, idx);
             upd->indexRange.second = std::max(upd->indexRange.second, idx);
-            upd->lights.emplace_back(idx, ShaderClusterLight());
+            upd->lights.emplace_back(idx, ShaderClusterLightImpl());
         }
         lightsRemovedIndices_.clear();
         renderer.scheduleHwOp([upd](HardwareContext& ctx) {
-            ShaderClusterLight* ptr;
+            char* ptr;
             if (upd->recreate) {
                 upd->ssbo->resize(settings.cluster.maxLights, ctx);
-                ptr = (ShaderClusterLight*)upd->ssbo->lock(HardwareBuffer::WriteOnly, ctx);
+                ptr = (char*)upd->ssbo->lock(HardwareBuffer::WriteOnly, ctx);
                 auto ptrBase = ptr;
-                for (int i = 0; i < upd->ssbo->count(ctx); ++i, ++ptr) {
-                    ptr->enabled = 0;
+                for (int i = 0; i < upd->ssbo->count(ctx); ++i, ptr += upd->ssbo->elementSize()) {
+                    ((ShaderClusterLight*)ptr)->enabled = 0;
                 }
-                ptr = ptrBase + upd->indexRange.first;
+                ptr = ptrBase + upd->indexRange.first * upd->ssbo->elementSize();
             } else {
                 btAssert(upd->indexRange.second >= upd->indexRange.first);
-                ptr = (ShaderClusterLight*)upd->ssbo->lock(upd->indexRange.first,
+                ptr = (char*)upd->ssbo->lock(upd->indexRange.first,
                     upd->indexRange.second - upd->indexRange.first + 1, HardwareBuffer::ReadWrite, ctx);
             }
             for (const auto& lp : upd->lights) {
-                auto dest = ptr + (lp.first - upd->indexRange.first);
-                *dest = lp.second;
+                auto dest = ptr + (lp.first - upd->indexRange.first) * upd->ssbo->elementSize();
+                std::memcpy(dest, &lp.second, upd->ssbo->elementSize());
             }
             upd->ssbo->unlock(ctx);
         });

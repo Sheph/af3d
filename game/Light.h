@@ -71,7 +71,7 @@ namespace af3d
 
         inline RenderComponentPtr markerRc() const { return markerRc_; }
 
-        void setupCluster(ShaderClusterLight& cLight) const;
+        void setupCluster(ShaderClusterLightImpl& cLight) const;
 
         APropertyValue propertyLocalTransformGet(const std::string&) const { return transform(); }
         void propertyLocalTransformSet(const std::string&, const APropertyValue& value) { setTransform(value.toTransform()); }
@@ -95,12 +95,14 @@ namespace af3d
     protected:
         void setLocalAABBImpl(const AABB& value);
 
-    private:
         void onRegister() override;
 
         void onUnregister() override;
 
-        virtual void doSetupCluster(ShaderClusterLight& cLight) const = 0;
+    private:
+        virtual void doSetupCluster(ShaderClusterLightImpl& cLight) const = 0;
+
+        virtual void doSetCastShadow(bool value) {}
 
         void setMarkerParams(float alpha, bool depthTest);
 

@@ -142,6 +142,7 @@ namespace af3d
         float viewAspect;
         std::uint32_t profileReportTimeoutMs;
         std::uint32_t minRenderDt;
+        std::uint32_t maxImmCameras;
         int videoMode;
         int msaaMode;
         bool vsync;

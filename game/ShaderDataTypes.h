@@ -51,6 +51,11 @@ namespace af3d
         std::uint32_t enabled = 0;
     };
 
+    struct ShaderClusterLightImpl : public ShaderClusterLight
+    {
+        std::uint32_t shadowIdx[64]; // actual count is "settings.maxImmCameras + 1"
+    };
+
     struct ShaderClusterProbe
     {
         Vector4f pos;
@@ -67,6 +72,13 @@ namespace af3d
         std::uint32_t lightCount;
         std::uint32_t probeOffset;
         std::uint32_t probeCount;
+    };
+
+    struct ShaderCSM
+    {
+        float farBounds[4];
+        Matrix4f mat[4];
+        std::uint32_t texIdx[4];
     };
     #pragma pack()
 }

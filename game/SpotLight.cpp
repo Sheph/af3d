@@ -73,7 +73,7 @@ namespace af3d
         power_ = value;
     }
 
-    void SpotLight::doSetupCluster(ShaderClusterLight& cLight) const
+    void SpotLight::doSetupCluster(ShaderClusterLightImpl& cLight) const
     {
         cLight.dir = Vector4f(worldTransform().getBasis() * btVector3_forward * radius_, 0.0f);
         cLight.cutoffCos = btCos(angle_ * 0.5f);

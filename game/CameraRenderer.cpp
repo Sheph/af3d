@@ -96,6 +96,9 @@ namespace af3d
                         textures.back() = HardwareTextureBinding(probe->specularLUTTexture()->hwTex(),
                             SamplerParams(GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR));
                     }
+                } else if ((sName == SamplerName::ShadowCSM) && !textures.back().tex) {
+                    textures.back() = HardwareTextureBinding(env->shadowMgr().csmTexture()->hwTex(),
+                        SamplerParams(GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR));
                 }
             }
         }
@@ -176,6 +179,9 @@ namespace af3d
         if (activeUniforms.count(UniformName::OutputMask) > 0) {
             params.setUniform(UniformName::OutputMask, static_cast<int>(outputMask));
         }
+        if (activeUniforms.count(UniformName::ImmCameraIdx) > 0) {
+            params.setUniform(UniformName::ImmCameraIdx, env->getImmCameraIdx(camera->cookie()));
+        }
 
         const auto& ssboNames = material->type()->prog()->storageBuffers();
 
@@ -185,6 +191,10 @@ namespace af3d
 
         if (ssboNames[StorageBufferName::ClusterProbes]) {
             storageBuffers.emplace_back(StorageBufferName::ClusterProbes, env->probesSSBO());
+        }
+
+        if (ssboNames[StorageBufferName::ShadowCSM]) {
+            storageBuffers.emplace_back(StorageBufferName::ShadowCSM, env->shadowMgr().csmSSBO());
         }
 
         for (const auto& pass : passes_) {

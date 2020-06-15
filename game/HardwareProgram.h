@@ -61,8 +61,9 @@ namespace af3d
         RealDt,
         ClusterCfg,
         OutputMask,
+        ImmCameraIdx,
         FirstAuto = ViewProjMatrix,
-        MaxAuto = OutputMask,
+        MaxAuto = ImmCameraIdx,
         MainColor, // Light only!
         SpecularColor, // Light only!
         Shininess, // Light only!
@@ -108,7 +109,8 @@ namespace af3d
         SpecularLUT,
         Prev,
         Depth,
-        Max = Depth
+        ShadowCSM,
+        Max = ShadowCSM
     };
 
     enum class StorageBufferName
@@ -119,7 +121,8 @@ namespace af3d
         ClusterLights,
         ClusterProbeIndices,
         ClusterProbes,
-        Max = ClusterProbes
+        ShadowCSM,
+        Max = ShadowCSM
     };
 
     struct VariableTypeInfo

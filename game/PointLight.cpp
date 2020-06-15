@@ -55,7 +55,7 @@ namespace af3d
         setLocalAABBImpl(AABB(-btVector3_one * value, btVector3_one * value));
     }
 
-    void PointLight::doSetupCluster(ShaderClusterLight& cLight) const
+    void PointLight::doSetupCluster(ShaderClusterLightImpl& cLight) const
     {
         cLight.dir = Vector4f(radius_, 0.0f, 0.0f, 0.0f);
     }

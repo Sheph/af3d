@@ -25,12 +25,21 @@
 
 #include "ShadowMapCSM.h"
 #include "ShadowManager.h"
+#include "RenderPassCSM.h"
+#include "Const.h"
+#include "CameraRenderer.h"
+#include "Scene.h"
+#include "Logger.h"
 
 namespace af3d
 {
     ShadowMapCSM::ShadowMapCSM(Scene* scene)
     : ShadowMap(scene)
     {
+        biasMat_[0].setValue(0.5f, 0.0f, 0.0f, 0.5f);
+        biasMat_[1].setValue(0.0f, 0.5f, 0.0f, 0.5f);
+        biasMat_[2].setValue(0.0f, 0.0f, 0.5f, 0.5f);
+        biasMat_[3].setValue(0.0f, 0.0f, 0.0f, 1.0f);
     }
 
     ShadowMapCSM::~ShadowMapCSM()
@@ -45,10 +54,99 @@ namespace af3d
         }
     }
 
-    void ShadowMapCSM::update(const CameraPtr& viewCam)
+    void ShadowMapCSM::update(const Frustum& viewFrustum, const btTransform& lightXf)
     {
         btAssert(!splits_.empty());
-        // TODO: setup splits against this view cam.
+
+        if ((prevViewFov_ != viewFrustum.fov()) ||
+            (prevViewAspect_ != viewFrustum.aspect()) ||
+            (prevViewNearDist_ != viewFrustum.nearDist()) ||
+            (prevViewFarDist_ != viewFrustum.farDist())) {
+            LOG4CPLUS_TRACE(logger(), "Updating CSM " << this << " proj params");
+
+            prevViewFov_ = viewFrustum.fov();
+            prevViewAspect_ = viewFrustum.aspect();
+            prevViewNearDist_ = viewFrustum.nearDist();
+            prevViewFarDist_ = viewFrustum.farDist();
+
+            float nd = viewFrustum.nearDist();
+            float fd = viewFrustum.farDist();
+
+            float ratio = fd / nd;
+            splits_[0].viewFrustum.setNearDist(nd);
+
+            for (size_t i = 0; i < splits_.size(); ++i) {
+                splits_[i].viewFrustum.setFov(viewFrustum.fov() + btRadians(11.5f));
+                splits_[i].viewFrustum.setAspect(viewFrustum.aspect());
+                if (i > 0) {
+                    float si = i / (float)splits_.size();
+                    float curNear = splitWeight_ * (nd * std::pow(ratio, si)) + (1.0f - splitWeight_) * (nd + (fd - nd) * si);
+                    float curFar = curNear * 1.005f;
+                    splits_[i].viewFrustum.setNearDist(curNear);
+                    splits_[i - 1].viewFrustum.setFarDist(curFar);
+                }
+            }
+
+            splits_.back().viewFrustum.setFarDist(fd);
+        }
+
+        auto lightViewXf = lightXf.inverse();
+
+        for (auto& split : splits_) {
+            btVector3 tMax = btVector3_one * -std::numeric_limits<float>::max();
+            btVector3 tMin = btVector3_one * std::numeric_limits<float>::max();
+
+            split.viewFrustum.setTransform(viewFrustum.transform());
+
+            const auto& corners = split.viewFrustum.corners();
+
+            for (size_t i = 0; i < corners.size(); ++i) {
+                auto viewPt = lightViewXf * corners[i];
+                tMin.setZ(btMin(tMin.z(), viewPt.z()));
+                tMax.setZ(btMax(tMax.z(), viewPt.z()));
+            }
+
+            tMax.setZ(tMax.z() + 50.0f);
+
+            split.cam->setTransform(lightXf);
+            split.cam->setAspect(1.0f);
+            split.cam->setOrthoHeight(2.0f);
+            split.cam->setNearDist(-tMax.z());
+            split.cam->setFarDist(-tMin.z());
+
+            const auto& vp = split.cam->frustum().viewProjMat();
+
+            for (const auto& corner : corners) {
+                auto cornerNDC = vp * Vector4f(corner, 1.0f);
+                btAssert(cornerNDC.w() == 1.0f);
+
+                tMin.setX(btMin(tMin.x(), cornerNDC.x()));
+                tMin.setY(btMin(tMin.y(), cornerNDC.y()));
+                tMax.setX(btMax(tMax.x(), cornerNDC.x()));
+                tMax.setY(btMax(tMax.y(), cornerNDC.y()));
+            }
+
+            btVector3 offset((tMin.x() + tMax.x()) * 0.5f, (tMin.y() + tMax.y()) * 0.5f, 0.0f);
+
+            split.cam->setOrthoHeight(tMax.y() - tMin.y());
+            split.cam->setAspect((tMax.x() - tMin.x()) / split.cam->orthoHeight());
+            split.cam->setTransform(lightXf * toTransform(offset));
+
+            split.mat = biasMat_ * split.cam->frustum().viewProjMat();
+
+            split.farBound = 0.5f * (-split.viewFrustum.farDist() * viewFrustum.projMat()[2][2] + viewFrustum.projMat()[2][3]) /
+                split.viewFrustum.farDist() + 0.5f;
+        }
+    }
+
+    void ShadowMapCSM::setupSSBO(ShaderCSM& sCSM) const
+    {
+        btAssert(splits_.size() <= sizeof(sCSM.farBounds) / sizeof(sCSM.farBounds[0]));
+        for (size_t i = 0; i < splits_.size(); ++i) {
+            sCSM.farBounds[i] = splits_[i].farBound;
+            sCSM.mat[i] = splits_[i].mat;
+            sCSM.texIdx[i] = splits_[i].cam->renderTarget(AttachmentPoint::Depth).layer();
+        }
     }
 
     void ShadowMapCSM::adopt(ShadowManager* mgr, int index, const CSMRenderTarget& rt)
@@ -56,14 +154,33 @@ namespace af3d
         btAssert(!mgr_);
         mgr_ = mgr;
         index_ = index;
-        // TODO: setup splits.
+        for (int i = rt.layers.first; i <= rt.layers.second; ++i) {
+            auto cam = std::make_shared<Camera>(false);
+            cam->setProjectionType(ProjectionType::Orthographic);
+            cam->setAspect(1.0f);
+            cam->setOrthoHeight(2.0f);
+            cam->setCanSeeShadows(false);
+
+            auto r = std::make_shared<CameraRenderer>();
+            r->setOrder(camOrderShadow);
+            r->setRenderTarget(AttachmentPoint::Depth, RenderTarget(rt.tex, 0, TextureCubeXP, i));
+            r->setClearMask(AttachmentPoint::Depth);
+            r->addRenderPass(std::make_shared<RenderPassCSM>());
+            cam->addRenderer(r);
+            scene()->addCamera(cam);
+
+            splits_.emplace_back(cam);
+        }
     }
 
     void ShadowMapCSM::abandon()
     {
         btAssert(mgr_);
-        // TODO: remove splits.
         mgr_ = nullptr;
         index_ = -1;
+        for (auto& split : splits_) {
+            scene()->removeCamera(split.cam);
+        }
+        splits_.clear();
     }
 }

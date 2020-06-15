@@ -979,6 +979,16 @@ namespace af3d
         impl_->env_->removeLightProbe(probe);
     }
 
+    bool Scene::addShadowMap(ShadowMapCSM* csm)
+    {
+        return impl_->env_->shadowMgr().addShadowMap(csm);
+    }
+
+    int Scene::getImmCameraIdx(ACookie camCookie)
+    {
+        return impl_->env_->allocImmCameraIdx(camCookie);
+    }
+
     void Scene::recreateGlobalLightProbe()
     {
         auto oldProbe = impl_->env_->globalLightProbe();

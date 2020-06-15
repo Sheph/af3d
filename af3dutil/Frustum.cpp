@@ -89,6 +89,7 @@ namespace af3d
             xf_ = value;
             recalcViewProjMat_ = true;
             recalcPlanes_ = true;
+            recalcCorners_ = true;
         }
     }
 
@@ -170,11 +171,42 @@ namespace af3d
         return cachedPlanes_;
     }
 
+    const Frustum::Corners& Frustum::corners() const
+    {
+        updateViewProjMat();
+        if (recalcCorners_) {
+            recalcCorners_ = false;
+
+            float nearLeft = cachedProjParams_.x();
+            float nearRight = cachedProjParams_.y();
+            float nearBottom = cachedProjParams_.z();
+            float nearTop = cachedProjParams_.w();
+
+            float ratio = (projectionType_ == ProjectionType::Perspective) ? (farDist_ / nearDist_) : 1.0f;
+            float farLeft = nearLeft * ratio;
+            float farRight = nearRight * ratio;
+            float farBottom = nearBottom * ratio;
+            float farTop = nearTop * ratio;
+
+            cachedCorners_[0] = xf_ * btVector3(nearRight, nearTop, -nearDist_);
+            cachedCorners_[1] = xf_ * btVector3(nearLeft, nearTop, -nearDist_);
+            cachedCorners_[2] = xf_ * btVector3(nearLeft, nearBottom, -nearDist_);
+            cachedCorners_[3] = xf_ * btVector3(nearRight, nearBottom, -nearDist_);
+
+            cachedCorners_[4] = xf_ * btVector3(farRight, farTop, -farDist_);
+            cachedCorners_[5] = xf_ * btVector3(farLeft, farTop, -farDist_);
+            cachedCorners_[6] = xf_ * btVector3(farLeft, farBottom, -farDist_);
+            cachedCorners_[7] = xf_ * btVector3(farRight, farBottom, -farDist_);
+        }
+        return cachedCorners_;
+    }
+
     void Frustum::projUpdated()
     {
         recalcProjMat_ = true;
         recalcViewProjMat_ = true;
         recalcPlanes_ = true;
+        recalcCorners_ = true;
     }
 
     void Frustum::updateViewProjMat() const
@@ -195,6 +227,7 @@ namespace af3d
                     top = -top;
                     bottom = -bottom;
                 }
+                cachedProjParams_.setValue(left, right, bottom, top);
                 cachedProjMat_.setPerspective(left, right, bottom, top, nearDist_, farDist_);
             } else {
                 float orthoWidth = orthoHeight_ * aspect_;
@@ -206,6 +239,7 @@ namespace af3d
                     top = -top;
                     bottom = -bottom;
                 }
+                cachedProjParams_.setValue(left, right, bottom, top);
                 cachedProjMat_.setOrtho(left, right, bottom, top, nearDist_, farDist_);
             }
         }

@@ -52,7 +52,7 @@ namespace af3d
         void propertyRadiusSet(const std::string&, const APropertyValue& value) { setRadius(value.toFloat()); }
 
     private:
-        void doSetupCluster(ShaderClusterLight& cLight) const override;
+        void doSetupCluster(ShaderClusterLightImpl& cLight) const override;
 
         float radius_ = 0.0f;
     };

@@ -39,6 +39,7 @@ namespace af3d
     static const int zOrderEditorWorkspace = 101;
     static const int zOrderImGui = 9999;
 
+    static const int camOrderShadow = -300;
     static const int camOrderSkyBox = -200;
     static const int camOrderLightProbe = -100;
     static const int camOrderTestCamera = -10;

@@ -146,9 +146,10 @@ namespace af3d
     void Light::setCastShadow(bool value)
     {
         castShadow_ = value;
+        doSetCastShadow(value);
     }
 
-    void Light::setupCluster(ShaderClusterLight& cLight) const
+    void Light::setupCluster(ShaderClusterLightImpl& cLight) const
     {
         if (!visible()) {
             cLight.enabled = false;

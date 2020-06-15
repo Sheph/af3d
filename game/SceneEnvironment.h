@@ -47,6 +47,7 @@ namespace af3d
         inline const VertexArrayWriter& defaultVa() const { return defaultVa_; }
         inline VertexArrayWriter& defaultVa() { return defaultVa_; }
         inline LightProbeComponent* globalLightProbe() { return globalProbe_; }
+        inline ShadowManager& shadowMgr() { return shadowMgr_; }
 
         void update(float realDt, float dt);
 
@@ -62,6 +63,12 @@ namespace af3d
 
         void updateLightProbes();
 
+        // -1 if no more indices available.
+        int allocImmCameraIdx(ACookie camCookie);
+
+        // returns 0 if no index exist.
+        int getImmCameraIdx(ACookie camCookie) const;
+
         inline const HardwareDataBufferPtr& lightsSSBO() const { return lightsSSBO_; }
 
         inline const HardwareDataBufferPtr& probesSSBO() const { return probesSSBO_; }
@@ -72,6 +79,7 @@ namespace af3d
 
     private:
         using IndexSet = std::set<int>;
+        using ImmCameras = std::unordered_map<ACookie, int>; // camera cookie -> idx.
 
         void preSwapLights();
 
@@ -100,6 +108,8 @@ namespace af3d
         bool probesNeedUpdate_ = true;
 
         ShadowManager shadowMgr_;
+
+        ImmCameras immCameras_;
     };
 
     using SceneEnvironmentPtr = std::shared_ptr<SceneEnvironment>;

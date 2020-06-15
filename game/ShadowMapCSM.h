@@ -28,6 +28,7 @@
 
 #include "ShadowMap.h"
 #include "Camera.h"
+#include "ShaderDataTypes.h"
 
 namespace af3d
 {
@@ -56,9 +57,9 @@ namespace af3d
 
         void remove() override;
 
-        void update(const CameraPtr& viewCam);
+        void update(const Frustum& viewFrustum, const btTransform& lightXf);
 
-        // TODO: void setupSSBO(ShaderCSM& sCSM) const;
+        void setupSSBO(ShaderCSM& sCSM) const;
 
         /*
          * Internal, do not call.
@@ -75,15 +76,31 @@ namespace af3d
     private:
         struct Split
         {
+            Split() = default;
+            explicit Split(const CameraPtr& cam)
+            : cam(cam) {}
+
             CameraPtr cam;
+            Frustum viewFrustum;
+            Matrix4f mat;
+            float farBound = 0.0f;
         };
 
         using Splits = std::vector<Split>;
+
+        const float splitWeight_ = 0.75f;
+
+        Matrix4f biasMat_;
 
         ShadowManager* mgr_ = nullptr;
         int index_ = -1;
 
         Splits splits_;
+
+        float prevViewFov_ = 0.0f;
+        float prevViewAspect_ = 0.0f;
+        float prevViewNearDist_ = 0.0f;
+        float prevViewFarDist_ = 0.0f;
     };
 
     using ShadowMapCSMPtr = std::shared_ptr<ShadowMapCSM>;

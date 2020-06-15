@@ -59,6 +59,8 @@ namespace af3d
             minRenderDt = 0;
         }
 
+        maxImmCameras = appConfig->getInt(".maxImmCameras");
+
         viewAspect = static_cast<float>(viewWidth) / viewHeight;
         videoMode = -1;
         msaaMode = -1;

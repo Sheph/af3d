@@ -62,7 +62,8 @@ namespace af3d
         {"clusterLightIndicesSSBO", StorageBufferName::ClusterLightIndices},
         {"clusterLightsSSBO", StorageBufferName::ClusterLights},
         {"clusterProbeIndicesSSBO", StorageBufferName::ClusterProbeIndices},
-        {"clusterProbesSSBO", StorageBufferName::ClusterProbes}
+        {"clusterProbesSSBO", StorageBufferName::ClusterProbes},
+        {"shadowCSMSSBO", StorageBufferName::ShadowCSM}
     };
 
     static const GLuint staticStorageBufferIndices[static_cast<int>(StorageBufferName::Max) + 1] = {
@@ -71,7 +72,8 @@ namespace af3d
         3,
         4,
         5,
-        6
+        6,
+        7
     };
 
     static const std::unordered_map<std::string, UniformName> staticUniformMap = {
@@ -90,6 +92,7 @@ namespace af3d
         {"realDt", UniformName::RealDt},
         {"clusterCfg", UniformName::ClusterCfg},
         {"outputMask", UniformName::OutputMask},
+        {"immCameraIdx", UniformName::ImmCameraIdx},
         {"mainColor", UniformName::MainColor},
         {"specularColor", UniformName::SpecularColor},
         {"shininess", UniformName::Shininess},
@@ -132,7 +135,8 @@ namespace af3d
         {"texSpecularCM", SamplerName::SpecularCM},
         {"texSpecularLUT", SamplerName::SpecularLUT},
         {"texPrev", SamplerName::Prev},
-        {"texDepth", SamplerName::Depth}
+        {"texDepth", SamplerName::Depth},
+        {"texShadowCSM", SamplerName::ShadowCSM}
     };
 
     GLint VariableInfo::sizeInBytes() const
@@ -274,7 +278,7 @@ namespace af3d
 
             ogl.GetActiveUniform(id_, i, bufSize, &length, &size, &type, name);
 
-            if ((type == GL_SAMPLER_2D) || (type == GL_SAMPLER_CUBE) || (type == GL_SAMPLER_CUBE_MAP_ARRAY)) {
+            if ((type == GL_SAMPLER_2D) || (type == GL_SAMPLER_CUBE) || (type == GL_SAMPLER_CUBE_MAP_ARRAY) || (type == GL_SAMPLER_2D_ARRAY)) {
                 auto it = staticSamplerMap.find(name);
                 if (it == staticSamplerMap.end()) {
                     LOG4CPLUS_ERROR(logger(), "Bad sampler name: " << name);

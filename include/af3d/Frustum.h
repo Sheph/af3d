@@ -55,6 +55,7 @@ namespace af3d
         };
 
         using Planes = std::array<btPlane, 6>;
+        using Corners = std::array<btVector3, 8>;
 
         Frustum() = default;
         ~Frustum() = default;
@@ -91,8 +92,11 @@ namespace af3d
         const Matrix4f& jitteredViewProjMat() const;
         const Matrix4f& viewMat() const;
         const Planes& planes() const;
+        const Corners& corners() const;
 
         inline const btPlane& plane(Plane p) const { return planes()[static_cast<int>(p)]; }
+
+        inline const btVector3& corner(int i) const { return corners()[i]; }
 
         bool isVisible(const AABB& aabb) const;
 
@@ -121,11 +125,14 @@ namespace af3d
         mutable Matrix4f cachedViewProjMat_;
         mutable Matrix4f cachedJitteredViewProjMat_;
         mutable Matrix4f cachedViewMat_;
+        mutable Vector4f cachedProjParams_;
         mutable Planes cachedPlanes_;
+        mutable Corners cachedCorners_;
 
         mutable bool recalcProjMat_ = true;
         mutable bool recalcViewProjMat_ = true;
         mutable bool recalcPlanes_ = true;
+        mutable bool recalcCorners_ = true;
     };
 }
 

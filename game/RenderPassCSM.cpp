@@ -24,12 +24,48 @@
  */
 
 #include "RenderPassCSM.h"
+#include "RenderList.h"
+#include "MaterialManager.h"
+#include "CameraRenderer.h"
 
 namespace af3d
 {
     int RenderPassCSM::compile(const CameraRenderer& cr, const RenderList& rl, int pass, const RenderNodePtr& rn)
     {
-        // TODO: similar to prepass but use empty frag shader and depth buffer only.
-        return pass;
+        auto drawBuffers = rn->mrt().getDrawBuffers();
+
+        btAssert(drawBuffers[AttachmentPoint::Depth]);
+
+        RenderNode tmpNode;
+
+        std::vector<HardwareTextureBinding> textures;
+        std::vector<StorageBufferBinding> storageBuffers;
+
+        AttachmentPoints prepassDrawBuffers;
+        prepassDrawBuffers.set(AttachmentPoint::Depth);
+
+        for (const auto& geom : rl.geomList()) {
+            if ((geom.material->type()->name() != MaterialTypeSkyBox) && !geom.material->blendingParams().isEnabled()) {
+                const auto& activeUniforms = geom.material->type()->prog()->activeUniforms();
+                const auto& mat = (activeUniforms.count(UniformName::ModelViewProjMatrix) != 0) ? materialManager.matPrepass(0) :
+                    ((activeUniforms.count(UniformName::ModelMatrix) != 0) ? materialManager.matPrepass(1) : materialManager.matPrepassWS());
+                DrawBufferBinding drawBufferBinding(prepassDrawBuffers, mat->type()->prog()->outputs());
+                MaterialParams params(mat->type(), true);
+                cr.setAutoParams(rl, mat, drawBufferBinding.mask, textures, storageBuffers, params, geom.modelMat, geom.prevModelMat);
+                rn->add(std::move(tmpNode), pass, drawBufferBinding,
+                    mat->type(),
+                    mat->params(),
+                    mat->blendingParams(),
+                    geom.material->depthTest(),
+                    geom.material->depthWrite(),
+                    geom.material->cullFaceMode(),
+                    GL_LESS, geom.depthValue, geom.flipCull,
+                    std::move(textures), std::move(storageBuffers),
+                    geom.vaSlice, geom.primitiveMode, geom.scissorParams,
+                    std::move(params));
+            }
+        }
+
+        return pass + 1;
     }
 }

@@ -70,7 +70,7 @@ namespace af3d
         void propertyPowerSet(const std::string&, const APropertyValue& value) { setPower(value.toFloat()); }
 
     private:
-        void doSetupCluster(ShaderClusterLight& cLight) const override;
+        void doSetupCluster(ShaderClusterLightImpl& cLight) const override;
 
         float radius_ = 0.0f;
         float angle_ = btRadians(45.0f);
