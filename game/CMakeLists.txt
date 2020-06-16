@@ -234,6 +234,10 @@ if (NOT WIN32)
     configure_file(config.ini ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/config.ini COPYONLY)
 endif ()
 
+if (LINK_GL)
+    target_link_libraries(af3d GL)
+endif ()
+
 install(
     TARGETS af3d
     RUNTIME DESTINATION "${INSTALL_OUT_DIR}"

@@ -47,6 +47,7 @@ option(USE_LUAJIT "Use LuaJIT" FALSE)
 option(USE_LUAJIT_VALGRIND "Enable LuaJIT+valgrind" FALSE)
 option(USE_BT_SSE "Use Bullet SSE" TRUE)
 option(FORCE_OPTIMIZE "Force compiler optimizations" FALSE)
+option(LINK_GL "Link libGL in binary" FALSE)
 
 # END USER SETTINGS
 
@@ -153,6 +154,10 @@ endif ()
 
 add_definitions(-DSTBI_NO_STDIO)
 add_definitions(-DSTBI_WRITE_NO_STDIO)
+
+if (LINK_GL)
+    add_definitions(-DLINK_GL)
+endif ()
 
 message(STATUS "Platform - " ${CMAKE_SYSTEM_NAME})
 message(STATUS "Install prefix - " ${CMAKE_INSTALL_PREFIX})

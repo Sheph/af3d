@@ -1168,6 +1168,11 @@ static bool OGLPreInit()
 
     LOG4CPLUS_INFO(af3d::logger(), "Initializing OpenGL...");
 
+#ifdef LINK_GL
+    // Force libGL linking.
+    glXGetCurrentDisplay();
+#endif
+
     void* handle = ::dlopen("libGL.so.1", RTLD_NOW | RTLD_GLOBAL);
 
     if (!handle) {
