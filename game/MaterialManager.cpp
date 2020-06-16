@@ -71,7 +71,10 @@ namespace af3d
         {"shaders/prepass-ws.vert", "shaders/prepass.frag", nullptr, nullptr},
         {"shaders/filter.vert", "shaders/filter-composite.frag", nullptr, nullptr},
         {"shaders/filter.vert", "shaders/filter-ssao.frag", nullptr, nullptr},
-        {"shaders/filter.vert", "shaders/filter-ssao-blur.frag", nullptr, nullptr}
+        {"shaders/filter.vert", "shaders/filter-ssao-blur.frag", nullptr, nullptr},
+        {"shaders/prepass1.vert", nullptr, nullptr, "#define SHADOW 1\n"},
+        {"shaders/prepass2.vert", nullptr, nullptr, "#define SHADOW 1\n"},
+        {"shaders/prepass-ws.vert", nullptr, nullptr, "#define SHADOW 1\n"}
     };
 
     MaterialManager materialManager;
@@ -125,6 +128,10 @@ namespace af3d
         matPrepassWS_.reset();
         matPrepass_[0].reset();
         matPrepass_[1].reset();
+        matShadowWS_.reset();
+        matShadow_[0].reset();
+        matShadow_[1].reset();
+
         runtime_assert(immediateMaterials_.empty());
         cachedMaterials_.clear();
         for (int i = MaterialTypeFirst; i <= MaterialTypeMax; ++i) {
@@ -182,24 +189,30 @@ namespace af3d
                     return false;
                 }
 
-                LOG4CPLUS_DEBUG(logger(), "materialManager: loading " << shaders[mat->name()].frag << "...");
-
-                PlatformIFStream isFrag(shaders[mat->name()].frag);
-
                 std::string fragSource;
 
-                if (!readStream(isFrag, fragSource)) {
-                    LOG4CPLUS_ERROR(logger(), "Unable to read \"" << shaders[mat->name()].frag << "\"");
-                    return false;
+                if (shaders[mat->name()].frag) {
+                    LOG4CPLUS_DEBUG(logger(), "materialManager: loading " << shaders[mat->name()].frag << "...");
+
+                    PlatformIFStream isFrag(shaders[mat->name()].frag);
+
+                    if (!readStream(isFrag, fragSource)) {
+                        LOG4CPLUS_ERROR(logger(), "Unable to read \"" << shaders[mat->name()].frag << "\"");
+                        return false;
+                    }
                 }
 
                 if (shaders[mat->name()].header) {
                     vertSource = shaders[mat->name()].header + vertSource;
-                    fragSource = shaders[mat->name()].header + fragSource;
+                    if (!fragSource.empty()) {
+                        fragSource = shaders[mat->name()].header + fragSource;
+                    }
                 }
 
                 vertSource = glslCommonHeader_ + vertSource;
-                fragSource = glslCommonHeader_ + fragSource;
+                if (!fragSource.empty()) {
+                    fragSource = glslCommonHeader_ + fragSource;
+                }
 
                 auto vertexShader = hwManager.createShader(HardwareShader::Type::Vertex);
 
@@ -207,14 +220,17 @@ namespace af3d
                     return false;
                 }
 
-                auto fragmentShader = hwManager.createShader(HardwareShader::Type::Fragment);
+                if (!fragSource.empty()) {
+                    auto fragmentShader = hwManager.createShader(HardwareShader::Type::Fragment);
 
-                if (!fragmentShader->compile(fragSource, ctx)) {
-                    return false;
+                    if (!fragmentShader->compile(fragSource, ctx)) {
+                        return false;
+                    }
+
+                    hwShaders.push_back(fragmentShader);
                 }
 
                 hwShaders.push_back(vertexShader);
-                hwShaders.push_back(fragmentShader);
             }
 
             if (!mat->reload(hwShaders, ctx)) {
@@ -266,6 +282,10 @@ namespace af3d
             matPrepassWS_ = createMaterial(MaterialTypePrepassWS);
             matPrepass_[0] = createMaterial(MaterialTypePrepass1);
             matPrepass_[1] = createMaterial(MaterialTypePrepass2);
+
+            matShadowWS_ = createMaterial(MaterialTypeShadowWS);
+            matShadow_[0] = createMaterial(MaterialTypeShadow1);
+            matShadow_[1] = createMaterial(MaterialTypeShadow2);
         }
 
         return true;

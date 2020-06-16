@@ -69,6 +69,8 @@ namespace af3d
         inline const MaterialPtr& matClusterCull() const { return matClusterCull_; }
         inline const MaterialPtr& matPrepassWS() const { return matPrepassWS_; }
         inline const MaterialPtr& matPrepass(int i) const { return matPrepass_[i]; }
+        inline const MaterialPtr& matShadowWS() const { return matShadowWS_; }
+        inline const MaterialPtr& matShadow(int i) const { return matShadow_[i]; }
 
     private:
         using MaterialTypes = std::array<MaterialTypePtr, MaterialTypeMax + 1>;
@@ -89,6 +91,8 @@ namespace af3d
         MaterialPtr matClusterCull_;
         MaterialPtr matPrepassWS_;
         MaterialPtr matPrepass_[2];
+        MaterialPtr matShadowWS_;
+        MaterialPtr matShadow_[2];
     };
 
     extern MaterialManager materialManager;

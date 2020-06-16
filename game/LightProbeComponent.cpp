@@ -286,6 +286,7 @@ namespace af3d
             cam->setLayer(isGlobal() ? CameraLayer::SkyBox : CameraLayer::LightProbe);
             cam->setFov(btRadians(90.0f));
             cam->setAspect(1.0f);
+            cam->setCanSeeShadows(false); // FIXME: Need to do something else here...
             cam->setClearColor(AttachmentPoint::Color0, mainCamera->clearColor());
             cam->setAmbientColor(mainCamera->ambientColor());
             cam->setTransform(btTransform(textureCubeFaceBasis(face), parent()->pos()));

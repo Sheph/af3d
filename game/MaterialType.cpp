@@ -63,7 +63,10 @@ namespace af3d
             "PrepassWS",
             "FilterComposite",
             "FilterSSAO",
-            "FilterSSAOBlur"
+            "FilterSSAOBlur",
+            "Shadow1",
+            "Shadow2",
+            "ShadowWS",
         }
     };
 

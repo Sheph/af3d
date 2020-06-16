@@ -47,8 +47,8 @@ namespace af3d
         for (const auto& geom : rl.geomList()) {
             if ((geom.material->type()->name() != MaterialTypeSkyBox) && !geom.material->blendingParams().isEnabled()) {
                 const auto& activeUniforms = geom.material->type()->prog()->activeUniforms();
-                const auto& mat = (activeUniforms.count(UniformName::ModelViewProjMatrix) != 0) ? materialManager.matPrepass(0) :
-                    ((activeUniforms.count(UniformName::ModelMatrix) != 0) ? materialManager.matPrepass(1) : materialManager.matPrepassWS());
+                const auto& mat = (activeUniforms.count(UniformName::ModelViewProjMatrix) != 0) ? materialManager.matShadow(0) :
+                    ((activeUniforms.count(UniformName::ModelMatrix) != 0) ? materialManager.matShadow(1) : materialManager.matShadowWS());
                 DrawBufferBinding drawBufferBinding(prepassDrawBuffers, mat->type()->prog()->outputs());
                 MaterialParams params(mat->type(), true);
                 cr.setAutoParams(rl, mat, drawBufferBinding.mask, textures, storageBuffers, params, geom.modelMat, geom.prevModelMat);
