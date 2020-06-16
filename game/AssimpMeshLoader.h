@@ -33,16 +33,45 @@
 
 namespace af3d
 {
+    struct AssimpNode;
+    using AssimpNodePtr = std::shared_ptr<AssimpNode>;
+
+    struct AssimpNode
+    {
+        std::string name;
+        AABB aabb = AABB_empty;
+        std::vector<SubMeshPtr> subMeshes;
+        std::vector<AssimpNodePtr> children;
+    };
+
     class AssimpMeshLoader : public ResourceLoader
     {
     public:
         explicit AssimpMeshLoader(const std::string& path);
 
-        bool init(Assimp::Importer& importer, AABB& aabb, std::vector<SubMeshPtr>& subMeshes);
+        AssimpNodePtr init(Assimp::Importer& importer);
 
         void load(Resource& res, HardwareContext& ctx) override;
 
     private:
+        struct InitContext
+        {
+            std::vector<MaterialPtr> mats;
+            std::map<std::uint32_t, VertexArraySlice> slices;
+        };
+
+        struct LoadContext
+        {
+            std::map<std::uint32_t, SubMeshPtr> slices;
+            std::uint32_t numVertices[2];
+            float *allVerts[2];
+            std::map<std::uint32_t, GLvoid*> allIndices;
+        };
+
+        AssimpNodePtr createNode(const aiNode* aiN, const aiMatrix4x4& parentXf, InitContext& ctx);
+
+        void loadNode(const aiNode* aiN, const aiMatrix4x4& parentXf, LoadContext& ctx);
+
         AssimpScenePtr loadScene(Assimp::Importer& importer);
 
         MaterialPtr createMaterialBasic(const std::string& matName, aiMaterial* matData);
@@ -53,6 +82,7 @@ namespace af3d
 
         std::string path_;
         AssimpScenePtr scene_;
+        bool ignoreTransforms_;
     };
 }
 

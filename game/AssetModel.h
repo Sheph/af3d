@@ -50,9 +50,13 @@ namespace af3d
         inline bool flipUV() const { return flipUV_; }
         inline void setFlipUV(bool value) { flipUV_ = value; }
 
+        inline bool ignoreTransforms() const { return ignoreTransforms_; }
+        inline void setIgnoreTransforms(bool value) { ignoreTransforms_ = value; }
+
     private:
         MaterialTypeName matTypeName_ = MaterialTypeBasic;
         bool flipUV_ = false;
+        bool ignoreTransforms_ = true;
     };
 
     using AssetModelPtr = std::shared_ptr<AssetModel>;

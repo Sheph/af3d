@@ -75,8 +75,11 @@ namespace af3d
             if (v["flipUV"].isBool()) {
                 data.model->setFlipUV(v["flipUV"].asBool());
             }
+            if (v["ignoreTransforms"].isBool()) {
+                data.model->setIgnoreTransforms(v["ignoreTransforms"].asBool());
+            }
             LOG4CPLUS_TRACE(logger(), "model \"" << name << "\" materialType = "
-                << data.model->materialTypeName() << ", flipUV = " << data.model->flipUV());
+                << data.model->materialTypeName() << ", flipUV = " << data.model->flipUV() << ", ignoreTransforms = " << data.model->ignoreTransforms());
         });
         return true;
     }

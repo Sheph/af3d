@@ -36,22 +36,25 @@
 namespace af3d
 {
     AssimpMeshLoader::AssimpMeshLoader(const std::string& path)
-    : path_(path)
+    : path_(path),
+      ignoreTransforms_(assetManager.getAssetModel(path_)->ignoreTransforms())
     {
     }
 
-    bool AssimpMeshLoader::init(Assimp::Importer& importer, AABB& aabb, std::vector<SubMeshPtr>& subMeshes)
+    AssimpNodePtr AssimpMeshLoader::init(Assimp::Importer& importer)
     {
         scene_ = loadScene(importer);
         if (!scene_) {
-            return false;
+            return AssimpNodePtr();
         }
 
         MaterialTypeName baseMatTypeName = assetManager.getAssetModel(path_)->materialTypeName();
 
         log4cplus::NDCContextCreator ndc(path_);
 
-        std::vector<MaterialPtr> mats(scene_->mNumMaterials);
+        InitContext ctx;
+
+        ctx.mats.resize(scene_->mNumMaterials);
 
         for (std::uint32_t i = 0; i < scene_->mNumMaterials; ++i) {
             auto matData = scene_->mMaterials[i];
@@ -78,23 +81,21 @@ namespace af3d
                     mat->setCullFaceMode(0);
                 }
             }
-            mats[i] = mat;
+            ctx.mats[i] = mat;
         }
 
         std::uint32_t numVertices[2] = {0, 0};
 
-        std::map<std::uint32_t, std::uint32_t> slices;
-
         for (std::uint32_t i = 0; i < scene_->mNumMeshes; ++i) {
             auto meshData = scene_->mMeshes[i];
 
-            if (mats[meshData->mMaterialIndex]->type()->hasNM()) {
+            if (ctx.mats[meshData->mMaterialIndex]->type()->hasNM()) {
                 numVertices[0] += meshData->mNumVertices;
             } else {
                 numVertices[1] += meshData->mNumVertices;
             }
 
-            slices[meshData->mMaterialIndex] = 0;
+            ctx.slices[meshData->mMaterialIndex] = VertexArraySlice();
         }
 
         HardwareDataBufferPtr vbo[2];
@@ -106,43 +107,30 @@ namespace af3d
             vbo[1] = hwManager.createDataBuffer(HardwareBuffer::Usage::StaticDraw, 32);
         }
 
-        for (std::uint32_t i = 0; i < scene_->mNumMeshes; ++i) {
-            auto meshData = scene_->mMeshes[i];
-
-            if (i == 0) {
-                aabb.lowerBound = fromAssimp(meshData->mVertices[0]);
-                aabb.upperBound = fromAssimp(meshData->mVertices[0]);
-            }
-
-            for (std::uint32_t j = 0; j < meshData->mNumVertices; ++j) {
-                aabb.combine(fromAssimp(meshData->mVertices[j]));
-            }
-
-            slices[meshData->mMaterialIndex] += meshData->mNumFaces * 3;
-        }
-
-        for (const auto& kv : slices) {
+        for (auto& kv : ctx.slices) {
             VertexArrayLayout vaLayout;
             vaLayout.addEntry(VertexArrayEntry(VertexAttribName::Pos, GL_FLOAT_VEC3, 0, 0));
             vaLayout.addEntry(VertexArrayEntry(VertexAttribName::UV, GL_FLOAT_VEC2, 12, 0));
             vaLayout.addEntry(VertexArrayEntry(VertexAttribName::Normal, GL_FLOAT_VEC3, 20, 0));
 
-            if (mats[kv.first]->type()->hasNM()) {
+            if (ctx.mats[kv.first]->type()->hasNM()) {
                 vaLayout.addEntry(VertexArrayEntry(VertexAttribName::Tangent, GL_FLOAT_VEC3, 32, 0));
                 vaLayout.addEntry(VertexArrayEntry(VertexAttribName::Bitangent, GL_FLOAT_VEC3, 44, 0));
                 auto ebo = hwManager.createIndexBuffer(HardwareBuffer::Usage::StaticDraw,
                       (numVertices[0] > std::numeric_limits<std::uint16_t>::max()) ? HardwareIndexBuffer::UInt32 : HardwareIndexBuffer::UInt16);
-                auto va = std::make_shared<VertexArray>(hwManager.createVertexArray(), vaLayout, VBOList{vbo[0]}, ebo);
-                subMeshes.push_back(std::make_shared<SubMesh>(mats[kv.first], VertexArraySlice(va, 0, kv.second, 0)));
+                kv.second = VertexArraySlice(std::make_shared<VertexArray>(hwManager.createVertexArray(), vaLayout, VBOList{vbo[0]}, ebo));
             } else {
                 auto ebo = hwManager.createIndexBuffer(HardwareBuffer::Usage::StaticDraw,
                       (numVertices[1] > std::numeric_limits<std::uint16_t>::max()) ? HardwareIndexBuffer::UInt32 : HardwareIndexBuffer::UInt16);
-                auto va = std::make_shared<VertexArray>(hwManager.createVertexArray(), vaLayout, VBOList{vbo[1]}, ebo);
-                subMeshes.push_back(std::make_shared<SubMesh>(mats[kv.first], VertexArraySlice(va, 0, kv.second, 0)));
+                kv.second = VertexArraySlice(std::make_shared<VertexArray>(hwManager.createVertexArray(), vaLayout, VBOList{vbo[1]}, ebo));
             }
         }
 
-        return true;
+        auto node = createNode(scene_->mRootNode, aiMatrix4x4(), ctx);
+        if (node) {
+            node->name.clear();
+        }
+        return node;
     }
 
     void AssimpMeshLoader::load(Resource& res, HardwareContext& ctx)
@@ -154,68 +142,156 @@ namespace af3d
             runtime_assert(scene_);
         }
 
-        std::map<std::uint32_t, SubMeshPtr> slices;
+        LoadContext lctx;
+
+        lctx.numVertices[0] = 0;
+        lctx.numVertices[1] = 0;
 
         for (std::uint32_t i = 0; i < scene_->mNumMeshes; ++i) {
             auto meshData = scene_->mMeshes[i];
-            slices[meshData->mMaterialIndex] = SubMeshPtr();
+            lctx.slices[meshData->mMaterialIndex] = SubMeshPtr();
         }
 
         size_t i = 0;
-        for (auto& kv : slices) {
+        for (auto& kv : lctx.slices) {
             kv.second = mesh.subMeshes()[i];
             ++i;
         }
         btAssert(i == mesh.subMeshes().size());
 
         HardwareDataBufferPtr vbo[2];
-        std::uint32_t numVertices[2] = {0, 0};
 
         for (std::uint32_t i = 0; i < scene_->mNumMeshes; ++i) {
             auto meshData = scene_->mMeshes[i];
-            if (slices[meshData->mMaterialIndex]->material()->type()->hasNM()) {
-                numVertices[0] += meshData->mNumVertices;
-                vbo[0] = slices[meshData->mMaterialIndex]->vaSlice().va()->vbos()[0];
+            if (lctx.slices[meshData->mMaterialIndex]->material()->type()->hasNM()) {
+                lctx.numVertices[0] += meshData->mNumVertices;
+                vbo[0] = lctx.slices[meshData->mMaterialIndex]->vaSlice().va()->vbos()[0];
             } else {
-                numVertices[1] += meshData->mNumVertices;
-                vbo[1] = slices[meshData->mMaterialIndex]->vaSlice().va()->vbos()[0];
+                lctx.numVertices[1] += meshData->mNumVertices;
+                vbo[1] = lctx.slices[meshData->mMaterialIndex]->vaSlice().va()->vbos()[0];
             }
         }
 
-        float *allVerts[2], *vertsStart[2];
-        std::map<std::uint32_t, GLvoid*> allIndices;
+        float *vertsStart[2];
         std::map<std::uint32_t, GLvoid*> indicesStart;
 
         for (int i = 0; i < 2; ++i) {
             if (vbo[i]) {
-                vbo[i]->resize(numVertices[i], ctx);
-                allVerts[i] = vertsStart[i] = (float*)vbo[i]->lock(HardwareBuffer::WriteOnly, ctx);
+                vbo[i]->resize(lctx.numVertices[i], ctx);
+                lctx.allVerts[i] = vertsStart[i] = (float*)vbo[i]->lock(HardwareBuffer::WriteOnly, ctx);
             }
         }
 
-        for (const auto& kv : slices) {
+        for (const auto& kv : lctx.slices) {
             auto ebo = kv.second->vaSlice().va()->ebo();
             ebo->resize(kv.second->vaSlice().count(), ctx);
-            allIndices[kv.first] = indicesStart[kv.first] = ebo->lock(HardwareBuffer::WriteOnly, ctx);
+            lctx.allIndices[kv.first] = indicesStart[kv.first] = ebo->lock(HardwareBuffer::WriteOnly, ctx);
         }
 
-        numVertices[0] = 0;
-        numVertices[1] = 0;
+        lctx.numVertices[0] = 0;
+        lctx.numVertices[1] = 0;
 
-        for (std::uint32_t i = 0; i < scene_->mNumMeshes; ++i) {
-            auto meshData = scene_->mMeshes[i];
-            bool withTangent = slices[meshData->mMaterialIndex]->material()->type()->hasNM();
+        loadNode(scene_->mRootNode, aiMatrix4x4(), lctx);
 
-            float*& verts = allVerts[withTangent ? 0 : 1];
+        for (int i = 0; i < 2; ++i) {
+            if (vbo[i]) {
+                btAssert((lctx.allVerts[i] - vertsStart[i]) * 4 == vbo[i]->sizeInBytes(ctx));
+                vbo[i]->unlock(ctx);
+            }
+        }
+
+        for (const auto& kv : lctx.slices) {
+            auto ebo = kv.second->vaSlice().va()->ebo();
+            btAssert(((char*)lctx.allIndices[kv.first] - (char*)indicesStart[kv.first]) == ebo->sizeInBytes(ctx));
+            ebo->unlock(ctx);
+        }
+
+        scene_.reset();
+    }
+
+    AssimpNodePtr AssimpMeshLoader::createNode(const aiNode* aiN, const aiMatrix4x4& parentXf, InitContext& ctx)
+    {
+        auto node = std::make_shared<AssimpNode>();
+
+        node->name = aiN->mName.C_Str();
+
+        auto slicesBefore = ctx.slices;
+
+        auto xf = ignoreTransforms_ ? parentXf : parentXf * aiN->mTransformation;
+
+        bool haveAABB = false;
+
+        for (std::uint32_t i = 0; i < aiN->mNumChildren; ++i) {
+            auto cn = createNode(aiN->mChildren[i], xf, ctx);
+            if (!cn) {
+                continue;
+            }
+
+            if (!haveAABB) {
+                haveAABB = true;
+                node->aabb = cn->aabb;
+            } else {
+                node->aabb.combine(cn->aabb);
+            }
+
+            node->children.push_back(cn);
+        }
+
+        for (std::uint32_t i = 0; i < aiN->mNumMeshes; ++i) {
+            auto meshData = scene_->mMeshes[aiN->mMeshes[i]];
+
+            if (!haveAABB) {
+                haveAABB = true;
+                node->aabb.lowerBound = fromAssimp(xf * meshData->mVertices[0]);
+                node->aabb.upperBound = fromAssimp(xf * meshData->mVertices[0]);
+            }
+
+            for (std::uint32_t j = 0; j < meshData->mNumVertices; ++j) {
+                node->aabb.combine(fromAssimp(xf * meshData->mVertices[j]));
+            }
+
+            auto& slice = ctx.slices[meshData->mMaterialIndex];
+            slice = VertexArraySlice(slice.va(), 0, slice.count() + meshData->mNumFaces * 3);
+        }
+
+        for (const auto& kv : ctx.slices) {
+            std::uint32_t prevCount = slicesBefore[kv.first].count();
+
+            if (prevCount == kv.second.count()) {
+                continue;
+            }
+            btAssert(kv.second.count() > prevCount);
+
+            node->subMeshes.push_back(std::make_shared<SubMesh>(ctx.mats[kv.first],
+                VertexArraySlice(kv.second.va(), prevCount, kv.second.count() - prevCount, 0)));
+        }
+
+        return (node->aabb == AABB_empty) ? AssimpNodePtr() : node;
+    }
+
+    void AssimpMeshLoader::loadNode(const aiNode* aiN, const aiMatrix4x4& parentXf, LoadContext& ctx)
+    {
+        auto xf = ignoreTransforms_ ? parentXf : parentXf * aiN->mTransformation;
+
+        for (std::uint32_t i = 0; i < aiN->mNumChildren; ++i) {
+            loadNode(aiN->mChildren[i], xf, ctx);
+        }
+
+        for (std::uint32_t i = 0; i < aiN->mNumMeshes; ++i) {
+            auto meshData = scene_->mMeshes[aiN->mMeshes[i]];
+            bool withTangent = ctx.slices[meshData->mMaterialIndex]->material()->type()->hasNM();
+
+            float*& verts = ctx.allVerts[withTangent ? 0 : 1];
 
             btAssert(meshData->mTextureCoords[0]);
 
             for (std::uint32_t j = 0; j < meshData->mNumVertices; ++j) {
-                *verts = meshData->mVertices[j].x;
+                auto v = xf * meshData->mVertices[j];
+                *verts = v.x;
                 ++verts;
-                *verts = meshData->mVertices[j].y;
+                *verts = v.y;
                 ++verts;
-                *verts = meshData->mVertices[j].z;
+                *verts = v.z;
                 ++verts;
                 *verts = meshData->mTextureCoords[0][j].x;
                 ++verts;
@@ -243,11 +319,11 @@ namespace af3d
                 }
             }
 
-            auto cva = slices[meshData->mMaterialIndex]->vaSlice().va();
-            std::uint32_t idxOffset = numVertices[withTangent ? 0 : 1];
+            auto cva = ctx.slices[meshData->mMaterialIndex]->vaSlice().va();
+            std::uint32_t idxOffset = ctx.numVertices[withTangent ? 0 : 1];
 
             if (cva->ebo()->dataType() == HardwareIndexBuffer::UInt16) {
-                std::uint16_t*& indices = (std::uint16_t*&)allIndices[meshData->mMaterialIndex];
+                std::uint16_t*& indices = (std::uint16_t*&)ctx.allIndices[meshData->mMaterialIndex];
 
                 for (std::uint32_t j = 0; j < meshData->mNumFaces; ++j) {
                     auto face = meshData->mFaces[j];
@@ -263,7 +339,7 @@ namespace af3d
                     ++indices;
                 }
             } else {
-                std::uint32_t*& indices = (std::uint32_t*&)allIndices[meshData->mMaterialIndex];
+                std::uint32_t*& indices = (std::uint32_t*&)ctx.allIndices[meshData->mMaterialIndex];
 
                 for (std::uint32_t j = 0; j < meshData->mNumFaces; ++j) {
                     auto face = meshData->mFaces[j];
@@ -277,23 +353,8 @@ namespace af3d
                 }
             }
 
-            numVertices[withTangent ? 0 : 1] += meshData->mNumVertices;
+            ctx.numVertices[withTangent ? 0 : 1] += meshData->mNumVertices;
         }
-
-        for (int i = 0; i < 2; ++i) {
-            if (vbo[i]) {
-                btAssert((allVerts[i] - vertsStart[i]) * 4 == vbo[i]->sizeInBytes(ctx));
-                vbo[i]->unlock(ctx);
-            }
-        }
-
-        for (const auto& kv : slices) {
-            auto ebo = kv.second->vaSlice().va()->ebo();
-            btAssert(((char*)allIndices[kv.first] - (char*)indicesStart[kv.first]) == ebo->sizeInBytes(ctx));
-            ebo->unlock(ctx);
-        }
-
-        scene_.reset();
     }
 
     AssimpScenePtr AssimpMeshLoader::loadScene(Assimp::Importer& importer)

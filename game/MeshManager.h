@@ -28,6 +28,7 @@
 
 #include "ResourceManager.h"
 #include "Mesh.h"
+#include "AssimpMeshLoader.h"
 #include "af3d/Single.h"
 #include <unordered_map>
 #include <unordered_set>
@@ -72,6 +73,8 @@ namespace af3d
     private:
         using CachedMeshes = std::unordered_map<std::string, MeshPtr>;
         using ImmediateMeshes = std::unordered_set<Mesh*>;
+
+        void processAssimpNode(const AssimpNodePtr& node, const std::string& parentPath);
 
         CachedMeshes cachedMeshes_;
         ImmediateMeshes immediateMeshes_;

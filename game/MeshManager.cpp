@@ -25,7 +25,6 @@
 
 #include "MeshManager.h"
 #include "BoxMeshGenerator.h"
-#include "AssimpMeshLoader.h"
 #include "HardwareResourceManager.h"
 #include "Logger.h"
 #include "Platform.h"
@@ -104,19 +103,39 @@ namespace af3d
 
         it = cachedMeshes_.find(actualPath);
         if (it == cachedMeshes_.end()) {
-            auto loader = std::make_shared<AssimpMeshLoader>(actualPath);
-
-            AABB aabb;
-            std::vector<SubMeshPtr> subMeshes;
-
-            if (!loader->init(importer_, aabb, subMeshes)) {
-                return MeshPtr();
+            std::string actualPathBase, actualPathDetail;
+            auto pos = actualPath.find_first_of(':');
+            if (pos != std::string::npos) {
+                actualPathBase = actualPath.substr(0, pos);
+                actualPathDetail = actualPath.substr(pos + 1);
+            } else {
+                actualPathBase = actualPath;
             }
 
-            auto mesh = std::make_shared<Mesh>(this, actualPath, aabb, subMeshes, loader);
-            mesh->aflagsSet(AObjectEditable);
-            mesh->load();
-            it = cachedMeshes_.emplace(actualPath, mesh).first;
+            if ((pos == std::string::npos) || (cachedMeshes_.count(actualPathBase) == 0)) {
+                auto loader = std::make_shared<AssimpMeshLoader>(actualPathBase);
+
+                auto node = loader->init(importer_);
+                if (!node) {
+                    return MeshPtr();
+                }
+
+                auto mesh = std::make_shared<Mesh>(this, actualPathBase, node->aabb, node->subMeshes, loader);
+                mesh->aflagsSet(AObjectEditable);
+                mesh->load();
+                it = cachedMeshes_.emplace(actualPathBase, mesh).first;
+                for (const auto& c : node->children) {
+                    processAssimpNode(c, actualPathBase + ":");
+                }
+            }
+
+            if (pos != std::string::npos) {
+                it = cachedMeshes_.find(actualPath);
+                if (it == cachedMeshes_.end()) {
+                    LOG4CPLUS_ERROR(logger(), "meshManager: bad detail path " << actualPathDetail << " within " << actualPathBase);
+                    return MeshPtr();
+                }
+            }
         }
 
         if (convertToMatTypeName) {
@@ -202,5 +221,16 @@ namespace af3d
     void MeshManager::onMeshDestroy(Mesh* mesh)
     {
         immediateMeshes_.erase(mesh);
+    }
+
+    void MeshManager::processAssimpNode(const AssimpNodePtr& node, const std::string& parentPath)
+    {
+        auto mesh = std::make_shared<Mesh>(this, parentPath + node->name, node->aabb, node->subMeshes);
+        mesh->aflagsSet(AObjectEditable);
+        cachedMeshes_.emplace(mesh->name(), mesh);
+        LOG4CPLUS_DEBUG(logger(), "meshManager: detail mesh " << mesh->name() << " registered");
+        for (const auto& c : node->children) {
+            processAssimpNode(c, mesh->name() + ":");
+        }
     }
 }
