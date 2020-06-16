@@ -4,6 +4,7 @@ uniform sampler2D texMain;
 uniform sampler2D texNormal;
 #endif
 uniform sampler2D texSpecular;
+uniform sampler2DArray texShadowCSM;
 
 uniform vec4 mainColor;
 uniform vec4 specularColor;
@@ -12,6 +13,7 @@ uniform vec3 eyePos;
 uniform vec3 ambientColor;
 uniform vec4 clusterCfg;
 uniform int outputMask;
+uniform int immCameraIdx;
 
 struct ClusterLight
 {
@@ -33,6 +35,13 @@ struct ClusterTileData
     uint probeCount;
 };
 
+struct CSM
+{
+    float farBounds[4];
+    mat4 mat[4];
+    uint texIdx[4];
+};
+
 layout (std430, binding = 2) readonly buffer clusterTileDataSSBO
 {
     ClusterTileData clusterTileData[];
@@ -48,6 +57,11 @@ layout (std430, binding = 4) readonly buffer clusterLightsSSBO
     ClusterLight clusterLights[];
 };
 
+layout (std430, binding = 7) readonly buffer shadowCSMSSBO
+{
+    CSM shadowCSM[];
+};
+
 in vec2 v_texCoord;
 in vec3 v_pos;
 #ifdef NM
@@ -60,6 +74,29 @@ in vec4 v_clipPos;
 layout (location = 0) out vec4 fragColor;
 layout (location = 1) out vec3 fragNormal;
 layout (location = 2) out vec4 fragAmbient;
+
+float processCSMShadow(const CSM csm)
+{
+    int idx = CSM_NUM_SPLITS - 1;
+    for (int i = 0; i < CSM_NUM_SPLITS - 1; ++i) {
+        if (gl_FragCoord.z < csm.farBounds[i]) {
+            idx = i;
+            break;
+        }
+    }
+
+    vec4 shadowPos = vec4(v_pos, 1.0) * csm.mat[idx];
+
+    shadowPos.w = shadowPos.z;
+    shadowPos.z = float(csm.texIdx[idx]);
+
+    float shadowD = texture(texShadowCSM, shadowPos.xyz).x;
+
+    // Get the difference of the stored depth and the distance of this fragment to the light.
+    float diff = shadowD - shadowPos.w;
+
+    return clamp(diff * 250.0 + 1.0, 0.0, 1.0);
+}
 
 float linearDepth(float depthRange)
 {
@@ -107,6 +144,10 @@ void main()
             // directional
             attenuation = 1.0;
             lightDirection = -light.dir.xyz;
+            uint csmIdx = light.shadowIdx[immCameraIdx];
+            if (csmIdx != -1) {
+                attenuation = processCSMShadow(shadowCSM[csmIdx]);
+            }
         } else {
             vec3 positionToLightSource = vec3(light.pos.xyz - v_pos);
             lightDirection = normalize(positionToLightSource);
