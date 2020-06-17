@@ -113,6 +113,7 @@ namespace af3d { namespace editor
         inline Action& actionOpMenuAdd() { return actionOpMenuAdd_; }
         inline Action& actionOpMenuAddObject() { return actionOpMenuAddObject_; }
         inline Action& actionOpMenuAddMesh() { return actionOpMenuAddMesh_; }
+        inline Action& actionOpMenuAddMeshImport() { return actionOpMenuAddMeshImport_; }
         inline Action& actionOpMenuAddLight() { return actionOpMenuAddLight_; }
         inline Action& actionOpMenuAddLightDirectional() { return actionOpMenuAddLightDirectional_; }
         inline Action& actionOpMenuAddLightPoint() { return actionOpMenuAddLightPoint_; }
@@ -221,6 +222,7 @@ namespace af3d { namespace editor
         Action actionOpMenuAdd_;
         Action actionOpMenuAddObject_;
         Action actionOpMenuAddMesh_;
+        Action actionOpMenuAddMeshImport_;
         Action actionOpMenuAddLight_;
         Action actionOpMenuAddLightDirectional_;
         Action actionOpMenuAddLightPoint_;

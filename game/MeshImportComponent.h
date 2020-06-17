@@ -23,21 +23,20 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _EDITOR_PROPERTYEDITOR_H_
-#define _EDITOR_PROPERTYEDITOR_H_
+#ifndef _MESHIMPORTCOMPONENT_H_
+#define _MESHIMPORTCOMPONENT_H_
 
-#include "UIComponent.h"
-#include "ImGuiUtils.h"
-#include "AWeakObject.h"
+#include "PhasedComponent.h"
+#include "MeshImportSettings.h"
 
-namespace af3d { namespace editor
+namespace af3d
 {
-    class PropertyEditor : public std::enable_shared_from_this<PropertyEditor>,
-        public UIComponent
+    class MeshImportComponent : public std::enable_shared_from_this<MeshImportComponent>,
+        public PhasedComponent
     {
     public:
-        PropertyEditor();
-        ~PropertyEditor() = default;
+        explicit MeshImportComponent();
+        ~MeshImportComponent() = default;
 
         static const AClass& staticKlass();
 
@@ -45,48 +44,26 @@ namespace af3d { namespace editor
 
         AObjectPtr sharedThis() override { return shared_from_this(); }
 
-        void update(float dt) override;
+        inline const MeshImportSettingsPtr& importSettings() const { return importSettings_; }
+        inline void setImportSettings(const MeshImportSettingsPtr& value) { importSettings_ = value; }
+
+        APropertyValue propertyImportSettingsGet(const std::string&) const { return APropertyValue(importSettings()); }
+        void propertyImportSettingsSet(const std::string&, const APropertyValue& value) { setImportSettings(value.toObject<MeshImportSettings>()); }
+
+        APropertyValue propertyUpdateGet(const std::string&) const { return false; }
+        ACommandPtr propertyUpdateSet(const std::string&, const APropertyValue& value);
 
     private:
-        struct PropInfo
-        {
-            explicit PropInfo(const AProperty& prop)
-            : prop(prop) {}
-
-            AProperty prop;
-            APropertyValue initialVal;
-            APropertyValue val;
-        };
-
-        struct ObjInfo
-        {
-            ObjInfo() = default;
-            explicit ObjInfo(const AWeakObject& wobj) : wobj(wobj) {}
-
-            AWeakObject wobj;
-            std::vector<PropInfo> properties;
-        };
-
         void onRegister() override;
 
         void onUnregister() override;
 
-        void addObj(const AObjectPtr& obj);
-
-        void display(ObjInfo& objInfo, bool main);
-
-        bool show_ = true;
-        bool columnWidthSet_ = false;
-
-        std::vector<ObjInfo> objs_;
-        size_t prevNumComponents_ = 0;
-
-        APropertyValue clipboard_;
+        MeshImportSettingsPtr importSettings_;
     };
 
-    using PropertyEditorPtr = std::shared_ptr<PropertyEditor>;
-}
-    ACLASS_NS_DECLARE(editor, PropertyEditor)
+    using MeshImportComponentPtr = std::shared_ptr<MeshImportComponent>;
+
+    ACLASS_DECLARE(MeshImportComponent)
 }
 
 #endif

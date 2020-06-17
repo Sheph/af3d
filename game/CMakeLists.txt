@@ -53,6 +53,8 @@ set(SOURCES
     MaterialType.cpp
     Mesh.cpp
     MeshManager.cpp
+    MeshImportComponent.cpp
+    MeshImportSettings.cpp
     Renderer.cpp
     SubMesh.cpp
     Resource.cpp

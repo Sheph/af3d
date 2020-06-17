@@ -30,6 +30,7 @@
 #include "Settings.h"
 #include "SceneObject.h"
 #include "PhysicsBodyComponent.h"
+#include "PhasedComponent.h"
 #include "ImGuiManager.h"
 #include "imgui.h"
 
@@ -80,20 +81,26 @@ namespace editor {
         }
 
         AObjectPtr obj = newWobj.lock();
+        auto sceneObj = aobjectCast<SceneObject>(obj);
 
-        if (newWobj != wobj_) {
-            wobj_ = newWobj;
-            properties_.clear();
+        if (objs_.empty() || (newWobj != objs_[0].wobj) ||
+            (sceneObj && (sceneObj->components().size() != prevNumComponents_))) {
+            objs_.clear();
+            prevNumComponents_ = 0;
             if (obj) {
-                auto props = obj->klass().getProperties();
-                for (const auto& prop : props) {
-                    properties_.emplace_back(prop);
+                addObj(obj);
+                if (sceneObj) {
+                    prevNumComponents_ = sceneObj->components().size();
+                    // Also add editable phased components.
+                    auto cs = sceneObj->findComponents<PhasedComponent>();
+                    for (const auto& c : cs) {
+                        if ((c->aflags() & AObjectEditable) != 0) {
+                            addObj(c);
+                        }
+                    }
                 }
             }
         }
-
-        KeySequence ksCopy(KM_CTRL, KI_C);
-        KeySequence ksPaste(KM_CTRL, KI_V);
 
         ImGuiStyle& style = ImGui::GetStyle();
 
@@ -113,109 +120,8 @@ namespace editor {
         ImGui::TextColored(style.Colors[ImGuiCol_HeaderActive], "Property"); ImGui::NextColumn();
         ImGui::TextColored(style.Colors[ImGuiCol_HeaderActive], "Value"); ImGui::NextColumn();
 
-        bool wasSet = false;
-
-        if (obj) {
-            auto sceneObj = aobjectCast<SceneObject>(obj);
-
-            ImGui::PushID(std::to_string(wobj_.cookie()).c_str());
-
-            for (auto& pi : properties_) {
-                if ((pi.prop.flags() & APropertyEditable) == 0) {
-                    continue;
-                }
-
-                if (sceneObj && (pi.prop.name() == AProperty_PhysicsActive)) {
-                    ImGui::PushID("_body");
-                    ImGui::Separator();
-                    ImGui::Text("physics body");
-                    if (ImGui::IsItemHovered()) {
-                        ImGui::BeginTooltip();
-                        ImGui::Text("Have physics body");
-                        ImGui::EndTooltip();
-                    }
-                    ImGui::NextColumn();
-
-                    auto& actionAddBody = scene()->workspace()->actionOpMenuAddPhysicsBody();
-                    auto& actionRemoveBody = scene()->workspace()->actionOpMenuRemovePhysicsBody();
-
-                    if (actionRemoveBody.state().enabled) {
-                        if (ImGui::Button("Remove")) {
-                            wasSet = true;
-                            actionRemoveBody.trigger();
-                        }
-                    } else if (actionAddBody.state().enabled) {
-                        if (ImGui::Button("Create")) {
-                            wasSet = true;
-                            actionAddBody.trigger();
-                        }
-                    } else if (sceneObj->findComponent<PhysicsBodyComponent>()) {
-                        ImGui::Text("Yes");
-                    } else {
-                        ImGui::Text("No");
-                    }
-                    ImGui::NextColumn();
-                    ImGui::PopID();
-                }
-
-                ImGui::PushID(pi.prop.name().c_str());
-
-                bool isParam = (pi.prop.category() == APropertyCategory::Params);
-                auto val = obj->propertyGet(pi.prop.name());
-                bool readOnly = !isParam && ((pi.prop.flags() & APropertyWritable) == 0);
-
-                ImGui::Separator();
-                if (isParam) {
-                    ImGui::TextColored(ImVec4(0.6f, 1.0f, 0.6f, style.Colors[ImGuiCol_Text].w), "%s", pi.prop.name().c_str());
-                } else if ((pi.prop.flags() & APropertyTransient) != 0) {
-                    ImGui::TextColored(ImVec4(0.6f, 0.8f, 1.0f, style.Colors[ImGuiCol_Text].w), "%s", pi.prop.name().c_str());
-                } else {
-                    ImGui::Text("%s", pi.prop.name().c_str());
-                }
-                if (ImGui::IsItemHovered()) {
-                    ImGui::BeginTooltip();
-                    ImGui::Text("%s (%s)", pi.prop.tooltip().c_str(), pi.prop.type().name());
-                    ImGui::EndTooltip();
-
-                    if (inputManager.keyboard().triggered(ksCopy)) {
-                        clipboard_ = val;
-                    } else if (!wasSet && !readOnly && clipboard_.convertibleTo(val.type()) &&
-                        inputManager.keyboard().triggered(ksPaste)) {
-                        val = clipboard_.convertTo(val.type());
-                        scene()->workspace()->setProperty(obj, pi.prop.name(), val);
-                        wasSet = true;
-                    }
-                }
-                if (ImGui::BeginPopupContextItem("##m")) {
-                    if (ImGui::MenuItem("Copy", ksCopy.str().c_str(), false, true)) {
-                        clipboard_ = val;
-                    }
-                    if (ImGui::MenuItem("Paste", ksPaste.str().c_str(), false, !readOnly && clipboard_.convertibleTo(val.type())) && !wasSet) {
-                        val = clipboard_.convertTo(val.type());
-                        scene()->workspace()->setProperty(obj, pi.prop.name(), val);
-                        wasSet = true;
-                    }
-                    ImGui::EndPopup();
-                }
-
-                ImGui::NextColumn();
-
-                if (val != pi.initialVal) {
-                    pi.initialVal = pi.val = val;
-                }
-                if (ImGuiUtils::APropertyEdit(scene(), pi.prop.type(), pi.val, readOnly) &&
-                    !wasSet && (pi.val != pi.initialVal)) {
-                    scene()->workspace()->setProperty(obj, pi.prop.name(), pi.val);
-                    pi.initialVal = pi.val;
-                    wasSet = true;
-                }
-
-                ImGui::NextColumn();
-
-                ImGui::PopID();
-            }
-
-            ImGui::PopID();
+        for (auto it = objs_.begin(); it != objs_.end(); ++it) {
+            display(*it, (it == objs_.begin()));
         }
 
         ImGui::Columns(1);
@@ -233,6 +139,142 @@ namespace editor {
     void PropertyEditor::onUnregister()
     {
         LOG4CPLUS_DEBUG(logger(), "PropertyEditor closed");
-        properties_.clear();
+        objs_.clear();
+        prevNumComponents_ = 0;
+    }
+
+    void PropertyEditor::addObj(const AObjectPtr& obj)
+    {
+        objs_.emplace_back(AWeakObject(obj));
+        auto props = obj->klass().getProperties();
+        for (const auto& prop : props) {
+            objs_.back().properties.emplace_back(prop);
+        }
+    }
+
+    void PropertyEditor::display(ObjInfo& objInfo, bool main)
+    {
+        ImGuiStyle& style = ImGui::GetStyle();
+
+        KeySequence ksCopy(KM_CTRL, KI_C);
+        KeySequence ksPaste(KM_CTRL, KI_V);
+
+        bool wasSet = false;
+
+        AObjectPtr obj = objInfo.wobj.lock();
+
+        auto sceneObj = aobjectCast<SceneObject>(obj);
+
+        if (!main) {
+            ImGui::Columns(1);
+            bool open = true;
+            bool res = ImGui::CollapsingHeader((obj->klass().name() + "##" + std::to_string(objInfo.wobj.cookie())).c_str(), &open);
+            ImGui::Columns(2);
+            if (!open) {
+                scene()->workspace()->deleteObject(obj);
+            }
+            if (!res || !open) {
+                return;
+            }
+        }
+
+        ImGui::PushID(std::to_string(objInfo.wobj.cookie()).c_str());
+
+        for (auto& pi : objInfo.properties) {
+            if ((pi.prop.flags() & APropertyEditable) == 0) {
+                continue;
+            }
+
+            if (sceneObj && (pi.prop.name() == AProperty_PhysicsActive)) {
+                ImGui::PushID("_body");
+                ImGui::Separator();
+                ImGui::Text("physics body");
+                if (ImGui::IsItemHovered()) {
+                    ImGui::BeginTooltip();
+                    ImGui::Text("Have physics body");
+                    ImGui::EndTooltip();
+                }
+                ImGui::NextColumn();
+
+                auto& actionAddBody = scene()->workspace()->actionOpMenuAddPhysicsBody();
+                auto& actionRemoveBody = scene()->workspace()->actionOpMenuRemovePhysicsBody();
+
+                if (actionRemoveBody.state().enabled) {
+                    if (ImGui::Button("Remove")) {
+                        wasSet = true;
+                        actionRemoveBody.trigger();
+                    }
+                } else if (actionAddBody.state().enabled) {
+                    if (ImGui::Button("Create")) {
+                        wasSet = true;
+                        actionAddBody.trigger();
+                    }
+                } else if (sceneObj->findComponent<PhysicsBodyComponent>()) {
+                    ImGui::Text("Yes");
+                } else {
+                    ImGui::Text("No");
+                }
+                ImGui::NextColumn();
+                ImGui::PopID();
+            }
+
+            ImGui::PushID(pi.prop.name().c_str());
+
+            bool isParam = (pi.prop.category() == APropertyCategory::Params);
+            auto val = obj->propertyGet(pi.prop.name());
+            bool readOnly = !isParam && ((pi.prop.flags() & APropertyWritable) == 0);
+
+            ImGui::Separator();
+            if (isParam) {
+                ImGui::TextColored(ImVec4(0.6f, 1.0f, 0.6f, style.Colors[ImGuiCol_Text].w), "%s", pi.prop.name().c_str());
+            } else if ((pi.prop.flags() & APropertyTransient) != 0) {
+                ImGui::TextColored(ImVec4(0.6f, 0.8f, 1.0f, style.Colors[ImGuiCol_Text].w), "%s", pi.prop.name().c_str());
+            } else {
+                ImGui::Text("%s", pi.prop.name().c_str());
+            }
+            if (ImGui::IsItemHovered()) {
+                ImGui::BeginTooltip();
+                ImGui::Text("%s (%s)", pi.prop.tooltip().c_str(), pi.prop.type().name());
+                ImGui::EndTooltip();
+
+                if (inputManager.keyboard().triggered(ksCopy)) {
+                    clipboard_ = val;
+                } else if (!wasSet && !readOnly && clipboard_.convertibleTo(val.type()) &&
+                    inputManager.keyboard().triggered(ksPaste)) {
+                    val = clipboard_.convertTo(val.type());
+                    scene()->workspace()->setProperty(obj, pi.prop.name(), val);
+                    wasSet = true;
+                }
+            }
+            if (ImGui::BeginPopupContextItem("##m")) {
+                if (ImGui::MenuItem("Copy", ksCopy.str().c_str(), false, true)) {
+                    clipboard_ = val;
+                }
+                if (ImGui::MenuItem("Paste", ksPaste.str().c_str(), false, !readOnly && clipboard_.convertibleTo(val.type())) && !wasSet) {
+                    val = clipboard_.convertTo(val.type());
+                    scene()->workspace()->setProperty(obj, pi.prop.name(), val);
+                    wasSet = true;
+                }
+                ImGui::EndPopup();
+            }
+
+            ImGui::NextColumn();
+
+            if (val != pi.initialVal) {
+                pi.initialVal = pi.val = val;
+            }
+            if (ImGuiUtils::APropertyEdit(scene(), pi.prop.type(), pi.val, readOnly) &&
+                !wasSet && (pi.val != pi.initialVal)) {
+                scene()->workspace()->setProperty(obj, pi.prop.name(), pi.val);
+                pi.initialVal = pi.val;
+                wasSet = true;
+            }
+
+            ImGui::NextColumn();
+
+            ImGui::PopID();
+        }
+
+        ImGui::PopID();
     }
 } }

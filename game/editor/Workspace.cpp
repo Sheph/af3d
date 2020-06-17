@@ -57,6 +57,7 @@
 #include "JointHinge.h"
 #include "JointSlider.h"
 #include "Joint6DOF.h"
+#include "MeshImportComponent.h"
 #include "MeshManager.h"
 #include "AssetManager.h"
 #include "ImGuiManager.h"
@@ -436,6 +437,7 @@ namespace editor {
             actionOpMenuAddCollision_.doMenu();
             actionOpMenuAddJoint_.doMenu();
             actionOpMenuAddMesh_.doMenuItem();
+            actionOpMenuAddMeshImport_.doMenuItem();
             actionOpMenuAddPhysicsBody_.doMenuItem();
         });
 
@@ -459,6 +461,16 @@ namespace editor {
                 std::make_shared<CommandAdd>(scene(),
                     emObject_->selected().back().lock().obj(),
                     RenderMeshComponent::staticKlass(), "Mesh", initVals));
+        });
+
+        actionOpMenuAddMeshImport_ = Action("Mesh import", [this]() {
+            return Action::State(!emObject_->selected().empty());
+        }, [this]() {
+            APropertyValueMap initVals;
+            cmdHistory_.add(
+                std::make_shared<CommandAdd>(scene(),
+                    emObject_->selected().back().lock().obj(),
+                    MeshImportComponent::staticKlass(), "Mesh import component", initVals));
         });
 
         actionOpMenuAddLight_ = Action("Light", [this]() {
@@ -741,6 +753,7 @@ namespace editor {
         actions_.push_back(&actionOpMenuAdd_);
         actions_.push_back(&actionOpMenuAddObject_);
         actions_.push_back(&actionOpMenuAddMesh_);
+        actions_.push_back(&actionOpMenuAddMeshImport_);
         actions_.push_back(&actionOpMenuAddLight_);
         actions_.push_back(&actionOpMenuAddLightDirectional_);
         actions_.push_back(&actionOpMenuAddLightPoint_);
@@ -909,7 +922,11 @@ namespace editor {
         writer.write(scene()->sharedThis());
         std::ofstream os(platform->assetsPath() + "/" + path,
             std::ios_base::binary | std::ios_base::out | std::ios_base::trunc);
-        os << Json::FastWriter().write(val);
+        if (settings.editor.styledJson) {
+            os << Json::StyledWriter().write(val);
+        } else {
+            os << Json::FastWriter().write(val);
+        }
     }
 
     bool Workspace::objectWithPhysicsBodySelected() const
