@@ -124,8 +124,12 @@ namespace af3d
                 mesh->aflagsSet(AObjectEditable);
                 mesh->load();
                 it = cachedMeshes_.emplace(actualPathBase, mesh).first;
+                auto& modelNode = cachedModels_[actualPathBase];
+                modelNode.name = actualPathBase;
                 for (const auto& c : node->children) {
-                    processAssimpNode(c, actualPathBase + ":");
+                    modelNode.children.push_back(ModelNode());
+                    modelNode.children.back().name = c->name;
+                    processAssimpNode(c, actualPathBase + ":", modelNode.children.back());
                 }
             }
 
@@ -218,19 +222,31 @@ namespace af3d
             std::vector<SubMeshPtr>{subMesh}, std::make_shared<BoxMeshGenerator>(size));
     }
 
+    const MeshManager::ModelNode* MeshManager::getModelNode(const std::string& path)
+    {
+        auto it = cachedModels_.find(path);
+        if (it == cachedModels_.end()) {
+            loadMesh(path);
+        }
+        it = cachedModels_.find(path);
+        return (it == cachedModels_.end()) ? nullptr : &it->second;
+    }
+
     void MeshManager::onMeshDestroy(Mesh* mesh)
     {
         immediateMeshes_.erase(mesh);
     }
 
-    void MeshManager::processAssimpNode(const AssimpNodePtr& node, const std::string& parentPath)
+    void MeshManager::processAssimpNode(const AssimpNodePtr& node, const std::string& parentPath, ModelNode& modelNode)
     {
         auto mesh = std::make_shared<Mesh>(this, parentPath + node->name, node->aabb, node->subMeshes);
         mesh->aflagsSet(AObjectEditable);
         cachedMeshes_.emplace(mesh->name(), mesh);
         LOG4CPLUS_DEBUG(logger(), "meshManager: detail mesh " << mesh->name() << " registered");
         for (const auto& c : node->children) {
-            processAssimpNode(c, mesh->name() + ":");
+            modelNode.children.push_back(ModelNode());
+            modelNode.children.back().name = c->name;
+            processAssimpNode(c, mesh->name() + ":", modelNode.children.back());
         }
     }
 }

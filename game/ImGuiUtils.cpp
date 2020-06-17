@@ -457,8 +457,21 @@ namespace af3d { namespace ImGuiUtils
                 }
                 ImGui::SameLine();
                 ImGui::Text("%s", importSettings->name().c_str());
+                ImGui::NextColumn();
+
+                auto modelNode = importSettings->name().empty() ? nullptr : meshManager.getModelNode(importSettings->name());
+                if (modelNode) {
+                    ImGui::Separator();
+                    ImGui::Columns(3);
+                    ImGui::PushID("tree");
+                    drawModelNode(modelNode, 0);
+                    ImGui::PopID();
+                }
+
                 ImGui::Separator();
+
                 ImGui::Columns(1);
+
                 if (ImGui::Button("Save")) {
                     ret_ = true;
                     ImGui::CloseCurrentPopup();
@@ -474,6 +487,36 @@ namespace af3d { namespace ImGuiUtils
                 ImGui::SameLine();
                 ImGui::Text("%s", importSettings->name().c_str());
             }
+        }
+
+        void drawModelNode(const MeshManager::ModelNode* modelNode, int depth)
+        {
+            ImGui::PushID(depth);
+            bool nodeOpen = ImGui::TreeNodeEx(modelNode->name.c_str(),
+                (modelNode->children.empty() ? ImGuiTreeNodeFlags_Leaf : ImGuiTreeNodeFlags_None));
+            ImGui::NextColumn();
+            ImGui::AlignTextToFramePadding();
+            bool val = true;
+            if (depth > 0) {
+                ImGui::Checkbox("Object", &val);
+                ImGui::SameLine();
+            }
+            ImGui::Checkbox("Mesh", &val);
+            ImGui::NextColumn();
+            if (depth > 0) {
+                std::string n = modelNode->name;
+                inputText("##name", n);
+            }
+            ImGui::NextColumn();
+            if (nodeOpen) {
+                for (size_t i = 0; i < modelNode->children.size(); ++i) {
+                    ImGui::PushID(i);
+                    drawModelNode(&modelNode->children[i], depth + 1);
+                    ImGui::PopID();
+                }
+                ImGui::TreePop();
+            }
+            ImGui::PopID();
         }
 
         Scene* scene_;

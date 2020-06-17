@@ -39,6 +39,12 @@ namespace af3d
                         public Single<MeshManager>
     {
     public:
+        struct ModelNode
+        {
+            std::string name;
+            std::vector<ModelNode> children;
+        };
+
         MeshManager() = default;
         ~MeshManager();
 
@@ -68,14 +74,18 @@ namespace af3d
 
         MeshPtr createBoxMesh(const btVector3& size, const MaterialPtr& material);
 
+        const ModelNode* getModelNode(const std::string& path);
+
         void onMeshDestroy(Mesh* mesh);
 
     private:
+        using CachedModels = std::unordered_map<std::string, ModelNode>;
         using CachedMeshes = std::unordered_map<std::string, MeshPtr>;
         using ImmediateMeshes = std::unordered_set<Mesh*>;
 
-        void processAssimpNode(const AssimpNodePtr& node, const std::string& parentPath);
+        void processAssimpNode(const AssimpNodePtr& node, const std::string& parentPath, ModelNode& modelNode);
 
+        CachedModels cachedModels_;
         CachedMeshes cachedMeshes_;
         ImmediateMeshes immediateMeshes_;
 
