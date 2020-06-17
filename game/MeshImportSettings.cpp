@@ -52,6 +52,15 @@ namespace af3d
         return obj;
     }
 
+    MeshImportSettingsPtr MeshImportSettings::clone() const
+    {
+        auto cloned = std::make_shared<MeshImportSettings>();
+        cloned->setName(name());
+        cloned->scale_ = scale_;
+        cloned->root_ = root_;
+        return cloned;
+    }
+
     APropertyValue MeshImportSettings::propertyRootGet(const std::string&) const
     {
         return "";

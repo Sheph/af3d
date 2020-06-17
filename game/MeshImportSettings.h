@@ -30,6 +30,9 @@
 
 namespace af3d
 {
+    class MeshImportSettings;
+    using MeshImportSettingsPtr = std::shared_ptr<MeshImportSettings>;
+
     class MeshImportSettings : public std::enable_shared_from_this<MeshImportSettings>,
         public AObject
     {
@@ -62,6 +65,8 @@ namespace af3d
 
         AObjectPtr sharedThis() override { return shared_from_this(); }
 
+        MeshImportSettingsPtr clone() const;
+
         inline float scale() const { return scale_; }
         inline void setScale(float value) { scale_ = value; }
 
@@ -80,8 +85,6 @@ namespace af3d
     };
 
     extern const APropertyTypeObject APropertyType_MeshImportSettings;
-
-    using MeshImportSettingsPtr = std::shared_ptr<MeshImportSettings>;
 
     ACLASS_DECLARE(MeshImportSettings)
 }

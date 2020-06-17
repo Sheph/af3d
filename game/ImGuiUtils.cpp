@@ -31,6 +31,7 @@
 #include "SceneObject.h"
 #include "CameraComponent.h"
 #include "Scene.h"
+#include "MeshImportSettings.h"
 #include "imgui_internal.h"
 
 namespace af3d { namespace ImGuiUtils
@@ -45,8 +46,9 @@ namespace af3d { namespace ImGuiUtils
     class PropertyEditVisitor : public APropertyTypeVisitor
     {
     public:
-        PropertyEditVisitor(Scene* scene, APropertyValue& value, bool readOnly)
+        PropertyEditVisitor(Scene* scene, const APropertyValue& initialValue, APropertyValue& value, bool readOnly)
         : scene_(scene),
+          initialValue_(initialValue),
           value_(value),
           readOnly_(readOnly)
         {
@@ -218,6 +220,8 @@ namespace af3d { namespace ImGuiUtils
                 if (scene_->workspace()) {
                     visitObject<SceneObject>(scene_->workspace()->emObject(), type.isWeak());
                 }
+            } else if (type.klass().isSubClassOf(AClass_MeshImportSettings)) {
+                visitMeshImportSettings(type.isWeak());
             }
         }
 
@@ -419,15 +423,69 @@ namespace af3d { namespace ImGuiUtils
             return ret;
         }
 
+        void visitMeshImportSettings(bool isWeak)
+        {
+            auto importSettings = value_.toObject<MeshImportSettings>();
+
+            if (ImGui::Button("...")) {
+                if (importSettings) {
+                    importSettings = importSettings->clone();
+                } else {
+                    importSettings = std::make_shared<MeshImportSettings>();
+                }
+                ImGui::OpenPopup("Mesh import settings");
+            }
+
+            ImGui::SetNextWindowSize(ImVec2(850, 550), ImGuiCond_FirstUseEver);
+
+            bool isOpen = true;
+            if (ImGui::BeginPopupModal("Mesh import settings", &isOpen)) {
+                ImGui::Columns(2);
+                ImGui::Text("Mesh");
+                ImGui::NextColumn();
+                if (ImGui::Button("...")) {
+                    ImGui::OpenPopup("Choose model");
+                }
+                if (auto dlg = ImGuiFileDialog::beginAssetsModal("Choose model", importSettings->name(), "Model files,.fbx;All files")) {
+                    if (dlg->ok() && !dlg->fileName().empty()) {
+                        auto mesh = meshManager.loadMesh(dlg->filePath());
+                        if (mesh) {
+                            importSettings->setName(mesh->name());
+                        }
+                    }
+                    dlg->endModal();
+                }
+                ImGui::SameLine();
+                ImGui::Text("%s", importSettings->name().c_str());
+                ImGui::Separator();
+                ImGui::Columns(1);
+                if (ImGui::Button("Save")) {
+                    ret_ = true;
+                    ImGui::CloseCurrentPopup();
+                }
+                ImGui::EndPopup();
+
+                value_ = isWeak ? APropertyValue(AWeakObject(importSettings)) : APropertyValue(importSettings);
+            } else {
+                value_ = initialValue_;
+            }
+
+            if (importSettings && !importSettings->name().empty()) {
+                ImGui::SameLine();
+                ImGui::Text("%s", importSettings->name().c_str());
+            }
+        }
+
         Scene* scene_;
+        const APropertyValue& initialValue_;
         APropertyValue& value_;
         bool readOnly_ = false;
         bool ret_ = false;
     };
 
-    bool APropertyEdit(Scene* scene, const APropertyType& type, APropertyValue& val, bool readOnly)
+    bool APropertyEdit(Scene* scene, const APropertyType& type, const APropertyValue& initialVal, APropertyValue& val, bool readOnly)
     {
-        PropertyEditVisitor visitor(scene, val, readOnly);
+        PropertyEditVisitor visitor(scene, initialVal, val, readOnly);
         type.accept(visitor);
         return visitor.ret();
     }

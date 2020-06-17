@@ -263,7 +263,7 @@ namespace editor {
             if (val != pi.initialVal) {
                 pi.initialVal = pi.val = val;
             }
-            if (ImGuiUtils::APropertyEdit(scene(), pi.prop.type(), pi.val, readOnly) &&
+            if (ImGuiUtils::APropertyEdit(scene(), pi.prop.type(), pi.initialVal, pi.val, readOnly) &&
                 !wasSet && (pi.val != pi.initialVal)) {
                 scene()->workspace()->setProperty(obj, pi.prop.name(), pi.val);
                 pi.initialVal = pi.val;

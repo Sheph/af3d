@@ -36,7 +36,7 @@ namespace af3d {
 
 namespace ImGuiUtils
 {
-    bool APropertyEdit(Scene* scene, const APropertyType& type, APropertyValue& val, bool readOnly);
+    bool APropertyEdit(Scene* scene, const APropertyType& type, const APropertyValue& initialVal, APropertyValue& val, bool readOnly);
     bool inputText(const char* label, std::string& str, ImGuiInputTextFlags flags = 0, ImGuiInputTextCallback callback = nullptr, void* user_data = nullptr);
     bool inputTextMultiline(const char* label, std::string& str, const ImVec2& size = ImVec2(0, 0), ImGuiInputTextFlags flags = 0, ImGuiInputTextCallback callback = nullptr, void* user_data = nullptr);
     bool inputTextWithHint(const char* label, const char* hint, std::string& str, ImGuiInputTextFlags flags = 0, ImGuiInputTextCallback callback = nullptr, void* user_data = nullptr);
