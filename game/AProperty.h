@@ -28,6 +28,7 @@
 
 #include "APropertyTypes.h"
 #include "APropertyValueMap.h"
+#include "ACommand.h"
 
 namespace af3d
 {
@@ -36,7 +37,8 @@ namespace af3d
         APropertyReadable = 1 << 0,
         APropertyWritable = 1 << 1,
         APropertyEditable = 1 << 2,
-        APropertyTransient = 1 << 3
+        APropertyTransient = 1 << 3,
+        APropertyUndoable = 1 << 4 /* With this flag on 'set' implementation must match APropertyUndoableSetter prototype!!! */
     };
 
     enum class APropertyCategory
@@ -86,6 +88,7 @@ namespace af3d
     };
 
     using APropertySetter = void (AObject::*)(const std::string&, const APropertyValue&);
+    using APropertyUndoableSetter = ACommandPtr (AObject::*)(const std::string&, const APropertyValue&);
     using APropertyGetter = APropertyValue (AObject::*)(const std::string&) const;
 
     using APropertyList = std::vector<AProperty>;

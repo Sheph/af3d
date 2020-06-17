@@ -157,23 +157,31 @@ namespace af3d
         return (obj->*(it->second.getter))(key);
     }
 
-    void AClass::propertySet(AObject* obj, const std::string& key, const APropertyValue& value) const
+    ACommandPtr AClass::propertySet(AObject* obj, const std::string& key, const APropertyValue& value) const
     {
         if (&super_ == this) {
-            return;
+            return ACommandPtr();
         }
 
         auto it = funcs_.find(key);
         if (it == funcs_.end()) {
-            super_.propertySet(obj, key, value);
-            return;
+            return super_.propertySet(obj, key, value);
         }
 
         if (!it->second.setter) {
-            return;
+            return ACommandPtr();
         }
 
-        (obj->*(it->second.setter))(key, value);
+        if (it->second.undoableSetter) {
+            auto cmd = (obj->*(it->second.undoableSetter))(key, value);
+            if (cmd) {
+                cmd->redo();
+            }
+            return cmd;
+        } else {
+            (obj->*(it->second.setter))(key, value);
+            return ACommandPtr();
+        }
     }
 
     AObjectPtr AClass::create(const APropertyValueMap& propVals) const

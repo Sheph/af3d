@@ -66,11 +66,15 @@ namespace af3d { namespace editor
             return false;
         }
 
-        setValue(obj, value_);
+        value_.refreshObjects();
 
-        first_ = false;
-
-        return true;
+        if (!cmd_) {
+            cmd_ = setValue(obj, value_);
+            first_ = false;
+            return true;
+        } else {
+            return cmd_->redo();
+        }
     }
 
     bool CommandSetProperty::undo()
@@ -81,15 +85,18 @@ namespace af3d { namespace editor
             return false;
         }
 
-        setValue(obj, prevValue_);
+        prevValue_.refreshObjects();
 
-        return true;
+        if (!cmd_) {
+            setValue(obj, prevValue_);
+            return true;
+        } else {
+            return cmd_->undo();
+        }
     }
 
-    void CommandSetProperty::setValue(const AObjectPtr& obj, APropertyValue& value)
+    ACommandPtr CommandSetProperty::setValue(const AObjectPtr& obj, APropertyValue& value)
     {
-        value.refreshObjects();
-
         if (isParam_) {
             if (first_) {
                 // If 'value' contains objects that have param properties that refer to this
@@ -113,8 +120,10 @@ namespace af3d { namespace editor
             } else {
                 LOG4CPLUS_ERROR(logger(), "Unknown param handling object: " << description());
             }
+
+            return ACommandPtr();
         } else {
-            obj->propertySet(name_, value);
+            return obj->propertySet(name_, value);
         }
     }
 

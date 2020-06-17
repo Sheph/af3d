@@ -39,14 +39,16 @@ namespace af3d
         struct PropertyFuncs
         {
             PropertyFuncs(APropertyGetter getter,
-                APropertySetter setter)
+                APropertySetter setter, bool undoable)
             : getter(getter),
-              setter(setter)
+              setter(setter),
+              undoableSetter(undoable ? (APropertyUndoableSetter)setter : nullptr)
             {
             }
 
             APropertyGetter getter;
             APropertySetter setter;
+            APropertyUndoableSetter undoableSetter;
         };
 
         struct PropertyDef
@@ -60,7 +62,7 @@ namespace af3d
                 APropertyGetter getter,
                 APropertySetter setter)
             : prop(name, tooltip, type, def, category, flags),
-              funcs(getter, setter)
+              funcs(getter, setter, ((flags & APropertyUndoable) != 0))
             {
             }
 
@@ -90,7 +92,7 @@ namespace af3d
         const AProperty* propertyFind(const std::string& key) const;
 
         APropertyValue propertyGet(const AObject* obj, const std::string& key) const;
-        void propertySet(AObject* obj, const std::string& key, const APropertyValue& value) const;
+        ACommandPtr propertySet(AObject* obj, const std::string& key, const APropertyValue& value) const;
 
         AObjectPtr create(const APropertyValueMap& propVals = APropertyValueMap()) const;
 

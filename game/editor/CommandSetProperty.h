@@ -45,7 +45,7 @@ namespace af3d { namespace editor
         bool undo() override;
 
     private:
-        void setValue(const AObjectPtr& obj, APropertyValue& value);
+        ACommandPtr setValue(const AObjectPtr& obj, APropertyValue& value);
 
         bool fixForParam(APropertyValue& value);
 
@@ -59,6 +59,7 @@ namespace af3d { namespace editor
         std::string name_;
         APropertyValue prevValue_;
         APropertyValue value_;
+        ACommandPtr cmd_;
         const bool isParam_;
         bool first_ = true;
     };

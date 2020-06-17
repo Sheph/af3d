@@ -110,9 +110,9 @@ namespace af3d
         return klass_->propertyGet(this, key);
     }
 
-    void AObject::propertySet(const std::string& key, const APropertyValue& value)
+    ACommandPtr AObject::propertySet(const std::string& key, const APropertyValue& value)
     {
-        klass_->propertySet(this, key, value);
+        return klass_->propertySet(this, key, value);
     }
 
     void AObject::propertiesSet(const APropertyValueMap& propVals)

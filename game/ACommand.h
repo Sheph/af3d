@@ -23,35 +23,27 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _EDITOR_COMMAND_H_
-#define _EDITOR_COMMAND_H_
+#ifndef _ACOMMAND_H_
+#define _ACOMMAND_H_
 
-#include "ACommand.h"
+#include "af3d/Types.h"
+#include <boost/noncopyable.hpp>
+#include <memory>
 
-namespace af3d {
-    class Scene;
-
-namespace editor
+namespace af3d
 {
-    class Command : public ACommand
+    class ACommand : boost::noncopyable
     {
     public:
-        explicit Command(Scene* scene)
-        : scene_(scene) {}
-        virtual ~Command() = default;
+        ACommand() = default;
+        virtual ~ACommand() = default;
 
-        inline void setDescription(const std::string& value) { description_ = value; }
-        inline const std::string& description() const { return description_; }
+        virtual bool redo() = 0;
 
-    protected:
-        inline Scene* scene() { return scene_; }
-
-    private:
-        Scene* scene_;
-        std::string description_;
+        virtual bool undo() = 0;
     };
 
-    using CommandPtr = std::shared_ptr<Command>;
-} }
+    using ACommandPtr = std::shared_ptr<ACommand>;
+}
 
 #endif

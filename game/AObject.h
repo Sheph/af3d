@@ -73,7 +73,7 @@ namespace af3d
         const AProperty* propertyFind(const std::string& key) const;
 
         APropertyValue propertyGet(const std::string& key) const;
-        void propertySet(const std::string& key, const APropertyValue& value);
+        ACommandPtr propertySet(const std::string& key, const APropertyValue& value);
 
         void propertiesSet(const APropertyValueMap& propVals);
 
