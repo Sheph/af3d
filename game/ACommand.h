@@ -44,6 +44,24 @@ namespace af3d
     };
 
     using ACommandPtr = std::shared_ptr<ACommand>;
+
+    class AInplaceCommand : public ACommand
+    {
+    public:
+        using Fn = std::function<bool(bool isRedo)>;
+
+        explicit AInplaceCommand(const Fn& fn) : fn_(fn) {}
+        ~AInplaceCommand() = default;
+
+        virtual bool redo() override { return fn_(true); }
+
+        virtual bool undo() override { return fn_(false); }
+
+    private:
+        Fn fn_;
+    };
+
+    using AInplaceCommandPtr = std::shared_ptr<AInplaceCommand>;
 }
 
 #endif
