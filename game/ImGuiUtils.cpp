@@ -458,11 +458,25 @@ namespace af3d { namespace ImGuiUtils
                 ImGui::SameLine();
                 ImGui::Text("%s", importSettings->name().c_str());
                 ImGui::NextColumn();
+                ImGui::Separator();
+
+                ImGui::Text("Scale");
+                ImGui::NextColumn();
+                float scale = importSettings->scale();
+                ImGui::InputFloat("##scale", &scale);
+                importSettings->setScale(scale);
+                ImGui::NextColumn();
 
                 auto modelNode = importSettings->name().empty() ? nullptr : meshManager.getModelNode(importSettings->name());
                 if (modelNode) {
                     ImGui::Separator();
                     ImGui::Columns(3);
+                    static bool columnWidthsSet = false;
+                    if (!columnWidthsSet) {
+                        columnWidthsSet = true;
+                        ImGui::SetColumnWidth(0, 550.0f);
+                        ImGui::SetColumnWidth(1, 140.0f);
+                    }
                     ImGui::PushID("tree");
                     MeshImportSettings::ObjectEntry entry;
                     processModelNode(modelNode, "", 0, &importSettings->root(), &entry);
@@ -561,7 +575,11 @@ namespace af3d { namespace ImGuiUtils
                 } else {
                     n = &parent->meshes[currentPath].name;
                 }
+
+                float width = ImGui::GetContentRegionAvailWidth();
+                ImGui::PushItemWidth(width);
                 inputText("##name", *n);
+                ImGui::PopItemWidth();
             }
             ImGui::NextColumn();
             if (!meshSet) {
