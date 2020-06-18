@@ -493,10 +493,10 @@ namespace af3d { namespace ImGuiUtils
             }
         }
 
-        void processModelNode(const MeshManager::ModelNode* modelNode, std::string parentPath, int depth, const MeshImportSettings::ObjectEntry* origParent,
-            MeshImportSettings::ObjectEntry* parent)
+        void processModelNode(const MeshManager::ModelNode* modelNode, std::string currentPath, int depth,
+            const MeshImportSettings::ObjectEntry* origParent, MeshImportSettings::ObjectEntry* parent)
         {
-            parentPath = parentPath.empty() ? modelNode->name : parentPath + ":" + modelNode->name;
+            currentPath = currentPath.empty() ? modelNode->name : currentPath + ":" + modelNode->name;
             ImGui::PushID(depth);
             ImGui::TreeNodeEx(modelNode->name.c_str(), ImGuiTreeNodeFlags_Leaf);
             ImGui::NextColumn();
@@ -505,20 +505,22 @@ namespace af3d { namespace ImGuiUtils
             bool meshSet = false;
             std::string meshName = modelNode->name;
             if (depth > 0) {
-                objSet = origParent && (origParent->subObjs.count(parentPath) > 0);
+                objSet = origParent && (origParent->subObjs.count(currentPath) > 0);
                 ImGui::Checkbox("Object", &objSet);
                 if (objSet) {
-                    meshSet = origParent && (origParent->meshes.count(parentPath) > 0);
+                    meshSet = origParent && (origParent->meshes.count(currentPath) > 0);
                     if (meshSet) {
                         // Mesh was set, copy over the name.
-                        parent->subObjs[parentPath].name = origParent->meshes.find(parentPath)->second.name;
+                        parent->subObjs[currentPath].name = origParent->meshes.find(currentPath)->second.name;
                     } else {
                         // Use mesh name.
-                        parent->subObjs[parentPath].name = modelNode->name;
+                        parent->subObjs[currentPath].name = modelNode->name;
                     }
-                    parent = &parent->subObjs[parentPath];
+                    // Object is set, this means we should nest everything into it from now on.
+                    parent = &parent->subObjs[currentPath];
                     if (origParent) {
-                        auto it = origParent->subObjs.find(parentPath);
+                        // Switch parent in original hierarchy as well.
+                        auto it = origParent->subObjs.find(currentPath);
                         origParent = (it == origParent->subObjs.end()) ? nullptr : &it->second;
                         if (origParent) {
                             // Keep modified name.
@@ -526,9 +528,9 @@ namespace af3d { namespace ImGuiUtils
                         }
                     }
                 } else if (origParent) {
-                    auto it = origParent->subObjs.find(parentPath);
+                    auto it = origParent->subObjs.find(currentPath);
                     if (it != origParent->subObjs.end()) {
-                        meshSet = it->second.meshes.count(parentPath) > 0;
+                        meshSet = it->second.meshes.count(currentPath) > 0;
                         // Object unchecked, copy name from old object.
                         meshName = it->second.name;
                     }
@@ -536,19 +538,19 @@ namespace af3d { namespace ImGuiUtils
                 ImGui::SameLine();
             }
 
-            bool tmp = origParent && (origParent->meshes.count(parentPath) > 0);
+            bool tmp = origParent && (origParent->meshes.count(currentPath) > 0);
             if (tmp) {
                 // Keep modified name.
-                meshName = origParent->meshes.find(parentPath)->second.name;
+                meshName = origParent->meshes.find(currentPath)->second.name;
             }
             meshSet |= tmp;
             ImGui::Checkbox("Mesh", &meshSet);
             if (meshSet) {
                 if (objSet) {
                     // If we have an object here then mesh must be unnamed.
-                    parent->meshes[parentPath].name.clear();
+                    parent->meshes[currentPath].name.clear();
                 } else {
-                    parent->meshes[parentPath].name = meshName;
+                    parent->meshes[currentPath].name = meshName;
                 }
             }
             ImGui::NextColumn();
@@ -557,15 +559,16 @@ namespace af3d { namespace ImGuiUtils
                 if (objSet) {
                     n = &parent->name;
                 } else {
-                    n = &parent->meshes[parentPath].name;
+                    n = &parent->meshes[currentPath].name;
                 }
                 inputText("##name", *n);
             }
             ImGui::NextColumn();
             if (!meshSet) {
+                // We should only descent if mesh is not checked.
                 for (size_t i = 0; i < modelNode->children.size(); ++i) {
                     ImGui::PushID(i);
-                    processModelNode(&modelNode->children[i], parentPath, depth + 1, origParent, parent);
+                    processModelNode(&modelNode->children[i], currentPath, depth + 1, origParent, parent);
                     ImGui::PopID();
                 }
             }
