@@ -34,9 +34,9 @@ namespace af3d { namespace editor
     {
     }
 
-    Json::Value JsonSerializer::toJsonValue(const AObjectPtr& obj)
+    Json::Value JsonSerializer::toJsonValue(const AProperty& prop, const AObjectPtr& obj)
     {
-        if (!obj) {
+        if (!obj || ((prop.flags() & APropertyOwnValue) != 0)) {
             return Json::Value::null;
         }
         AObjectPtr tmp = obj;

@@ -37,7 +37,7 @@ namespace af3d
         AJsonSerializer() = default;
         virtual ~AJsonSerializer() = default;
 
-        virtual Json::Value toJsonValue(const AObjectPtr& obj) = 0;
+        virtual Json::Value toJsonValue(const AProperty& prop, const AObjectPtr& obj) = 0;
         virtual AObjectPtr fromJsonValue(const Json::Value& value) = 0;
     };
 
@@ -47,7 +47,7 @@ namespace af3d
         AJsonSerializerDefault() = default;
         ~AJsonSerializerDefault() = default;
 
-        Json::Value toJsonValue(const AObjectPtr& obj) override { return Json::Value::null; }
+        Json::Value toJsonValue(const AProperty& prop, const AObjectPtr& obj) override { return Json::Value::null; }
         AObjectPtr fromJsonValue(const Json::Value& value) override { return AObjectPtr(); }
     };
 }

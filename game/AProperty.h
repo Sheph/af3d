@@ -38,7 +38,8 @@ namespace af3d
         APropertyWritable = 1 << 1,
         APropertyEditable = 1 << 2,
         APropertyTransient = 1 << 3,
-        APropertyUndoable = 1 << 4 /* With this flag on 'set' implementation must match APropertyUndoableSetter prototype!!! */
+        APropertyUndoable = 1 << 4, /* With this flag on 'set' implementation must match APropertyUndoableSetter prototype!!! */
+        APropertyOwnValue = 1 << 5 /* Specifies that value of this property is not an external reference, it's something that this object owns */
     };
 
     enum class APropertyCategory

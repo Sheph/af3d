@@ -39,7 +39,7 @@ namespace af3d { namespace editor
         JsonSerializer(const AObjectPtr& parent = AObjectPtr(), std::unordered_set<ACookie>* serializedObjs = nullptr);
         ~JsonSerializer() = default;
 
-        Json::Value toJsonValue(const AObjectPtr& obj) override;
+        Json::Value toJsonValue(const AProperty& prop, const AObjectPtr& obj) override;
         AObjectPtr fromJsonValue(const Json::Value& value) override;
 
     private:

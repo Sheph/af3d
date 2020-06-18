@@ -32,9 +32,11 @@ namespace af3d
     {
     public:
         AJsonWriteVisitor(AJsonWriter& writer,
+            const AProperty& prop,
             const APropertyValue& value,
             Json::Value& jsonValue)
         : writer_(writer),
+          prop_(prop),
           value_(value),
           jsonValue_(jsonValue)
         {
@@ -116,7 +118,7 @@ namespace af3d
         void visitObject(const APropertyTypeObject& type) override
         {
             auto obj = value_.toObject();
-            jsonValue_ = writer_.serializer().toJsonValue(obj);
+            jsonValue_ = writer_.serializer().toJsonValue(prop_, obj);
             if (jsonValue_.isNull()) {
                 if (!obj) {
                     jsonValue_ = 0U;
@@ -156,7 +158,7 @@ namespace af3d
             auto arr = value_.toArray();
             for (const auto& val : arr) {
                 Json::Value jsonElValue(Json::nullValue);
-                AJsonWriteVisitor visitor(writer_, val, jsonElValue);
+                AJsonWriteVisitor visitor(writer_, prop_, val, jsonElValue);
                 type.type().accept(visitor);
                 if (!jsonElValue.isNull()) {
                     jsonValue_.append(jsonElValue);
@@ -166,6 +168,7 @@ namespace af3d
 
     private:
         AJsonWriter& writer_;
+        const AProperty& prop_;
         const APropertyValue& value_;
         Json::Value& jsonValue_;
     };
@@ -196,7 +199,7 @@ namespace af3d
                 if ((prop.flags() & APropertyTransient) == 0) {
                     Json::Value jsonPropValue(Json::nullValue);
                     auto v = nextObj->propertyGet(prop.name());
-                    AJsonWriteVisitor visitor(*this, v, jsonPropValue);
+                    AJsonWriteVisitor visitor(*this, prop, v, jsonPropValue);
                     prop.type().accept(visitor);
                     if (jsonPropValue.isNull()) {
                         LOG4CPLUS_WARN(logger(), "Object \"" << obj->name() << "\", prop \"" << prop.name() << "\" set to non-editable value");
