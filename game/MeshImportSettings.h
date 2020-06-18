@@ -28,6 +28,7 @@
 
 #include "AObject.h"
 #include <map>
+#include "json/json-forwards.h"
 
 namespace af3d
 {
@@ -74,6 +75,9 @@ namespace af3d
         void propertyRootSet(const std::string&, const APropertyValue& value);
 
     private:
+        static Json::Value toJson(const ObjectEntry& entry);
+        static ObjectEntry fromJson(const Json::Value& jsonValue);
+
         float scale_ = 1.0f;
         ObjectEntry root_;
     };

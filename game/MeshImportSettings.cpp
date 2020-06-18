@@ -24,6 +24,8 @@
  */
 
 #include "MeshImportSettings.h"
+#include "Logger.h"
+#include "json/json.h"
 
 namespace af3d
 {
@@ -63,10 +65,56 @@ namespace af3d
 
     APropertyValue MeshImportSettings::propertyRootGet(const std::string&) const
     {
-        return "";
+        return Json::FastWriter().write(toJson(root_));
     }
 
     void MeshImportSettings::propertyRootSet(const std::string&, const APropertyValue& value)
     {
+        auto str = value.toString();
+        if (str.empty()) {
+            root_ = ObjectEntry();
+            return;
+        }
+
+        Json::Value jsonValue;
+        Json::Reader reader;
+        if (!reader.parse(str, jsonValue)) {
+            LOG4CPLUS_ERROR(logger(), "Failed to parse JSON: " << reader.getFormattedErrorMessages());
+            root_ = ObjectEntry();
+            return;
+        }
+        root_ = fromJson(jsonValue);
+    }
+
+    Json::Value MeshImportSettings::toJson(const ObjectEntry& entry)
+    {
+        Json::Value jsonValue(Json::objectValue);
+
+        jsonValue["name"] = entry.name;
+        for (const auto& kv : entry.subObjs) {
+            jsonValue["subObjs"][kv.first] = toJson(kv.second);
+        }
+        for (const auto& kv : entry.meshes) {
+            jsonValue["meshes"][kv.first] = kv.second.name;
+        }
+
+        return jsonValue;
+    }
+
+    MeshImportSettings::ObjectEntry MeshImportSettings::fromJson(const Json::Value& jsonValue)
+    {
+        ObjectEntry entry;
+
+        entry.name = jsonValue["name"].asString();
+        const auto& subObjs = jsonValue["subObjs"];
+        for (auto it = subObjs.begin(); it != subObjs.end(); ++it) {
+            entry.subObjs[it.key().asString()] = fromJson(*it);
+        }
+        const auto& meshes = jsonValue["meshes"];
+        for (auto it = meshes.begin(); it != meshes.end(); ++it) {
+            entry.meshes[it.key().asString()].name = (*it).asString();
+        }
+
+        return entry;
     }
 }
