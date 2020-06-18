@@ -168,7 +168,8 @@ namespace editor {
         if (!main) {
             ImGui::Columns(1);
             bool open = true;
-            bool res = ImGui::CollapsingHeader((obj->klass().name() + "##" + std::to_string(objInfo.wobj.cookie())).c_str(), &open);
+            bool res = ImGui::CollapsingHeader((obj->klass().name() + "##" + std::to_string(objInfo.wobj.cookie())).c_str(),
+                &open, ImGuiTreeNodeFlags_DefaultOpen);
             ImGui::Columns(2);
             if (!open) {
                 scene()->workspace()->deleteObject(obj);

@@ -510,7 +510,7 @@ namespace af3d { namespace ImGuiUtils
         void processModelNode(const MeshManager::ModelNode* modelNode, std::string currentPath, int depth,
             const MeshImportSettings::ObjectEntry* origParent, MeshImportSettings::ObjectEntry* parent)
         {
-            currentPath = currentPath.empty() ? modelNode->name : currentPath + ":" + modelNode->name;
+            currentPath = currentPath.empty() ? modelNode->name : (currentPath + ":" + modelNode->name);
             ImGui::PushID(depth);
             ImGui::TreeNodeEx(modelNode->name.c_str(), ImGuiTreeNodeFlags_Leaf);
             ImGui::NextColumn();
@@ -560,7 +560,7 @@ namespace af3d { namespace ImGuiUtils
             meshSet |= tmp;
             ImGui::Checkbox("Mesh", &meshSet);
             if (meshSet) {
-                if (objSet) {
+                if (objSet || (depth == 0)) {
                     // If we have an object here then mesh must be unnamed.
                     parent->meshes[currentPath].name.clear();
                 } else {
