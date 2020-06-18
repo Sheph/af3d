@@ -156,6 +156,9 @@ namespace af3d { namespace editor
         void setProperty(const AObjectPtr& obj,
             const std::string& name, const APropertyValue& value);
 
+        void setPropertyOneOf(const AObjectPtr& obj,
+            const std::string& name1, const std::string& name2, const APropertyValue& value);
+
         void setEditMode(EditModeImpl* value);
 
         void setOverrideEditMode(EditMode* value);

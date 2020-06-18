@@ -45,6 +45,7 @@ namespace af3d
 
     ACLASS_DEFINE_BEGIN(SceneObject, SceneObjectManager)
     ACLASS_PROPERTY(SceneObject, Transform, AProperty_WorldTransform, "World transform", Transform, btTransform::getIdentity(), Position, APropertyEditable)
+    ACLASS_PROPERTY(SceneObject, TransformRecursive, AProperty_WorldTransformRecursive, "World transform recursive", Transform, btTransform::getIdentity(), Position, APropertyTransient)
     ACLASS_PROPERTY(SceneObject, Type, "type", "Scene object type", SceneObjectType, static_cast<int>(SceneObjectType::Other), General, APropertyEditable)
     ACLASS_PROPERTY(SceneObject, Layer, "layer", "Layer", Layer, static_cast<int>(Layer::General), General, APropertyEditable)
     ACLASS_PROPERTY(SceneObject, PhysicsActive, AProperty_PhysicsActive, "Physics is active", Bool, true, Physics, APropertyEditable)
@@ -445,20 +446,24 @@ namespace af3d
         }
     }
 
-    void SceneObject::setTransformRecursive(const btVector3& pos, const btQuaternion& rot)
+    void SceneObject::setTransformRecursive(const btVector3& pos, const btQuaternion& rot, bool withEditable)
     {
         btAssert(btIsValid(pos));
         btAssert(btIsValid(rot));
 
-        setTransformRecursive(btTransform(rot, pos));
+        setTransformRecursive(btTransform(rot, pos), withEditable);
     }
 
-    void SceneObject::setTransformRecursive(const btTransform& t)
+    void SceneObject::setTransformRecursive(const btTransform& t, bool withEditable)
     {
         auto tmp = t * transform().inverse();
         setTransform(t);
         for (const auto& obj : objects()) {
-            obj->setTransformRecursive(tmp * obj->transform());
+            if (withEditable || ((obj->aflags() & AObjectEditable) == 0)) {
+                // Only recurse into non-editable objects by default, recurse
+                // into editable objects only if user explicitly said so.
+                obj->setTransformRecursive(tmp * obj->transform());
+            }
         }
     }
 

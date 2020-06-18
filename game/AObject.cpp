@@ -120,6 +120,15 @@ namespace af3d
         return klass_->propertySet(this, key, value);
     }
 
+    ACommandPtr AObject::propertySetOneOf(const std::string& key1, const std::string& key2, const APropertyValue& value)
+    {
+        if (propertyCanSet(key1)) {
+            return propertySet(key1, value);
+        } else {
+            return propertySet(key2, value);
+        }
+    }
+
     void AObject::propertiesSet(const APropertyValueMap& propVals)
     {
         for (const auto& kv : propVals.items()) {

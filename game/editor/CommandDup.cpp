@@ -160,7 +160,7 @@ namespace af3d { namespace editor
         if (xfProp.type() == APropertyValue::Transform) {
             auto xf = xfProp.toTransform();
             xf.getOrigin() += xf.getBasis() * btVector3_forward * 2.0f;
-            dupObj->propertySet(AProperty_WorldTransform, xf);
+            dupObj->propertySetOneOf(AProperty_WorldTransformRecursive, AProperty_WorldTransform, xf);
         }
 
         dupWobj_.reset(dupObj);

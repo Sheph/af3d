@@ -104,9 +104,17 @@ namespace af3d { namespace editor
     void ToolMove::gizmoRelease(bool canceled)
     {
         auto xf = rc_->target()->propertyGet(AProperty_WorldTransform);
-        rc_->target()->propertySet(AProperty_WorldTransform, capturedTargetXf_);
+        if (recursive()) {
+            rc_->target()->propertySetOneOf(AProperty_WorldTransformRecursive, AProperty_WorldTransform, capturedTargetXf_);
+        } else {
+            rc_->target()->propertySet(AProperty_WorldTransform, capturedTargetXf_);
+        }
         if (!canceled) {
-            workspace().setProperty(rc_->target(), AProperty_WorldTransform, xf);
+            if (recursive()) {
+                workspace().setPropertyOneOf(rc_->target(), AProperty_WorldTransformRecursive, AProperty_WorldTransform, xf);
+            } else {
+                workspace().setProperty(rc_->target(), AProperty_WorldTransform, xf);
+            }
         }
         rc_->setOrientation(orientation());
         rc_->setMoveType(MoveType::None);
@@ -163,7 +171,11 @@ namespace af3d { namespace editor
                     xf.getOrigin() += (p2 - p1);
                     break;
                 }
-                rc_->target()->propertySet(AProperty_WorldTransform, xf);
+                if (recursive()) {
+                    rc_->target()->propertySetOneOf(AProperty_WorldTransformRecursive, AProperty_WorldTransform, xf);
+                } else {
+                    rc_->target()->propertySet(AProperty_WorldTransform, xf);
+                }
             }
         }
     }

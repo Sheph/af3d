@@ -270,10 +270,11 @@ namespace af3d
         APropertyValue value_;
     };
 
-    AJsonReader::AJsonReader(AJsonSerializer& serializer, bool editor, bool withCookie)
+    AJsonReader::AJsonReader(AJsonSerializer& serializer, bool editor, bool withCookie, bool isLevel)
     : serializer_(serializer),
       editor_(editor),
-      withCookie_(withCookie)
+      withCookie_(withCookie),
+      isLevel_(isLevel)
     {
     }
 
@@ -420,8 +421,12 @@ namespace af3d
                     (*it->second.obj)->setCookie(val.asUInt64());
                 }
             }
-            if (editor_) {
+            if (editor_ || isLevel_) {
+                // Set 'editable' flag for topmost level even in runtime since we need it
+                // to tell if an object was editable in editor.
                 (*it->second.obj)->aflagsSet(AObjectEditable);
+            }
+            if (editor_) {
                 if (auto sObj = aobjectCast<SceneObject>(*it->second.obj)) {
                     sObj->addComponent(std::make_shared<editor::ObjectComponent>());
                 }

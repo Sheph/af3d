@@ -47,6 +47,7 @@ namespace af3d { namespace editor
         inline const Ray& capturedRay() const { return capturedRay_; }
         inline const Vector2f& capturedMousePos() const { return capturedMousePos_; }
         inline TransformOrientation orientation() const { return orientation_; }
+        inline bool recursive() const { return recursive_; }
 
         void onActivate() override;
 
@@ -67,6 +68,7 @@ namespace af3d { namespace editor
         virtual void gizmoMove(const Frustum& frustum, const Ray& ray) = 0;
 
         TransformOrientation orientation_ = TransformOrientation::Local;
+        bool recursive_ = true;
         AObjectPtr target_;
         Ray capturedRay_ = Ray_empty;
         Vector2f capturedMousePos_;

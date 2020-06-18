@@ -241,6 +241,13 @@ namespace editor {
             std::make_shared<CommandSetProperty>(scene(), obj, name, value));
     }
 
+    void Workspace::setPropertyOneOf(const AObjectPtr& obj,
+        const std::string& name1, const std::string& name2, const APropertyValue& value)
+    {
+        cmdHistory_.add(
+            std::make_shared<CommandSetProperty>(scene(), obj, (obj->propertyCanSet(name1) ? name1 : name2), value));
+    }
+
     void Workspace::setEditMode(EditModeImpl* value)
     {
         if (value->active()) {

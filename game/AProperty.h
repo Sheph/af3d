@@ -99,6 +99,7 @@ namespace af3d
     #define AProperty_Visible "visible"
     #define AProperty_LocalTransform "local transform"
     #define AProperty_WorldTransform "world transform"
+    #define AProperty_WorldTransformRecursive "world transform rec"
     #define AProperty_WorldPosition "world position"
     #define AProperty_Scale "scale"
     #define AProperty_Position "position"

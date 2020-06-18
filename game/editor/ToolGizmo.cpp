@@ -141,6 +141,17 @@ namespace af3d { namespace editor
             ImGui::Text("Transform orientation (%s)", InputKeyboard::kiToStr(KI_0));
             ImGui::EndTooltip();
         }
+
+        bool cur2 = recursive_;
+        if (ImGui::Checkbox("Recursive", &cur2)) {
+            recursive_ = cur2;
+        }
+        if (ImGui::IsItemHovered()) {
+            ImGui::BeginTooltip();
+            ImGui::Text("Is transform recursive");
+            ImGui::EndTooltip();
+        }
+
         if (captured()) {
             ImGui::Text("%s - Cancel", InputKeyboard::kiToStr(KI_ESCAPE));
         }

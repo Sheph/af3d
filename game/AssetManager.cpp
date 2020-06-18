@@ -164,6 +164,11 @@ namespace af3d
 
     SceneAssetPtr AssetManager::getSceneAsset(const std::string& name, bool editor)
     {
+        return getSceneAssetImpl(name, editor, true);
+    }
+
+    SceneAssetPtr AssetManager::getSceneAssetImpl(const std::string& name, bool editor, bool isLevel)
+    {
         log4cplus::NDCContextCreator ndc(name);
 
         auto it = sceneAssetMap_.find(name);
@@ -195,7 +200,7 @@ namespace af3d
         {
             AJsonSerializerDefault defS;
 
-            AJsonReader reader(defS, editor);
+            AJsonReader reader(defS, editor, false, isLevel);
             auto res = reader.read(it->second);
 
             if (res.size() != 1) {
@@ -224,7 +229,7 @@ namespace af3d
 
     SceneAssetPtr AssetManager::getSceneObjectAsset(const std::string& name)
     {
-        auto sa = getSceneAsset(name);
+        auto sa = getSceneAssetImpl(name, false, false);
         if (!sa) {
             return SceneAssetPtr();
         }

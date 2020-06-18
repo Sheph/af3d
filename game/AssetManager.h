@@ -76,6 +76,8 @@ namespace af3d
         using CollisionMatrixMap = std::unordered_map<std::string, CollisionMatrixPtr>;
         using AssetsJsonFn = std::function<void(const std::string&, AssetData&, const Json::Value&)>;
 
+        SceneAssetPtr getSceneAssetImpl(const std::string& name, bool editor, bool isLevel);
+
         void processAssetsJson(const std::string& path, const AssetsJsonFn& fn);
 
         AssetMap assetMap_;

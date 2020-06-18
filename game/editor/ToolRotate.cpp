@@ -105,9 +105,17 @@ namespace af3d { namespace editor
     void ToolRotate::gizmoRelease(bool canceled)
     {
         auto xf = rc_->target()->propertyGet(AProperty_WorldTransform);
-        rc_->target()->propertySet(AProperty_WorldTransform, capturedTargetXf_);
+        if (recursive()) {
+            rc_->target()->propertySetOneOf(AProperty_WorldTransformRecursive, AProperty_WorldTransform, capturedTargetXf_);
+        } else {
+            rc_->target()->propertySet(AProperty_WorldTransform, capturedTargetXf_);
+        }
         if (!canceled) {
-            workspace().setProperty(rc_->target(), AProperty_WorldTransform, xf);
+            if (recursive()) {
+                workspace().setPropertyOneOf(rc_->target(), AProperty_WorldTransformRecursive, AProperty_WorldTransform, xf);
+            } else {
+                workspace().setProperty(rc_->target(), AProperty_WorldTransform, xf);
+            }
         }
         rc_->setOrientation(orientation());
         rc_->setRotateType(RotateType::None);
@@ -152,14 +160,22 @@ namespace af3d { namespace editor
 
                         xf.setRotation(btQuaternion((p2 - p1).cross(plane.normal), -diff.length() * SIMD_PI * 2.0f) *
                             xf.getRotation());
-                        rc_->target()->propertySet(AProperty_WorldTransform, xf);
+                        if (recursive()) {
+                            rc_->target()->propertySetOneOf(AProperty_WorldTransformRecursive, AProperty_WorldTransform, xf);
+                        } else {
+                            rc_->target()->propertySet(AProperty_WorldTransform, xf);
+                        }
                     }
                 } else {
                     p1 -= capturedTargetXf_.getOrigin();
                     p2 -= capturedTargetXf_.getOrigin();
 
                     xf.setRotation(shortestArcQuatNormalize2(p1, p2) * xf.getRotation());
-                    rc_->target()->propertySet(AProperty_WorldTransform, xf);
+                    if (recursive()) {
+                        rc_->target()->propertySetOneOf(AProperty_WorldTransformRecursive, AProperty_WorldTransform, xf);
+                    } else {
+                        rc_->target()->propertySet(AProperty_WorldTransform, xf);
+                    }
                 }
             }
         }

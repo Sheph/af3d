@@ -70,11 +70,13 @@ namespace af3d
         apply(importSettings_->root(), parent(), parent()->cookie(), parent()->transform(), cmds);
 
         return std::make_shared<AInplaceCommand>([cmds](bool isRedo) {
-            for (const auto& cmd : cmds) {
-                if (isRedo) {
+            if (isRedo) {
+                for (const auto& cmd : cmds) {
                     cmd->redo();
-                } else {
-                    cmd->undo();
+                }
+            } else {
+                for (auto it = cmds.rbegin(); it != cmds.rend(); ++it) {
+                    (*it)->undo();
                 }
             }
             return true;
