@@ -62,14 +62,14 @@ namespace af3d
 
         MeshImportSettingsPtr clone() const;
 
-        inline float scale() const { return scale_; }
-        inline void setScale(float value) { scale_ = value; }
+        inline const btVector3& scale() const { return scale_; }
+        inline void setScale(const btVector3& value) { scale_ = value; }
 
         inline const ObjectEntry& root() const { return root_; }
         inline void setRoot(const ObjectEntry& value) { root_ = value; }
 
         APropertyValue propertyScaleGet(const std::string&) const { return scale(); }
-        void propertyScaleSet(const std::string&, const APropertyValue& value) { setScale(value.toFloat()); }
+        void propertyScaleSet(const std::string&, const APropertyValue& value) { setScale(value.toVec3()); }
 
         APropertyValue propertyRootGet(const std::string&) const;
         void propertyRootSet(const std::string&, const APropertyValue& value);
@@ -78,7 +78,7 @@ namespace af3d
         static Json::Value toJson(const ObjectEntry& entry);
         static ObjectEntry fromJson(const Json::Value& jsonValue);
 
-        float scale_ = 1.0f;
+        btVector3 scale_ = btVector3_one;
         ObjectEntry root_;
     };
 

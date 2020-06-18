@@ -23,7 +23,14 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "editor/CommandAdd.h"
+#include "editor/CommandSetProperty.h"
 #include "MeshImportComponent.h"
+#include "RenderMeshComponent.h"
+#include "MeshManager.h"
+#include "Scene.h"
+#include "Logger.h"
+#include "log4cplus/ndc.h"
 
 namespace af3d
 {
@@ -51,11 +58,25 @@ namespace af3d
 
     ACommandPtr MeshImportComponent::propertyUpdateSet(const std::string&, const APropertyValue& value)
     {
-        if (!value.toBool()) {
+        if (!value.toBool() || !importSettings_ || !parent() || !scene()->workspace()) {
+            // Currently only supported in editor.
             return ACommandPtr();
         }
 
-        return std::make_shared<AInplaceCommand>([](bool isRedo) {
+        std::vector<ACommandPtr> cmds;
+
+        log4cplus::NDCContextCreator ndc("import " + importSettings_->name());
+
+        apply(importSettings_->root(), parent(), parent()->cookie(), parent()->transform(), cmds);
+
+        return std::make_shared<AInplaceCommand>([cmds](bool isRedo) {
+            for (const auto& cmd : cmds) {
+                if (isRedo) {
+                    cmd->redo();
+                } else {
+                    cmd->undo();
+                }
+            }
             return true;
         });
     }
@@ -66,5 +87,68 @@ namespace af3d
 
     void MeshImportComponent::onUnregister()
     {
+    }
+
+    void MeshImportComponent::apply(const MeshImportSettings::ObjectEntry& entry, SceneObject* obj, ACookie parentCookie,
+        const btTransform& parentXf,
+        std::vector<ACommandPtr>& cmds)
+    {
+        for (const auto& kv : entry.subObjs) {
+            auto mesh = meshManager.loadMesh(kv.first);
+            if (!mesh) {
+                continue;
+            }
+            std::vector<SceneObjectPtr> objs;
+            if (obj) {
+                objs = obj->getObjects(kv.second.name);
+            }
+            SceneObject* nextObj = nullptr;
+            ACookie nextCookie = 0;
+            btTransform nextXf = parent()->transform() * toTransform(mesh->aabb().scaledAt0(importSettings_->scale()).getCenter());
+            if (objs.empty()) {
+                APropertyValueMap initVals;
+                initVals.set(AProperty_Name, kv.second.name);
+                initVals.set(AProperty_WorldTransform, nextXf);
+                nextCookie = AObject::allocCookie();
+                cmds.push_back(std::make_shared<editor::CommandAdd>(scene(), parentCookie, AClass_SceneObject, "", initVals, nextCookie));
+                LOG4CPLUS_DEBUG(logger(), "new object " + kv.second.name + " from " + kv.first);
+            } else {
+                if (objs.size() > 1) {
+                    LOG4CPLUS_WARN(logger(), "ambiguous obj name " + kv.second.name);
+                }
+                nextObj = objs[0].get();
+                nextCookie = nextObj->cookie();
+                cmds.push_back(std::make_shared<editor::CommandSetProperty>(scene(), nextObj->sharedThis(), AProperty_WorldTransform, nextXf));
+            }
+            apply(kv.second, nextObj, nextCookie, nextXf, cmds);
+        }
+
+        for (const auto& kv : entry.meshes) {
+            auto mesh = meshManager.loadMesh(kv.first);
+            if (!mesh) {
+                continue;
+            }
+            std::vector<RenderMeshComponentPtr> rcs;
+            if (obj) {
+                rcs = obj->findComponents<RenderMeshComponent>(kv.second.name);
+            }
+            if (rcs.empty()) {
+                APropertyValueMap initVals;
+                initVals.set(AProperty_Name, kv.second.name);
+                initVals.set("mesh", APropertyValue(mesh));
+                initVals.set(AProperty_Scale, importSettings_->scale());
+                initVals.set(AProperty_LocalTransform, (parent()->transform().inverse() * parentXf).inverse());
+                cmds.push_back(std::make_shared<editor::CommandAdd>(scene(), parentCookie, AClass_RenderMeshComponent, "", initVals));
+                LOG4CPLUS_DEBUG(logger(), "new component " + kv.second.name + " from " + kv.first);
+            } else {
+                if (rcs.size() > 1) {
+                    LOG4CPLUS_WARN(logger(), "ambiguous component name " + kv.second.name);
+                }
+                cmds.push_back(std::make_shared<editor::CommandSetProperty>(scene(), rcs[0], "mesh", APropertyValue(mesh)));
+                cmds.push_back(std::make_shared<editor::CommandSetProperty>(scene(), rcs[0], AProperty_Scale, importSettings_->scale()));
+                cmds.push_back(std::make_shared<editor::CommandSetProperty>(scene(), rcs[0],
+                    AProperty_LocalTransform, (parent()->transform().inverse() * parentXf).inverse()));
+            }
+        }
     }
 }

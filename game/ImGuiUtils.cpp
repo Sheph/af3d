@@ -462,9 +462,9 @@ namespace af3d { namespace ImGuiUtils
 
                 ImGui::Text("Scale");
                 ImGui::NextColumn();
-                float scale = importSettings->scale();
-                ImGui::InputFloat("##scale", &scale);
-                importSettings->setScale(scale);
+                Vector3f scale = toVector3f(importSettings->scale());
+                ImGui::InputFloat3("##scale", &scale.v[0]);
+                importSettings->setScale(fromVector3f(scale));
                 ImGui::NextColumn();
 
                 auto modelNode = importSettings->name().empty() ? nullptr : meshManager.getModelNode(importSettings->name());

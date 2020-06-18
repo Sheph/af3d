@@ -36,18 +36,34 @@ namespace af3d { namespace editor
     CommandAdd::CommandAdd(Scene* scene,
         const AObjectPtr& parent,
         const AClass& klass, const std::string& kind,
-        const APropertyValueMap& initVals)
+        const APropertyValueMap& initVals,
+        ACookie forceObjCookie)
     : Command(scene),
-      parentWobj_(parent),
+      parentCookie_(parent ? parent->cookie() : 0),
       klass_(klass),
-      initVals_(initVals)
+      initVals_(initVals),
+      forceObjCookie_(forceObjCookie)
+    {
+        setDescription("Add " + kind);
+    }
+
+    CommandAdd::CommandAdd(Scene* scene,
+        ACookie parentCookie,
+        const AClass& klass, const std::string& kind,
+        const APropertyValueMap& initVals,
+        ACookie forceObjCookie)
+    : Command(scene),
+      parentCookie_(parentCookie),
+      klass_(klass),
+      initVals_(initVals),
+      forceObjCookie_(forceObjCookie)
     {
         setDescription("Add " + kind);
     }
 
     bool CommandAdd::redo()
     {
-        auto parentObj = parentWobj_.lock();
+        auto parentObj = AObject::getByCookie(parentCookie_);
         if (!parentObj) {
             LOG4CPLUS_ERROR(logger(), "redo: Cannot get parent obj by cookie: " << description());
             return false;
@@ -74,6 +90,9 @@ namespace af3d { namespace editor
         if (!wobj_.empty()) {
             aobj->setCookie(wobj_.cookie());
         } else {
+            if (forceObjCookie_) {
+                aobj->setCookie(forceObjCookie_);
+            }
             wobj_.reset(aobj);
         }
 

@@ -37,7 +37,13 @@ namespace af3d { namespace editor
         CommandAdd(Scene* scene,
             const AObjectPtr& parent,
             const AClass& klass, const std::string& kind,
-            const APropertyValueMap& initVals = APropertyValueMap());
+            const APropertyValueMap& initVals = APropertyValueMap(),
+            ACookie forceObjCookie = 0);
+        CommandAdd(Scene* scene,
+            ACookie parentCookie,
+            const AClass& klass, const std::string& kind,
+            const APropertyValueMap& initVals = APropertyValueMap(),
+            ACookie forceObjCookie = 0);
         ~CommandAdd() = default;
 
         bool redo() override;
@@ -45,10 +51,11 @@ namespace af3d { namespace editor
         bool undo() override;
 
     private:
-        AWeakObject parentWobj_;
+        ACookie parentCookie_;
         const AClass& klass_;
         APropertyValueMap initVals_;
         AWeakObject wobj_;
+        ACookie forceObjCookie_;
     };
 } }
 

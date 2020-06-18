@@ -43,7 +43,7 @@ namespace af3d
 
     AObject::AObject(const AClass& klass)
     : klass_(&klass),
-      cookie_(nextCookie++)
+      cookie_(allocCookie())
     {
         ScopedLock lock(cookieToAObjMtx);
         cookieToAObj[cookie_] = this;
@@ -70,6 +70,11 @@ namespace af3d
     const AClass& AObject::staticKlass()
     {
         return AClass_AObject;
+    }
+
+    ACookie AObject::allocCookie()
+    {
+        return nextCookie++;
     }
 
     AObject* AObject::getByCookie(ACookie value)

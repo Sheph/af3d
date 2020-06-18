@@ -32,7 +32,7 @@ namespace af3d
     const APropertyTypeObject APropertyType_MeshImportSettings{"MeshImportSettings", AClass_MeshImportSettings};
 
     ACLASS_DEFINE_BEGIN(MeshImportSettings, AObject)
-    ACLASS_PROPERTY(MeshImportSettings, Scale, "scale", "Scale", Float, 1.0f, General, APropertyEditable)
+    ACLASS_PROPERTY(MeshImportSettings, Scale, "scale", "Scale", Vec3f, btVector3(1.0f, 1.0f, 1.0f), General, APropertyEditable)
     ACLASS_PROPERTY(MeshImportSettings, Root, "root", "Root", String, "", General, APropertyEditable)
     ACLASS_DEFINE_END(MeshImportSettings)
 

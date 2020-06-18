@@ -58,6 +58,10 @@ namespace af3d
 
         void onUnregister() override;
 
+        void apply(const MeshImportSettings::ObjectEntry& entry, SceneObject* obj, ACookie parentCookie,
+            const btTransform& parentXf,
+            std::vector<ACommandPtr>& cmds);
+
         MeshImportSettingsPtr importSettings_;
     };
 

@@ -45,6 +45,8 @@ namespace af3d
 
         static const AClass& staticKlass();
 
+        static ACookie allocCookie();
+
         static AObject* getByCookie(ACookie value);
 
         static size_t getCount();
