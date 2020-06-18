@@ -266,7 +266,16 @@ namespace af3d
                 VertexArraySlice(kv.second.va(), prevCount, kv.second.count() - prevCount, 0)));
         }
 
-        return (node->aabb == AABB_empty) ? AssimpNodePtr() : node;
+        if (node->aabb == AABB_empty) {
+            return AssimpNodePtr();
+        }
+
+        if ((node->children.size() == 1) && (aiN->mNumMeshes == 0)) {
+            // Drop useless nodes.
+            return node->children[0];
+        }
+
+        return node;
     }
 
     void AssimpMeshLoader::loadNode(const aiNode* aiN, const aiMatrix4x4& parentXf, LoadContext& ctx)
