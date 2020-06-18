@@ -27,6 +27,7 @@
 #define _MESHIMPORTSETTINGS_H_
 
 #include "AObject.h"
+#include <map>
 
 namespace af3d
 {
@@ -37,23 +38,16 @@ namespace af3d
         public AObject
     {
     public:
-        struct Entry
+        struct MeshEntry
         {
-            Entry() = default;
-            virtual ~Entry() = default;
-
             std::string name;
-            std::string path;
         };
 
-        struct MeshEntry : public Entry
+        struct ObjectEntry
         {
-        };
-
-        struct ObjectEntry : public Entry
-        {
-            std::vector<ObjectEntry> subObjs;
-            std::vector<MeshEntry> meshes;
+            std::string name;
+            std::map<std::string, ObjectEntry> subObjs;
+            std::map<std::string, MeshEntry> meshes;
         };
 
         MeshImportSettings();

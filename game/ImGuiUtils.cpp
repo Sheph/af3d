@@ -464,8 +464,12 @@ namespace af3d { namespace ImGuiUtils
                     ImGui::Separator();
                     ImGui::Columns(3);
                     ImGui::PushID("tree");
-                    drawModelNode(modelNode, 0);
+                    MeshImportSettings::ObjectEntry entry;
+                    processModelNode(modelNode, "", 0, &importSettings->root(), &entry);
+                    importSettings->setRoot(entry);
                     ImGui::PopID();
+                } else {
+                    importSettings->setRoot(MeshImportSettings::ObjectEntry());
                 }
 
                 ImGui::Separator();
@@ -489,33 +493,83 @@ namespace af3d { namespace ImGuiUtils
             }
         }
 
-        void drawModelNode(const MeshManager::ModelNode* modelNode, int depth)
+        void processModelNode(const MeshManager::ModelNode* modelNode, std::string parentPath, int depth, const MeshImportSettings::ObjectEntry* origParent,
+            MeshImportSettings::ObjectEntry* parent)
         {
+            parentPath = parentPath.empty() ? modelNode->name : parentPath + ":" + modelNode->name;
             ImGui::PushID(depth);
-            bool nodeOpen = ImGui::TreeNodeEx(modelNode->name.c_str(),
-                (modelNode->children.empty() ? ImGuiTreeNodeFlags_Leaf : ImGuiTreeNodeFlags_None));
+            ImGui::TreeNodeEx(modelNode->name.c_str(), ImGuiTreeNodeFlags_Leaf);
             ImGui::NextColumn();
             ImGui::AlignTextToFramePadding();
-            bool val = true;
+            bool objSet = false;
+            bool meshSet = false;
+            std::string meshName = modelNode->name;
             if (depth > 0) {
-                ImGui::Checkbox("Object", &val);
+                objSet = origParent && (origParent->subObjs.count(parentPath) > 0);
+                ImGui::Checkbox("Object", &objSet);
+                if (objSet) {
+                    meshSet = origParent && (origParent->meshes.count(parentPath) > 0);
+                    if (meshSet) {
+                        // Mesh was set, copy over the name.
+                        parent->subObjs[parentPath].name = origParent->meshes.find(parentPath)->second.name;
+                    } else {
+                        // Use mesh name.
+                        parent->subObjs[parentPath].name = modelNode->name;
+                    }
+                    parent = &parent->subObjs[parentPath];
+                    if (origParent) {
+                        auto it = origParent->subObjs.find(parentPath);
+                        origParent = (it == origParent->subObjs.end()) ? nullptr : &it->second;
+                        if (origParent) {
+                            // Keep modified name.
+                            parent->name = origParent->name;
+                        }
+                    }
+                } else if (origParent) {
+                    auto it = origParent->subObjs.find(parentPath);
+                    if (it != origParent->subObjs.end()) {
+                        meshSet = it->second.meshes.count(parentPath) > 0;
+                        // Object unchecked, copy name from old object.
+                        meshName = it->second.name;
+                    }
+                }
                 ImGui::SameLine();
             }
-            ImGui::Checkbox("Mesh", &val);
-            ImGui::NextColumn();
-            if (depth > 0) {
-                std::string n = modelNode->name;
-                inputText("##name", n);
+
+            bool tmp = origParent && (origParent->meshes.count(parentPath) > 0);
+            if (tmp) {
+                // Keep modified name.
+                meshName = origParent->meshes.find(parentPath)->second.name;
+            }
+            meshSet |= tmp;
+            ImGui::Checkbox("Mesh", &meshSet);
+            if (meshSet) {
+                if (objSet) {
+                    // If we have an object here then mesh must be unnamed.
+                    parent->meshes[parentPath].name.clear();
+                } else {
+                    parent->meshes[parentPath].name = meshName;
+                }
             }
             ImGui::NextColumn();
-            if (nodeOpen) {
+            if ((depth > 0) && (objSet || meshSet)) {
+                std::string* n;
+                if (objSet) {
+                    n = &parent->name;
+                } else {
+                    n = &parent->meshes[parentPath].name;
+                }
+                inputText("##name", *n);
+            }
+            ImGui::NextColumn();
+            if (!meshSet) {
                 for (size_t i = 0; i < modelNode->children.size(); ++i) {
                     ImGui::PushID(i);
-                    drawModelNode(&modelNode->children[i], depth + 1);
+                    processModelNode(&modelNode->children[i], parentPath, depth + 1, origParent, parent);
                     ImGui::PopID();
                 }
-                ImGui::TreePop();
             }
+            ImGui::TreePop();
             ImGui::PopID();
         }
 
