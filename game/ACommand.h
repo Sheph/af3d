@@ -29,6 +29,7 @@
 #include "af3d/Types.h"
 #include <boost/noncopyable.hpp>
 #include <memory>
+#include <functional>
 
 namespace af3d
 {

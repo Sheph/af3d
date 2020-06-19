@@ -36,7 +36,7 @@ namespace af3d
 {
     ACLASS_DEFINE_BEGIN(MeshImportComponent, PhasedComponent)
     ACLASS_PROPERTY(MeshImportComponent, ImportSettings, "import settings", "Import settings", MeshImportSettings, MeshImportSettingsPtr(), General, APropertyEditable|APropertyOwnValue)
-    ACLASS_PROPERTY(MeshImportComponent, Update, "update", "Update", Bool, false, General, APropertyEditable|APropertyTransient|APropertyUndoable)
+    ACLASS_PROPERTY_UNDOABLE(MeshImportComponent, Update, "update", "Update", Bool, false, General, APropertyEditable|APropertyTransient)
     ACLASS_DEFINE_END(MeshImportComponent)
 
     MeshImportComponent::MeshImportComponent()

@@ -123,6 +123,9 @@ namespace af3d
     #define ACLASS_PROPERTY(ClassName, Member, Name, Tooltip, Type, Def, Category, Flags) \
         {Name, Tooltip, APropertyType_##Type, APropertyValue(Def), APropertyCategory::Category, APropertyReadable|APropertyWritable|Flags, (APropertyGetter)&ClassName::property##Member##Get, (APropertySetter)&ClassName::property##Member##Set},
 
+    #define ACLASS_PROPERTY_UNDOABLE(ClassName, Member, Name, Tooltip, Type, Def, Category, Flags) \
+        {Name, Tooltip, APropertyType_##Type, APropertyValue(Def), APropertyCategory::Category, APropertyReadable|APropertyWritable|APropertyUndoable|Flags, (APropertyGetter)&ClassName::property##Member##Get, (APropertySetter)(APropertyUndoableSetter)&ClassName::property##Member##Set},
+
     #define ACLASS_PROPERTY_RO(ClassName, Member, Name, Tooltip, Type, Category, Flags) \
         {Name, Tooltip, APropertyType_##Type, APropertyValue(), APropertyCategory::Category, APropertyReadable|Flags, (APropertyGetter)&ClassName::property##Member##Get, nullptr},
 

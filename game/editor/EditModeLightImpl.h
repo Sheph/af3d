@@ -29,6 +29,11 @@
 #include "editor/EditModeLight.h"
 #include "editor/EditModeImpl.h"
 
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable : 4250)
+#endif
+
 namespace af3d { namespace editor
 {
     class EditModeLightImpl : public EditModeImpl,
@@ -49,5 +54,9 @@ namespace af3d { namespace editor
         bool isAlive(const Item& item) const override;
     };
 } }
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 #endif

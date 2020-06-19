@@ -23,7 +23,6 @@ set(SOURCES
     InputMouse.cpp
     Level.cpp
     Logger.cpp
-    main_x11.cpp
     OGL.cpp
     Scene.cpp
     SceneObject.cpp
@@ -32,7 +31,6 @@ set(SOURCES
     SceneEnvironment.cpp
     Settings.cpp
     Platform.cpp
-    PlatformLinux.cpp
     Utils.cpp
     Layer.cpp
     HardwareContext.cpp
@@ -214,6 +212,7 @@ if (WIN32)
     )
 else ()
     set(SOURCES ${SOURCES}
+        PlatformLinux.cpp
         main_x11.cpp
     )
 endif ()

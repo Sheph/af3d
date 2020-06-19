@@ -69,13 +69,13 @@ namespace af3d
         float nx = (2.0f * pt.x()) - 1.0f;
         float ny = (2.0f * pt.y()) - 1.0f;
 
-        Vector4f near(nx, ny, -1.0f, 1.0f);
+        Vector4f nearp(nx, ny, -1.0f, 1.0f);
         // Use midPoint rather than far point to avoid issues with infinite projection.
         Vector4f mid(nx, ny, 0.0f, 1.0f);
 
         auto invM = camera_->frustum().viewProjMat().inverse();
 
-        auto pos4 = invM * near;
+        auto pos4 = invM * nearp;
         auto target4 = invM * mid;
 
         auto pos = toVector3(pos4 / pos4.w());

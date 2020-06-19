@@ -207,14 +207,14 @@ namespace af3d
         upd->recreate = recreate;
         upd->lights.reserve(lights_.size() + lightsRemovedIndices_.size());
         for (auto light : lights_) {
-            upd->indexRange.first = std::min(upd->indexRange.first, light->index());
-            upd->indexRange.second = std::max(upd->indexRange.second, light->index());
+            upd->indexRange.first = (std::min)(upd->indexRange.first, light->index());
+            upd->indexRange.second = (std::max)(upd->indexRange.second, light->index());
             upd->lights.emplace_back(light->index(), ShaderClusterLightImpl());
             light->setupCluster(upd->lights.back().second);
         }
         for (auto idx : lightsRemovedIndices_) {
-            upd->indexRange.first = std::min(upd->indexRange.first, idx);
-            upd->indexRange.second = std::max(upd->indexRange.second, idx);
+            upd->indexRange.first = (std::min)(upd->indexRange.first, idx);
+            upd->indexRange.second = (std::max)(upd->indexRange.second, idx);
             upd->lights.emplace_back(idx, ShaderClusterLightImpl());
         }
         lightsRemovedIndices_.clear();

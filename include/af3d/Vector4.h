@@ -427,7 +427,10 @@ namespace af3d
 
     inline PackedColor toPackedColor(const Color& c)
     {
-        return PackedColor(c.x() * 255.0f, c.y() * 255.0f, c.z() * 255.0f, c.w() * 255.0f);
+        return PackedColor(static_cast<Byte>(c.x() * 255.0f),
+            static_cast<Byte>(c.y() * 255.0f),
+            static_cast<Byte>(c.z() * 255.0f),
+            static_cast<Byte>(c.w() * 255.0f));
     }
 
     inline Color fromPackedColor(const PackedColor& c)

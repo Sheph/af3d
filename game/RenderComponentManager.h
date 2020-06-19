@@ -94,8 +94,8 @@ namespace af3d
             CollideCull(const Frustum& frustum, CullResultList& cullResults);
             ~CollideCull() = default;
 
-            void Process(const btDbvtNode* node) override;
-            bool Descent(const btDbvtNode* node) override;
+            void Process(const btDbvtNode* node);
+            bool Descent(const btDbvtNode* node);
 
         private:
             const Frustum& frustum_;
@@ -108,8 +108,8 @@ namespace af3d
             CollideRayCast(const Frustum& frustum, const Ray& ray, const RayCastRenderFn& fn);
             ~CollideRayCast() = default;
 
-            void Process(const btDbvtNode* node) override;
-            bool Descent(const btDbvtNode* node) override;
+            void Process(const btDbvtNode* node);
+            bool Descent(const btDbvtNode* node);
 
         private:
             const Frustum& frustum_;

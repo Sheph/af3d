@@ -83,7 +83,7 @@ namespace af3d
 
     inline Vector2u cubeSize2equirect(std::uint32_t cubeSize)
     {
-        std::uint32_t equirectW = std::ceil(cubeSize * SIMD_PI);
+        std::uint32_t equirectW = static_cast<std::uint32_t>(std::ceil(cubeSize * SIMD_PI));
         if ((equirectW % 2) != 0) {
             ++equirectW;
         }
@@ -92,7 +92,7 @@ namespace af3d
 
     inline std::uint32_t equirectSize2cube(std::uint32_t equirectWidth)
     {
-        return equirectWidth / SIMD_PI;
+        return static_cast<std::uint32_t>(equirectWidth / SIMD_PI);
     }
 
     void setGaussianBlurParams(MaterialParams& params, int ksize, float sigma, bool isHorizontal);
