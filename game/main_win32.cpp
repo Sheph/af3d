@@ -23,7 +23,13 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "PlatformWin32.h"
 #include "OGL.h"
+
+bool af3d::PlatformWin32::changeVideoMode(bool fullscreen, int videoMode, int msaaMode, bool vsync, bool trilinearFilter)
+{
+    return false;
+}
 
 int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     LPSTR lpCmdLine, int nCmdShow)

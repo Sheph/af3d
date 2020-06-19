@@ -208,6 +208,7 @@ if (WIN32)
         )
     endforeach ()
     set(SOURCES ${SOURCES}
+        PlatformWin32.cpp
         main_win32.cpp
     )
 else ()
