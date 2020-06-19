@@ -93,8 +93,8 @@ namespace af3d
     class APropertyTypeInt : public APropertyTypeNumeric<int>
     {
     public:
-        explicit APropertyTypeInt(int vMin = std::numeric_limits<int>::min(),
-            int vMax = std::numeric_limits<int>::max(), APropertyUnit unit = APropertyUnit::Other);
+        explicit APropertyTypeInt(int vMin = (std::numeric_limits<int>::min)(),
+            int vMax = (std::numeric_limits<int>::max)(), APropertyUnit unit = APropertyUnit::Other);
         explicit APropertyTypeInt(APropertyUnit unit);
 
         void accept(APropertyTypeVisitor& visitor) const override;
@@ -103,8 +103,8 @@ namespace af3d
     class APropertyTypeFloat : public APropertyTypeNumeric<float>
     {
     public:
-        explicit APropertyTypeFloat(float vMin = -std::numeric_limits<float>::max(),
-            float vMax = std::numeric_limits<float>::max(), APropertyUnit unit = APropertyUnit::Other);
+        explicit APropertyTypeFloat(float vMin = -(std::numeric_limits<float>::max)(),
+            float vMax = (std::numeric_limits<float>::max)(), APropertyUnit unit = APropertyUnit::Other);
         explicit APropertyTypeFloat(APropertyUnit unit);
 
         void accept(APropertyTypeVisitor& visitor) const override;

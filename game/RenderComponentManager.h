@@ -115,7 +115,7 @@ namespace af3d
             const Frustum& frustum_;
             const Ray& ray_;
             const RayCastRenderFn& fn_;
-            float maxT_ = std::numeric_limits<float>::max();
+            float maxT_ = (std::numeric_limits<float>::max)();
         };
 
         std::unordered_set<RenderComponentPtr> components_;

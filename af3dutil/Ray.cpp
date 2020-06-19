@@ -52,8 +52,8 @@ namespace af3d
     // See: http://psgraphics.blogspot.com/2016/02/new-simple-ray-box-test-from-andrew.html
     RayTestResult Ray::testAABB(const AABB& aabb) const
     {
-        float tmin = -std::numeric_limits<float>::max();
-        float tmax = std::numeric_limits<float>::max();
+        float tmin = -(std::numeric_limits<float>::max)();
+        float tmax = (std::numeric_limits<float>::max)();
 
         for (int i = 0; i < 3; ++i) {
             float invD = 1.0f / dir[i];

@@ -13,13 +13,24 @@ set(SOURCES
     filesystem/directory.cpp
 )
 
-set(SOURCES ${SOURCES}
-    thread/pthread/thread.cpp
-    thread/pthread/once_atomic.cpp
-)
+if (NOT WIN32)
+    set(SOURCES ${SOURCES}
+        thread/pthread/thread.cpp
+        thread/pthread/once_atomic.cpp
+    )
+else ()
+    set(SOURCES ${SOURCES}
+        thread/win32/thread.cpp
+        thread/win32/thread_primitives.cpp
+        thread/win32/tss_dll.cpp
+        thread/win32/tss_pe.cpp
+    )
+endif ()
 
 add_definitions(-DBOOST_SYSTEM_STATIC_LINK=1 -DBOOST_THREAD_BUILD_LIB=1)
-add_definitions(-DBOOST_THREAD_POSIX)
+if (NOT WIN32)
+    add_definitions(-DBOOST_THREAD_POSIX)
+endif ()
 
 add_library(boost STATIC ${SOURCES})
 

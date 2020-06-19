@@ -94,7 +94,7 @@ namespace af3d
         HardwareDataBufferPtr lightsSSBO_;
         HardwareDataBufferPtr probesSSBO_;
         TexturePtr irradianceTexture_;
-        std::uint32_t irradianceTextureGeneration_ = std::numeric_limits<std::uint32_t>::max();
+        std::uint32_t irradianceTextureGeneration_ = (std::numeric_limits<std::uint32_t>::max)();
         TexturePtr specularTexture_;
 
         std::unordered_set<Light*> lights_;

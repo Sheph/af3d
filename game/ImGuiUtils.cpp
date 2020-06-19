@@ -99,8 +99,8 @@ namespace af3d { namespace ImGuiUtils
                 v = btDegrees(v);
             }
 
-            if ((type.vMin() > -std::numeric_limits<float>::max()) ||
-                (type.vMax() < std::numeric_limits<float>::max())) {
+            if ((type.vMin() > -(std::numeric_limits<float>::max)()) ||
+                (type.vMax() < (std::numeric_limits<float>::max)())) {
                 ImGui::DragFloat("##val", &v, 0.01f, type.vMin(), type.vMax(), fmt);
                 if (!readOnly_) {
                     ret_ = !ImGui::IsMouseDown(ImGuiMouseButton_Left);

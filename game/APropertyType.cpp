@@ -44,7 +44,7 @@ namespace af3d
     }
 
     APropertyTypeInt::APropertyTypeInt(APropertyUnit unit)
-    : APropertyTypeNumeric<int>("Int", std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), unit)
+    : APropertyTypeNumeric<int>("Int", (std::numeric_limits<int>::min)(), (std::numeric_limits<int>::max)(), unit)
     {
     }
 
@@ -59,7 +59,7 @@ namespace af3d
     }
 
     APropertyTypeFloat::APropertyTypeFloat(APropertyUnit unit)
-    : APropertyTypeNumeric<float>("Float", -std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), unit)
+    : APropertyTypeNumeric<float>("Float", -(std::numeric_limits<float>::max)(), (std::numeric_limits<float>::max)(), unit)
     {
     }
 

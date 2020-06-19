@@ -41,7 +41,7 @@ namespace af3d
         {
             HardwareDataBufferPtr ssbo;
             bool recreate = false;
-            std::pair<int, int> indexRange{std::numeric_limits<int>::max(), 0};
+            std::pair<int, int> indexRange{(std::numeric_limits<int>::max)(), 0};
             std::vector<std::pair<int, ShaderClusterLightImpl>> lights;
         };
 

@@ -49,9 +49,18 @@ set(SOURCES
   version.cxx
 )
 
-set(SOURCES ${SOURCES}
-    socket-unix.cxx
-)
+if (WIN32)
+    set(SOURCES ${SOURCES}
+        socket-win32.cxx
+        win32debugappender.cxx
+        nteventlogappender.cxx
+        win32consoleappender.cxx
+    )
+else ()
+    set(SOURCES ${SOURCES}
+        socket-unix.cxx
+    )
+endif ()
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -60,3 +69,7 @@ add_definitions(-DINSIDE_LOG4CPLUS)
 add_library(log4cplus STATIC ${SOURCES})
 
 target_link_libraries(log4cplus ${CMAKE_THREAD_LIBS_INIT})
+
+if (WIN32)
+    target_link_libraries(log4cplus ws2_32)
+endif ()

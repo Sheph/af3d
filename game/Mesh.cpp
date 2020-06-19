@@ -57,7 +57,7 @@ namespace af3d
                         const auto& vbo = vaSlice.va()->vbos()[entry.bufferIdx];
                         const auto& ebo = vaSlice.va()->ebo();
 
-                        int minIdx = std::numeric_limits<int>::max();
+                        int minIdx = (std::numeric_limits<int>::max)();
                         int maxIdx = 0;
 
                         if (ebo) {

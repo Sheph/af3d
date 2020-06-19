@@ -117,11 +117,11 @@ namespace af3d
                 vaLayout.addEntry(VertexArrayEntry(VertexAttribName::Tangent, GL_FLOAT_VEC3, 32, 0));
                 vaLayout.addEntry(VertexArrayEntry(VertexAttribName::Bitangent, GL_FLOAT_VEC3, 44, 0));
                 auto ebo = hwManager.createIndexBuffer(HardwareBuffer::Usage::StaticDraw,
-                      (numVertices[0] > std::numeric_limits<std::uint16_t>::max()) ? HardwareIndexBuffer::UInt32 : HardwareIndexBuffer::UInt16);
+                      (numVertices[0] > (std::numeric_limits<std::uint16_t>::max)()) ? HardwareIndexBuffer::UInt32 : HardwareIndexBuffer::UInt16);
                 kv.second = VertexArraySlice(std::make_shared<VertexArray>(hwManager.createVertexArray(), vaLayout, VBOList{vbo[0]}, ebo));
             } else {
                 auto ebo = hwManager.createIndexBuffer(HardwareBuffer::Usage::StaticDraw,
-                      (numVertices[1] > std::numeric_limits<std::uint16_t>::max()) ? HardwareIndexBuffer::UInt32 : HardwareIndexBuffer::UInt16);
+                      (numVertices[1] > (std::numeric_limits<std::uint16_t>::max)()) ? HardwareIndexBuffer::UInt32 : HardwareIndexBuffer::UInt16);
                 kv.second = VertexArraySlice(std::make_shared<VertexArray>(hwManager.createVertexArray(), vaLayout, VBOList{vbo[1]}, ebo));
             }
         }
@@ -337,9 +337,9 @@ namespace af3d
                 for (std::uint32_t j = 0; j < meshData->mNumFaces; ++j) {
                     auto face = meshData->mFaces[j];
                     btAssert(face.mNumIndices == 3);
-                    btAssert(face.mIndices[0] + idxOffset <= std::numeric_limits<std::uint16_t>::max());
-                    btAssert(face.mIndices[1] + idxOffset <= std::numeric_limits<std::uint16_t>::max());
-                    btAssert(face.mIndices[2] + idxOffset <= std::numeric_limits<std::uint16_t>::max());
+                    btAssert(face.mIndices[0] + idxOffset <= (std::numeric_limits<std::uint16_t>::max)());
+                    btAssert(face.mIndices[1] + idxOffset <= (std::numeric_limits<std::uint16_t>::max)());
+                    btAssert(face.mIndices[2] + idxOffset <= (std::numeric_limits<std::uint16_t>::max)());
                     *indices = face.mIndices[0] + idxOffset;
                     ++indices;
                     *indices = face.mIndices[1] + idxOffset;

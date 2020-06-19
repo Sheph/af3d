@@ -71,7 +71,7 @@ namespace af3d
         idxs.reserve((count / 4) * 3);
         for (std::uint32_t i = 0; i < count; ++i) {
             if (value[i] >= 0) {
-                btAssert(value[i] <= std::numeric_limits<std::uint16_t>::max());
+                btAssert(value[i] <= (std::numeric_limits<std::uint16_t>::max)());
                 idxs.push_back(value[i]);
             }
         }

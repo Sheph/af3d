@@ -93,8 +93,8 @@ namespace af3d
         auto lightViewXf = lightXf.inverse();
 
         for (auto& split : splits_) {
-            btVector3 tMax = btVector3_one * -std::numeric_limits<float>::max();
-            btVector3 tMin = btVector3_one * std::numeric_limits<float>::max();
+            btVector3 tMax = btVector3_one * -(std::numeric_limits<float>::max)();
+            btVector3 tMin = btVector3_one * (std::numeric_limits<float>::max)();
 
             split.viewFrustum.setTransform(viewFrustum.transform());
 
