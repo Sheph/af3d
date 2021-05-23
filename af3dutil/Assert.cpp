@@ -35,7 +35,7 @@ namespace af3d
     {
         LOG4CPLUS_FATAL(af3dutil::logger(), "ASSERTION FAILED at " << file << "(" << lineno << "): " << cond);
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(NDEBUG)
         std::wstring condW(cond, cond + ::strlen(cond));
         std::wstring fileW(file, file + ::strlen(file));
         _wassert(condW.c_str(), fileW.c_str(), lineno);
