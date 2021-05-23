@@ -866,13 +866,13 @@ namespace af3d
             return;
         }
 
-        auto c = joint->constraint();
+        auto c = tmp->constraint();
         if (c) {
             impl_->physicsComponentManager_->world().removeConstraint(c);
             runtime_assert(impl_->constraintToJoint_.erase(c) > 0);
         }
 
-        joint->abandon();
+        tmp->abandon();
     }
 
     std::vector<JointPtr> Scene::getJoints(const std::string& name) const

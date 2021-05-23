@@ -168,7 +168,9 @@ namespace af3d
             btTransform principalXf = btTransform::getIdentity();
             btVector3 inertia = btVector3_zero;
 
-            calculatePrincipalAxisTransform(&masses[0], principalXf, inertia);
+            if (!masses.empty()) {
+                calculatePrincipalAxisTransform(&masses[0], principalXf, inertia);
+            }
             for (int i = 0; i < numShapes(); ++i) {
                 compound_->shape()->updateChildTransform(i, principalXf.inverse() * shape(i)->transform(), i == (numShapes() - 1));
             }
