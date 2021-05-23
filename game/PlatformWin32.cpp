@@ -93,7 +93,7 @@ namespace af3d
 
         std::wstring fileNameW(fileName.begin(), fileName.end());
 
-        std::wstring fp = /*std::wstring(buffer) + L"\\TheMission\\" + */fileNameW;
+        std::wstring fp = /*std::wstring(buffer) + L"\\af3d\\" + */fileNameW;
 
         std::ifstream is(fp.c_str());
 
@@ -125,10 +125,10 @@ namespace af3d
 
         std::wstring fileNameW(fileName.begin(), fileName.end());
 
-        std::wstring d = std::wstring(buffer) + L"\\TheMission";
+        std::wstring d = std::wstring(buffer) + L"\\af3d";
 
         /*if (_wmkdir(d.c_str()) != 0 && errno != EEXIST) {
-            LOG4CPLUS_WARN(logger(), "Cannot create $AppData\\TheMission, not writing " << fileName);
+            LOG4CPLUS_WARN(logger(), "Cannot create $AppData\\af3d, not writing " << fileName);
             return false;
         }*/
 
