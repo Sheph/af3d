@@ -141,9 +141,10 @@ static bool gTrueFullscreen = false;
 
 struct InputEvent
 {
-    InputEvent(af3d::KeyIdentifier ki, bool up)
+    InputEvent(af3d::KeyIdentifier ki, bool up, std::uint32_t modifiersState)
     : type(up ? 1 : 0),
-      ki(ki)
+      ki(ki),
+      misc(modifiersState)
     {
     }
 
@@ -168,7 +169,13 @@ struct InputEvent
 
     InputEvent(int delta, int dummy1, int dummy2)
     : type(5),
-      delta(delta)
+      misc(delta)
+    {
+    }
+
+    InputEvent(std::uint16_t ch)
+    : type(6),
+      misc(ch)
     {
     }
 
@@ -176,7 +183,7 @@ struct InputEvent
     af3d::KeyIdentifier ki;
     bool left;
     af3d::Vector2f point;
-    int delta;
+    std::uint32_t misc;
 };
 
 static std::mutex gInputMtx;
@@ -767,6 +774,26 @@ static void InitKIMap()
     kiMap[VK_OEM_CLEAR] = Rocket::Core::Input::KI_OEM_CLEAR;
 }
 
+static std::uint32_t getModifiersState()
+{
+    std::uint32_t mods = 0;
+
+    if ((::GetKeyState(VK_SHIFT) & 0x8000) != 0) {
+        mods |= Rocket::Core::Input::KM_SHIFT;
+    }
+    if ((::GetKeyState(VK_CONTROL) & 0x8000) != 0) {
+        mods |= Rocket::Core::Input::KM_CTRL;
+    }
+    if ((::GetKeyState(VK_MENU) & 0x8000) != 0) {
+        mods |= Rocket::Core::Input::KM_ALT;
+    }
+    if (((::GetKeyState(VK_RWIN) & 0x8000) != 0) || (::GetKeyState(VK_LWIN) & 0x8000) != 0) {
+        mods |= Rocket::Core::Input::KM_META;
+    }
+
+    return mods;
+}
+
 static LRESULT CALLBACK wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message) {
@@ -775,12 +802,12 @@ static LRESULT CALLBACK wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
         break;
     case WM_KEYDOWN: {
         af3d::ScopedLock lock(gInputMtx);
-        gInputEvents.push_back(InputEvent(kiMap[wParam], false));
+        gInputEvents.push_back(InputEvent(kiMap[wParam], false, getModifiersState()));
         break;
     }
     case WM_KEYUP: {
         af3d::ScopedLock lock(gInputMtx);
-        gInputEvents.push_back(InputEvent(kiMap[wParam], true));
+        gInputEvents.push_back(InputEvent(kiMap[wParam], true, getModifiersState()));
         break;
     }
     case WM_LBUTTONDOWN:
@@ -816,6 +843,12 @@ static LRESULT CALLBACK wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
         return TRUE;
         break;
     }
+    case WM_CHAR:
+        if ((wParam > 0) && (wParam < 0x10000)) {
+            af3d::ScopedLock lock(gInputMtx);
+            gInputEvents.push_back(InputEvent((std::uint16_t)wParam));
+        }
+        break;
     default:
         return DefWindowProcA(hWnd, message, wParam, lParam);
     }
@@ -1137,10 +1170,10 @@ static void gameThread()
              it != tmp.end(); ++it) {
             switch (it->type) {
             case 0:
-                game.keyPress(it->ki, 0);
+                game.keyPress(it->ki, it->misc);
                 break;
             case 1:
-                game.keyRelease(it->ki, 0);
+                game.keyRelease(it->ki, it->misc);
                 break;
             case 2:
                 game.mouseDown(it->left);
@@ -1152,7 +1185,10 @@ static void gameThread()
                 game.mouseMove(it->point);
                 break;
             case 5:
-                game.mouseWheel(it->delta);
+                game.mouseWheel(it->misc);
+                break;
+            case 6:
+                game.textInputUCS2(it->misc);
                 break;
             default:
                 assert(false);
