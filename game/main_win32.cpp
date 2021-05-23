@@ -1325,10 +1325,6 @@ void changeVideoModeInternal()
         return;
     }
 
-    if (!OGLInit(cmVsync)) {
-        return;
-    }
-
     af3d::settings.videoMode = cmVideoMode;
     af3d::settings.msaaMode = cmMsaaMode;
     af3d::settings.vsync = cmVsync;
@@ -1363,6 +1359,10 @@ void changeVideoModeInternal()
             af3d::settings.viewX = 0;
             af3d::settings.viewY = static_cast<float>(vm.height - af3d::settings.viewHeight) / 2.0f;
         }
+    }
+
+    if (!OGLInit(cmVsync)) {
+        return;
     }
 
     ShowWindow(gWnd, SW_SHOW);
