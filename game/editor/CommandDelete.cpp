@@ -198,7 +198,7 @@ namespace af3d { namespace editor
             }
             if (needSelect) {
                 //LOG4CPLUS_DEBUG(logger(), "nested: select " << em->name() << " updated");
-                nested_.push_back(std::make_shared<CommandSelect>(scene(), reinterpret_cast<EditModeImpl*>(em), items));
+                nested_.push_back(std::make_shared<CommandSelect>(scene(), dynamic_cast<EditModeImpl*>(em), items));
             }
         }
     }
