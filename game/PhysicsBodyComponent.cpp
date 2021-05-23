@@ -254,7 +254,9 @@ namespace af3d
         for (int i = 0; i < numShapes(); ++i) {
             compound_->shape()->updateChildTransform(i, shape(i)->transform(), false);
         }
-        calculatePrincipalAxisTransform(&masses[0], principalXf, inertia);
+        if (!masses.empty()) {
+            calculatePrincipalAxisTransform(&masses[0], principalXf, inertia);
+        }
         for (int i = 0; i < numShapes(); ++i) {
             compound_->shape()->updateChildTransform(i, principalXf.inverse() * shape(i)->transform(), i == (numShapes() - 1));
         }
