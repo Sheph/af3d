@@ -206,6 +206,8 @@ if (WIN32)
         set(SOURCES ${SOURCES}
             ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${_CONFIGURATION}/config.ini
         )
+        configure_file(${AF3D_SOURCE_DIR}/lib/win32/OpenAL32.dll ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${_CONFIGURATION}/OpenAL32.dll COPYONLY)
+        configure_file(${AF3D_SOURCE_DIR}/lib/win32/wrap_oal.dll ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${_CONFIGURATION}/wrap_oal.dll COPYONLY)
     endforeach ()
     set(SOURCES ${SOURCES}
         PlatformWin32.cpp
@@ -283,3 +285,11 @@ foreach (_ENTRY ${ALL_LIST})
         endif()
     endif()
 endforeach ()
+
+if (WIN32)
+    install(
+        FILES
+        "${AF3D_SOURCE_DIR}/lib/win32/OpenAL32.dll"
+        "${AF3D_SOURCE_DIR}/lib/win32/wrap_oal.dll"
+        DESTINATION "${INSTALL_OUT_DIR}")
+endif()

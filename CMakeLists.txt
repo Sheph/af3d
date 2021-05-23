@@ -145,7 +145,7 @@ add_definitions(-DROCKET_STATIC_LIB)
 add_definitions(-DASSIMP_BUILD_NO_OWN_ZLIB)
 add_definitions("-DIMGUI_OVERRIDE_DRAWVERT_STRUCT_LAYOUT=struct ImDrawVert{ImVec2 pos\;float posZ\;ImVec2 uv\;ImU32 col\;}")
 
-if (USE_BT_SSE)
+if (USE_BT_SSE AND (NOT WIN32))
     add_definitions(-DUSE_SIMD)
     add_definitions(-DBT_USE_SSE)
     add_definitions(-DBT_USE_SSE_IN_API)
