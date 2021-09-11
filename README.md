@@ -78,6 +78,17 @@ to get back to it someday...
 ### 4. Build for windows
 -------------------
 
+#### Install LFS
+
+This project uses Git Large Files extension. You need to install lfs if it is not already installed.
+Do:
+
+<pre>
+git lfs install
+</pre>
+
+And make sure all large files are downloaded.
+
 #### Install CMake
 
 Download latest stable (not RC) .exe installer at http://www.cmake.org/download/
@@ -108,7 +119,7 @@ C:\Projects\af3d\build_Win32_VS2019\AF3D.sln solution.
 * Set "af3d" project as active project, i.e. right-click "af3d" project and select "Set as StartUp project"
 * Open "af3d" project properties, i.e. right-click "af3d" project and select "Properties"
 * Set "Configuration" to "All Configurations"
-* Go to "Configuration Properties -> Debugging" and change "Working Directory" to $(ProjectDir)..\out\bin\$(Configuration)
+* Go to "Configuration Properties -> Debugging" and change "Working Directory" to $(ProjectDir)..\out\bin\\$(Configuration)
 * Press "Ok"
 
 Now you can build and run the engine in different configurations, i.e. to build in release mode
@@ -136,6 +147,19 @@ af3d.exe probes.af3
 
 ### 5. Build for linux
 -------------------
+
+#### Install LFS
+
+This project uses Git Large Files extension. You need to install lfs if it is not already installed.
+Do:
+
+<pre>
+git lfs install
+</pre>
+
+And make sure all large files are downloaded.
+
+#### Compile and run
 
 Install prerequisites:
 
