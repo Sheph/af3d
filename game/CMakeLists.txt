@@ -1,5 +1,179 @@
+include (CreateSourceGroups)
+
 set(SOURCES
     ${CMAKE_CURRENT_BINARY_DIR}/config.ini.cpp
+    AClass.h
+    AClassRegistry.h
+    ACommand.h
+    AJsonReader.h
+    AJsonSerializer.h
+    AJsonWriter.h
+    AObject.h
+    AParameterized.h
+    AProperty.h
+    APropertyType.h
+    APropertyTypes.h
+    APropertyTypeVisitor.h
+    APropertyValue.h
+    APropertyValueMap.h
+    Asset.h
+    AssetManager.h
+    AssetModel.h
+    AssetTexture.h
+    AssimpIOStream.h
+    AssimpIOSystem.h
+    AssimpLogStream.h
+    AssimpMeshLoader.h
+    AWeakObject.h
+    BoxMeshGenerator.h
+    CameraComponent.h
+    CameraFilter.h
+    Camera.h
+    CameraLayer.h
+    CameraRenderer.h
+    CameraUsageComponent.h
+    CollisionComponent.h
+    CollisionComponentManager.h
+    CollisionFilter.h
+    CollisionMatrix.h
+    CollisionSensorComponent.h
+    CollisionShapeBox.h
+    CollisionShapeCapsule.h
+    CollisionShapeCompound.h
+    CollisionShapeCone.h
+    CollisionShapeConvexMesh.h
+    CollisionShapeCylinder.h
+    CollisionShape.h
+    CollisionShapePlane.h
+    CollisionShapeSphere.h
+    CollisionShapeStaticMesh.h
+    Component.h
+    ComponentManager.h
+    Const.h
+    DirectionalLight.h
+    Drawable.h
+    DummyShell.h
+    Equirect2CubeComponent.h
+    FPComponent.h
+    Game.h
+    GameLogAppender.h
+    GameShell.h
+    HardwareBuffer.h
+    HardwareContext.h
+    HardwareDataBuffer.h
+    HardwareFramebuffer.h
+    HardwareIndexBuffer.h
+    HardwareMRT.h
+    HardwareProgram.h
+    HardwareRenderbuffer.h
+    HardwareRenderTarget.h
+    HardwareResource.h
+    HardwareResourceManager.h
+    HardwareSampler.h
+    HardwareShader.h
+    HardwareTexture.h
+    HardwareVertexArray.h
+    Image.h
+    ImGuiComponent.h
+    ImGuiFileDialog.h
+    ImGuiManager.h
+    ImGuiUtils.h
+    InputGamepad.h
+    InputKeyboard.h
+    InputManager.h
+    InputMouse.h
+    Joint6DOF.h
+    JointConeTwist.h
+    Joint.h
+    JointHinge.h
+    JointPointToPoint.h
+    JointSlider.h
+    Layer.h
+    Level.h
+    Light.h
+    LightProbeComponent.h
+    Logger.h
+    Material.h
+    MaterialManager.h
+    MaterialType.h
+    Mesh.h
+    MeshImportComponent.h
+    MeshImportSettings.h
+    MeshManager.h
+    MotionState.h
+    OGL.h
+    PhasedComponent.h
+    PhasedComponentManager.h
+    PhysicsBodyComponent.h
+    PhysicsComponent.h
+    PhysicsComponentManager.h
+    PhysicsDebugDraw.h
+    PhysicsJointComponent.h
+    Platform.h
+    PlatformLinux.h
+    PlatformWin32.h
+    PointLight.h
+    RenderAxesComponent.h
+    RenderCollisionShapeComponent.h
+    RenderComponent.h
+    RenderComponentManager.h
+    Renderer.h
+    RenderFilterComponent.h
+    RenderGizmoAxesComponent.h
+    RenderGizmoRotateComponent.h
+    RenderGridComponent.h
+    RenderJointComponent.h
+    RenderList.h
+    RenderMeshComponent.h
+    RenderNode.h
+    RenderPassCluster.h
+    RenderPassCSM.h
+    RenderPassGeometry.h
+    RenderPass.h
+    RenderPassPrepass.h
+    RenderProxyComponent.h
+    RenderQuadComponent.h
+    RenderSkyBoxComponent.h
+    RenderTarget.h
+    Resource.h
+    ResourceManager.h
+    SceneAsset.h
+    SceneEnvironment.h
+    Scene.h
+    SceneObjectFactory.h
+    SceneObject.h
+    SceneObjectManager.h
+    ScriptCollisionComponent.h
+    ScriptComponent.h
+    ScriptConverters.h
+    Script.h
+    ScriptImpl.h
+    ScriptSensorListener.h
+    ScriptUITimerComponent.h
+    SensorListener.h
+    SequentialTweening.h
+    Settings.h
+    ShaderDataTypes.h
+    ShadowManager.h
+    ShadowMapCSM.h
+    ShadowMap.h
+    SingleTweening.h
+    SpotLight.h
+    SSAOComponent.h
+    SubMesh.h
+    TAAComponent.h
+    Texture.h
+    TextureManager.h
+    TVComponent.h
+    Tweening.h
+    UIComponent.h
+    UIComponentManager.h
+    UITimerComponent.h
+    Utils.h
+    VertexArray.h
+    VertexArrayLayout.h
+    VertexArraySlice.h
+    VertexArrayWriter.h
     Component.cpp
     RenderMeshComponent.cpp
     RenderComponentManager.cpp
@@ -147,7 +321,46 @@ set(SOURCES
     TAAComponent.cpp
     SSAOComponent.cpp
     ShadowManager.cpp
-    ShadowMapCSM.cpp
+    ShadowMapCSM.cpp        
+    editor/Action.h
+    editor/CollisionMatrixEditor.h
+    editor/CommandAdd.h
+    editor/CommandDelete.h
+    editor/CommandDup.h
+    editor/Command.h
+    editor/CommandHistory.h
+    editor/CommandHistoryWindow.h
+    editor/CommandSelect.h
+    editor/CommandSetProperty.h
+    editor/EditModeCollision.h
+    editor/EditModeCollisionImpl.h
+    editor/EditMode.h
+    editor/EditModeImpl.h
+    editor/EditModeJoint.h
+    editor/EditModeJointImpl.h
+    editor/EditModeLight.h
+    editor/EditModeLightImpl.h
+    editor/EditModeObject.h
+    editor/EditModeObjectImpl.h
+    editor/EditModeScene.h
+    editor/EditModeSceneImpl.h
+    editor/EditModeVisual.h
+    editor/EditModeVisualImpl.h
+    editor/EditPart.h
+    editor/EditPartTransform.h
+    editor/JsonSerializer.h
+    editor/MainPopup.h
+    editor/ObjectComponent.h
+    editor/Playbar.h
+    editor/PropertyEditor.h
+    editor/Toolbox.h
+    editor/ToolGizmo.h
+    editor/Tool.h
+    editor/ToolMove.h
+    editor/ToolRotate.h
+    editor/ToolScale.h
+    editor/ToolSelect.h
+    editor/Workspace.h   
     editor/Action.cpp
     editor/Workspace.cpp
     editor/MainPopup.cpp
@@ -180,6 +393,8 @@ set(SOURCES
     editor/EditPartTransform.cpp
     editor/CollisionMatrixEditor.cpp
 )
+
+create_source_groups(FILE_PREFIX "${AF3D_SOURCE_DIR}" FILES ${SOURCES})
 
 include_directories(.)
 

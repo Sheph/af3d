@@ -18,6 +18,7 @@ set(SOURCES
     FBXTextureTemplateBuilder.cpp
     TPS.cpp
     Ray.cpp
+    Logger.h
 )
 
 add_library(af3dutil STATIC ${SOURCES})

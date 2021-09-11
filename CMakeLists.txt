@@ -22,6 +22,8 @@ project(AF3D)
 enable_language(ASM)
 include(CheckTypeSize)
 
+set(CMAKE_MODULE_PATH "${AF3D_SOURCE_DIR}/CMake")
+
 #platform setup
 
 if (WIN32)
