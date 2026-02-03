@@ -255,6 +255,22 @@ namespace af3d
         return obj;
     }
 
+    SceneObjectPtr SceneObjectFactory::createMeshObject(const std::string& meshPath, const btVector3& scale)
+    {
+        auto mesh = meshManager.loadMesh(meshPath);
+        if (!mesh) {
+            return std::make_shared<SceneObject>();
+        }
+
+        auto obj = std::make_shared<SceneObject>();
+        auto rc = std::make_shared<RenderMeshComponent>();
+        rc->setMesh(mesh);
+        rc->setScale(scale);
+        obj->addComponent(rc);
+
+        return obj;
+    }
+
     SCENEOBJECT_DEFINE_BEGIN(Dummy)
     {
         return sceneObjectFactory.createDummy();

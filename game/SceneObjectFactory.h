@@ -62,6 +62,8 @@ namespace af3d
         SceneObjectPtr createLightProbe(const AABB& bounds, bool spherical, const Color& ambientColor, const Color& specularColor);
 
         SceneObjectPtr createSkyBox(const std::string& texturePath);
+
+        SceneObjectPtr createMeshObject(const std::string& meshPath, const btVector3& scale = btVector3_one);
     };
 
     extern SceneObjectFactory sceneObjectFactory;

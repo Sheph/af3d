@@ -133,7 +133,21 @@ namespace af3d
                     enum_value("GamepadButtonB", GamepadButton::B),
                     enum_value("GamepadButtonX", GamepadButton::X),
                     enum_value("GamepadButtonY", GamepadButton::Y),
-                    enum_value("GamepadButtonMax", GamepadButton::Max)
+                    enum_value("GamepadButtonMax", GamepadButton::Max),
+
+                    luabind::value("KI_SPACE", KI_SPACE),
+                    luabind::value("KI_RETURN", KI_RETURN),
+                    luabind::value("KI_ESCAPE", KI_ESCAPE),
+                    luabind::value("KI_UP", KI_UP),
+                    luabind::value("KI_DOWN", KI_DOWN),
+                    luabind::value("KI_LEFT", KI_LEFT),
+                    luabind::value("KI_RIGHT", KI_RIGHT),
+                    luabind::value("KI_W", KI_W),
+                    luabind::value("KI_A", KI_A),
+                    luabind::value("KI_S", KI_S),
+                    luabind::value("KI_D", KI_D),
+                    luabind::value("KI_R", KI_R),
+                    luabind::value("KI_P", KI_P)
                     #undef enum_value
                 ],
 
@@ -244,7 +258,10 @@ namespace af3d
                 .property("timeScale", &Scene::timeScale, &Scene::setTimeScale),
 
             luabind::class_<SceneObjectFactory>("SceneObjectFactory")
-                .def("createDummy", &SceneObjectFactory::createDummy),
+                .def("createDummy", &SceneObjectFactory::createDummy)
+                .def("createMeshObject", &SceneObjectFactory::createMeshObject)
+                .def("createColoredBox", &SceneObjectFactory::createColoredBox)
+                .def("createSensor", &SceneObjectFactory::createSensor),
 
             luabind::class_<Component, AObject, AObjectPtr>("Component")
                 .def(luabind::const_self == luabind::const_self)
@@ -324,7 +341,18 @@ namespace af3d
                 .def(luabind::constructor<bool>())
                 .def("addTweening", &SequentialTweening::addTweening),
 
-            luabind::class_<PhysicsBodyComponent, PhysicsComponent, AObjectPtr>("PhysicsBodyComponent"),
+            luabind::class_<CollisionShape, AObject, AObjectPtr>("CollisionShape")
+                .property("mass", &CollisionShape::mass, &CollisionShape::setMass),
+
+            luabind::class_<CollisionShapeBox, CollisionShape, AObjectPtr>("CollisionShapeBox")
+                .def(luabind::constructor<const btVector3&>()),
+
+            luabind::class_<CollisionShapeSphere, CollisionShape, AObjectPtr>("CollisionShapeSphere")
+                .def(luabind::constructor<float>()),
+
+            luabind::class_<PhysicsBodyComponent, PhysicsComponent, AObjectPtr>("PhysicsBodyComponent")
+                .def(luabind::constructor<>())
+                .def("addShape", &PhysicsBodyComponent::addShape),
 
             luabind::class_<Drawable, DrawablePtr>("Drawable"),
 
@@ -344,8 +372,13 @@ namespace af3d
                 .property("triggerDeadzone", &InputGamepad::triggerDeadzone, &InputGamepad::setTriggerDeadzone)
                 .def("triggered", &InputGamepad::triggered),
 
+            luabind::class_<InputKeyboard>("InputKeyboard")
+                .def("pressed", (bool (InputKeyboard::*)(KeyIdentifier) const)&InputKeyboard::pressed)
+                .def("triggered", (bool (InputKeyboard::*)(KeyIdentifier) const)&InputKeyboard::triggered),
+
             luabind::class_<InputManager>("InputManager")
                 .property("gamepad", &InputManager::gamepad)
+                .property("keyboard", &InputManager::keyboard)
                 .property("usingGamepad", &InputManager::usingGamepad)
         ];
 #endif

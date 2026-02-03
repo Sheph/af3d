@@ -36,6 +36,8 @@
 #include "ScriptUITimerComponent.h"
 #include "PhysicsBodyComponent.h"
 #include "CollisionSensorComponent.h"
+#include "CollisionShapeBox.h"
+#include "CollisionShapeSphere.h"
 #include "ScriptCollisionComponent.h"
 #include "ScriptSensorListener.h"
 #include "InputManager.h"

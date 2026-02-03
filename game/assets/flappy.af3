@@ -1,0 +1,121 @@
+[
+  {
+    "class": "SceneAsset",
+    "id": 1,
+    "name": "",
+    "ambient color": [0.3, 0.3, 0.4, 1.0],
+    "clear color": [0.4, 0.6, 0.9, 1.0],
+    "camera transform": [0.0, 5.0, 25.0, 0.0, 0.0, 0.0, 1.0],
+    "gravity": [0.0, -20.0, 0.0],
+    "root": 0,
+    "collision matrix": 2,
+    "script": "flappy.lua",
+    "children": [3, 4, 5]
+  },
+  {
+    "class": "CollisionMatrix",
+    "id": 2,
+    "name": "default.cm"
+  },
+  {
+    "class": "SceneObject",
+    "id": 3,
+    "name": "light",
+    "world transform": [0.0, 10.0, 10.0, -0.2, 0.1, 0.0, 0.97],
+    "children": [6]
+  },
+  {
+    "class": "SceneObject",
+    "id": 4,
+    "name": "bird",
+    "world transform": [-8.0, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0],
+    "body type": 2,
+    "linear damping": 0.0,
+    "angular damping": 0.5,
+    "friction": 0.5,
+    "restitution": 0.0,
+    "gravity enabled": true,
+    "physics active": true,
+    "children": [7, 8]
+  },
+  {
+    "class": "SceneObject",
+    "id": 5,
+    "name": "ground",
+    "world transform": [0.0, -5.0, 0.0, 0.0, 0.0, 0.0, 1.0],
+    "body type": 0,
+    "children": [9, 10]
+  },
+  {
+    "class": "DirectionalLight",
+    "id": 6,
+    "name": "",
+    "visible": true,
+    "color": [1.0, 0.95, 0.8, 1.0],
+    "intensity": 1.0,
+    "local transform": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+  },
+  {
+    "class": "RenderMeshComponent",
+    "id": 7,
+    "name": "",
+    "mesh": 11,
+    "visible": true,
+    "scale": [0.5, 0.5, 0.5],
+    "local transform": [0.0, 0.0, 0.0, 0.0, 0.7071, 0.0, 0.7071]
+  },
+  {
+    "class": "PhysicsBodyComponent",
+    "id": 8,
+    "name": "",
+    "children": [12]
+  },
+  {
+    "class": "RenderMeshComponent",
+    "id": 9,
+    "name": "",
+    "mesh": 13,
+    "visible": true,
+    "scale": [50.0, 1.0, 10.0],
+    "local transform": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+  },
+  {
+    "class": "PhysicsBodyComponent",
+    "id": 10,
+    "name": "",
+    "children": [14]
+  },
+  {
+    "class": "Mesh",
+    "id": 11,
+    "name": "muro.fbx"
+  },
+  {
+    "class": "CollisionShapeSphere",
+    "id": 12,
+    "name": "",
+    "mass": 1.0,
+    "local transform": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0],
+    "scale": [1.0, 1.0, 1.0],
+    "radius": 0.8
+  },
+  {
+    "class": "Mesh",
+    "id": 13,
+    "name": "cube.fbx"
+  },
+  {
+    "class": "CollisionShapeBox",
+    "id": 14,
+    "name": "",
+    "mass": 0.0,
+    "local transform": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0],
+    "scale": [1.0, 1.0, 1.0],
+    "size": [50.0, 1.0, 10.0]
+  },
+  {
+    "class": "Mesh",
+    "id": 15,
+    "name": "Low-Poly Plant_.fbx"
+  }
+]
